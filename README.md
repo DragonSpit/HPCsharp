@@ -8,7 +8,7 @@ High performance parallel versions of the standard C# Array and List algorithms 
 - List.SequenceEquals() 4-10X faster
 
 For a more detailed description see the blog:
-https://duvanenko.tech.blog/2018/02/12/parallel-algorithms-in-c/
+https://duvanenko.tech.blog/2018/02/19/c-base-parallel-algorithms/
 
 For additional algorithms visit:
 https://foostate.com/
