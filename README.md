@@ -6,7 +6,14 @@ High performance versions of the standard C# Array and List algorithms provided 
 
 - Array.SequenceEqual() 4-11X faster on quad-core CPU.
 - List.SequenceEqual()  4-11X faster
-- More to come shortly...
+- Expanded interface on SequenceEqual to allow a sub-range of array or List to be compared
+- More standard C# algorithms to come shortly...
+
+Additional algorithms:
+
+- Insertion Sort for array and List (for fastest sorting of very small arrays or Lists)
+- Merge of two pre-sorted arrays or Lists
+- More to come...
 
 See HPCsharpExample folder in this repo for usage examples - a complete VisualStudio 2017 solution provided.
 
