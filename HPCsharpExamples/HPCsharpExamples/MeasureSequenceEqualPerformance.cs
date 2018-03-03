@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
-using FooState;
+using HPCsharp;
 
 namespace HPCsharpExamples
 {
@@ -28,22 +28,14 @@ namespace HPCsharpExamples
             long nanosecPerTick = (1000L * 1000L * 1000L) / frequency;
 
             stopwatch.Restart();
-            bool equalParallel = benchArrayOne.FsParSequenceEqual(benchArrayTwo);
-            stopwatch.Stop();
-            double timeForParallelEqual = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
-            stopwatch.Restart();
             bool equal = benchArrayOne.SequenceEqual(benchArrayTwo);
             stopwatch.Stop();
             double timeForCsharpEqual = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
-            Console.WriteLine("C# array equal {0}, Parallel equal {1} speedup {2:0.00}",
-                               timeForCsharpEqual, timeForParallelEqual, timeForCsharpEqual / timeForParallelEqual);
-
-            // Measure parallel array equality speedup
             stopwatch.Restart();
-            bool equalSequencial = benchArrayOne.FsSeqSequenceEqual(benchArrayTwo);
+            bool equalSequencial = benchArrayOne.HpcSequenceEqual(benchArrayTwo);
             stopwatch.Stop();
             double timeForSequentialEqual = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
-            Console.WriteLine("C# array equal {0}, Sequential equal {1} speedup {2:0.00}",
+            Console.WriteLine("C# array of size {0}: equal {1:0.000} sec, Sequential equal {2:0.000} sec, speedup {3:0.00}", arraySize,
                                timeForCsharpEqual, timeForSequentialEqual, timeForCsharpEqual / timeForSequentialEqual);
         }
 
@@ -65,22 +57,14 @@ namespace HPCsharpExamples
             long nanosecPerTick = (1000L * 1000L * 1000L) / frequency;
 
             stopwatch.Restart();
-            bool equalParallel = benchListOne.FsParSequenceEqual(benchListTwo);
-            stopwatch.Stop();
-            double timeForParallelEqual = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
-            stopwatch.Restart();
             bool equal = benchListOne.SequenceEqual(benchListTwo);
             stopwatch.Stop();
             double timeForCsharpEqual = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
-            Console.WriteLine("C# List equal {0}, Parallel equal {1} speedup {2:0.00}",
-                                timeForCsharpEqual, timeForParallelEqual, timeForCsharpEqual / timeForParallelEqual);
-
-            // Measure parallel array equality speedup
             stopwatch.Restart();
-            bool equalSequencial = benchListOne.FsSeqSequenceEqual(benchListTwo);
+            bool equalSequencial = benchListOne.HpcSequenceEqual(benchListTwo);
             stopwatch.Stop();
             double timeForSequentialEqual = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
-            Console.WriteLine("C# List equal {0}, Sequential equal {1} speedup {2:0.00}",
+            Console.WriteLine("C# List  of size {0}: equal {1:0.000} sec, Sequential equal {2:0.000} sec, speedup {3:0.00}", ListSize,
                                 timeForCsharpEqual, timeForSequentialEqual, timeForCsharpEqual / timeForSequentialEqual);
         }
     }
