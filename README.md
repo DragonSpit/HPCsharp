@@ -1,23 +1,24 @@
 # High Performance Computing in C# (HPC#)
 
-C#/.NET high performance parallel and sequential algorithms.
+High performance C#/.NET algorithms complimenting Linq. Gives developers the ability to easily trade-off between performance and the appropriate level of abstraction.
+Lowering the level of abstraction results in higher performance. Open source.
 
-High performance versions of the standard C# Array and List algorithms provided by "using System.Linq". Version 1.0 includes the following:
+Version 1.0 includes the following:
 
-- Array.SequenceEqual() 4-11X faster on quad-core CPU.
-- List.SequenceEqual()  4-11X faster
-- Expanded interface on SequenceEqual to allow a sub-range of array or List to be compared
+- Array and List.SequenceEqual() 4X faster
+- Array and List.Min() ?X faster
+- Expanded interface to allow a sub-range of array or List to be compared
 - More standard C# algorithms to come shortly...
 
 Additional algorithms:
 
-- Insertion Sort for array and List (for fastest sorting of very small arrays or Lists)
+- Insertion Sort for array and List (for fast sorting of very small arrays or Lists in-place)
 - Merge of two pre-sorted arrays or Lists
 - More to come...
 
 See HPCsharpExample folder in this repo for usage examples - a complete VisualStudio 2017 solution provided.
 
-For a more detailed description see the blog:
+For more details on the motivation see blog:
 https://duvanenko.tech.blog/2018/02/19/c-base-parallel-algorithms/
 
 For additional algorithms visit:
