@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Authors>Victor J. Duvanenko</Authors>
+    <Company>FooState</Company>
+    <Product>HPCsharp</Product>
+    <Description>High Performance Computing in C# (HPC#). Higher performance parallel and non-parallel versions of the standard C# Array and List algorithms provided by Linq. Plus, additional algorithms.
+Array.SequenceEquals() 4-11X faster on quad-core CPU.
+List.SequenceEquals() 4-11X faster</Description>
+    <Copyright>© 2018 FooState</Copyright>
+    <PackageLicenseUrl>https://github.com/DragonSpit/HPCsharp/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageReleaseNotes>Initial release, Version 1.0</PackageReleaseNotes>
+    <PackageId>HPCsharp</PackageId>
+    <PackageTags>parallel algorithms, C#, high performance, high performance computing, HPC, algorithm, algorithms, multi-core, parallel computing, parallel, parallel algorithms</PackageTags>
+    <PackageIconUrl>https://foostate.com/images/default_lib_icon_64.png</PackageIconUrl>
+    <RepositoryType>GitHub</RepositoryType>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <PackageProjectUrl>https://github.com/DragonSpit/HPCsharp</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/DragonSpit/HPCsharp</RepositoryUrl>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <AssemblyVersion>1.0.4.0</AssemblyVersion>
+    <FileVersion>1.0.4.0</FileVersion>
+    <Version>1.0.4</Version>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>bin\Release\netstandard2.0\HPCsharp.xml</DocumentationFile>
+  </PropertyGroup>
+
+</Project>
