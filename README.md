@@ -7,13 +7,14 @@ Version 1.0 includes the following:
 
 - Array and List.SequenceEqual() 4X faster
 - Array and List.Min() 1.5-2.5X faster
+- Array and List.Max() 1.5-2.5X faster
 - Expanded interface to allow a sub-range of array or List to be compared
 - More standard C# algorithms to come shortly...
 
 Additional algorithms:
 
-- Insertion Sort for array and List (for fast sorting of very small arrays or Lists in-place)
-- Merge of two pre-sorted arrays or Lists
+- Insertion Sort for Array and List (for fast sorting of very small arrays or Lists in-place)
+- Merge of two pre-sorted Arrays or Lists
 - More to come...
 
 See HPCsharpExample folder in this repo for usage examples - a complete VisualStudio 2017 solution provided.

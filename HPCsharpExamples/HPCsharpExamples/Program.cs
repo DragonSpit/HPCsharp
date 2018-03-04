@@ -53,17 +53,30 @@ namespace HPCsharpExamples
             minHpc  = listOne.HpcMin();
             Console.WriteLine("Check List  Min: {0} {1}", minLinq, minHpc);
 
+            // Array Max
+            int maxLinq = arrayOne.Max();
+            int maxHpc  = arrayOne.HpcMax();
+            Console.WriteLine("Check array Max: {0} {1}", maxLinq, maxHpc);
+
+            // List Min
+            maxLinq = listOne.Max();
+            maxHpc  = listOne.HpcMax();
+            Console.WriteLine("Check List  Max: {0} {1}", maxLinq, maxHpc);
+
             // Measure array.SequenceEqual speedup
             EqualMeasureArraySpeedup();
-
             // Measure List.SequenceEqual speedup
             EqualMeasureListSpeedup();
 
             // Measure array.Min speedup
             MinMeasureArraySpeedup();
-
             // Measure List.Min speedup
             MinMeasureListSpeedup();
+
+            // Measure array.Max speedup
+            MaxMeasureArraySpeedup();
+            // Measure List.Max speedup
+            MaxMeasureListSpeedup();
         }
     }
 }
