@@ -20,7 +20,7 @@ Additional algorithms:
 See HPCsharpExample folder in this repo for usage examples - a complete VisualStudio 2017 solution provided.
 
 For more details on the motivation see blog:
-https://duvanenko.tech.blog/2018/02/19/c-base-parallel-algorithms/
+https://duvanenko.tech.blog/2018/03/03/high-performance-c/
 
 For additional algorithms visit:
 https://foostate.com/
