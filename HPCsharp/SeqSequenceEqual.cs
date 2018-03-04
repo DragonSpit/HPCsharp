@@ -27,7 +27,7 @@ namespace HPCsharp
         ///     optional comparer, which returns an integer (-1, 0, 1) to indicate less than, equal to, or greater than
         ///
         /// Type parameters:
-        ///   T:
+        ///   TSource:
         ///     The type of the elements of the input sequences.
         ///
         /// Returns:
@@ -36,10 +36,10 @@ namespace HPCsharp
         ///     otherwise, false.
         ///
         /// Exceptions:
-        ///   T:System.ArgumentNullException: first or second is null.
-        ///   T:System.ArgumentOutOfRangeException: if l or r is not inside the array bounds
+        ///   TSource:System.ArgumentNullException: first or second is null.
+        ///   TSource:System.ArgumentOutOfRangeException: if l or r is not inside the array bounds
         /// </summary>
-        public static bool HpcSequenceEqual<T>(this T[] first, T[] second, Int32 l, Int32 r, Comparer<T> comparer = null)
+        public static bool HpcSequenceEqual<TSource>(this TSource[] first, TSource[] second, Int32 l, Int32 r)
         {
             // Performance lesson: Changing the interface to IEnumerable hugely reduces performance, to the point of parallelism not being worthwhile
             if (first == null || second == null)
@@ -49,7 +49,7 @@ namespace HPCsharp
             if (!(l >= 0 && r < first.Length && r >= 0 && r < second.Length))
                 throw new System.ArgumentOutOfRangeException();
 
-            var equalityComparer = comparer ?? Comparer<T>.Default;
+            var equalityComparer = Comparer<TSource>.Default;
             for (Int32 i = l; i <= r; i++)     // inclusive of l and r
             {
                 if (equalityComparer.Compare(first[i], second[i]) != 0)
@@ -70,7 +70,7 @@ namespace HPCsharp
         ///     An array to compare to the first sequence.
         ///
         /// Type parameters:
-        ///   T:
+        ///   TSource:
         ///     The type of the elements of the input sequences.
         ///
         /// Returns:
@@ -79,9 +79,9 @@ namespace HPCsharp
         ///     otherwise, false.
         ///
         /// Exceptions:
-        ///   T:System.ArgumentNullException: first or second is null.
+        ///   TSource:System.ArgumentNullException: first or second is null.
         /// </summary>
-        public static bool HpcSequenceEqual<T>(this T[] first, T[] second, Comparer<T> comparer = null)
+        public static bool HpcSequenceEqual<TSource>(this TSource[] first, TSource[] second)
         {
             // Performance lesson: Changing the interface to IEnumerable hugely reduces performance, to the point of parallelism not being worthwhile
             if (first == null || second == null)
@@ -89,7 +89,7 @@ namespace HPCsharp
             if (first.Length != second.Length)
                 return false;
 
-            var equalityComparer = comparer ?? Comparer<T>.Default;
+            var equalityComparer = Comparer<TSource>.Default;
             for (Int32 i = 0; i < first.Length; i++)
             {
                 if (equalityComparer.Compare(first[i], second[i]) != 0)
@@ -119,7 +119,7 @@ namespace HPCsharp
         ///     optional comparer, which returns an integer (-1, 0, 1) to indicate less than, equal to, or greater than
         ///
         /// Type parameters:
-        ///   T:
+        ///   TSource:
         ///     The type of the elements of the input sequences.
         ///
         /// Returns:
@@ -128,10 +128,10 @@ namespace HPCsharp
         ///     otherwise, false.
         ///
         /// Exceptions:
-        ///   T:System.ArgumentNullException: first or second is null.
-        ///   T:System.ArgumentOutOfRangeException: if l or r is not inside the array bounds
+        ///   TSource:System.ArgumentNullException: first or second is null.
+        ///   TSource:System.ArgumentOutOfRangeException: if l or r is not inside the array bounds
         /// </summary>
-        public static bool HpcSequenceEqual<T>(this List<T> first, List<T> second, Int32 l, Int32 r, Comparer<T> comparer = null)
+        public static bool HpcSequenceEqual<TSource>(this List<TSource> first, List<TSource> second, Int32 l, Int32 r)
         {
             // Performance lesson: Changing the interface to IEnumerable hugely reduces performance, to the point of parallelism not being worthwhile
             if (first == null || second == null)
@@ -139,7 +139,7 @@ namespace HPCsharp
             if (!(l >= 0 && r < first.Count && r >= 0 && r < second.Count))
                 throw new System.ArgumentOutOfRangeException();
 
-            var equalityComparer = comparer ?? Comparer<T>.Default;
+            var equalityComparer = Comparer<TSource>.Default;
             for (Int32 i = l; i <= r; i++)     // inclusive of l and r
             {
                 if (equalityComparer.Compare(first[i], second[i]) != 0)
@@ -160,7 +160,7 @@ namespace HPCsharp
         ///     A list to compare to the first sequence.
         ///
         /// Type parameters:
-        ///   T:
+        ///   TSource:
         ///     The type of the elements of the input sequences.
         ///
         /// Returns:
@@ -169,9 +169,9 @@ namespace HPCsharp
         ///     otherwise, false.
         ///
         /// Exceptions:
-        ///   T:System.ArgumentNullException: first or second is null.
+        ///   TSource:System.ArgumentNullException: first or second is null.
         /// </summary>
-        public static bool HpcSequenceEqual<T>(this List<T> first, List<T> second, Comparer<T> comparer = null)
+        public static bool HpcSequenceEqual<TSource>(this List<TSource> first, List<TSource> second)
         {
             // Performance lesson: Changing the interface to IEnumerable hugely reduces performance, to the point of parallelism not being worthwhile
             if (first == null || second == null)
@@ -179,7 +179,7 @@ namespace HPCsharp
             if (first.Count != second.Count)
                 return false;
 
-            var equalityComparer = comparer ?? Comparer<T>.Default;
+            var equalityComparer = Comparer<TSource>.Default;
             for (Int32 i = 0; i < first.Count; i++)
             {
                 if (equalityComparer.Compare(first[i], second[i]) != 0)

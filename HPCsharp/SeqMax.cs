@@ -24,7 +24,7 @@ namespace HPCsharp
         ///     optional comparer, which returns an integer (-1, 0, 1) to indicate less than, equal to, or greater than
         ///
         /// Type parameters:
-        ///   T:
+        ///   TSource:
         ///     The type of the elements of the input sequences.
         ///
         /// Returns:
@@ -32,10 +32,10 @@ namespace HPCsharp
         ///     according to the default equality comparer for their type;
         ///
         /// Exceptions:
-        ///   T:System.ArgumentNullException: if array is null.
-        ///   T:System.ArgumentOutOfRangeException: if l or r is not inside the array bounds
+        ///   TSource:System.ArgumentNullException: if array is null.
+        ///   TSource:System.ArgumentOutOfRangeException: if l or r is not inside the array bounds
         /// </summary>
-        public static T HpcMax<T>(this T[] a, Int32 l, Int32 r, Comparer<T> comparer = null)
+        public static TSource HpcMax<TSource>(this TSource[] a, Int32 l, Int32 r)
         {
             if (a == null)
                 throw new System.ArgumentNullException();
@@ -44,14 +44,14 @@ namespace HPCsharp
             if (!(l >= 0 && r < a.Length))
                 throw new System.ArgumentOutOfRangeException();
 
-            var equalityComparer = comparer ?? Comparer<T>.Default;
-            T currMin = a[l];
+            var equalityComparer = Comparer<TSource>.Default;
+            TSource currMax = a[l];
             for (Int32 i = l + 1; i <= r; i++)     // inclusive of l and r
             {
-                if (equalityComparer.Compare(currMin, a[i]) < 0)
-                    currMin = a[i];
+                if (equalityComparer.Compare(currMax, a[i]) < 0)
+                    currMax = a[i];
             }
-            return currMin;
+            return currMax;
         }
         /// <summary>
         /// Summary:
@@ -63,7 +63,7 @@ namespace HPCsharp
         ///     An array to find the minimum element of.
         ///
         /// Type parameters:
-        ///   T:
+        ///   TSource:
         ///     The type of the elements of the input sequences.
         ///
         /// Returns:
@@ -71,21 +71,21 @@ namespace HPCsharp
         ///     according to the default equality comparer for their type;
         ///
         /// Exceptions:
-        ///   T:System.ArgumentNullException: if array is null.
+        ///   TSource:System.ArgumentNullException: if array is null.
         /// </summary>
-        public static T HpcMax<T>(this T[] a, Comparer<T> comparer = null)
+        public static TSource HpcMax<TSource>(this TSource[] a)
         {
             if (a == null)
                 throw new System.ArgumentNullException();
 
-            var equalityComparer = comparer ?? Comparer<T>.Default;
-            T currMin = a[0];
+            var equalityComparer = Comparer<TSource>.Default;
+            TSource currMax = a[0];
             for (Int32 i = 1; i < a.Length; i++)
             {
-                if (equalityComparer.Compare(currMin, a[i]) < 0)
-                    currMin = a[i];
+                if (equalityComparer.Compare(currMax, a[i]) < 0)
+                    currMax = a[i];
             }
-            return currMin;
+            return currMax;
         }
         /// <summary>
         /// Summary:
@@ -106,7 +106,7 @@ namespace HPCsharp
         ///     optional comparer, which returns an integer (-1, 0, 1) to indicate less than, equal to, or greater than
         ///
         /// Type parameters:
-        ///   T:
+        ///   TSource:
         ///     The type of the elements of the input sequences.
         ///
         /// Returns:
@@ -114,24 +114,24 @@ namespace HPCsharp
         ///     according to the default equality comparer for their type;
         ///
         /// Exceptions:
-        ///   T:System.ArgumentNullException: if List is null.
-        ///   T:System.ArgumentOutOfRangeException: if l or r is not inside the array bounds
+        ///   TSource:System.ArgumentNullException: if List is null.
+        ///   TSource:System.ArgumentOutOfRangeException: if l or r is not inside the array bounds
         /// </summary>
-        public static T HpcMax<T>(this List<T> a, Int32 l, Int32 r, Comparer<T> comparer = null)
+        public static TSource HpcMax<TSource>(this List<TSource> a, Int32 l, Int32 r)
         {
             if (a == null)
                 throw new System.ArgumentNullException();
             if (!(l >= 0 && r < a.Count))
                 throw new System.ArgumentOutOfRangeException();
 
-            var equalityComparer = comparer ?? Comparer<T>.Default;
-            T currMin = a[l];
+            var equalityComparer = Comparer<TSource>.Default;
+            TSource currMax = a[l];
             for (Int32 i = l + 1; i <= r; i++)     // inclusive of l and r
             {
-                if (equalityComparer.Compare(currMin, a[i]) < 0)
-                    currMin = a[i];
+                if (equalityComparer.Compare(currMax, a[i]) < 0)
+                    currMax = a[i];
             }
-            return currMin;
+            return currMax;
         }
         /// <summary>
         /// Summary:
@@ -143,7 +143,7 @@ namespace HPCsharp
         ///     A List to find the minimum element of.
         ///
         /// Type parameters:
-        ///   T:
+        ///   TSource:
         ///     The type of the elements of the input sequences.
         ///
         /// Returns:
@@ -151,21 +151,21 @@ namespace HPCsharp
         ///     according to the default equality comparer for their type;
         ///
         /// Exceptions:
-        ///   T:System.ArgumentNullException: if List is null.
+        ///   TSource:System.ArgumentNullException: if List is null.
         /// </summary>
-        public static T HpcMax<T>(this List<T> a, Comparer<T> comparer = null)
+        public static TSource HpcMax<TSource>(this List<TSource> a)
         {
             if (a == null)
                 throw new System.ArgumentNullException();
 
-            var equalityComparer = comparer ?? Comparer<T>.Default;
-            T currMin = a[0];
+            var equalityComparer = Comparer<TSource>.Default;
+            TSource currMax = a[0];
             for (Int32 i = 1; i < a.Count; i++)
             {
-                if (equalityComparer.Compare(currMin, a[i]) < 0)
-                    currMin = a[i];
+                if (equalityComparer.Compare(currMax, a[i]) < 0)
+                    currMax = a[i];
             }
-            return currMin;
+            return currMax;
         }
     }
 }
