@@ -11,7 +11,7 @@ Version 1.0 includes the following:
 - Expanded interface to allow a sub-range of array or List to be compared
 - More standard C# algorithms to come shortly...
 
-Additional algorithms:
+Additional included algorithms:
 
 - Insertion Sort for Array and List (for fast sorting of very small arrays or Lists in-place)
 - Merge of two pre-sorted Arrays or Lists
@@ -22,7 +22,7 @@ See HPCsharpExample folder in this repo for usage examples - a complete VisualSt
 For more details on the motivation see blog:
 https://duvanenko.tech.blog/2018/03/03/high-performance-c/
 
-For additional algorithms visit:
+More high performance algorithms will soon be available at:
 https://foostate.com/
 
 
