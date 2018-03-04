@@ -3,8 +3,17 @@ using System.Collections.Generic;
 
 namespace HPCsharp
 {
+    /// <summary>
+    /// Container class for HPCsharp extension methods
+    /// </summary>
     static public partial class Algorithm
     {
+        /// <summary>
+        /// O(n^2) sorting algorithm that's in-place. Fast for small arrays
+        /// l: left/starting index within the List where to start sorting
+        /// size: number of elements to sort
+        /// comparer: optional compare method
+        /// </summary>
         public static void InsertionSort<T>(List<T> a, Int32 l, Int32 size, Comparer<T> comparer = null)
         {
             var equalityComparer = comparer ?? Comparer<T>.Default;
@@ -26,6 +35,12 @@ namespace HPCsharp
                 // Perform no work at all if the first comparison fails - i.e. never assign an element to itself!
             }
         }
+        /// <summary>
+        /// O(n^2) sorting algorithm that's in-place. Fast for small arrays
+        /// l: left/starting index within the array where to start sorting
+        /// size: number of elements to sort
+        /// comparer: optional compare method
+        /// </summary>
         public static void InsertionSort<T>(T[] a, Int32 l, Int32 size, Comparer<T> comparer = null)
         {
             var equalityComparer = comparer ?? Comparer<T>.Default;

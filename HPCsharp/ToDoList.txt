@@ -1,0 +1,7 @@
+﻿// TODO: Add Array equal List and List equal Array versions, as Microsoft supports these variations, since they use IEnumerable. Plus, they can compare other collections potentially, if it makes sense or is possible at all, since they are IEnumerable, but are slower
+// TODO: Once free NuGet HPCsharp package has been posted to nuget.org switch the example solution to use it instead of from local drive repo
+// TODO: Figure out what Linq.Min returns when an array is made of nullable elements and add support for this type of an array
+// TODO: Linq provides different variations of Min and Max than HPC#. Implement similar methods to Linq, without using IEnumerable
+// TODO: Add Min and Max to return the index of the minimum and maximum element within the container. Linq does not have these functions
+// TODO: Create a Merge implementation that is IEnumerable based to support even more merging possibilities, such as Merge(array, List)
+// TODO: Add IEnumerable versions of InsertionSort and Merge to provide both levels of abstraction

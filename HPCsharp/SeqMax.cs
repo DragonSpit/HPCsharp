@@ -35,7 +35,7 @@ namespace HPCsharp
         ///   T:System.ArgumentNullException: if array is null.
         ///   T:System.ArgumentOutOfRangeException: if l or r is not inside the array bounds
         /// </summary>
-        public static T HpcMin<T>(this T[] a, Int32 l, Int32 r, Comparer<T> comparer = null)
+        public static T HpcMax<T>(this T[] a, Int32 l, Int32 r, Comparer<T> comparer = null)
         {
             if (a == null)
                 throw new System.ArgumentNullException();
@@ -48,7 +48,7 @@ namespace HPCsharp
             T currMin = a[l];
             for (Int32 i = l + 1; i <= r; i++)     // inclusive of l and r
             {
-                if (equalityComparer.Compare(currMin, a[i]) > 0)
+                if (equalityComparer.Compare(currMin, a[i]) < 0)
                     currMin = a[i];
             }
             return currMin;
@@ -73,7 +73,7 @@ namespace HPCsharp
         /// Exceptions:
         ///   T:System.ArgumentNullException: if array is null.
         /// </summary>
-        public static T HpcMin<T>(this T[] a, Comparer<T> comparer = null)
+        public static T HpcMax<T>(this T[] a, Comparer<T> comparer = null)
         {
             if (a == null)
                 throw new System.ArgumentNullException();
@@ -82,7 +82,7 @@ namespace HPCsharp
             T currMin = a[0];
             for (Int32 i = 1; i < a.Length; i++)
             {
-                if (equalityComparer.Compare(currMin, a[i]) > 0)
+                if (equalityComparer.Compare(currMin, a[i]) < 0)
                     currMin = a[i];
             }
             return currMin;
@@ -117,7 +117,7 @@ namespace HPCsharp
         ///   T:System.ArgumentNullException: if List is null.
         ///   T:System.ArgumentOutOfRangeException: if l or r is not inside the array bounds
         /// </summary>
-        public static T HpcMin<T>(this List<T> a, Int32 l, Int32 r, Comparer<T> comparer = null)
+        public static T HpcMax<T>(this List<T> a, Int32 l, Int32 r, Comparer<T> comparer = null)
         {
             if (a == null)
                 throw new System.ArgumentNullException();
@@ -128,7 +128,7 @@ namespace HPCsharp
             T currMin = a[l];
             for (Int32 i = l + 1; i <= r; i++)     // inclusive of l and r
             {
-                if (equalityComparer.Compare(currMin, a[i]) > 0)
+                if (equalityComparer.Compare(currMin, a[i]) < 0)
                     currMin = a[i];
             }
             return currMin;
@@ -153,7 +153,7 @@ namespace HPCsharp
         /// Exceptions:
         ///   T:System.ArgumentNullException: if List is null.
         /// </summary>
-        public static T HpcMin<T>(this List<T> a, Comparer<T> comparer = null)
+        public static T HpcMax<T>(this List<T> a, Comparer<T> comparer = null)
         {
             if (a == null)
                 throw new System.ArgumentNullException();
@@ -162,7 +162,7 @@ namespace HPCsharp
             T currMin = a[0];
             for (Int32 i = 1; i < a.Count; i++)
             {
-                if (equalityComparer.Compare(currMin, a[i]) > 0)
+                if (equalityComparer.Compare(currMin, a[i]) < 0)
                     currMin = a[i];
             }
             return currMin;

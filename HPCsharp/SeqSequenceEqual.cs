@@ -1,15 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 
-// TODO: Add Array equal List and List equal Array versions, as Microsoft supports these variations, since they use IEnumerable. Plus, they can compare other collections potentially, if it makes sense or is possible at all, since they are IEnumerable, but are slower
-// TODO: Once free NuGet HPCsharp package has been posted to nuget.org switch the example solution to use it instead of from local drive repo
-// TODO: Change all namespaces to HPCsharp and class to Algorithm
-// TODO: Make HPCsharp package open source so that other developers can grow the algorithms and develop a community of developers/contributors to continue development
-// TODO: Write up reasoning for development of this library: easier high performance C#
-// TODO: Benchmark performance and compare to Linq and PLinq
-// TODO: Do not include any parallel algorithms. Make FooState version be PLinq equivalent with more algorithms
-// TODO: Do not clash names of algorithms with Linq for ease of use together with Linq in the same source> Keep usage simple!
-
 namespace HPCsharp
 {
     static public partial class Algorithm
