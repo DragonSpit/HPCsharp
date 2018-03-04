@@ -3,5 +3,5 @@
 // TODO: Figure out what Linq.Min returns when an array is made of nullable elements and add support for this type of an array
 // TODO: Linq provides different variations of Min and Max than HPC#. Implement similar methods to Linq, without using IEnumerable
 // TODO: Add Min and Max to return the index of the minimum and maximum element within the container. Linq does not have these functions
-// TODO: Create a Merge implementation that is IEnumerable based to support even more merging possibilities, such as Merge(array, List)
-// TODO: Add IEnumerable versions of InsertionSort and Merge to provide both levels of abstraction
+// TODO: Add IEnumerable versions of InsertionSort to provide both levels of abstraction, if possible
+// TODO: Add IEnumerable versions of Merge to provide both levels of abstraction, and more merging flexibilities, such as Merge(array, List), if possible
