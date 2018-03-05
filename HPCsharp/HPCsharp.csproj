@@ -5,23 +5,23 @@
     <Authors>Victor J. Duvanenko</Authors>
     <Company>FooState</Company>
     <Product>HPCsharp</Product>
-    <Description>High Performance Computing in C# (HPC#). Higher performance versions of Linq C# Array and List algorithms, along with additional algorithms.
-List and Array.SequenceEquals() 4X faster.
+    <Description>High Performance Computing in C# (HPC#). Higher performance versions of Linq C# Array and List algorithms including parallel, along with additional algorithms.
+List and Array.SequenceEquals() 4X faster sequential, 11X faster parallel
 List and Array.Min() and .Max() 1.5-3X faster</Description>
     <Copyright>© 2018 FooState</Copyright>
     <PackageLicenseUrl>https://github.com/DragonSpit/HPCsharp/blob/master/LICENSE</PackageLicenseUrl>
     <PackageReleaseNotes>Initial release, Version 1.0</PackageReleaseNotes>
     <PackageId>HPCsharp</PackageId>
-    <PackageTags>high perfromance algorithms, C#, high performance, high performance computing, HPC, algorithm, algorithms, Linq</PackageTags>
+    <PackageTags>high perfromance algorithms, C#, high performance, high performance computing, HPC, algorithm, algorithms, Linq, parallel, parallel algorithm</PackageTags>
     <PackageIconUrl>https://foostate.com/images/default_lib_icon_64.png</PackageIconUrl>
     <RepositoryType>GitHub</RepositoryType>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageProjectUrl>https://github.com/DragonSpit/HPCsharp</PackageProjectUrl>
     <RepositoryUrl>https://github.com/DragonSpit/HPCsharp</RepositoryUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <AssemblyVersion>1.0.4.0</AssemblyVersion>
-    <FileVersion>1.0.4.0</FileVersion>
-    <Version>1.0.4</Version>
+    <AssemblyVersion>1.0.5.0</AssemblyVersion>
+    <FileVersion>1.0.5.0</FileVersion>
+    <Version>1.0.5</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
