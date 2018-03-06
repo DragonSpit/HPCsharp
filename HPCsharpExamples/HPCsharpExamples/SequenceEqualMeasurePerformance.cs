@@ -30,7 +30,7 @@ namespace HPCsharpExamples
             stopwatch.Stop();
             double timeLinqEqual = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
             stopwatch.Restart();
-            bool equalSequencial = benchArrayOne.HpcSequenceEqual(benchArrayTwo);
+            bool equalSequencial = benchArrayOne.SequenceEqualHpc(benchArrayTwo);
             stopwatch.Stop();
             double timeForSequentialEqual = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
             Console.WriteLine("C# array of size {0}: Linq.Equal {1:0.000} sec, HPC.Equal {2:0.000} sec, speedup {3:0.00}", arraySize,
@@ -59,7 +59,7 @@ namespace HPCsharpExamples
             stopwatch.Stop();
             double timeForLinqEqual = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
             stopwatch.Restart();
-            bool equalSequencial = benchListOne.HpcSequenceEqual(benchListTwo);
+            bool equalSequencial = benchListOne.SequenceEqualHpc(benchListTwo);
             stopwatch.Stop();
             double timeForSequentialEqual = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
             Console.WriteLine("C# List  of size {0}: Linq.Equal {1:0.000} sec, HPC.Equal {2:0.000} sec, speedup {3:0.00}", ListSize,

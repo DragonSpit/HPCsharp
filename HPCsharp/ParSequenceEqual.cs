@@ -74,7 +74,7 @@ namespace HPCsharp
         ///   T:System.ArgumentNullException: first or second is null.
         ///   T:System.ArgumentOutOfRangeException: if l or r is not inside the array bounds
         /// </summary>
-        public static bool HpcParSequenceEqual<T>(this T[] first, T[] second, Int32 l, Int32 r)
+        public static bool SequenceEqualHpcPar<T>(this T[] first, T[] second, Int32 l, Int32 r)
         {
             if (first == null || second == null)
                 throw new System.ArgumentNullException();
@@ -106,7 +106,7 @@ namespace HPCsharp
         /// Exceptions:
         ///   T:System.ArgumentNullException: first or second is null.
         /// </summary>
-        public static bool HpcParSequenceEqual<T>(this T[] first, T[] second)
+        public static bool SequenceEqualHpcPar<T>(this T[] first, T[] second)
         {
             // Performance lesson: Changing the interface to IEnumerable hugely reduces performance, to the point of parallelism not being worthwhile
             if (first == null || second == null)
@@ -179,7 +179,7 @@ namespace HPCsharp
         ///   T:System.ArgumentNullException: first or second is null.
         ///   T:System.ArgumentOutOfRangeException: if l or r is not inside the array bounds
         /// </summary>
-        public static bool HpcParSequenceEqual<T>(this List<T> first, List<T> second, Int32 l, Int32 r)
+        public static bool SequenceEqualHpcPar<T>(this List<T> first, List<T> second, Int32 l, Int32 r)
         {
             // Performance lesson: Changing the interface to IEnumerable hugely reduces performance, to the point of parallelism not being worthwhile
             if (first == null || second == null)
@@ -212,7 +212,7 @@ namespace HPCsharp
         /// Exceptions:
         ///   T:System.ArgumentNullException: first or second is null.
         /// </summary>
-        public static bool HpcParSequenceEqual<T>(this List<T> first, List<T> second)
+        public static bool SequenceEqualHpcPar<T>(this List<T> first, List<T> second)
         {
             // Performance lesson: Changing the interface to IEnumerable hugely reduces performance, to the point of parallelism not being worthwhile
             if (first == null || second == null)

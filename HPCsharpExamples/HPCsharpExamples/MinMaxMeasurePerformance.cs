@@ -28,7 +28,7 @@ namespace HPCsharpExamples
             stopwatch.Stop();
             double timeForLinqMin = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
             stopwatch.Restart();
-            int minHpc = benchArrayOne.HpcMin();
+            int minHpc = benchArrayOne.MinHpc();
             stopwatch.Stop();
             double timeForSequentialMin = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
             Console.WriteLine("C# array of size {0}: Linq.Min   {1:0.000} sec, HPC.Min   {2:0.000} sec, speedup {3:0.00}", arraySize,
@@ -55,7 +55,7 @@ namespace HPCsharpExamples
             stopwatch.Stop();
             double timeForLinqMin = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
             stopwatch.Restart();
-            int minHpc = benchListOne.HpcMin();
+            int minHpc = benchListOne.MinHpc();
             stopwatch.Stop();
             double timeForHpcMin = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
             Console.WriteLine("C# List  of size {0}: Linq.Min   {1:0.000} sec, HPC.Min   {2:0.000} sec, speedup {3:0.00}", ListSize,
@@ -82,7 +82,7 @@ namespace HPCsharpExamples
             stopwatch.Stop();
             double timeForLinqMax = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
             stopwatch.Restart();
-            int maxHpc = benchArrayOne.HpcMax();
+            int maxHpc = benchArrayOne.MaxHpc();
             stopwatch.Stop();
             double timeForSequentialMax = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
             Console.WriteLine("C# array of size {0}: Linq.Max   {1:0.000} sec, HPC.Max   {2:0.000} sec, speedup {3:0.00}", arraySize,
@@ -109,7 +109,7 @@ namespace HPCsharpExamples
             stopwatch.Stop();
             double timeForLinqMax = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
             stopwatch.Restart();
-            int maxHpc = benchListOne.HpcMax();
+            int maxHpc = benchListOne.MaxHpc();
             stopwatch.Stop();
             double timeForHpcMax = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
             Console.WriteLine("C# List  of size {0}: Linq.Max   {1:0.000} sec, HPC.Max   {2:0.000} sec, speedup {3:0.00}", ListSize,

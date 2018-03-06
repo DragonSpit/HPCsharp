@@ -39,9 +39,8 @@ namespace HPCsharp
         ///   TSource:System.ArgumentNullException: first or second is null.
         ///   TSource:System.ArgumentOutOfRangeException: if l or r is not inside the array bounds
         /// </summary>
-        public static bool HpcSequenceEqual<TSource>(this TSource[] first, TSource[] second, Int32 l, Int32 r)
+        public static bool SequenceEqualHpc<TSource>(this TSource[] first, TSource[] second, Int32 l, Int32 r)
         {
-            // Performance lesson: Changing the interface to IEnumerable hugely reduces performance, to the point of parallelism not being worthwhile
             if (first == null || second == null)
                 throw new System.ArgumentNullException();
             if (l > r)      // zero elements to compare
@@ -81,9 +80,8 @@ namespace HPCsharp
         /// Exceptions:
         ///   TSource:System.ArgumentNullException: first or second is null.
         /// </summary>
-        public static bool HpcSequenceEqual<TSource>(this TSource[] first, TSource[] second)
+        public static bool SequenceEqualHpc<TSource>(this TSource[] first, TSource[] second)
         {
-            // Performance lesson: Changing the interface to IEnumerable hugely reduces performance, to the point of parallelism not being worthwhile
             if (first == null || second == null)
                 throw new System.ArgumentNullException();
             if (first.Length != second.Length)
@@ -131,7 +129,7 @@ namespace HPCsharp
         ///   TSource:System.ArgumentNullException: first or second is null.
         ///   TSource:System.ArgumentOutOfRangeException: if l or r is not inside the array bounds
         /// </summary>
-        public static bool HpcSequenceEqual<TSource>(this List<TSource> first, List<TSource> second, Int32 l, Int32 r)
+        public static bool SequenceEqualHpc<TSource>(this List<TSource> first, List<TSource> second, Int32 l, Int32 r)
         {
             // Performance lesson: Changing the interface to IEnumerable hugely reduces performance, to the point of parallelism not being worthwhile
             if (first == null || second == null)
@@ -171,7 +169,7 @@ namespace HPCsharp
         /// Exceptions:
         ///   TSource:System.ArgumentNullException: first or second is null.
         /// </summary>
-        public static bool HpcSequenceEqual<TSource>(this List<TSource> first, List<TSource> second)
+        public static bool SequenceEqualHpc<TSource>(this List<TSource> first, List<TSource> second)
         {
             // Performance lesson: Changing the interface to IEnumerable hugely reduces performance, to the point of parallelism not being worthwhile
             if (first == null || second == null)

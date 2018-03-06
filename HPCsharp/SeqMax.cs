@@ -35,7 +35,7 @@ namespace HPCsharp
         ///   TSource:System.ArgumentNullException: if array is null.
         ///   TSource:System.ArgumentOutOfRangeException: if l or r is not inside the array bounds
         /// </summary>
-        public static TSource HpcMax<TSource>(this TSource[] a, Int32 l, Int32 r)
+        public static TSource MaxHpc<TSource>(this TSource[] a, Int32 l, Int32 r)
         {
             if (a == null)
                 throw new System.ArgumentNullException();
@@ -73,7 +73,7 @@ namespace HPCsharp
         /// Exceptions:
         ///   TSource:System.ArgumentNullException: if array is null.
         /// </summary>
-        public static TSource HpcMax<TSource>(this TSource[] a)
+        public static TSource MaxHpc<TSource>(this TSource[] a)
         {
             if (a == null)
                 throw new System.ArgumentNullException();
@@ -117,7 +117,7 @@ namespace HPCsharp
         ///   TSource:System.ArgumentNullException: if List is null.
         ///   TSource:System.ArgumentOutOfRangeException: if l or r is not inside the array bounds
         /// </summary>
-        public static TSource HpcMax<TSource>(this List<TSource> a, Int32 l, Int32 r)
+        public static TSource MaxHpc<TSource>(this List<TSource> a, Int32 l, Int32 r)
         {
             if (a == null)
                 throw new System.ArgumentNullException();
@@ -153,7 +153,7 @@ namespace HPCsharp
         /// Exceptions:
         ///   TSource:System.ArgumentNullException: if List is null.
         /// </summary>
-        public static TSource HpcMax<TSource>(this List<TSource> a)
+        public static TSource MaxHpc<TSource>(this List<TSource> a)
         {
             if (a == null)
                 throw new System.ArgumentNullException();
