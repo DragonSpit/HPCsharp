@@ -5,7 +5,7 @@ Lowering the level of abstraction results in higher performance. Open source.
 
 Version 1.0 includes the following:
 
-- Array and List.SequenceEqual() 4X faster
+- Array and List.SequenceEqual() 4X faster, parallel up to 11X faster
 - Array and List.Min() 1.5-3X faster
 - Array and List.Max() 1.5X faster
 - Expanded interface to allow a sub-range of array or List to be compared
