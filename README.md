@@ -17,7 +17,7 @@ Max|Array, List|1.5X faster
 Additional included algorithms:
 
 *Method*|*Collection*|*Description*
---- | ---
+--- | --- | ---
 Insertion Sort|Array, List|for fast sorting of very small collections in-place
 Merge|Array, List|merges two pre-sorted collections
 
