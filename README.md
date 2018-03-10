@@ -7,17 +7,20 @@ Version 1.0 includes the following:
 
 *Method*|*Collection*|*vs Linq*|*Parallel vs Linq*
 --- | --- | --- | ---
-|SequenceEqual|Array, List|4X faster|up to 11X faster|
-|Min|Array, List|1.5-3X faster||
-|Max|Array,List|1.5X faster||
+SequenceEqual|Array, List|4X faster|up to 11X faster
+Min|Array, List|1.5-3X faster|
+Max|Array, List|1.5X faster|
 
 - Expanded interface to allow a sub-range of array or List to be compared
 - More standard C# algorithms to come shortly...
 
 Additional included algorithms:
 
-- Insertion Sort for Array and List (for fast sorting of very small arrays or Lists in-place)
-- Merge of two pre-sorted Arrays or Lists
+*Method*|*Collection*|*Description*
+--- | ---
+Insertion Sort|Array, List|for fast sorting of very small collections in-place
+Merge|Array, List|merges two pre-sorted collections
+
 - More to come...
 
 See HPCsharpExample folder in this repo for usage examples - a complete VisualStudio 2017 solution provided.
