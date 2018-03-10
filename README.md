@@ -8,8 +8,8 @@ Version 1.0 includes the following:
 *Method*|*Collection*|*vs Linq*|*Parallel vs Linq*
 --- | --- | --- | ---
 SequenceEqual|Array, List|4X faster|up to 11X faster
-Min|Array, List|1.5-3X faster|
-Max|Array, List|1.5X faster|
+Min|Array, List|1.5-3X faster
+Max|Array, List|1.5X faster
 
 - Expanded interface to allow a sub-range of array or List to be compared
 - More standard C# algorithms to come shortly...
