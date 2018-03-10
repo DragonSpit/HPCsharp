@@ -5,7 +5,8 @@ Lowering the level of abstraction results in higher performance. Open source.
 
 Version 1.0 includes the following:
 
-|*Method*|*Collection*|*vs Linq*|*Parallel vs Linq*|
+*Method*|*Collection*|*vs Linq*|*Parallel vs Linq*
+--- | --- | --- | ---
 |SequenceEqual|Array, List|4X faster|up to 11X faster|
 |Min|Array, List|1.5-3X faster||
 |Max|Array,List|1.5X faster||
