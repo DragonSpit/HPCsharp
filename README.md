@@ -30,6 +30,7 @@ https://duvanenko.tech.blog/2018/03/03/high-performance-c/
 
 More high performance algorithms will soon be available at:
 https://foostate.com/
+
 *Method*|*Collection*|*Parallel vs Array.Sort*|*Parallel vs List.Sort*|*Parallel vs Linq*
 --- | --- | --- | ---
 Sort|Array|2X-3X faster||
