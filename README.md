@@ -32,7 +32,7 @@ More high performance algorithms will soon be available at:
 https://foostate.com/
 
 *Method*|*Collection*|*Parallel vs Array.Sort*|*Parallel vs List.Sort*|*Parallel vs Linq*
---- | --- | --- | ---
+--- | --- | --- | --- |
 Sort|Array|2X-3X faster||
 Sort|List||1.5-3X faster|
 
