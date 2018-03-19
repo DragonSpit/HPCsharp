@@ -11,7 +11,7 @@ SequenceEqual|Array, List|4X faster|up to 11X faster
 Min|Array, List|1.5-3X faster
 Max|Array, List|1.5X faster
 
-- Expanded interface to allow a sub-range of array or List to be compared
+- Expanded interface to allow a sub-range of Array or List to be operated on
 - More standard C# algorithms to come shortly...
 
 Additional included algorithms:
@@ -30,6 +30,11 @@ https://duvanenko.tech.blog/2018/03/03/high-performance-c/
 
 More high performance algorithms will soon be available at:
 https://foostate.com/
+*Method*|*Collection*|*Parallel vs Array.Sort*|*Parallel vs List.Sort*|*Parallel vs Linq*
+--- | --- | --- | ---
+Sort|Array|2X-3X faster||
+Sort|List||1.5-3X faster|
+
 
 
 [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=LDD8L7UPAC7QL)
