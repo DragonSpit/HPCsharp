@@ -1,9 +1,10 @@
 # High Performance Computing in C# (HPC#)
 
-High performance C#/.NET algorithms complimenting Linq. Gives developers the ability to easily trade-off between performance and the appropriate level of abstraction.
-Lowering the level of abstraction results in higher performance. Open source.
+High performance C#/.NET algorithms with some complimenting Linq. Provides a trade-off between performance and level of abstraction: Array, List, IList, IEnumerable.
+Lowering the level of abstraction results in higher performance. Some algorithms are parallel for additional performance.
+Expanded interface to allow a sub-range of Array or List to be operated on. Open source.
 
-Version 1.0 includes the following:
+Version 1.0 includes the following Linq style algorithms:
 
 *Method*|*Collection*|*vs Linq*|*Parallel vs Linq*
 --- | --- | --- | ---
@@ -11,10 +12,9 @@ SequenceEqual|Array, List|4X faster|up to 11X faster
 Min|Array, List|1.5-3X faster
 Max|Array, List|1.5X faster
 
-- Expanded interface to allow a sub-range of Array or List to be operated on
 - More standard C# algorithms to come shortly...
 
-Additional included algorithms:
+Additional algorithms:
 
 *Method*|*Collection*|*Description*
 --- | --- | ---
