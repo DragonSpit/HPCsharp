@@ -1,6 +1,6 @@
 # High Performance Computing in C# (HPC#)
 
-High performance C#/.NET algorithms with some complimenting Linq. Provides a trade-off between performance and level of abstraction: Array, List, IList, IEnumerable.
+High performance C#/.NET generic algorithms with some complimenting Linq. Provides a trade-off between performance and level of abstraction: Array, List, IList, IEnumerable.
 Lowering the level of abstraction results in higher performance. Some algorithms are parallel for additional performance.
 Expanded interface to allow a sub-range of Array or List to be operated on. Open source.
 
