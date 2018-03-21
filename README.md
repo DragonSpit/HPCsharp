@@ -35,6 +35,7 @@ https://foostate.com/
 --- | --- | --- | --- | ---
 Sort|Array|2X-3X faster||
 Sort|List||1.5-3X faster|
+CopyTo|List to Array||2-2.5X faster|
 
 
 
