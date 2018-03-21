@@ -38,7 +38,7 @@ Sort|List||1.5-3X faster|
 
 *Method*|*Collection*|*Parallel*
 --- | --- | ---
-CopyTo|List to Array||2-2.5X faster
+CopyTo|List to Array|2-2.5X faster
 
 
 
