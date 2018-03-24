@@ -33,10 +33,10 @@ https://foostate.com/
 
 *Method*|*Collection*|*Parallel vs Array.Sort*|*Parallel vs List.Sort*|*Parallel vs Linq*|*Number of Cores*
 --- | --- | --- | --- | --- | ---
-Sort|Array|2X-3X faster||4 cores
-Sort|List||2-3X faster|4 cores
-Sort|Array|3.5X-5X faster||6 cores
-Sort|List||2.5-4.5X faster|6 cores
+Sort|Array|2X-3X faster|||4 cores
+Sort|List||2X-3X faster||4 cores
+Sort|Array|3.5X-5X faster|||6 cores
+Sort|List||2.5X-4.5X faster||6 cores
 
 *Method*|*Collection*|*Parallel*
 --- | --- | ---
