@@ -1,6 +1,6 @@
 # High Performance Computing in C# (HPC#)
 
-High performance C#/.NET generic algorithms with some complimenting Linq. Provides a trade-off between performance and level of abstraction: Array, List, IList, IEnumerable.
+High performance C#/.NET generic algorithms. Provides a trade-off between performance and level of abstraction: Array, List, IList, IEnumerable.
 Lowering the level of abstraction results in higher performance. Some algorithms are parallel for additional performance.
 Expanded interface to allow a sub-range of Array or List to be operated on. Open source.
 
@@ -31,10 +31,12 @@ https://duvanenko.tech.blog/2018/03/03/high-performance-c/
 More high performance algorithms will soon be available at:
 https://foostate.com/
 
-*Method*|*Collection*|*Parallel vs Array.Sort*|*Parallel vs List.Sort*|*Parallel vs Linq*
---- | --- | --- | --- | ---
-Sort|Array|2X-3X faster||
-Sort|List||1.5-3X faster|
+*Method*|*Collection*|*Parallel vs Array.Sort*|*Parallel vs List.Sort*|*Parallel vs Linq*|*Number of Cores*
+--- | --- | --- | --- | --- | ---
+Sort|Array|2X-3X faster||4 cores
+Sort|List||2-3X faster|4 cores
+Sort|Array|3.5X-5X faster||6 cores
+Sort|List||2.5-4.5X faster|6 cores
 
 *Method*|*Collection*|*Parallel*
 --- | --- | ---
