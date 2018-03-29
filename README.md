@@ -21,15 +21,14 @@ Additional algorithms:
 Insertion Sort|Array, List|for fast sorting of very small collections in-place
 Merge|Array, List|merges two pre-sorted collections
 
-- More to come...
 
 See HPCsharpExample folder in this repo for usage examples - a complete VisualStudio 2017 solution provided.
 
-For more details on the motivation see blog:
+For details on the motivation see blog:
 https://duvanenko.tech.blog/2018/03/03/high-performance-c/
 
-More high performance algorithms will soon be available at:
-https://foostate.com/
+# More High Performance Algorithms
+Soon be available at https://foostate.com/
 
 *Method*|*Collection*|*Parallel vs Array.Sort*|*Parallel vs List.Sort*|*Parallel vs Linq*|*Number of Cores*
 --- | --- | --- | --- | --- | ---
@@ -40,7 +39,7 @@ Sort|List||2.5X-4.5X faster||6 cores
 
 *Method*|*Collection*|*Parallel*
 --- | --- | ---
-CopyTo|List to Array|2-2.5X faster
+CopyTo|List to Array|1.7X-2.5X faster
 
 
 
