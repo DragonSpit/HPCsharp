@@ -12,13 +12,13 @@ SequenceEqual|Array, List|4X faster|up to 11X faster
 Min|Array, List|1.5-3X faster
 Max|Array, List|1.5X faster
 
-- More standard C# algorithms to come shortly...
+- More standard C# algorithms to come shortly, such as Merge Sort and Radix Sort, ...
 
 Additional algorithms:
 
 *Method*|*Collection*|*Description*
 --- | --- | ---
-Insertion Sort|Array, List|for fast sorting of very small collections in-place
+Insertion Sort|Array, List|for fast in-place sorting of very small collections
 Merge|Array, List|merges two pre-sorted collections
 
 
@@ -32,10 +32,10 @@ Soon be available at https://foostate.com/
 
 *Method*|*Collection*|*Parallel vs Array.Sort*|*Parallel vs List.Sort*|*Parallel vs Linq*|*Number of Cores*
 --- | --- | --- | --- | --- | ---
-Sort|Array|2X-3X faster|||4 cores
-Sort|List||2X-3X faster||4 cores
-Sort|Array|3.5X-5X faster|||6 cores
-Sort|List||2.5X-4.5X faster||6 cores
+Stable Parallel Sort|Array|2X-3X faster|||4 cores
+Stable Parallel Sort|List||2X-3X faster||4 cores
+Stable Parallel Sort|Array|3.5X-5X faster|||6 cores
+Stable Parallel Sort|List||2.5X-4.5X faster||6 cores
 
 *Method*|*Collection*|*Parallel*
 --- | --- | ---
