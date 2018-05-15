@@ -1,5 +1,9 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+
+// IEnumerable is 4X slower than List or Array
+// IList       is 2X slower than List
 
 namespace HPCsharp
 {
@@ -171,13 +175,33 @@ namespace HPCsharp
         /// </summary>
         public static bool SequenceEqualHpc<TSource>(this List<TSource> first, List<TSource> second)
         {
-            // Performance lesson: Changing the interface to IEnumerable hugely reduces performance, to the point of parallelism not being worthwhile
             if (first == null || second == null)
                 throw new System.ArgumentNullException();
             if (first.Count != second.Count)
                 return false;
 
             var equalityComparer = Comparer<TSource>.Default;
+            for (Int32 i = 0; i < first.Count; i++)
+            {
+                if (equalityComparer.Compare(first[i], second[i]) != 0)
+                    return false;
+            }
+            return true;
+        }
+        /// <summary>
+        /// Test equality of two ArrayLists
+        /// </summary>
+        /// <param name="first"></param>
+        /// <param name="second"></param>
+        /// <returns></returns>
+        public static bool SequenceEqualHpc(this ArrayList first, ArrayList second)
+        {
+            if (first == null || second == null)
+                throw new System.ArgumentNullException();
+            if (first.Count != second.Count)
+                return false;
+
+            var equalityComparer = Comparer.Default;
             for (Int32 i = 0; i < first.Count; i++)
             {
                 if (equalityComparer.Compare(first[i], second[i]) != 0)

@@ -1,7 +1,24 @@
 ﻿// TODO: Add Array equal List and List equal Array versions, as Microsoft supports these variations, since they use IEnumerable. Plus, they can compare other collections potentially, if it makes sense or is possible at all, since they are IEnumerable, but are slower
-// TODO: Once free NuGet HPCsharp package has been posted to nuget.org switch the example solution to use it instead of from local drive repo
 // TODO: Figure out what Linq.Min returns when an array is made of nullable elements and add support for this type of an array
 // TODO: Linq provides different variations of Min and Max than HPC#. Implement similar methods to Linq, without using IEnumerable
-// TODO: Add Min and Max to return the index of the minimum and maximum element within the container. Linq does not have these functions
+// TODO: Add Min and Max to return the index of the minimum and maximum element within the container. Linq does not have these functions. Maybe that's
+//       not necessary in C# as a reference to the object is returned instead of a copy of the object
 // TODO: Add IEnumerable versions of InsertionSort to provide both levels of abstraction, if possible
 // TODO: Add IEnumerable versions of Merge to provide both levels of abstraction, and more merging flexibilities, such as Merge(array, List), if possible
+// TODO: Add IEnumerable parallel copy to support higher level of abstraction high performance copy
+// TODO: Add parallel array and list copy, and find out other containers that can be be accessed without IEnumerable and parallel copy them too
+// TODO: Bring over parallel merge algorithm to open source
+// TODO: Write a blog about IEnumerable needs support for random access and that random access is a must (at least divide in half) to support parallelism
+//       in the form of divide and conquer
+// TODO: Learn span and how that can be used to support divide-and-conquer for IEnumerable
+// TODO: Explore if support for IList instead of List is possible to support even more generic algorithms. Since IList is 2X slower provide separate implementations
+//       and see if C# compiler will not show conflict between List and IList implementations. This provides user a choice of abstraction versus performance
+// TODO: Provide merge sort for users, since I could make it stable possibly and not be O(n^2) in the worst case performance, and could possibly make it
+//       more generic than my current version
+// TODO: Definitely compare my Insertion Sort with Microsoft's on arrays of small random arrays
+// TODO: Create a simpler Merge to merge entire Lists
+// TODO: Revise nuget.org package write up to be closer to what the package really does currently and where it's going: Community effort to bring
+//       High Performance Computing to C#/.NET community
+// TODO: Implement MinMax parallel algorithm from my Dr. Dobb's article on optimal object extents, and implement a parallel version of it.
+// TODO: Implement Merge Sort with Comparison interface, just like the second interface that C# standard .Sort() has, to support lamdas and the
+//       ability to add comparison method (lambda) to either user defined class or a standard class.

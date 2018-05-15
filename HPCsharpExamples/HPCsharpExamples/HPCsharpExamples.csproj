@@ -8,7 +8,7 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>HPCsharpExamples</RootNamespace>
     <AssemblyName>HPCsharpExamples</AssemblyName>
-    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFrameworkProfile />
@@ -53,8 +53,8 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="HPCsharp, Version=1.0.6.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\HPCsharp.1.0.6\lib\netstandard2.0\HPCsharp.dll</HintPath>
+    <Reference Include="HPCsharp, Version=1.0.8.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\HPCsharp.1.0.8\lib\netstandard2.0\HPCsharp.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -70,6 +70,7 @@
     <Compile Include="SequenceEqualMeasurePerformance.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SortMeasurePerformance.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">

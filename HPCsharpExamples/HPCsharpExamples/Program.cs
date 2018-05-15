@@ -77,6 +77,25 @@ namespace HPCsharpExamples
             MaxMeasureArraySpeedup();
             // Measure List.Max speedup
             MaxMeasureListSpeedup();
+
+            // Test Radix Sort
+            uint[] arrayFour = { 21, 43, 16, 5, 54, 3 };
+            uint[] arrayFive = { 21, 43, 16, 5, 54, 3 };
+
+            uint[] sortedArrayFour = arrayFour.RadixSortLSD();
+            Array.Sort(arrayFive);
+
+            bool equalSortedArrays = sortedArrayFour.SequenceEqual(arrayFive);
+
+            if (equalSortedArrays)
+                Console.WriteLine("Sorting results are equal");
+            else
+                Console.WriteLine("Sorting results did not compare!");
+
+            // Measure Array RadixSort speedup
+            SortMeasureArraySpeedup();
+            // Measure List RadixSort speedup
+            SortMeasureListSpeedup();
         }
     }
 }

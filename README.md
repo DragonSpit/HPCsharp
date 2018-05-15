@@ -28,7 +28,7 @@ For details on the motivation see blog:
 https://duvanenko.tech.blog/2018/03/03/high-performance-c/
 
 # More High Performance Algorithms
-Soon be available at https://foostate.com/
+Soon to be available at https://foostate.com/
 
 *Method*|*Collection*|*Parallel vs Array.Sort*|*Parallel vs List.Sort*|*Parallel vs Linq*|*Number of Cores*
 --- | --- | --- | --- | --- | ---
