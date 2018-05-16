@@ -82,7 +82,7 @@ namespace HPCsharpExamples
             uint[] arrayFour = { 21, 43, 16, 5, 54, 3 };
             uint[] arrayFive = { 21, 43, 16, 5, 54, 3 };
 
-            uint[] sortedArrayFour = arrayFour.RadixSortLSD();
+            uint[] sortedArrayFour = arrayFour.SortRadix();
             Array.Sort(arrayFive);
 
             bool equalSortedArrays = sortedArrayFour.SequenceEqual(arrayFive);

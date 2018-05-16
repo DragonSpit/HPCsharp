@@ -30,9 +30,9 @@ namespace HPCsharpExamples
 
             stopwatch.Restart();
             //uint[] sortedArrayOne = benchArrayOne.RadixSortLSD();
-            benchArrayOne.MergeSort(0, arraySize - 1, sortedArrayOne);
+            sortedArrayOne = benchArrayOne.SortMerge(0, arraySize);
             stopwatch.Stop();
-            double timeRadixSort = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
+            double timeMergeSort = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
             stopwatch.Restart();
             Array.Sort(benchArrayTwo);
             stopwatch.Stop();
@@ -44,8 +44,8 @@ namespace HPCsharpExamples
             else
                 Console.WriteLine("Sorting results did not compare!");
 
-            Console.WriteLine("C# array of size {0}: Array.Sort {1:0.000} sec, RadixSortLSD {2:0.000} sec, speedup {3:0.00}", arraySize,
-                               timeArraySort, timeRadixSort, timeArraySort / timeRadixSort);
+            Console.WriteLine("C# array of size {0}: Array.Sort {1:0.000} sec, SortMerge {2:0.000} sec, speedup {3:0.00}", arraySize,
+                               timeArraySort, timeMergeSort, timeArraySort / timeMergeSort);
         }
 
         public static void SortMeasureListSpeedup()
@@ -68,7 +68,7 @@ namespace HPCsharpExamples
             long nanosecPerTick = (1000L * 1000L * 1000L) / frequency;
 
             stopwatch.Restart();
-            List<uint> sortedArrayOne = benchListOne.RadixSortLSD();
+            List<uint> sortedArrayOne = benchListOne.SortRadix();
             stopwatch.Stop();
             double timeRadixSort = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
             stopwatch.Restart();
@@ -82,7 +82,7 @@ namespace HPCsharpExamples
             else
                 Console.WriteLine("Sorting results did not compare!");
 
-            Console.WriteLine("C# List of size {0}: List.Sort {1:0.000} sec, RadixSortLSD {2:0.000} sec, speedup {3:0.00}", ListSize,
+            Console.WriteLine("C# List of size {0}: List.Sort {1:0.000} sec, SortRadix {2:0.000} sec, speedup {3:0.00}", ListSize,
                                timeListSort, timeRadixSort, timeListSort / timeRadixSort);
         }
     }
