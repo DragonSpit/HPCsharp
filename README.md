@@ -21,7 +21,7 @@ Sorting and Merging Algorithms:
 Insertion Sort|Array, List||for fast in-place sorting of very small collections
 Merge|Array, List||merges two pre-sorted collections
 Radix Sort|Array, List|5X faster|Stable, O(N) Linear Time Sort
-Merge Sort|Array, List|1.7X slower|Stable, O(NlgN), never O(N^2), Generic
+Merge Sort|Array, List|1.7X slower|Stable, O(NlgN), never O(N<sup>2</sup>), Generic
 
 
 See HPCsharpExample folder in this repo for usage examples - a complete VisualStudio 2017 solution provided.
