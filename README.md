@@ -14,13 +14,14 @@ SequenceEqual|Array, List|4X faster|up to 11X faster
 Min|Array, List|1.5-3X faster
 Max|Array, List|1.5X faster
 
+Sorting and Merging Algorithms:
 
-*Method*|*Collection*|*vs Linq*|*Description*
+*Method*|*Collection*|*vs Array Sort*|*Description*
 --- | --- | --- | ---
-Insertion Sort|Array, List|for fast in-place sorting of very small collections
-Merge|Array, List|merges two pre-sorted collections
-Radix Sort|Array, List|5X faster||Stable, O(N) Linear Time Sort
-Merge Sort|Array, List|1.7X slower||Stable, O(NlgN), never O(N^2), Generic
+Insertion Sort|Array, List||for fast in-place sorting of very small collections
+Merge|Array, List||merges two pre-sorted collections
+Radix Sort|Array, List|5X faster|Stable, O(N) Linear Time Sort
+Merge Sort|Array, List|1.7X slower|Stable, O(NlgN), never O(N^2), Generic
 
 
 See HPCsharpExample folder in this repo for usage examples - a complete VisualStudio 2017 solution provided.
@@ -31,16 +32,19 @@ https://duvanenko.tech.blog/2018/03/03/high-performance-c/
 # More High Performance Algorithms
 Soon to be available at https://foostate.com/
 
-*Method*|*Collection*|*Parallel vs Array.Sort*|*Parallel vs List.Sort*|*Parallel vs Linq*|*Number of Cores*
+*Method*|*Collection*|*Parallel vs Array.Sort*|*Parallel vs List.Sort*|*Parallel vs Linq*|*Number of Cores*|*Description*
 --- | --- | --- | --- | --- | ---
-Stable Parallel Sort|Array|2X-3X faster|||4 cores
-Stable Parallel Sort|List||2X-3X faster||4 cores
-Stable Parallel Sort|Array|3.5X-5X faster|||6 cores
-Stable Parallel Sort|List||2.5X-4.5X faster||6 cores
+Parallel Merge Sort|Array|2X-3X faster|||4 cores|Stable
+Parallel Merge Sort|List||2X-3X faster||4 cores}Stable
+Parallel Merge Sort|Array|3.5X-5X faster|||6 cores|Stable
+Parallel Merge Sort|List||2.5X-4.5X faster||6 cores|Stable
+Radix Sort|Array, List||||Stable, Generic
+
+Parallel Copying:
 
 *Method*|*Collection*|*Parallel*
 --- | --- | ---
-CopyTo|List to Array|1.7X-2.5X faster
+Parallel CopyTo|List to Array|1.7X-2.5X faster
 
 
 
