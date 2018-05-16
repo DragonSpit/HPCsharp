@@ -1,8 +1,10 @@
 # High Performance Computing in C# (HPC#)
 
-High performance C#/.NET generic algorithms. Provides a trade-off between performance and level of abstraction: Array, List, IList, IEnumerable.
+High performance C#/.NET generic algorithms. Community driven to move C# toward high performance computing.
+Starting with several sorting algorithms, as well as merge of arrays and lists.
+Provides a trade-off between performance and level of abstraction: Array, List, IList, IEnumerable.
 Lowering the level of abstraction results in higher performance. Some algorithms are parallel for additional performance.
-Expanded interface to allow a sub-range of Array or List to be operated on. Open source.
+Open source.
 
 Version 1.0 includes the following Linq style algorithms:
 
@@ -12,14 +14,13 @@ SequenceEqual|Array, List|4X faster|up to 11X faster
 Min|Array, List|1.5-3X faster
 Max|Array, List|1.5X faster
 
-- More standard C# algorithms to come shortly, such as Merge Sort and Radix Sort, ...
 
-Additional algorithms:
-
-*Method*|*Collection*|*Description*
---- | --- | ---
+*Method*|*Collection*|*vs Linq*|*Description*
+--- | --- | --- | ---
 Insertion Sort|Array, List|for fast in-place sorting of very small collections
 Merge|Array, List|merges two pre-sorted collections
+Radix Sort|Array, List|5X faster||Stable, O(N) Linear Time Sort
+Merge Sort|Array, List|1.7X slower||Stable, O(NlgN), never O(N^2), Generic
 
 
 See HPCsharpExample folder in this repo for usage examples - a complete VisualStudio 2017 solution provided.
