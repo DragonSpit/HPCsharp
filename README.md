@@ -33,12 +33,12 @@ https://duvanenko.tech.blog/2018/03/03/high-performance-c/
 Soon to be available at https://foostate.com/
 
 *Method*|*Collection*|*Parallel vs Array.Sort*|*Parallel vs List.Sort*|*Parallel vs Linq*|*Number of Cores*|*Description*
---- | --- | --- | --- | --- | ---
+--- | --- | --- | --- | --- | --- | ---
 Parallel Merge Sort|Array|2X-3X faster|||4 cores|Stable
-Parallel Merge Sort|List||2X-3X faster||4 cores}Stable
+Parallel Merge Sort|List||2X-3X faster||4 cores|Stable
 Parallel Merge Sort|Array|3.5X-5X faster|||6 cores|Stable
 Parallel Merge Sort|List||2.5X-4.5X faster||6 cores|Stable
-Radix Sort|Array, List||||Stable, Generic
+Radix Sort|Array, List|||||Stable, Generic
 
 Parallel Copying:
 
