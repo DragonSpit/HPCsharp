@@ -30,7 +30,7 @@ namespace HPCsharpExamples
 
             stopwatch.Restart();
             //uint[] sortedArrayOne = benchArrayOne.RadixSortLSD();
-            sortedArrayOne = benchArrayOne.SortMerge(0, arraySize);
+            benchArrayOne.SortMergeInPlace();
             stopwatch.Stop();
             double timeMergeSort = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
             stopwatch.Restart();
@@ -38,7 +38,7 @@ namespace HPCsharpExamples
             stopwatch.Stop();
             double timeArraySort = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
 
-            bool equalSortedArrays = sortedArrayOne.SequenceEqual(benchArrayTwo);
+            bool equalSortedArrays = benchArrayOne.SequenceEqual(benchArrayTwo);
             if (equalSortedArrays)
                 Console.WriteLine("Sorting results are equal");
             else
