@@ -2,4 +2,4 @@
 
 To accomplish our goals the following patterns need to be followed:
 
-1. Do not clash names of algorithms with Linq for ease of use together with Linq in the same source> Keep usage simple!
+1. Do not clash names of algorithms with Linq for ease of use together with Linq in the same source. Keep usage simple!

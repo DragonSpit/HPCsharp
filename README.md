@@ -1,7 +1,7 @@
 # High Performance Computing in C# (HPC#)
 
 High performance C#/.NET generic algorithms. Community driven to move C# toward high performance computing.
-Starting with several sorting algorithms, as well as merge of arrays and lists.
+Includes linear and stable Radix Sort algorithm, as well as Merge Sort and Merge of arrays and lists.
 Provides a trade-off between performance and level of abstraction: Array, List, IList, IEnumerable.
 Lowering the level of abstraction results in higher performance. Some algorithms are parallel for additional performance.
 Open source.

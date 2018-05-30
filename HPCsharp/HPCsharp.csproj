@@ -5,12 +5,12 @@
     <Authors>Victor J. Duvanenko</Authors>
     <Company>FooState</Company>
     <Product>HPCsharp</Product>
-    <Description>High Performance Computing in C# (HPC#). Higher performance versions of Linq C# Array and List algorithms including parallel, along with additional algorithms.
-List and Array.SequenceEquals() 4X faster sequential, 11X faster parallel
-List and Array.Min() and .Max() 1.5-3X faster</Description>
+    <Description>High performance C#/.NET generic algorithms. Community driven to move C# toward high performance computing.
+Includes linear and stable Radix Sort algorithm, as well as stable Merge Sort and Merge of arrays and lists.
+Provides a trade-off between performance and level of abstraction: Array, List, IList, IEnumerable.</Description>
     <Copyright>© 2018 FooState</Copyright>
     <PackageLicenseUrl>https://github.com/DragonSpit/HPCsharp/blob/master/LICENSE</PackageLicenseUrl>
-    <PackageReleaseNotes>Added support for IList, including ArrayList</PackageReleaseNotes>
+    <PackageReleaseNotes>Added linear time and stable Radix Sort. Added stable Merge Sort. Merge Sort is O(nlgn) and will never run O(n^2). Merge Sort supports sub-range</PackageReleaseNotes>
     <PackageId>HPCsharp</PackageId>
     <PackageTags>high perfromance algorithms, C#, high performance, high performance computing, HPC, algorithm, algorithms, Linq, parallel, parallel algorithm</PackageTags>
     <PackageIconUrl>https://foostate.com/images/default_lib_icon_64.png</PackageIconUrl>
