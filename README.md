@@ -45,17 +45,17 @@ https://duvanenko.tech.blog/2018/03/03/high-performance-c/
 # More High Performance Algorithms
 Soon to be available at https://foostate.com/
 
-Radix Sort is extended to sort user defined classes based on a UInt32 or UInt64 key in the class. Merge Sort is extended to run in parallel using multiple
+Radix Sort has been extended to sort user defined classes based on a UInt32 or UInt64 key in the class. Merge Sort has been extended to run in parallel using multiple
 cores.
 
 *Algorithm*|*Collection*|*Distribution*|*vs .Sort*|*vs Linq*|*vs Linq.AsParallel*|*Description*
 --- | --- | --- | --- | --- | --- | ---
 Radix Sort|Array|Random|1X-4X|3X-5X|1X-2X|User defined class
-Radix Sort|List|Random|2X-4X|3X-5X1X-2X||User defined class
-Radix Sort|Array|Presorted||||User defined class
-Radix Sort|List|Presorted||||User defined class
-Radix Sort|Array|Constant||||User defined class
-Radix Sort|List|Constant||||User defined class
+Radix Sort|List|Random|2X-4X|3X-5X|1X-2X|User defined class
+Radix Sort|Array|Presorted|1.2X-1.7X|0.9X-2.5X|0.9X-1.4X|User defined class
+Radix Sort|List|Presorted|1.0X-1.2X|1.7X-2.1X|0.7X-1.1X|User defined class
+Radix Sort|Array|Constant|3X-4X|4X-5X|2X-3X|User defined class
+Radix Sort|List|Constant|2X-4X|3X-4X|1.5X-2X|User defined class
 Parallel Merge Sort|Array|Random|2X-3X||4X-8X|Stable
 Parallel Merge Sort|List|Random|2X-3X|11X-15X|4X-6X|Stable
 
