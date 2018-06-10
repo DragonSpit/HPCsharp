@@ -18,19 +18,18 @@ Sorting and Merging Algorithms:
 
 *Algorithm*|*Collection*|*Distribution*|*vs .Sort*|*vs Linq*|*vs Linq.AsParallel*|*Description*
 --- | --- | --- | --- | --- | --- | ---
-Radix Sort|Array|Random|5X-7X|18X-35X|5X-9X|Stable, Generic
-Radix Sort|List||Random|4X-7X|14X-27X|4X-8X|Stable, Generic
-Radix Sort|Array|Presorted|0.3X-0.5X|3X-5X|1X-2X|Stable, Generic
-Radix Sort|List||Presorted|0.3X-0.5X|3X-5X|1X-3X|Stable, Generic
-Radix Sort|Array|Constant|1.2X-1.5X|6X-8X|2X-3X|Stable, Generic
-Radix Sort|List||Constant|1X-1.4X|5X-6X|2X-3X|Stable, Generic
-
-*Algorithm*|*Collection*|*vs Array Sort*|*Description*
---- | --- | --- | ---
-Insertion Sort|Array, List||For fast in-place sorting of very small collections
-Merge|Array, List||merges two pre-sorted collections
-Radix Sort|Array, List|5X faster|Stable, O(N) Linear Time Sort
-Merge Sort|Array, List|1.7X slower|Stable, O(NlgN), never O(N<sup>2</sup>), Generic
+Radix Sort|Array|Random|5X-7X|18X-35X|5X-9X|Linear Time, Stable, Generic
+Radix Sort|List|Random|4X-7X|14X-27X|4X-8X|Linear Time, Stable, Generic
+Radix Sort|Array|Presorted|0.3X-0.5X|3X-5X|1X-2X|Linear Time, Stable, Generic
+Radix Sort|List|Presorted|0.3X-0.5X|3X-5X|1X-3X|Linear Time, Stable, Generic
+Radix Sort|Array|Constant|1.2X-1.5X|6X-8X|2X-3X|Linear Time, Stable, Generic
+Radix Sort|List|Constant|1X-1.4X|5X-6X|2X-3X|Linear Time, Stable, Generic
+Merge Sort|Array|1.7X slower|Stable, O(NlgN), never O(N<sup>2</sup>), Generic
+Merge Sort|List|1.7X slower||||Stable, O(NlgN), never O(N<sup>2</sup>), Generic
+Insertion Sort|Array|||||For fast in-place sorting of very small collections
+Insertion Sort|List|||||For fast in-place sorting of very small collections
+Merge|Array|||||merges two pre-sorted collections
+Merge|List|||||merges two pre-sorted collections
 
 
 See HPCsharpExample folder in this repo for usage examples - a complete VisualStudio 2017 solution provided.
@@ -49,11 +48,10 @@ Radix Sort|Array|Presorted|0.3X-0.5X|3X-5X|1X-2X|Stable, Generic
 Radix Sort|List||Presorted|0.3X-0.5X|3X-5X|1X-3X|Stable, Generic
 Radix Sort|Array|Constant|1.2X-1.5X|6X-8X|2X-3X|Stable, Generic
 Radix Sort|List||Constant|1X-1.4X|5X-6X|2X-3X|Stable, Generic
-
-Merge Sort|Array|Random|0.6X-0.7X|2X-4X|1X-3X||Stable
+Merge Sort|Array|Random|0.6X-0.7X|2X-4X|1X-3X|Stable
 Merge Sort|List|Random||2X-3X faster|||Stable
-Parallel Merge Sort|Random|Array|2X-3X faster||||Stable
-Parallel Merge Sort|Random|List|2X-3X faster||||Stable
+Parallel Merge Sort|Random|Array|2X-3X faster|||Stable
+Parallel Merge Sort|Random|List|2X-3X faster|||Stable
 
 Parallel Copying:
 
