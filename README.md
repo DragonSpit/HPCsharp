@@ -30,11 +30,8 @@ Radix Sort is linear time O(N) and stable. Radix Sort runs on a single core, whe
 *Algorithm*|*Collection*|*Distribution*|*vs .Sort*|*vs Linq*|*vs Linq.AsParallel*
 --- | --- | --- | --- | --- | ---
 Merge Sort|Array|Random|0.6X-0.7X|2X-4X|1X-3X
-Merge Sort|List|Random||||
 Merge Sort|Array|Presorted|0.3X-0.3X|4X-5X|2X-3X|
-Merge Sort|List|Presorted||||
 Merge Sort|Array|Constant|0.5X-0.6X|3X-4X|2X-3X|
-Merge Sort|List|Constant||||
 
 Merge Sort is O(NlgN), never O(N<sup>2</sup>) and generic.
 
@@ -70,7 +67,7 @@ Radix Sort|List|Constant|2X-4X|3X-4X|1.5X-2X|User defined class
 
 *Algorithm*|*Collection*|*Distribution*|*vs .Sort*|*vs Linq*|*vs Linq.AsParallel*|*Description*
 --- | --- | --- | --- | --- | --- | ---
-Parallel Merge Sort|Array|Random|2X-3X||4X-8X|Stable
+Parallel Merge Sort|Array|Random|2X-3X|10X-16X|4X-8X|Stable
 Parallel Merge Sort|List|Random|2X-3X|11X-15X|4X-6X|Stable
 Parallel Merge Sort|Array|Presorted|1.3X-2.3X||9X-20X|Stable
 Parallel Merge Sort|List|Presorted|1.2X-1.8X|17X-24X|7X-13X|Stable
