@@ -25,7 +25,7 @@ Radix Sort|List|Presorted|0.3X-0.5X|3X-5X|1X-3X
 Radix Sort|Array|Constant|1.2X-1.5X|6X-8X|2X-3X
 Radix Sort|List|Constant|1X-1.4X|5X-6X|2X-3X
 Merge Sort|Array|Random|0.6X-0.7X|2X-4X|1X-3X
-Merge Sort|List|Random||2X-3X faster||
+Merge Sort|List|Random||||
 Insertion Sort|Array, List||||
 Merge|Array, List||||
 
@@ -50,12 +50,12 @@ cores.
 
 *Algorithm*|*Collection*|*Distribution*|*vs .Sort*|*vs Linq*|*vs Linq.AsParallel*|*Description*
 --- | --- | --- | --- | --- | --- | ---
-Radix Sort|Array|Random||||User defined class
-Radix Sort|List||Random||||User defined class
+Radix Sort|Array|Random|1X-4X|3X-5X|1X-2X|User defined class
+Radix Sort|List|Random|2X-4X|3X-5X1X-2X||User defined class
 Radix Sort|Array|Presorted||||User defined class
-Radix Sort|List||Presorted||||User defined class
+Radix Sort|List|Presorted||||User defined class
 Radix Sort|Array|Constant||||User defined class
-Radix Sort|List||Constant||||User defined class
+Radix Sort|List|Constant||||User defined class
 Parallel Merge Sort|Array|Random|2X-3X||4X-8X|Stable
 Parallel Merge Sort|List|Random|2X-3X|11X-15X|4X-6X|Stable
 
