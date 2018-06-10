@@ -24,12 +24,10 @@ Radix Sort|Array|Presorted|0.3X-0.5X|3X-5X|1X-2X|Linear Time, Stable, Generic
 Radix Sort|List|Presorted|0.3X-0.5X|3X-5X|1X-3X|Linear Time, Stable, Generic
 Radix Sort|Array|Constant|1.2X-1.5X|6X-8X|2X-3X|Linear Time, Stable, Generic
 Radix Sort|List|Constant|1X-1.4X|5X-6X|2X-3X|Linear Time, Stable, Generic
-Merge Sort|Array|1.7X slower|Stable, O(NlgN), never O(N<sup>2</sup>), Generic
-Merge Sort|List|1.7X slower||||Stable, O(NlgN), never O(N<sup>2</sup>), Generic
-Insertion Sort|Array|||||For fast in-place sorting of very small collections
-Insertion Sort|List|||||For fast in-place sorting of very small collections
-Merge|Array|||||merges two pre-sorted collections
-Merge|List|||||merges two pre-sorted collections
+Merge Sort|Array|0.6X||||Stable, O(NlgN), never O(N<sup>2</sup>), Generic
+Merge Sort|List|0.6X||||Stable, O(NlgN), never O(N<sup>2</sup>), Generic
+Insertion Sort|Array, List|||||For fast in-place sorting of very small collections
+Merge|Array, List|||||merges two pre-sorted collections
 
 
 See HPCsharpExample folder in this repo for usage examples - a complete VisualStudio 2017 solution provided.
