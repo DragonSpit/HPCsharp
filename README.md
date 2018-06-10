@@ -16,19 +16,23 @@ Max|Array, List|1.5X faster
 
 Sorting and Merging Algorithms:
 
-*Algorithm*|*Collection*|*Distribution*|*vs .Sort*|*vs Linq*|*vs Linq.AsParallel*|*Description*
---- | --- | --- | --- | --- | --- | ---
-Radix Sort|Array|Random|5X-7X|18X-35X|5X-9X|Linear Time, Stable, Generic
-Radix Sort|List|Random|4X-7X|14X-27X|4X-8X|Linear Time, Stable, Generic
-Radix Sort|Array|Presorted|0.3X-0.5X|3X-5X|1X-2X|Linear Time, Stable, Generic
-Radix Sort|List|Presorted|0.3X-0.5X|3X-5X|1X-3X|Linear Time, Stable, Generic
-Radix Sort|Array|Constant|1.2X-1.5X|6X-8X|2X-3X|Linear Time, Stable, Generic
-Radix Sort|List|Constant|1X-1.4X|5X-6X|2X-3X|Linear Time, Stable, Generic
-Merge Sort|Array|0.6X||||Stable, O(NlgN), never O(N<sup>2</sup>), Generic
-Merge Sort|List|0.6X||||Stable, O(NlgN), never O(N<sup>2</sup>), Generic
-Insertion Sort|Array, List|||||For fast in-place sorting of very small collections
-Merge|Array, List|||||merges two pre-sorted collections
+*Algorithm*|*Collection*|*Distribution*|*vs .Sort*|*vs Linq*|*vs Linq.AsParallel*
+--- | --- | --- | --- | --- | ---
+Radix Sort|Array|Random|5X-7X|18X-35X|5X-9X
+Radix Sort|List|Random|4X-7X|14X-27X|4X-8X
+Radix Sort|Array|Presorted|0.3X-0.5X|3X-5X|1X-2X
+Radix Sort|List|Presorted|0.3X-0.5X|3X-5X|1X-3X
+Radix Sort|Array|Constant|1.2X-1.5X|6X-8X|2X-3X
+Radix Sort|List|Constant|1X-1.4X|5X-6X|2X-3X
+Merge Sort|Array|0.6X|||
+Merge Sort|List|0.6X|||
+Insertion Sort|Array, List||||
+Merge|Array, List||||
 
+Radix Sort is linear time O(N), stable and generic.
+Merge Sort is O(NlgN), never O(N<sup>2</sup>) and generic.
+Insertion Sort is O(N<sup>2</sup>), and only useful for fast in-place sorting of very small collections.
+Merge algorithm merges two presorted collections.
 
 See HPCsharpExample folder in this repo for usage examples - a complete VisualStudio 2017 solution provided.
 
