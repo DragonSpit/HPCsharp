@@ -18,14 +18,13 @@ Sorting and Merging Algorithms:
 
 *Algorithm*|*Collection*|*Distribution*|*vs .Sort*|*vs Linq*|*vs Linq.AsParallel*
 --- | --- | --- | --- | --- | ---
-Radix Sort|Array|Random|5X-7X|18X-35X|5X-9X
-Radix Sort|List|Random|4X-7X|14X-27X|4X-8X
-Radix Sort|Array|Presorted|0.3X-0.5X|3X-5X|1X-2X
-Radix Sort|List|Presorted|0.3X-0.5X|3X-5X|1X-3X
-Radix Sort|Array|Constant|1.2X-1.5X|6X-8X|2X-3X
-Radix Sort|List|Constant|1X-1.4X|5X-6X|2X-3X
+Radix Sort|Array, List|Random|4X-7X|14X-35X|4X-9X
+Radix Sort|Array, List|Presorted|0.3X-0.5X|3X-5X|1X-3X
+Radix Sort|Array, List|Constant|1X-1.5X|5X-8X|2X-3X
 
 Radix Sort is linear time O(N) and stable. Radix Sort runs on a single core, whereas Linq.AsParallel ran on all the cores.
+Faster than Linq.OrderBy and Linq.OrderBy.AsParallel for Random, Presorted and Constant distributions. Only slower for Presorted
+distribution for Arrray.Sort and List.Sort, but faster for Random and Constant distributions.
 
 *Algorithm*|*Collection*|*Distribution*|*vs .Sort*|*vs Linq*|*vs Linq.AsParallel*
 --- | --- | --- | --- | --- | ---
@@ -33,7 +32,7 @@ Merge Sort|Array|Random|0.6X-0.7X|2X-4X|1X-3X
 Merge Sort|Array|Presorted|0.3X-0.3X|4X-5X|2X-3X|
 Merge Sort|Array|Constant|0.5X-0.6X|3X-4X|2X-3X|
 
-Merge Sort is O(NlgN), never O(N<sup>2</sup>) and generic.
+Merge Sort is O(NlgN), never O(N<sup>2</sup>) and generic. Faster than Linq.OrderBy and Linq.OrderBy.AsParallel.
 
 *Algorithm*|*Collection*|*Distribution*|*vs .Sort*|*vs Linq*|*vs Linq.AsParallel*
 --- | --- | --- | --- | --- | ---
@@ -68,11 +67,8 @@ Radix Sort|List|Constant|2X-4X|3X-4X|1.5X-2X|User defined class
 *Algorithm*|*Collection*|*Distribution*|*vs .Sort*|*vs Linq*|*vs Linq.AsParallel*|*Description*
 --- | --- | --- | --- | --- | --- | ---
 Parallel Merge Sort|Array|Random|2X-3X|10X-16X|4X-8X|Stable
-Parallel Merge Sort|List|Random|2X-3X|11X-15X|4X-6X|Stable
-Parallel Merge Sort|Array|Presorted|1.3X-2.3X||9X-20X|Stable
-Parallel Merge Sort|List|Presorted|1.2X-1.8X|17X-24X|7X-13X|Stable
-Parallel Merge Sort|Array|Constant|2X-3X||7X-13X|Stable
-Parallel Merge Sort|List|Constant|2X-4X|13X-18X|6X-10X|Stable
+Parallel Merge Sort|Array|Presorted|1.2X-2.3X|17X-34X|7X-20X|Stable
+Parallel Merge Sort|Array|Constant|2X-3X|13X-20X|7X-13X|Stable
 
 Parallel Copying:
 
