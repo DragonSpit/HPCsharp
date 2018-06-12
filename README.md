@@ -23,8 +23,7 @@ Radix Sort|Array, List|Presorted|0.3X-0.5X|3X-5X|1X-3X
 Radix Sort|Array, List|Constant|1X-1.5X|5X-8X|2X-3X
 
 Radix Sort is linear time O(N) and stable. Radix Sort runs on a single core, whereas Linq.AsParallel ran on all the cores.
-Faster than Linq.OrderBy and Linq.OrderBy.AsParallel for Random, Presorted and Constant distributions. Only slower for Presorted
-distribution for Arrray.Sort and List.Sort, but faster for Random and Constant distributions.
+Only slower when sorting presorted Array or List, but faster in all other cases, even than parallel Linq.OrderBy.AsParallel, using a single core.
 
 *Algorithm*|*Collection*|*Distribution*|*vs .Sort*|*vs Linq*|*vs Linq.AsParallel*
 --- | --- | --- | --- | --- | ---
@@ -64,11 +63,16 @@ Radix Sort|List|Presorted|1.0X-1.2X|1.7X-2.1X|0.7X-1.1X|User defined class
 Radix Sort|Array|Constant|3X-4X|4X-5X|2X-3X|User defined class
 Radix Sort|List|Constant|2X-4X|3X-4X|1.5X-2X|User defined class
 
+Only slightly slower than Array.Sort and List.Sort for presorted distribution, but faster for all other distributions. Uses a single core and is stable.
+Faster than Linq.OrderBy and Linq.OrderBy.AsParallel
+
 *Algorithm*|*Collection*|*Distribution*|*vs .Sort*|*vs Linq*|*vs Linq.AsParallel*|*Description*
 --- | --- | --- | --- | --- | --- | ---
 Parallel Merge Sort|Array|Random|2X-3X|10X-16X|4X-8X|Stable
 Parallel Merge Sort|Array|Presorted|1.2X-2.3X|17X-34X|7X-20X|Stable
 Parallel Merge Sort|Array|Constant|2X-3X|13X-20X|7X-13X|Stable
+
+Faster than Array.Sort and List.Sort across all distributions. Substantially faster than Linq.OrderBy and Linq.OrderBy.AsParallel
 
 Parallel Copying:
 
