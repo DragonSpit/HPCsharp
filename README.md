@@ -72,7 +72,7 @@ Parallel Copying:
 --- | --- | ---
 Parallel CopyTo|List to Array|1.7X-2.5X faster
 
-#Examples of Usage#
+# Examples of Usage
 See HPCsharpExample folder in this repo for usage examples - a complete VisualStudio 2017 solution provided.
 
 For details on the motivation see blog:
