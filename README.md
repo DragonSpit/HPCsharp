@@ -32,7 +32,7 @@ Faster than Array.Sort and List.Sort across all distributions. Substantially fas
 --- | --- | --- | --- | --- | --- | ---
 Parallel Merge Sort|Array|Random|5X-14X|19X-90X|7X-47X|Stable
 Parallel Merge Sort|Array|Presorted|1X-6X|5X-60X|16X-122X|Stable
-Parallel Merge Sort|Array|Constant|||9X-44X|Stable
+Parallel Merge Sort|Array|Constant|TBD|TBD|9X-44X|Stable
 
 *Algorithm*|*Collection*|*Distribution*|*vs .Sort*|*vs Linq*|*vs Linq.AsParallel*
 --- | --- | --- | --- | --- | ---
@@ -40,13 +40,15 @@ Merge Sort|Array|Random|0.6X-0.7X|2X-4X|1X-3X
 Merge Sort|Array|Presorted|0.3X-0.3X|4X-5X|2X-3X|
 Merge Sort|Array|Constant|0.5X-0.6X|3X-4X|2X-3X|
 
-Merge Sort is O(NlgN), never O(N<sup>2</sup>) and generic. Faster than Linq.OrderBy and Linq.OrderBy.AsParallel.
+Merge Sort is O(NlgN), never O(N<sup>2</sup>), generic, and runs on a single CPU core. Faster than Linq.OrderBy and Linq.OrderBy.AsParallel.
 
-Another sorting algorithm provided is Insertion Sort which is O(N<sup>2</sup>), and useful for fast in-place sorting of very small collections.
+Also provided is Insertion Sort which is O(N<sup>2</sup>), and useful for fast in-place sorting of very small collections.
+
+Binary Search is also included.
 
 Parallel Merge algorithm is also provided, which merges two presorted collections using multiple cores.
 
-Radix Sort has been extended to sort user defined classes based on a UInt32 or UInt64 key in the class. Radix Sort is still using only a single core.
+Radix Sort has been extended to sort user defined classes based on a UInt32 or UInt64 key within the class. Radix Sort is currently using only a single core.
 
 *Algorithm*|*Collection*|*Distribution*|*vs .Sort*|*vs Linq*|*vs Linq.AsParallel*|*Description*
 --- | --- | --- | --- | --- | --- | ---
@@ -75,7 +77,7 @@ Parallel CopyTo|List to Array|1.7X-2.5X faster
 Discussion on when it's appropriate to use parallel copy is coming soon...
 
 # Examples of Usage
-See HPCsharpExample folder in this repo for usage examples - a complete VisualStudio 2017 solution provided.
+See HPCsharpExample folder in this GitHub repository for usage examples - a complete working VisualStudio 2017 solution is provided.
 
 # Related Blogs
 For details on the motivation see blog:
