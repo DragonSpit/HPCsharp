@@ -8,7 +8,7 @@ Free and open source.
 Version 2.0 algorithm performance is shown in the following tables:
 
 *Algorithm*|*Collection*|*Distribution*|*vs .Sort*|*vs Linq*|*vs Linq.AsParallel*|*Data Type*
---- | --- | --- | --- | --- | ---
+--- | --- | --- | --- | --- | --- | ---
 Radix Sort|Array, List|Random|4X-7X|14X-35X|4X-9X|UInt32
 Radix Sort|Array, List|Presorted|0.3X-0.5X|3X-5X|1X-3X|UInt32
 Radix Sort|Array, List|Constant|1X-1.5X|5X-8X|2X-3X|UInt32
