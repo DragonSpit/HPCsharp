@@ -5,7 +5,7 @@ Parallel algorithms for sorting, merging, copying and others. Parallel Merge Sor
 Linear and stable Radix Sort algorithm for arrays and lists of user defined classes sorted by key.
 Free and open source.
 
-*Version 2.0* algorithm performance is shown in the following tables:
+**_Version 2.0_** algorithm performance is shown in the following tables:
 
 *Algorithm*|*Collection*|*Distribution*|*vs .Sort*|*vs Linq*|*vs Linq.AsParallel*|*Data Type*
 --- | --- | --- | --- | --- | --- | ---
@@ -26,7 +26,7 @@ Parallel Merge Sort|Array|Constant|2X-3X|13X-20X|7X-13X|Stable
 
 Faster than Array.Sort and List.Sort across all distributions. Substantially faster than Linq.OrderBy and Linq.OrderBy.AsParallel
 
-*36-core AWS c5.18xlarge*
+**_36-core AWS c5.18xlarge_**
 
 *Algorithm*|*Collection*|*Distribution*|*vs .Sort*|*vs Linq*|*vs Linq.AsParallel*|*Description*
 --- | --- | --- | --- | --- | --- | ---
@@ -72,18 +72,22 @@ Parallel Copying:
 --- | --- | ---
 Parallel CopyTo|List to Array|1.7X-2.5X faster
 
+Discussion on when it's appropriate to use parallel copy is coming soon...
+
 # Examples of Usage
 See HPCsharpExample folder in this repo for usage examples - a complete VisualStudio 2017 solution provided.
 
-# Related Blog
+# Related Blogs
 For details on the motivation see blog:
 https://duvanenko.tech.blog/2018/03/03/high-performance-c/
+
 For more performance discussion see blog:
 https://duvanenko.tech.blog/2018/05/23/faster-sorting-in-c/
 
 # Website for Feature Votes
-Visit us https://foostate.com/ and let us know what other high performance algorithms are important to you.
+Visit us at https://foostate.com/ and let us know what other high performance algorithms are important to you, and you'd like to see in this NuGet package.
 
 # Encouragement
 If you like it, then buy us a cup of coffee, to help us keep more good stuff like this coming
+
 [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=LDD8L7UPAC7QL)
