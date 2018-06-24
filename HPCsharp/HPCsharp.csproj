@@ -6,11 +6,11 @@
     <Company>FooState</Company>
     <Product>HPCsharp</Product>
     <Description>High performance C#/.NET generic algorithms. Community driven to move C# toward high performance computing.
-Includes linear and stable Radix Sort algorithm, as well as stable Merge Sort and Merge of arrays and lists.
-Provides a trade-off between performance and level of abstraction: Array, List, IList, IEnumerable.</Description>
+Includes parallel Merge Sort, parallel Merge, linear and stable Radix Sort algorithm, of arrays and lists, and more...
+Sorting algorithms use the same interfaces as C# Array.Sort and Linq.</Description>
     <Copyright>© 2018 FooState</Copyright>
     <PackageLicenseUrl>https://github.com/DragonSpit/HPCsharp/blob/master/LICENSE</PackageLicenseUrl>
-    <PackageReleaseNotes>Added linear time and stable Radix Sort. Added stable Merge Sort. Merge Sort is O(nlgn) and will never run O(n^2). Merge Sort supports sub-range</PackageReleaseNotes>
+    <PackageReleaseNotes>Added linear time and stable Radix Sort of user defined classes based on a key. Added Parallel Merge Sort. Merge Sort is O(nlgn) and will never run O(n^2). Merge Sort supports sub-range, and user defined classes. Sorting algorithms use the same interfaces as C# Array.Sort and Linq.</PackageReleaseNotes>
     <PackageId>HPCsharp</PackageId>
     <PackageTags>high perfromance algorithms, C#, high performance, high performance computing, HPC, algorithm, algorithms, Linq, parallel, parallel algorithm</PackageTags>
     <PackageIconUrl>https://foostate.com/images/default_lib_icon_64.png</PackageIconUrl>
@@ -19,9 +19,9 @@ Provides a trade-off between performance and level of abstraction: Array, List, 
     <PackageProjectUrl>https://github.com/DragonSpit/HPCsharp</PackageProjectUrl>
     <RepositoryUrl>https://github.com/DragonSpit/HPCsharp</RepositoryUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <AssemblyVersion>1.0.8.0</AssemblyVersion>
-    <FileVersion>1.0.8.0</FileVersion>
-    <Version>1.0.8</Version>
+    <AssemblyVersion>2.0.0.0</AssemblyVersion>
+    <FileVersion>2.0.0.0</FileVersion>
+    <Version>2.0.0</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
