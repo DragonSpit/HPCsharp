@@ -44,9 +44,9 @@ Merge Sort is O(NlgN), never O(N<sup>2</sup>), generic, and runs on a single CPU
 
 Other algorithms provided:
 - Insertion Sort which is O(N<sup>2</sup>), and useful for fast in-place sorting of very small collections.
-- Binary Search is also included.
-- Parallel Merge algorithm is also provided, which merges two presorted collections using multiple cores.
-- A few parallel methods for Min, Max, Average, etc.
+- Binary Search algorithm
+- Parallel Merge algorithm, which merges two presorted collections using multiple cores. Used by Parallel Merge Sort.
+- A few parallel Linq-style methods for Min, Max, Average, etc.
 
 Radix Sort has been extended to sort user defined classes based on a UInt32 or UInt64 key within the class. Radix Sort is currently using only a single core.
 
