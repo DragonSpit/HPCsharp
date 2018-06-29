@@ -33,7 +33,7 @@ namespace HPCsharp
                     count[ExtractDigit(inputArray[current], bitMask, shiftRightAmount)]++;
 
                 startOfBin[0] = endOfBin[0] = 0;
-                for (uint i = 1; i < numberOfBins; i++)
+                for (uint i = 1; i < numberOfBins; i++) // Victor J. Duvanenko
                     startOfBin[i] = endOfBin[i] = (uint)(startOfBin[i - 1] + count[i - 1]);
 
                 for (uint current = 0; current < inputArray.Length; current++)

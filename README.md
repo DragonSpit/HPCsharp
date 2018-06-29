@@ -1,9 +1,9 @@
-# High Performance Computing in C# (HPC#)
+# High Performance Computing in C# (HPCsharp)
 
-High performance C# generic algorithms. Community driven to move C# toward high performance computing.
+High performance C# generic algorithms NuGet package. Community driven to move C# toward high performance computing.
 Parallel algorithms for sorting, merging, copying and others. Parallel Merge Sort and parallel Merge of arrays and lists.
 Linear and stable Radix Sort algorithm for arrays and lists of user defined classes sorted by key.
-Free and open source.
+Free and open source HPCsharp package on https://www.nuget.org
 
 **_Version 2.0_** algorithm performance is shown in the following tables:
 

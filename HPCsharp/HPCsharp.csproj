@@ -10,7 +10,7 @@ Includes parallel Merge Sort, parallel Merge, linear and stable Radix Sort algor
 Sorting algorithms use the same interfaces as C# Array.Sort and Linq.</Description>
     <Copyright>© 2018 FooState</Copyright>
     <PackageLicenseUrl>https://github.com/DragonSpit/HPCsharp/blob/master/LICENSE</PackageLicenseUrl>
-    <PackageReleaseNotes>Added linear time and stable Radix Sort of user defined classes based on a key. Added Parallel Merge Sort. Merge Sort is O(nlgn) and will never run O(n^2). Merge Sort supports sub-range, and user defined classes. Sorting algorithms use the same interfaces as C# Array.Sort and Linq.</PackageReleaseNotes>
+    <PackageReleaseNotes>Added linear time and stable Radix Sort of user defined classes based on a key. Added Parallel Merge Sort and parallel Merge. Merge Sort is O(nlgn) and will never run O(n^2). Merge Sort supports sub-range, and user defined classes. Sorting algorithms use the same interfaces as C# Array.Sort and Linq.</PackageReleaseNotes>
     <PackageId>HPCsharp</PackageId>
     <PackageTags>high perfromance algorithms, C#, high performance, high performance computing, HPC, algorithm, algorithms, Linq, parallel, parallel algorithm</PackageTags>
     <PackageIconUrl>https://foostate.com/images/default_lib_icon_64.png</PackageIconUrl>
