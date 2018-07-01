@@ -9,7 +9,7 @@ Free and open source HPCsharp package on https://www.nuget.org
 
 *Algorithm*|*Collection*|*Distribution*|*vs .Sort*|*vs Linq*|*vs Linq.AsParallel*|*MegaInts/sec*|*Data Type*
 --- | --- | --- | --- | --- | --- | --- | ---
-Radix Sort|Array, List|Random|4X-7X|14X-35X|4X-9X|93|UInt32
+Radix Sort|Array, List|Random|4X-7X|14X-35X|4X-9X|93, 75|UInt32
 Radix Sort|Array, List|Presorted|0.3X-0.5X|3X-5X|1X-3X||UInt32
 Radix Sort|Array, List|Constant|1X-1.5X|5X-8X|2X-3X||UInt32
 
