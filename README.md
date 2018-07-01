@@ -7,11 +7,11 @@ Free and open source HPCsharp package on https://www.nuget.org
 
 **_Version 2.0_** algorithm performance is shown in the following tables:
 
-*Algorithm*|*Collection*|*Distribution*|*vs .Sort*|*vs Linq*|*vs Linq.AsParallel*|*Data Type*
---- | --- | --- | --- | --- | --- | ---
-Radix Sort|Array, List|Random|4X-7X|14X-35X|4X-9X|UInt32
-Radix Sort|Array, List|Presorted|0.3X-0.5X|3X-5X|1X-3X|UInt32
-Radix Sort|Array, List|Constant|1X-1.5X|5X-8X|2X-3X|UInt32
+*Algorithm*|*Collection*|*Distribution*|*vs .Sort*|*vs Linq*|*vs Linq.AsParallel*|*MegaInts/sec*|*Data Type*
+--- | --- | --- | --- | --- | --- | --- | ---
+Radix Sort|Array, List|Random|4X-7X|14X-35X|4X-9X|93|UInt32
+Radix Sort|Array, List|Presorted|0.3X-0.5X|3X-5X|1X-3X||UInt32
+Radix Sort|Array, List|Constant|1X-1.5X|5X-8X|2X-3X||UInt32
 
 Radix Sort is linear time O(N) and stable. Radix Sort runs on a single core, whereas Linq.AsParallel ran on all the cores.
 Only slower when sorting presorted Array or List, but faster in all other cases, even faster than parallel Linq.OrderBy.AsParallel.

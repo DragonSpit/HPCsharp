@@ -452,8 +452,8 @@ namespace HPCsharp
         {
             int numberOfBins = 256;
             int Log2ofPowerOfTwoRadix = 8;
-            T[] outputArray = new T[inputArray.Length];
-            UInt32[] inKeys = new UInt32[inputArray.Length];
+            T[] outputArray        = new      T[inputArray.Length];
+            UInt32[] inKeys        = new UInt32[inputArray.Length];
             UInt32[] outSortedKeys = new UInt32[inputArray.Length];
             uint[] count = new uint[numberOfBins];
             bool outputArrayHasResult = false;
@@ -462,7 +462,7 @@ namespace HPCsharp
             int shiftRightAmount = 0;
 
             uint[] startOfBin = new uint[numberOfBins];
-            uint[] endOfBin = new uint[numberOfBins];
+            uint[] endOfBin   = new uint[numberOfBins];
 
             while (bitMask != 0)    // end processing digits when all the mask bits have been processed and shifted out, leaving no bits set in the bitMask
             {
