@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace HPCsharper
+namespace HPCsharp
 {
     /// <summary>
     /// Algorithms operating on variety of containers, providing trade-off between abstraction and performance

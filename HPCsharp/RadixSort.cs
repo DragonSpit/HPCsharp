@@ -17,13 +17,11 @@ namespace HPCsharp
             int Log2ofPowerOfTwoRadix = 8;
             uint[] outputArray = new uint[inputArray.Length];
             uint[] count       = new uint[numberOfBins];
+            uint[] startOfBin  = new uint[numberOfBins];
             bool outputArrayHasResult = false;
 
             uint bitMask = 255;
             int shiftRightAmount = 0;
-
-            uint[] startOfBin = new uint[numberOfBins];
-            uint[] endOfBin   = new uint[numberOfBins];
 
             while (bitMask != 0)    // end processing digits when all the mask bits have been processed and shifted out, leaving no bits set in the bitMask
             {
@@ -32,12 +30,12 @@ namespace HPCsharp
                 for (uint current = 0; current < inputArray.Length; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
                     count[ExtractDigit(inputArray[current], bitMask, shiftRightAmount)]++;
 
-                startOfBin[0] = endOfBin[0] = 0;
+                startOfBin[0] = 0;
                 for (uint i = 1; i < numberOfBins; i++) // Victor J. Duvanenko
-                    startOfBin[i] = endOfBin[i] = (uint)(startOfBin[i - 1] + count[i - 1]);
+                    startOfBin[i] = (uint)(startOfBin[i - 1] + count[i - 1]);
 
                 for (uint current = 0; current < inputArray.Length; current++)
-                    outputArray[endOfBin[ExtractDigit(inputArray[current], bitMask, shiftRightAmount)]++] = inputArray[current];
+                    outputArray[startOfBin[ExtractDigit(inputArray[current], bitMask, shiftRightAmount)]++] = inputArray[current];
 
                 bitMask <<= Log2ofPowerOfTwoRadix;
                 shiftRightAmount += Log2ofPowerOfTwoRadix;
@@ -452,7 +450,7 @@ namespace HPCsharp
         {
             int numberOfBins = 256;
             int Log2ofPowerOfTwoRadix = 8;
-            T[] outputArray        = new      T[inputArray.Length];
+            T[]      outputArray   = new      T[inputArray.Length];
             UInt32[] inKeys        = new UInt32[inputArray.Length];
             UInt32[] outSortedKeys = new UInt32[inputArray.Length];
             uint[] count = new uint[numberOfBins];

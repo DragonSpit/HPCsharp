@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
-namespace HPCsharper
+namespace HPCsharp
 {
     static public partial class ParallelAlgorithm
     {

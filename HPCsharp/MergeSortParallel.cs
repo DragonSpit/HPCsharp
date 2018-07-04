@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Diagnostics;
 
-namespace HPCsharper
+namespace HPCsharp
 {
     /// <summary>
     /// Parallel Algorithms operating on variety of containers, providing trade-off between abstraction and performance

@@ -7,7 +7,6 @@
 // TODO: Add IEnumerable versions of Merge to provide both levels of abstraction, and more merging flexibilities, such as Merge(array, List), if possible
 // TODO: Add IEnumerable parallel copy to support higher level of abstraction high performance copy
 // TODO: Add parallel array and list copy, and find out other containers that can be be accessed without IEnumerable and parallel copy them too
-// TODO: Bring over parallel merge algorithm to open source
 // TODO: Write a blog about IEnumerable needs support for random access and that random access is a must (at least divide in half) to support parallelism
 //       in the form of divide and conquer
 // TODO: Learn span and how that can be used to support divide-and-conquer for IEnumerable
@@ -17,8 +16,6 @@
 //       more generic than my current version
 // TODO: Definitely compare my Insertion Sort with Microsoft's on arrays of small random arrays
 // TODO: Create a simpler Merge to merge entire Lists
-// TODO: Revise nuget.org package write up to be closer to what the package really does currently and where it's going: Community effort to bring
-//       High Performance Computing to C#/.NET community
 // TODO: Implement MinMax parallel algorithm from my Dr. Dobb's article on optimal object extents, and implement a parallel version of it.
 // TODO: Implement Merge Sort with Comparison interface, just like the second interface that C# standard .Sort() has, to support lamdas and the
 //       ability to add comparison method (lambda) to either user defined class or a standard class.
