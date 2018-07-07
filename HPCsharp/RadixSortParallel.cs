@@ -4,6 +4,13 @@ using System.Threading.Tasks;
 
 namespace HPCsharp
 {
+    class CustomData
+    {
+        public uint current;
+        public uint r;
+        public uint bitMask;
+        public int shiftRightAmount;
+    }
     static public partial class ParallelAlgorithm
     {
         /// <summary>
@@ -67,6 +74,30 @@ namespace HPCsharp
                     outputArray[startOfBin[r, ExtractDigit(inputArray[current], bitMask, shiftRightAmount)]++] = inputArray[current];
                 }
 #else
+#if true
+                // The last work item may not have the full parallelWorkQuanta of items to process
+                Task[] taskArray = new Task[numWorkItems - 1];
+                for (uint r = 0; r < numWorkItems - 1; r++)
+                {
+                    uint current = r * SortRadixParallelWorkQuanta;
+                    taskArray[r] = Task.Factory.StartNew((Object obj) => {
+                            CustomData data = obj as CustomData;
+                            if (data == null)
+                                return;
+                            uint currIndex = data.current;
+                            uint rLoc = data.r;
+                            //Console.WriteLine("current = {0}, r = {1}, bitMask = {2}, shiftRightAmount = {3}", currIndex, rLoc, data.bitMask, data.shiftRightAmount);
+                            for (uint i = 0; i < SortRadixParallelWorkQuanta; i++)
+                            {
+                                outputArray[startOfBin[rLoc, ExtractDigit(inputArray[currIndex], data.bitMask, data.shiftRightAmount)]++] = inputArray[currIndex];
+                                currIndex++;
+                            }
+                        },
+                        new CustomData() { current = current, r = r, bitMask = bitMask, shiftRightAmount = shiftRightAmount }
+                    );
+                }
+                Task.WaitAll(taskArray);
+#else
                 // The last work item may not have the full parallelWorkQuanta of items to process
                 for (uint r = 0; r < numWorkItems - 1; r++)
                 {
@@ -77,6 +108,7 @@ namespace HPCsharp
                         current++;
                     }
                 }
+#endif
                 // The last iteration, which may not have the full parallelWorkQuanta of items to process
                 uint currentLast = (numWorkItems - 1) * SortRadixParallelWorkQuanta;
                 uint numItems = (uint)inputArray.Length % SortRadixParallelWorkQuanta;
@@ -100,6 +132,14 @@ namespace HPCsharp
                     inputArray[current] = outputArray[current];
 
             return inputArray;
+        }
+        private static void DoRadixSortLsdParallel(uint current, uint[] outputArray, uint[,] startOfBin, uint r, uint[] inputArray, uint bitMask, int shiftRightAmount)
+        {
+            for (uint i = 0; i < SortRadixParallelWorkQuanta; i++)
+            {
+                outputArray[startOfBin[r, ExtractDigit(inputArray[current], bitMask, shiftRightAmount)]++] = inputArray[current];
+                current++;
+            }
         }
         private static UInt32 ExtractDigit(UInt32 value, UInt32 bitMask, int shiftRightAmount)
         {
