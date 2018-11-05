@@ -52,6 +52,53 @@ namespace HPCsharp
             return inputArray;
         }
         /// <summary>
+        /// Sort an array of unsigned integers using Radix Sorting algorithm (least significant digit variation)
+        /// </summary>
+        /// <param name="inputArray"></param>
+        /// <returns>array of unsigned integers</returns>
+        public static void SortRadix(this uint[] inputArray, int startIndex, int length, uint[] tmpArray)
+        {
+            int numberOfBins = 256;
+            int Log2ofPowerOfTwoRadix = 8;
+            int[] count       = new int[numberOfBins];
+            int[] startOfBin  = new int[numberOfBins];
+            bool tmpArrayHasResult = false;
+
+            uint bitMask = 255;
+            int shiftRightAmount = 0;
+
+            while (bitMask != 0)    // end processing digits when all the mask bits have been processed and shifted out, leaving no bits set in the bitMask
+            {
+                for (uint i = 0; i < numberOfBins; i++)
+                    count[i] = 0;
+                for (int current = startIndex; current < (startIndex + length); current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
+                    count[ExtractDigit(inputArray[current], bitMask, shiftRightAmount)]++;
+
+                startOfBin[0] = startIndex;
+                for (uint i = 1; i < numberOfBins; i++) // Victor J. Duvanenko
+                    startOfBin[i] = (startOfBin[i - 1] + count[i - 1]);
+
+                for (int current = startIndex; current < (startIndex + length); current++)
+                    tmpArray[startOfBin[ExtractDigit(inputArray[current], bitMask, shiftRightAmount)]++] = inputArray[current];
+
+                bitMask <<= Log2ofPowerOfTwoRadix;
+                shiftRightAmount += Log2ofPowerOfTwoRadix;
+                tmpArrayHasResult = !tmpArrayHasResult;
+
+                uint[] tmp = inputArray;       // swap input and tmp arrays
+                inputArray = tmpArray;
+                tmpArray = tmp;
+            }
+            uint[] tmp1 = inputArray;       // swap input and tmp arrays
+            inputArray = tmpArray;
+            tmpArray = tmp1;
+            //if (outputArrayHasResult)
+            //    for (int current = 0; current < inputArray.Length; current++)    // copy from output array into the input array
+            //        inputArray[current] = outputArray[current];
+
+            //return inputArray;
+        }
+        /// <summary>
         /// Sort an List of unsigned integers using Radix Sorting algorithm (least significant digit variation)
         /// </summary>
         /// <param name="inputArray"></param>

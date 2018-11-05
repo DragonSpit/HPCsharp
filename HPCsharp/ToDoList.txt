@@ -19,3 +19,4 @@
 // TODO: Implement MinMax parallel algorithm from my Dr. Dobb's article on optimal object extents, and implement a parallel version of it.
 // TODO: Implement Merge Sort with Comparison interface, just like the second interface that C# standard .Sort() has, to support lamdas and the
 //       ability to add comparison method (lambda) to either user defined class or a standard class.
+// TODO: Since Parallel Merge Sort uses .Sort as the base case, the whole algorithm becomes non-stable => stability can not be claimed

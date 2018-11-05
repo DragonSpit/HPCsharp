@@ -44,7 +44,9 @@ namespace HPCsharp
             if (length1 == 0) return;
             if ((length1 + length2) <= MergeParallelArrayThreshold)
             {   // 8192 threshold is much better than 16 (is it for C#)
-                HPCsharp.Algorithm.Merge<T>(src, p1, p1 + length1, src, p2, p2 + length2, dst, p3, comparer);  // in DDJ paper
+                HPCsharp.Algorithm.Merge<T>(src, p1, p1 + length1,
+                                            src, p2, p2 + length2,
+                                            dst, p3, comparer);  // in Dr. Dobb's Journal paper
             }
             else
             {
@@ -53,8 +55,8 @@ namespace HPCsharp
                 Int32 q3 = p3 + (q1 - p1) + (q2 - p2);
                 dst[q3] = src[q1];
                 Parallel.Invoke(
-                    () => { MergePar<T>(src, p1, q1 - 1, p2, q2 - 1, dst, p3, comparer); },
-                    () => { MergePar<T>(src, q1 + 1, r1, q2, r2, dst, q3 + 1, comparer); }
+                    () => { MergePar<T>(src, p1,     q1 - 1, p2, q2 - 1, dst, p3,     comparer); },
+                    () => { MergePar<T>(src, q1 + 1, r1,     q2, r2,     dst, q3 + 1, comparer); }
                 );
             }
         }

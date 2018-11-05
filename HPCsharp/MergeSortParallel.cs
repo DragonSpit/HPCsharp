@@ -17,6 +17,10 @@ namespace HPCsharp
         /// <summary>
         /// Arrays or Lists smaller than this value will not be copied using a parallel copy
         /// </summary>
+        public static Int32 SortMerge2ParallelThreshold { get; set; } = 1024 * 1024;
+        /// <summary>
+        /// Arrays or Lists smaller than this value will not be copied using a parallel copy
+        /// </summary>
         public static Int32 SortMergeParallelInsertionThreshold { get; set; } = 16;
         /// <summary>
         /// Parallel Merge Sort that is not-in-place
@@ -59,6 +63,31 @@ namespace HPCsharp
             if (srcToDst) MergePar<T>(src, l, m, m + 1, r, dst, l, comparer);
             else          MergePar<T>(dst, l, m, m + 1, r, src, l, comparer);
         }
+        // Hybrid algorithms of Parallel Merge Sort at the high level and Radix Sort at the inner level
+        private static void SortMergeInner2Par(this uint[] src, Int32 l, Int32 r, uint[] dst, uint[] tmp, bool srcToDst = true)
+        {
+            if (r == l)
+            {    // termination/base case of sorting a single element
+                if (srcToDst) dst[l] = src[l];    // copy the single element from src to dst
+                return;
+            }
+            if ((r - l) <= SortMerge2ParallelThreshold)
+            {
+                Algorithm.SortRadix(src, l, r - l + 1, tmp);
+                //Array.Sort<uint>(src, l, r - l + 1);
+                if (srcToDst)
+                    for (int i = l; i <= r; i++) dst[i] = src[i];	// copy from src to dst, when the result needs to be in dst
+                return;
+            }
+            int m = (((r + l) / 2) / 16 ) * 16;     // 16 * sizeof(uint) = 64 bytes == cache line size
+            Parallel.Invoke(
+                () => { SortMergeInner2Par(src, l,     m, dst, tmp, !srcToDst); },      // reverse direction of srcToDst for the next level of recursion
+                () => { SortMergeInner2Par(src, m + 1, r, dst, tmp, !srcToDst); }
+            );
+            // reverse direction of srcToDst for the next level of recursion
+            if (srcToDst) MergePar<uint>(src, l, m, m + 1, r, dst, l);
+            else          MergePar<uint>(dst, l, m, m + 1, r, src, l);
+        }
         /// <summary>
         /// Parallel Merge Sort. Takes a range of the src array, sorts it, and then returns just the sorted range
         /// </summary>
@@ -89,6 +118,17 @@ namespace HPCsharp
         {
             var dst = new T[src.Length];
             src.SortMergeInnerPar<T>(0, src.Length - 1, dst, true, comparer);
+            return dst;
+        }
+        /// <summary>
+        /// Parallel Merge Sort. Allocates the resulting sorted array and returns it.
+        /// </summary>
+        /// <param name="src">source array</param>
+        public static uint[] SortMerge2Par(this uint[] src)
+        {
+            var dst = new uint[src.Length];
+            var tmp = new uint[src.Length];
+            src.SortMergeInner2Par(0, src.Length - 1, dst, tmp, true);
             return dst;
         }
         /// <summary>

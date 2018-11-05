@@ -26,7 +26,7 @@ Parallel Merge Sort|Array|Constant|2X-3X|13X-20X|7X-13X|Stable
 
 Faster than Array.Sort and List.Sort across all distributions. Substantially faster than Linq.OrderBy and Linq.OrderBy.AsParallel
 
-**_36-core AWS c5.18xlarge_**
+**_28-core (56-threads) AWS c5.18xlarge_**
 
 *Algorithm*|*Collection*|*Distribution*|*vs .Sort*|*vs Linq*|*vs Linq.AsParallel*|*Description*
 --- | --- | --- | --- | --- | --- | ---
