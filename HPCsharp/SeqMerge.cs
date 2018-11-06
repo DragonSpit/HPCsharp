@@ -200,23 +200,18 @@ namespace HPCsharp
         }
 
         /// <summary>
-        /// Merge two sorted Arrays within a range, placing the result into a destination List, starting at an index.
-        //  The destination array must be as big as the source, otherwise an ArgumentException is thrown.
-        /// a: first sorted Array to be merged
-        /// aStart: left/starting index within the first  Array where to source the elements, inclusive
-        /// aEnd:   right/ending  index within the first  Array, non-inclusive
-        /// b: second sorted Array to be merged
-        /// bStart: left/starting index within the second Array where to source the elements, inclusive
-        /// bEnd:   right/ending  index within the second Array, non-inclusive
-        /// dst: destination Array where the result of two merged Arrays is placed
-        /// dstStart: left/starting index within the destination Array where the merged sorted List will be placed
+        /// Merge two or more sorted array spans, placing the result into a destination array as a single sorted span.
+        /// The destination array must be as big as the source, otherwise an ArgumentException is thrown.
+        /// The source array is modified during processing.
+        /// src: source array containing sorted spans to be merged into a single sorted span 
+        /// srcSpans: List of sorted spans, specified by starting and ending indexes (both inclusive)
+        /// dst: destination Array where the result of merged spans is placed
         /// comparer: optional compare method
         /// </summary>
         static public void Merge<T>(T[] src, List<SortedSpan> srcSpans,
                                     T[] dst,
                                     Comparer<T> comparer = null)
         {
-            // TODO: Check that the destination is of equal size as the source, otherwise throw an exception
             if (dst.Length != src.Length)
             {
                 throw new ArgumentException("Destination array must be the same size as the source array");
