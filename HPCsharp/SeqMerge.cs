@@ -15,10 +15,10 @@ namespace HPCsharp
         /// Merge two sorted Lists within a range, placing the result into a destination List, starting at an index.
         /// a: first sorted List to be merged
         /// aStart: left/starting index within the first  List where to source the elements, inclusive
-        /// aEnd:   right/ending  index within the first  List, non-inclusive
+        /// aEnd:   right/ending  index within the first  List, inclusive
         /// b: second sorted List to be merged
         /// bStart: left/starting index within the second List where to source the elements, inclusive
-        /// bEnd:   right/ending  index within the second List, non-inclusive
+        /// bEnd:   right/ending  index within the second List, inclusive
         /// dst: destination List where the result of two merged Lists is placed
         /// dstStart: left/starting index within the destination List where the merged sorted List will be placed
         /// comparer: optional compare method
@@ -68,6 +68,18 @@ namespace HPCsharp
             while (aStart <= aEnd) dst[dstStart++] = src[aStart++];
             while (bStart <= bEnd) dst[dstStart++] = src[bStart++];
         }
+        /// <summary>
+        /// Merge two sorted Arrays within a range, placing the result into a destination Array, starting at an index.
+        /// a: first sorted Array to be merged
+        /// aStart: left/starting index within the first  Array where to source the elements, inclusive
+        /// aEnd:   right/ending  index within the first  Array, inclusive
+        /// b: second sorted Array to be merged
+        /// bStart: left/starting index within the second Array where to source the elements, inclusive
+        /// bEnd:   right/ending  index within the second Array, inclusive
+        /// dst: destination Array where the result of two merged Arrays is placed
+        /// dstStart: left/starting index within the destination Array where the merged sorted Array will be placed
+        /// comparer: optional compare method
+        /// </summary>
         static public void Merge(int[] a,   Int32 aStart, Int32 aEnd,
                                  int[] b,   Int32 bStart, Int32 bEnd,
                                  int[] dst, Int32 dstStart)
@@ -84,6 +96,17 @@ namespace HPCsharp
             //Array.Copy(b, bStart, dst, dstStart, bEnd - bStart + 1);
             while (bStart <= bEnd) dst[dstStart++] = b[bStart++];
         }
+        /// <summary>
+        /// Merge two sorted Arrays within a range, placing the result into a destination Array, starting at an index.
+        /// a: first sorted Array to be merged
+        /// aStart: left/starting index within the first  Array where to source the elements, inclusive
+        /// aEnd:   right/ending  index within the first  Array, inclusive
+        /// bStart: left/starting index within the second Array where to source the elements, inclusive
+        /// bEnd:   right/ending  index within the second Array, inclusive
+        /// dst: destination Array where the result of two merged Arrays is placed
+        /// dstStart: left/starting index within the destination Array where the merged sorted Array will be placed
+        /// comparer: optional compare method
+        /// </summary>
         static public void Merge(int[] src, Int32 aStart, Int32 aEnd, Int32 bStart, Int32 bEnd,
                                  int[] dst, Int32 dstStart)
         {
@@ -99,7 +122,19 @@ namespace HPCsharp
             //Array.Copy(src, bStart, dst, dstStart, bEnd - bStart + 1);
             while (bStart <= bEnd) dst[dstStart++] = src[bStart++];
         }
-        // A slightly faster implementation, which performs only a single comparison for each loop
+        /// <summary>
+        /// A slightly faster implementation, which performs only a single comparison for each loop
+        /// Merge two sorted Arrays within a range, placing the result into a destination Array, starting at an index.
+        /// a: first sorted Array to be merged
+        /// aStart: left/starting index within the first  Array where to source the elements, inclusive
+        /// aEnd:   right/ending  index within the first  Array, inclusive
+        /// b: second sorted Array to be merged
+        /// bStart: left/starting index within the second Array where to source the elements, inclusive
+        /// bEnd:   right/ending  index within the second Array, inclusive
+        /// dst: destination Array where the result of two merged Arrays is placed
+        /// dstStart: left/starting index within the destination Array where the merged sorted Array will be placed
+        /// comparer: optional compare method
+        /// </summary>
         static public void Merge2(int[] src, Int32 aStart, Int32 aEnd, Int32 bStart, Int32 bEnd,
                                   int[] dst, Int32 dstStart)
         {
@@ -168,15 +203,15 @@ namespace HPCsharp
             while (bStart <= bEnd) dst[dstStart++] = src[bStart++];
         }
         /// <summary>
-        /// Merge two sorted Arrays within a range, placing the result into a destination List, starting at an index.
+        /// Merge two sorted Arrays within a range, placing the result into a destination Array, starting at an index.
         /// a: first sorted Array to be merged
         /// aStart: left/starting index within the first  Array where to source the elements, inclusive
-        /// aEnd:   right/ending  index within the first  Array, non-inclusive
+        /// aEnd:   right/ending  index within the first  Array, inclusive
         /// b: second sorted Array to be merged
         /// bStart: left/starting index within the second Array where to source the elements, inclusive
-        /// bEnd:   right/ending  index within the second Array, non-inclusive
+        /// bEnd:   right/ending  index within the second Array, inclusive
         /// dst: destination Array where the result of two merged Arrays is placed
-        /// dstStart: left/starting index within the destination Array where the merged sorted List will be placed
+        /// dstStart: left/starting index within the destination Array where the merged sorted Array will be placed
         /// comparer: optional compare method
         /// </summary>
         static public void Merge<T>(T[] a,   Int32 aStart, Int32 aEnd,
@@ -193,9 +228,9 @@ namespace HPCsharp
                 else
                     dst[dstStart++] = b[bStart++];
             }
-            //Array.Copy(a, aStart, dst, dstStart, aEnd - aStart);
+            //Array.Copy(a, aStart, dst, dstStart, aEnd - aStart + 1);
             while (aStart <= aEnd) dst[dstStart++] = a[aStart++];    // copy(a[aStart, aEnd] to dst[dstStart]
-            //Array.Copy(b, bStart, dst, dstStart, bEnd - bStart);
+            //Array.Copy(b, bStart, dst, dstStart, bEnd - bStart + 1);
             while (bStart <= bEnd) dst[dstStart++] = b[bStart++];
         }
 
