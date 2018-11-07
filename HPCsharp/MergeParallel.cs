@@ -33,6 +33,7 @@ namespace HPCsharp
         /// <param name="comparer">method to compare array elements</param>
         public static void MergePar<T>(T[] src, Int32 p1, Int32 r1, Int32 p2, Int32 r2, T[] dst, Int32 p3, Comparer<T> comparer = null)
         {
+            //Console.WriteLine("#1 " + p1 + " " + r1 + " " + p2 + " " + r2);
             Int32 length1 = r1 - p1 + 1;
             Int32 length2 = r2 - p2 + 1;
             if (length1 < length2)
@@ -44,8 +45,9 @@ namespace HPCsharp
             if (length1 == 0) return;
             if ((length1 + length2) <= MergeParallelArrayThreshold)
             {   // 8192 threshold is much better than 16 (is it for C#)
-                HPCsharp.Algorithm.Merge<T>(src, p1, p1 + length1,
-                                            src, p2, p2 + length2,
+                //Console.WriteLine("#3 " + p1 + " " + length1 + " " + p2 + " " + length2 + " " + p3);
+                HPCsharp.Algorithm.Merge<T>(src, p1, p1 + length1 - 1,
+                                            src, p2, p2 + length2 - 1,
                                             dst, p3, comparer);  // in Dr. Dobb's Journal paper
             }
             else
@@ -123,6 +125,68 @@ namespace HPCsharp
             T[] dstCopy = new T[src.Count];
             MergePar(srcCopy, p1, r1, p2, r2, dstCopy, dstStart, comparer);
             return new List<T>(dstCopy);
+        }
+
+        /// <summary>
+        /// Merge two or more sorted array spans, placing the result into a destination array as a single sorted span.
+        /// The destination array must be as big as the source, otherwise an ArgumentException is thrown.
+        /// The source array is modified during processing.
+        /// src: source array containing sorted spans to be merged into a single sorted span 
+        /// srcSpans: List of sorted spans, specified by starting and ending indexes (both inclusive)
+        /// dst: destination Array where the result of merged spans is placed
+        /// comparer: optional compare method
+        /// </summary>
+        static public void MergePar<T>( T[] src, List<SortedSpan> srcSpans,
+                                        T[] dst,
+                                        Comparer<T> comparer = null)
+        {
+            if (dst.Length != src.Length)
+            {
+                throw new ArgumentException("Destination array must be the same size as the source array");
+            }
+            if (srcSpans == null || srcSpans.Count == 0)    // nothing to merge
+            {
+                return;
+            }
+            else
+            {
+                bool srcToDst = true;
+                while (srcSpans.Count >= 1)
+                {
+                    if (srcSpans.Count == 1)
+                    {
+                        if (srcToDst)
+                            Array.Copy(src, srcSpans[0].Start, dst, srcSpans[0].Start, srcSpans[0].End - srcSpans[0].Start + 1);
+                        return;
+                    }
+
+                    var dstSpans = new List<SortedSpan>();
+                    Int32 i = 0;
+
+                    // Merge neighboring pairs of spans
+                    Int32 numPairs = srcSpans.Count / 2;
+                    for (Int32 p = 0; p < numPairs; p++)
+                    {
+                        MergePar<T>(src, srcSpans[i].Start, srcSpans[i].End,
+                                         srcSpans[i + 1].Start, srcSpans[i + 1].End,
+                                    dst, srcSpans[i].Start,
+                                    comparer);
+                        dstSpans.Add(new SortedSpan { Start = srcSpans[i].Start, End = srcSpans[i + 1].End });
+                        i += 2;
+                    }
+                    // Copy the last left over odd segment (if there is one) from src to dst and add it to dstSpans
+                    if (i > srcSpans.Count)
+                    {
+                        Array.Copy(src, srcSpans[i - 1].Start, dst, srcSpans[i - 1].Start, srcSpans[i - 1].End - srcSpans[i - 1].Start + 1);
+                        dstSpans.Add(new SortedSpan { Start = srcSpans[i - 1].Start, End = srcSpans[i - 1].End });
+                    }
+                    srcSpans = dstSpans;
+                    var tmp = src;          // swap src and dst arrays
+                    src = dst;
+                    dst = tmp;
+                    srcToDst = srcToDst ? false : true; // keep track of merge direction
+                }
+            }
         }
     }
 }
