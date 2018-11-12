@@ -1,4 +1,7 @@
-﻿using System;
+﻿// TODO: Implement stable Merge Sort, possibly by using the divide-and-conquer implementation of Merge, since it's stable. Compare performance to not-stable .Sort and stable LINQ sorting for fair comparison.
+// TODO: See if implementing stable IEnumerable sorting is faster than LINQ sorting, since that's the only stable one.
+// TODO: Compare performance of sorting arrays and lists of classes with .Sort and LINQ to see if the advantages are bigger or smaller
+using System;
 using System.Collections.Generic;
 
 namespace HPCsharp
@@ -13,16 +16,16 @@ namespace HPCsharp
     {
         /// <summary>
         /// Merge two sorted Lists within a range, placing the result into a destination List, starting at an index.
-        /// a: first sorted List to be merged
-        /// aStart: left/starting index within the first  List where to source the elements, inclusive
-        /// aEnd:   right/ending  index within the first  List, inclusive
-        /// b: second sorted List to be merged
-        /// bStart: left/starting index within the second List where to source the elements, inclusive
-        /// bEnd:   right/ending  index within the second List, inclusive
-        /// dst: destination List where the result of two merged Lists is placed
-        /// dstStart: left/starting index within the destination List where the merged sorted List will be placed
-        /// comparer: optional compare method
         /// </summary>
+        /// <param name="a">first sorted List to be merged</param>
+        /// <param name="aStart">left/starting index within the first  List where to source the elements, inclusive</param>
+        /// <param name="aEnd">right/ending  index within the first  List, inclusive</param>
+        /// <param name="b">second sorted List to be merged</param>
+        /// <param name="bStart">left/starting index within the second List where to source the elements, inclusive</param>
+        /// <param name="bEnd">right/ending  index within the second List, inclusive</param>
+        /// <param name="dst">destination List where the result of two merged Lists is placed</param>
+        /// <param name="dstStart">left/starting index within the destination List where the merged sorted List will be placed</param>
+        /// <param name="comparer">optional method to compare array elements</param>
         static public void Merge<T>(List<T> a,   Int32 aStart, Int32 aEnd,
                                     List<T> b,   Int32 bStart, Int32 bEnd,
                                     List<T> dst, Int32 dstStart,
@@ -69,17 +72,16 @@ namespace HPCsharp
             while (bStart <= bEnd) dst[dstStart++] = src[bStart++];
         }
         /// <summary>
-        /// Merge two sorted Arrays within a range, placing the result into a destination Array, starting at an index.
-        /// a: first sorted Array to be merged
-        /// aStart: left/starting index within the first  Array where to source the elements, inclusive
-        /// aEnd:   right/ending  index within the first  Array, inclusive
-        /// b: second sorted Array to be merged
-        /// bStart: left/starting index within the second Array where to source the elements, inclusive
-        /// bEnd:   right/ending  index within the second Array, inclusive
-        /// dst: destination Array where the result of two merged Arrays is placed
-        /// dstStart: left/starting index within the destination Array where the merged sorted Array will be placed
-        /// comparer: optional compare method
+        /// Merge two sorted Arrays of int's within a range, placing the result into a destination Array, starting at an index.
         /// </summary>
+        /// <param name="a">first sorted Array to be merged</param>
+        /// <param name="aStart">left/starting index within the first  Array where to source the elements, inclusive</param>
+        /// <param name="aEnd">right/ending  index within the first  Array, inclusive</param>
+        /// <param name="b">second sorted Array to be merged</param>
+        /// <param name="bStart">left/starting index within the second Array where to source the elements, inclusive</param>
+        /// <param name="bEnd">right/ending  index within the second Array, inclusive</param>
+        /// <param name="dst">destination Array where the result of two merged Arrays is placed</param>
+        /// <param name="dstStart">starting index of the result</param>
         static public void Merge(int[] a,   Int32 aStart, Int32 aEnd,
                                  int[] b,   Int32 bStart, Int32 bEnd,
                                  int[] dst, Int32 dstStart)
@@ -97,16 +99,15 @@ namespace HPCsharp
             while (bStart <= bEnd) dst[dstStart++] = b[bStart++];
         }
         /// <summary>
-        /// Merge two sorted Arrays within a range, placing the result into a destination Array, starting at an index.
-        /// a: first sorted Array to be merged
-        /// aStart: left/starting index within the first  Array where to source the elements, inclusive
-        /// aEnd:   right/ending  index within the first  Array, inclusive
-        /// bStart: left/starting index within the second Array where to source the elements, inclusive
-        /// bEnd:   right/ending  index within the second Array, inclusive
-        /// dst: destination Array where the result of two merged Arrays is placed
-        /// dstStart: left/starting index within the destination Array where the merged sorted Array will be placed
-        /// comparer: optional compare method
+        /// Merge two sorted spans of an Array of int's, placing the result into a destination Array, starting at an index.
         /// </summary>
+        /// <param name="src">sorted Array of int's with two spans to be merged</param>
+        /// <param name="aStart">left/starting index within the Array where to source the elements, inclusive</param>
+        /// <param name="aEnd">right/ending  index within the Array, inclusive</param>
+        /// <param name="bStart">left/starting index within the Array where to source the elements, inclusive</param>
+        /// <param name="bEnd">right/ending  index within the Array, inclusive</param>
+        /// <param name="dst">destination Array where the result of two merged Arrays is placed</param>
+        /// <param name="dstStart">starting index of the result</param>
         static public void Merge(int[] src, Int32 aStart, Int32 aEnd, Int32 bStart, Int32 bEnd,
                                  int[] dst, Int32 dstStart)
         {
@@ -124,21 +125,18 @@ namespace HPCsharp
         }
         /// <summary>
         /// A slightly faster implementation, which performs only a single comparison for each loop
-        /// Merge two sorted Arrays within a range, placing the result into a destination Array, starting at an index.
-        /// a: first sorted Array to be merged
-        /// aStart: left/starting index within the first  Array where to source the elements, inclusive
-        /// aEnd:   right/ending  index within the first  Array, inclusive
-        /// b: second sorted Array to be merged
-        /// bStart: left/starting index within the second Array where to source the elements, inclusive
-        /// bEnd:   right/ending  index within the second Array, inclusive
-        /// dst: destination Array where the result of two merged Arrays is placed
-        /// dstStart: left/starting index within the destination Array where the merged sorted Array will be placed
-        /// comparer: optional compare method
+        /// Merge two sorted spans of an Array of int's, placing the result into a destination Array, starting at an index.
         /// </summary>
+        /// <param name="src">sorted Array of int's with two spans to be merged</param>
+        /// <param name="aStart">left/starting index within the Array where to source the elements, inclusive</param>
+        /// <param name="aEnd">right/ending  index within the Array, inclusive</param>
+        /// <param name="bStart">left/starting index within the Array where to source the elements, inclusive</param>
+        /// <param name="bEnd">right/ending  index within the Array, inclusive</param>
+        /// <param name="dst">destination Array where the result of two merged Arrays is placed</param>
+        /// <param name="dstStart">starting index of the result</param>
         static public void Merge2(int[] src, Int32 aStart, Int32 aEnd, Int32 bStart, Int32 bEnd,
                                   int[] dst, Int32 dstStart)
         {
-            //Console.WriteLine("Merge integer2");
             if (aStart <= aEnd && bStart <= bEnd)
             {
                 while (true)
@@ -204,16 +202,16 @@ namespace HPCsharp
         }
         /// <summary>
         /// Merge two sorted Arrays within a range, placing the result into a destination Array, starting at an index.
-        /// a: first sorted Array to be merged
-        /// aStart: left/starting index within the first  Array where to source the elements, inclusive
-        /// aEnd:   right/ending  index within the first  Array, inclusive
-        /// b: second sorted Array to be merged
-        /// bStart: left/starting index within the second Array where to source the elements, inclusive
-        /// bEnd:   right/ending  index within the second Array, inclusive
-        /// dst: destination Array where the result of two merged Arrays is placed
-        /// dstStart: left/starting index within the destination Array where the merged sorted Array will be placed
-        /// comparer: optional compare method
         /// </summary>
+        /// <param name="a">first sorted Array to be merged</param>
+        /// <param name="aStart">left/starting index within the first  Array where to source the elements, inclusive</param>
+        /// <param name="aEnd">right/ending  index within the first  Array, inclusive</param>
+        /// <param name="b">second sorted Array to be merged</param>
+        /// <param name="bStart">left/starting index within the second Array where to source the elements, inclusive</param>
+        /// <param name="bEnd">right/ending  index within the second Array, inclusive</param>
+        /// <param name="dst">destination Array where the result of two merged Arrays is placed</param>
+        /// <param name="dstStart">starting index of the result</param>
+        /// <param name="comparer">optional method to compare array elements</param>
         static public void Merge<T>(T[] a,   Int32 aStart, Int32 aEnd,
                                     T[] b,   Int32 bStart, Int32 bEnd,
                                     T[] dst, Int32 dstStart,
@@ -235,14 +233,14 @@ namespace HPCsharp
         }
 
         /// <summary>
-        /// Merge two or more sorted array spans, placing the result into a destination array as a single sorted span.
+        /// Merge multiple sorted array spans, placing the result into a destination array as a single sorted span.
         /// The destination array must be as big as the source, otherwise an ArgumentException is thrown.
         /// The source array is modified during processing.
-        /// src: source array containing sorted spans to be merged into a single sorted span 
-        /// srcSpans: List of sorted spans, specified by starting and ending indexes (both inclusive)
-        /// dst: destination Array where the result of merged spans is placed
-        /// comparer: optional compare method
         /// </summary>
+        /// <param name="src">first sorted Array to be merged</param>
+        /// <param name="srcSpans">List of sorted spans, specified by starting and ending indexes (both inclusive)</param>
+        /// <param name="dst">destination Array where the result of merged spans is placed</param>
+        /// <param name="comparer">optional method to compare array elements</param>
         static public void Merge<T>(T[] src, List<SortedSpan> srcSpans,
                                     T[] dst,
                                     Comparer<T> comparer = null)
@@ -455,6 +453,53 @@ namespace HPCsharp
             }
         }
 
+        /// <summary>
+        /// Smaller than threshold will use non-divide-and-conquer algorithm to merge arrays
+        /// </summary>
+        static Int32 MergeArrayThreshold { get; set; } = 8192;
+        /// <summary>
+        /// Divide-and-Conquer Merge of two ranges of source array src[ p1 .. r1 ] and src[ p2 .. r2 ] into destination array starting at index p3.
+        /// This is a stable merge
+        /// </summary>
+        /// <typeparam name="T">data type of each array element</typeparam>
+        /// <param name="src">source array</param>
+        /// <param name="p1">starting index of the first  segment, inclusive</param>
+        /// <param name="r1">ending   index of the first  segment, inclusive</param>
+        /// <param name="p2">starting index of the second segment, inclusive</param>
+        /// <param name="r2">ending   index of the second segment, inclusive</param>
+        /// <param name="dst">destination array</param>
+        /// <param name="p3">starting index of the result</param>
+        /// <param name="comparer">method to compare array elements</param>
+        public static void MergeDivideAndConquer<T>(T[] src, Int32 p1, Int32 r1, Int32 p2, Int32 r2, T[] dst, Int32 p3, Comparer<T> comparer = null)
+        {
+            //Console.WriteLine("#1 " + p1 + " " + r1 + " " + p2 + " " + r2);
+            Int32 length1 = r1 - p1 + 1;
+            Int32 length2 = r2 - p2 + 1;
+            if (length1 < length2)
+            {
+                HPCsharp.ParallelAlgorithm.Exchange(ref p1, ref p2);
+                HPCsharp.ParallelAlgorithm.Exchange(ref r1, ref r2);
+                HPCsharp.ParallelAlgorithm.Exchange(ref length1, ref length2);
+            }
+            if (length1 == 0) return;
+            if ((length1 + length2) <= MergeArrayThreshold)
+            {
+                //Console.WriteLine("#3 " + p1 + " " + length1 + " " + p2 + " " + length2 + " " + p3);
+                Merge<T>(src, p1, p1 + length1 - 1,
+                         src, p2, p2 + length2 - 1,
+                         dst, p3, comparer);            // in Dr. Dobb's Journal paper
+            }
+            else
+            {
+                Int32 q1 = (p1 + r1) / 2;
+                Int32 q2 = Algorithm.BinarySearch(src[q1], src, p2, r2, comparer);
+                Int32 q3 = p3 + (q1 - p1) + (q2 - p2);
+                dst[q3] = src[q1];
+                MergeDivideAndConquer(src, p1, q1 - 1, p2, q2 - 1, dst, p3, comparer);
+                MergeDivideAndConquer(src, q1 + 1, r1, q2, r2, dst, q3 + 1, comparer);
+            }
+        }
+
         static private void MergeSortInner<T>(this T[] src, int l, int r, T[] dst, bool srcToDst = true, Comparer<T> comparer = null)
         {
             if (r == l)
@@ -478,48 +523,158 @@ namespace HPCsharp
             if (srcToDst) Merge(src, l, m, m + 1, r, dst, l, comparer);
             else          Merge(dst, l, m, m + 1, r, src, l, comparer);
         }
+
+        static public void MergeSortStableInner<T>(this T[] src, int l, int r, T[] dst, bool srcToDst = true, Comparer<T> comparer = null)
+        {
+            if (r == l)
+            {    // termination/base case of sorting a single element
+                if (srcToDst) dst[l] = src[l];    // copy the single element from src to dst
+                return;
+            }
+            else if ((r - l) < 16)
+            {
+                HPCsharp.Algorithm.InsertionSort<T>(src, l, r - l + 1, comparer);  // want to do dstToSrc, can just do it in-place, just sort the src, no need to copy
+                if (srcToDst)
+                    for (int i = l; i <= r; i++) dst[i] = src[i];	// copy from src to dst, when the result needs to be in dst
+                return;
+            }
+
+            int m = (r + l) / 2;
+
+            MergeSortStableInner(src, l,     m, dst, !srcToDst, comparer);		// reverse direction of srcToDst for the next level of recursion
+            MergeSortStableInner(src, m + 1, r, dst, !srcToDst, comparer);
+
+            if (srcToDst) MergeDivideAndConquer(src, l, m, m + 1, r, dst, l, comparer);
+            else          MergeDivideAndConquer(dst, l, m, m + 1, r, src, l, comparer);
+        }
         /// <summary>
-        /// Take a range of the src array, sort it, and then return just the sorted range
+        /// Take a range of the src array, sort it using the Merge Sort algorithm, and then return just the sorted range
         /// </summary>
         /// <typeparam name="T">array of type T</typeparam>
-        /// <param name="src">source array</param>
+        /// <param name="source">source array</param>
         /// <param name="startIndex">index within the src array where sorting starts</param>
         /// <param name="length">number of elements starting with startIndex to be sorted</param>
         /// <param name="comparer">comparer used to compare two array elements of type T</param>
-        /// <returns>returns an array of length specified</returns>
-        static public T[] SortMerge<T>(this T[] src, int startIndex, int length, Comparer<T> comparer = null)
+        /// <returns>returns a sorted array of length specified</returns>
+        static public T[] SortMerge<T>(this T[] source, int startIndex, int length, Comparer<T> comparer = null)
         {
             T[] srcTrimmed = new T[length];
             T[] dst        = new T[length];
 
-            Array.Copy(src, startIndex, srcTrimmed, 0, length);
+            Array.Copy(source, startIndex, srcTrimmed, 0, length);
 
             srcTrimmed.MergeSortInner<T>(0, length - 1, dst, true, comparer);
 
             return dst;
         }
 
-        static public T[] SortMerge<T>(this T[] src, Comparer<T> comparer = null)
+        /// <summary>
+        /// Take a range of the src array, sort it using the Merge Sort (stable) algorithm, and then return just the sorted range
+        /// </summary>
+        /// <typeparam name="T">array of type T</typeparam>
+        /// <param name="source">source array</param>
+        /// <param name="startIndex">index within the src array where sorting starts</param>
+        /// <param name="length">number of elements starting with startIndex to be sorted</param>
+        /// <param name="comparer">comparer used to compare two array elements of type T</param>
+        /// <returns>returns a sorted array of length specified</returns>
+        static public T[] SortMergeStable<T>(this T[] source, int startIndex, int length, Comparer<T> comparer = null)
         {
-            T[] dst = new T[src.Length];
+            T[] srcTrimmed = new T[length];
+            T[] dst = new T[length];
 
-            src.MergeSortInner<T>(0, src.Length - 1, dst, true, comparer);
+            Array.Copy(source, startIndex, srcTrimmed, 0, length);
+
+            srcTrimmed.MergeSortStableInner<T>(0, length - 1, dst, true, comparer);
 
             return dst;
         }
 
-        static public void SortMergeInPlace<T>(this T[] src, int startIndex, int length, Comparer<T> comparer = null)
+        /// <summary>
+        /// Take the source array, sort it using the Merge Sort algorithm, and then return a sorted array of full length
+        /// </summary>
+        /// <typeparam name="T">array of type T</typeparam>
+        /// <param name="source">source array</param>
+        /// <param name="comparer">comparer used to compare two array elements of type T</param>
+        /// <returns>returns a sorted array of full length</returns>
+        static public T[] SortMerge<T>(this T[] source, Comparer<T> comparer = null)
         {
-            T[] dst = new T[src.Length];
+            T[] dst = new T[source.Length];
 
-            src.MergeSortInner<T>(startIndex, startIndex + length - 1, dst, false, comparer);
+            source.MergeSortInner<T>(0, source.Length - 1, dst, true, comparer);
+
+            return dst;
         }
 
-        static public void SortMergeInPlace<T>(this T[] src, Comparer<T> comparer = null)
+        /// <summary>
+        /// Take the source array, sort it using the Merge Sort (stable) algorithm, and then return a sorted array of full length
+        /// </summary>
+        /// <typeparam name="T">array of type T</typeparam>
+        /// <param name="source">source array</param>
+        /// <param name="comparer">comparer used to compare two array elements of type T</param>
+        /// <returns>returns a sorted array of full length</returns>
+        static public T[] SortMergeStable<T>(this T[] source, Comparer<T> comparer = null)
         {
-            T[] dst = new T[src.Length];
+            T[] dst = new T[source.Length];
 
-            src.MergeSortInner<T>(0, src.Length - 1, dst, false, comparer);
+            source.MergeSortStableInner<T>(0, source.Length - 1, dst, true, comparer);
+
+            return dst;
+        }
+
+        /// <summary>
+        /// Take a range of the array, and sort it in place using the Merge Sort algorithm
+        /// </summary>
+        /// <typeparam name="T">array of type T</typeparam>
+        /// <param name="array">source array</param>
+        /// <param name="startIndex">index within the array where sorting starts</param>
+        /// <param name="length">number of elements starting with startIndex to be sorted</param>
+        /// <param name="comparer">comparer used to compare two array elements of type T</param>
+        static public void SortMergeInPlace<T>(this T[] array, int startIndex, int length, Comparer<T> comparer = null)
+        {
+            T[] dst = new T[array.Length];
+
+            array.MergeSortInner<T>(startIndex, startIndex + length - 1, dst, false, comparer);
+        }
+
+        /// <summary>
+        /// Take a range of the array, and sort it in place using the Merge Sort (stable) algorithm
+        /// </summary>
+        /// <typeparam name="T">array of type T</typeparam>
+        /// <param name="array">source array</param>
+        /// <param name="startIndex">index within the array where sorting starts</param>
+        /// <param name="length">number of elements starting with startIndex to be sorted</param>
+        /// <param name="comparer">comparer used to compare two array elements of type T</param>
+        static public void SortMergeInPlaceStable<T>(this T[] array, int startIndex, int length, Comparer<T> comparer = null)
+        {
+            T[] dst = new T[array.Length];
+
+            array.MergeSortStableInner<T>(startIndex, startIndex + length - 1, dst, false, comparer);
+        }
+
+        /// <summary>
+        /// Take the source array, and sort all of in place using the Merge Sort algorithm
+        /// </summary>
+        /// <typeparam name="T">array of type T</typeparam>
+        /// <param name="array">source array</param>
+        /// <param name="comparer">comparer used to compare two array elements of type T</param>
+        static public void SortMergeInPlace<T>(this T[] array, Comparer<T> comparer = null)
+        {
+            T[] dst = new T[array.Length];
+
+            array.MergeSortInner<T>(0, array.Length - 1, dst, false, comparer);
+        }
+
+        /// <summary>
+        /// Take the source array, and sort all of in place using the Merge Sort (stable) algorithm
+        /// </summary>
+        /// <typeparam name="T">array of type T</typeparam>
+        /// <param name="array">source array</param>
+        /// <param name="comparer">comparer used to compare two array elements of type T</param>
+        static public void SortMergeInPlaceStable<T>(this T[] array, Comparer<T> comparer = null)
+        {
+            T[] dst = new T[array.Length];
+
+            array.MergeSortStableInner<T>(0, array.Length - 1, dst, false, comparer);
         }
     }
 }
