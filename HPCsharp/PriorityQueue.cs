@@ -4,6 +4,7 @@ using System.Text;
 
 namespace HPCsharpFuture
 {
+    // From November, 2012 article in https://visualstudiomagazine.com/articles/2012/11/01/priority-queues-with-c.aspx
     public class PriorityQueue<T> where T : IComparable<T>
     {
         private List<T> data;
