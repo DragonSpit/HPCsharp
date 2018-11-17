@@ -10,7 +10,11 @@ Includes parallel Merge Sort, parallel Merge, linear and stable Radix Sort algor
 Sorting algorithms use the same interfaces as C# Array.Sort and Linq.</Description>
     <Copyright>© 2018 FooState</Copyright>
     <PackageLicenseUrl>https://github.com/DragonSpit/HPCsharp/blob/master/LICENSE</PackageLicenseUrl>
-    <PackageReleaseNotes>Added serial multi-merge: merging of multiple pre-sorted arrays. Improved performance of 2-way merge.</PackageReleaseNotes>
+    <PackageReleaseNotes>Added serial multi-merge: merging of multiple pre-sorted arrays.
+Improved performance of paralle and serial merge sort by using a faster 2-way merge.
+Added two types of priority queues.
+Changed interfaces on merge to be consistent with C# standard algorithms.
+Added stable merge sort: serial and parallel.</PackageReleaseNotes>
     <PackageId>HPCsharp</PackageId>
     <PackageTags>high perfromance algorithms, C#, high performance, high performance computing, HPC, algorithm, algorithms, Linq, parallel, parallel algorithm</PackageTags>
     <PackageIconUrl>https://foostate.com/images/default_lib_icon_64.png</PackageIconUrl>
@@ -19,9 +23,9 @@ Sorting algorithms use the same interfaces as C# Array.Sort and Linq.</Descripti
     <PackageProjectUrl>https://github.com/DragonSpit/HPCsharp</PackageProjectUrl>
     <RepositoryUrl>https://github.com/DragonSpit/HPCsharp</RepositoryUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <AssemblyVersion>2.0.4.0</AssemblyVersion>
-    <FileVersion>2.0.4.0</FileVersion>
-    <Version>2.0.4</Version>
+    <AssemblyVersion>3.0.0.0</AssemblyVersion>
+    <FileVersion>3.0.0.0</FileVersion>
+    <Version>3.0.0</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

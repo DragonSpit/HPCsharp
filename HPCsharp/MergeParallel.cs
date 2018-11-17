@@ -156,7 +156,7 @@ namespace HPCsharp
                     if (sourceSpans.Count == 1)
                     {
                         if (srcToDst)
-                            Array.Copy(sourceArray, sourceSpans[0].Start, destinationArray, sourceSpans[0].Start, sourceSpans[0].End - sourceSpans[0].Start + 1);
+                            Array.Copy(sourceArray, sourceSpans[0].Start, destinationArray, sourceSpans[0].Start, sourceSpans[0].Length);
                         return;
                     }
 
@@ -167,18 +167,18 @@ namespace HPCsharp
                     Int32 numPairs = sourceSpans.Count / 2;
                     for (Int32 p = 0; p < numPairs; p++)
                     {
-                        MergePar<T>(sourceArray, sourceSpans[i].Start, sourceSpans[i].End,
-                                         sourceSpans[i + 1].Start, sourceSpans[i + 1].End,
+                        MergePar<T>(sourceArray, sourceSpans[i    ].Start, sourceSpans[i    ].Length,
+                                                 sourceSpans[i + 1].Start, sourceSpans[i + 1].Length,
                                     destinationArray, sourceSpans[i].Start,
                                     comparer);
-                        dstSpans.Add(new SortedSpan { Start = sourceSpans[i].Start, End = sourceSpans[i + 1].End });
+                        dstSpans.Add(new SortedSpan { Start = sourceSpans[i].Start, Length = sourceSpans[i + 1].Length });
                         i += 2;
                     }
                     // Copy the last left over odd segment (if there is one) from src to dst and add it to dstSpans
                     if (i > sourceSpans.Count)
                     {
-                        Array.Copy(sourceArray, sourceSpans[i - 1].Start, destinationArray, sourceSpans[i - 1].Start, sourceSpans[i - 1].End - sourceSpans[i - 1].Start + 1);
-                        dstSpans.Add(new SortedSpan { Start = sourceSpans[i - 1].Start, End = sourceSpans[i - 1].End });
+                        Array.Copy(sourceArray, sourceSpans[i - 1].Start, destinationArray, sourceSpans[i - 1].Start, sourceSpans[i - 1].Length);
+                        dstSpans.Add(new SortedSpan { Start = sourceSpans[i - 1].Start, Length = sourceSpans[i - 1].Length });
                     }
                     sourceSpans = dstSpans;
                     var tmp = sourceArray;          // swap src and dst arrays
