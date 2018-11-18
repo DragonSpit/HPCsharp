@@ -287,7 +287,7 @@ namespace HPCsharp
                                  src, srcSpans[i + 1].Start, srcSpans[i + 1].Length,
                                  dst, srcSpans[i].Start,
                                  comparer);
-                        dstSpans.Add(new SortedSpan { Start = srcSpans[i].Start, Length = srcSpans[i + 1].Length });
+                        dstSpans.Add(new SortedSpan { Start = srcSpans[i].Start, Length = srcSpans[i].Length + srcSpans[i + 1].Length });
                         i += 2;
                     }
                     // Copy the last left over odd segment (if there is one) from src to dst and add it to dstSpans
