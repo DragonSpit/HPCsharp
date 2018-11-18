@@ -175,10 +175,10 @@ namespace HPCsharp
                         i += 2;
                     }
                     // Copy the last left over odd segment (if there is one) from src to dst and add it to dstSpans
-                    if (i > sourceSpans.Count)
+                    if (i == (sourceSpans.Count - 1))
                     {
-                        Array.Copy(sourceArray, sourceSpans[i - 1].Start, destinationArray, sourceSpans[i - 1].Start, sourceSpans[i - 1].Length);
-                        dstSpans.Add(new SortedSpan { Start = sourceSpans[i - 1].Start, Length = sourceSpans[i - 1].Length });
+                        Array.Copy(sourceArray, sourceSpans[i].Start, destinationArray, sourceSpans[i].Start, sourceSpans[i].Length);
+                        dstSpans.Add(new SortedSpan { Start = sourceSpans[i].Start, Length = sourceSpans[i].Length });
                     }
                     sourceSpans = dstSpans;
                     var tmp = sourceArray;          // swap src and dst arrays

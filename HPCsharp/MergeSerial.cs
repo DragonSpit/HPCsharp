@@ -244,9 +244,10 @@ namespace HPCsharp
         }
 
         /// <summary>
-        /// Merge multiple sorted array spans, placing the result into a destination array as a single sorted span.
+        /// Merge multiple sorted array segments, placing the result into a destination array as a single sorted span.
         /// The destination array must be as big as the source, otherwise an ArgumentException is thrown.
         /// The source array is modified during processing.
+        /// Uses multiple passes of 2-way merges
         /// </summary>
         /// <param name="src">source Array to be merged</param>
         /// <param name="srcSpans">List of sorted segments, specified by starting index and length</param>
