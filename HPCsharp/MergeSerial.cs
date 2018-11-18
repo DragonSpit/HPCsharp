@@ -1,5 +1,6 @@
 ﻿// TODO: Implement a knob for the merge algorithm, to use multi-merge and specify how many way to split the merge, for divide-and-conquer too.
 // TODO: Multi-merge should use 2-way, 3-way and possibly 4-way before using the more general multi-way merge to go faster.
+// TODO: Is it faster to copy a List to an Array, then do the merge and then to copy the result back to a List? Currently, List merge runs at 1/2 the speed of Array merge.
 using System;
 using System.Collections.Generic;
 
@@ -35,11 +36,20 @@ namespace HPCsharp
             Int32 bEnd = bStart + bLength - 1;
             while (aStart <= aEnd && bStart <= bEnd)
             {
-                // a[aStart] <= b[bStart]
-                if (equalityComparer.Compare(a[aStart], b[bStart]) <= 0)   	// if elements are equal, then a[] element is output
-                    dst[dstStart++] = a[aStart++];
-                else
-                    dst[dstStart++] = b[bStart++];
+                while (true)
+                {
+                    // a[aStart] <= b[bStart]
+                    if (equalityComparer.Compare(a[aStart], b[bStart]) <= 0)   	// if elements are equal, then a[] element is output
+                    {
+                        dst[dstStart++] = a[aStart++];
+                        if (aStart > aEnd) break;
+                    }
+                    else
+                    {
+                        dst[dstStart++] = b[bStart++];
+                        if (bStart > bEnd) break;
+                    }
+                }
             }
             while (aStart <= aEnd) dst[dstStart++] = a[aStart++];
             while (bStart <= bEnd) dst[dstStart++] = b[bStart++];
@@ -63,11 +73,20 @@ namespace HPCsharp
             Int32 bEnd = bStart + bLength - 1;
             while (aStart <= aEnd && bStart <= bEnd)
             {
-                // a[aStart] <= b[bStart]
-                if (equalityComparer.Compare(src[aStart], src[bStart]) <= 0)   	// if elements are equal, then a[] element is output
-                    dst[dstStart++] = src[aStart++];
-                else
-                    dst[dstStart++] = src[bStart++];
+                while (true)
+                {
+                    // a[aStart] <= b[bStart]
+                    if (equalityComparer.Compare(src[aStart], src[bStart]) <= 0)   	// if elements are equal, then a[] element is output
+                    {
+                        dst[dstStart++] = src[aStart++];
+                        if (aStart > aEnd) break;
+                    }
+                    else
+                    {
+                        dst[dstStart++] = src[bStart++];
+                        if (bStart > bEnd) break;
+                    }
+                }
             }
             //Array.Copy(src, aStart, dst, dstStart, aEnd - aStart + 1);
             //dst = src.GetRange(aStart, aEnd - aStart + 1);
@@ -231,18 +250,65 @@ namespace HPCsharp
             Int32 bEnd = bStart + bLength - 1;
             while (aStart <= aEnd && bStart <= bEnd)
             {
-                // a[aStart] <= b[bStart]
-                if (equalityComparer.Compare(a[aStart], b[bStart]) <= 0)   	// if elements are equal, then a[] element is output
-                    dst[dstStart++] = a[aStart++];
-                else
-                    dst[dstStart++] = b[bStart++];
+                while (true)
+                {
+                    // a[aStart] <= b[bStart]
+                    if (equalityComparer.Compare(a[aStart], b[bStart]) <= 0)   	// if elements are equal, then a[] element is output
+                    {
+                        dst[dstStart++] = a[aStart++];
+                        if (aStart > aEnd) break;
+                    }
+                    else
+                    {
+                        dst[dstStart++] = b[bStart++];
+                        if (bStart > bEnd) break;
+                    }
+                }
             }
             //Array.Copy(a, aStart, dst, dstStart, aEnd - aStart + 1);
             while (aStart <= aEnd) dst[dstStart++] = a[aStart++];    // copy(a[aStart, aEnd] to dst[dstStart]
             //Array.Copy(b, bStart, dst, dstStart, bEnd - bStart + 1);
             while (bStart <= bEnd) dst[dstStart++] = b[bStart++];
         }
-
+        /// <summary>
+        /// Merge two sorted ranges of an Array, placing the result into a destination Array, starting at an index.
+        /// </summary>
+        /// <param name="src">source List</param>
+        /// <param name="aStart">starting index of the first sorted segment, inclusive</param>
+        /// <param name="aLength">length of the first sorted segment</param>
+        /// <param name="bStart">starting index of the second sorted segment, inclusive</param>
+        /// <param name="bLength">length of the first sorted segment</param>
+        /// <param name="dst">destination Array where the result of two merged Arrays is to be placed</param>
+        /// <param name="dstStart">starting index within the destination Array where the merged sorted Array is to be placed</param>
+        /// <param name="comparer">optional method to compare array elements</param>
+        static public void Merge<T>(T[] src, Int32 aStart, Int32 aLength, Int32 bStart, Int32 bLength,
+                                    T[] dst, Int32 dstStart, Comparer<T> comparer = null)
+        {
+            var equalityComparer = comparer ?? Comparer<T>.Default;
+            Int32 aEnd = aStart + aLength - 1;
+            Int32 bEnd = bStart + bLength - 1;
+            while (aStart <= aEnd && bStart <= bEnd)
+            {
+                while (true)
+                {
+                    // a[aStart] <= b[bStart]
+                    if (equalityComparer.Compare(src[aStart], src[bStart]) <= 0)   	// if elements are equal, then a[] element is output
+                    {
+                        dst[dstStart++] = src[aStart++];
+                        if (aStart > aEnd) break;
+                    }
+                    else
+                    {
+                        dst[dstStart++] = src[bStart++];
+                        if (bStart > bEnd) break;
+                    }
+                }
+            }
+            //Array.Copy(src, aStart, dst, dstStart, aEnd - aStart + 1);
+            while (aStart <= aEnd) dst[dstStart++] = src[aStart++];    // copy(a[aStart, aEnd] to dst[dstStart]
+            //Array.Copy(src, bStart, dst, dstStart, bEnd - bStart + 1);
+            while (bStart <= bEnd) dst[dstStart++] = src[bStart++];
+        }
         /// <summary>
         /// Merge multiple sorted array segments, placing the result into a destination array as a single sorted span.
         /// The destination array must be as big as the source, otherwise an ArgumentException is thrown.
@@ -304,37 +370,6 @@ namespace HPCsharp
                     srcToDst = srcToDst ? false : true; // keep track of merge direction
                 }
             }
-        }
-
-        /// <summary>
-        /// Merge two sorted ranges of an Array, placing the result into a destination Array, starting at an index.
-        /// </summary>
-        /// <param name="src">source List</param>
-        /// <param name="aStart">starting index of the first sorted segment, inclusive</param>
-        /// <param name="aLength">length of the first sorted segment</param>
-        /// <param name="bStart">starting index of the second sorted segment, inclusive</param>
-        /// <param name="bLength">length of the first sorted segment</param>
-        /// <param name="dst">destination Array where the result of two merged Arrays is to be placed</param>
-        /// <param name="dstStart">starting index within the destination Array where the merged sorted Array is to be placed</param>
-        /// <param name="comparer">optional method to compare array elements</param>
-        static public void Merge<T>(T[] src, Int32 aStart, Int32 aLength, Int32 bStart, Int32 bLength,
-                                    T[] dst, Int32 dstStart, Comparer<T> comparer = null)
-        {
-            var equalityComparer = comparer ?? Comparer<T>.Default;
-            Int32 aEnd = aStart + aLength - 1;
-            Int32 bEnd = bStart + bLength - 1;
-            while (aStart <= aEnd && bStart <= bEnd)
-            {
-                // a[aStart] <= b[bStart]
-                if (equalityComparer.Compare(src[aStart], src[bStart]) <= 0)   	// if elements are equal, then a[] element is output
-                    dst[dstStart++] = src[aStart++];
-                else
-                    dst[dstStart++] = src[bStart++];
-            }
-            //Array.Copy(src, aStart, dst, dstStart, aEnd - aStart + 1);
-            while (aStart <= aEnd) dst[dstStart++] = src[aStart++];    // copy(a[aStart, aEnd] to dst[dstStart]
-            //Array.Copy(src, bStart, dst, dstStart, bEnd - bStart + 1);
-            while (bStart <= bEnd) dst[dstStart++] = src[bStart++];
         }
 
         static public void MergeThree<T>(T[] a, Int32 aStart, Int32 aLength,
