@@ -284,9 +284,9 @@ namespace HPCsharp
                     Int32 numPairs = srcSpans.Count / 2;
                     for (Int32 p = 0; p < numPairs; p++)
                     {
-                        Merge<T>(src, srcSpans[i].Start, srcSpans[i].Length,
+                        Merge<T>(src, srcSpans[i    ].Start, srcSpans[i    ].Length,
                                  src, srcSpans[i + 1].Start, srcSpans[i + 1].Length,
-                                 dst, srcSpans[i].Start,
+                                 dst, srcSpans[i    ].Start,
                                  comparer);
                         dstSpans.Add(new SortedSpan { Start = srcSpans[i].Start, Length = srcSpans[i].Length + srcSpans[i + 1].Length });
                         i += 2;

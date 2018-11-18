@@ -1,4 +1,5 @@
-﻿using System;
+﻿// TODO: Create a single multi-merge generic algorithm (inner) where the 2-way merge is passed in as a function parameter (serial or parallel)
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -62,6 +63,12 @@ namespace HPCsharp
                 );
             }
         }
+
+        public static void MergePar2<T>(T[] src, Int32 p1, Int32 length1, Int32 p2, Int32 length2, T[] dst, Int32 p3, Comparer<T> comparer = null)
+        {
+            MergePar<T>(src, p1, p1 + length1 - 1, p2, p2 + length2 - 1, dst, p3, comparer);
+        }
+
         /// <summary>
         /// Smaller than threshold will use non-parallel algorithm to merge arrays
         /// </summary>
@@ -167,11 +174,11 @@ namespace HPCsharp
                     Int32 numPairs = sourceSpans.Count / 2;
                     for (Int32 p = 0; p < numPairs; p++)
                     {
-                        MergePar<T>(sourceArray, sourceSpans[i    ].Start, sourceSpans[i    ].Length,
-                                                 sourceSpans[i + 1].Start, sourceSpans[i + 1].Length,
-                                    destinationArray, sourceSpans[i].Start,
+                        MergePar2<T>(sourceArray,     sourceSpans[i    ].Start, sourceSpans[i    ].Length,
+                                                      sourceSpans[i + 1].Start, sourceSpans[i + 1].Length,
+                                    destinationArray, sourceSpans[i    ].Start,
                                     comparer);
-                        dstSpans.Add(new SortedSpan { Start = sourceSpans[i].Start, Length = sourceSpans[i + 1].Length });
+                        dstSpans.Add(new SortedSpan { Start = sourceSpans[i].Start, Length = sourceSpans[i].Length + sourceSpans[i + 1].Length });
                         i += 2;
                     }
                     // Copy the last left over odd segment (if there is one) from src to dst and add it to dstSpans
