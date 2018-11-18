@@ -1,4 +1,6 @@
-﻿using System;
+﻿// TODO: Need a Merge Sort Stable that is not in-place.
+// TODO: Figure out a way to specify both stable as a method like LINQ does .Stable and .Parallel
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Diagnostics;
@@ -64,8 +66,8 @@ namespace HPCsharp
                 () => { SortMergeInnerPar<T>(src, m + 1, r, dst, !srcToDst, comparer); }
             );
             // reverse direction of srcToDst for the next level of recursion
-            if (srcToDst) MergePar<T>(src, l, m, m + 1, r, dst, l, comparer);
-            else          MergePar<T>(dst, l, m, m + 1, r, src, l, comparer);
+            if (srcToDst) MergeInnerPar<T>(src, l, m, m + 1, r, dst, l, comparer);
+            else          MergeInnerPar<T>(dst, l, m, m + 1, r, src, l, comparer);
         }
 
         /// <summary>
@@ -106,8 +108,8 @@ namespace HPCsharp
                 () => { SortMergeStableInnerPar<T>(src, m + 1, r, dst, !srcToDst, comparer); }
             );
             // reverse direction of srcToDst for the next level of recursion
-            if (srcToDst) MergePar<T>(src, l, m, m + 1, r, dst, l, comparer);
-            else          MergePar<T>(dst, l, m, m + 1, r, src, l, comparer);
+            if (srcToDst) MergeInnerPar<T>(src, l, m, m + 1, r, dst, l, comparer);
+            else          MergeInnerPar<T>(dst, l, m, m + 1, r, src, l, comparer);
         }
 
         // Hybrid algorithms of Parallel Merge Sort at the high level and Radix Sort at the inner level
@@ -132,8 +134,8 @@ namespace HPCsharp
                 () => { SortMergeInner2Par(src, m + 1, r, dst, tmp, !srcToDst); }
             );
             // reverse direction of srcToDst for the next level of recursion
-            if (srcToDst) MergePar<uint>(src, l, m, m + 1, r, dst, l);
-            else          MergePar<uint>(dst, l, m, m + 1, r, src, l);
+            if (srcToDst) MergeInnerPar<uint>(src, l, m, m + 1, r, dst, l);
+            else          MergeInnerPar<uint>(dst, l, m, m + 1, r, src, l);
         }
         /// <summary>
         /// Parallel Merge Sort. Takes a range of the src array, sorts it, and then returns just the sorted range

@@ -1,4 +1,5 @@
 ﻿// TODO: Create a single multi-merge generic algorithm (inner) where the 2-way merge is passed in as a function parameter (serial or parallel)
+//       The trouble is where does this generic algorithm live, ParallelAlgorithm or Algorithm class? Maybe we should have a single class
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -32,7 +33,7 @@ namespace HPCsharp
         /// <param name="dst">destination array</param>
         /// <param name="p3">starting index of the result</param>
         /// <param name="comparer">method to compare array elements</param>
-        public static void MergePar<T>(T[] src, Int32 p1, Int32 r1, Int32 p2, Int32 r2, T[] dst, Int32 p3, Comparer<T> comparer = null)
+        internal static void MergeInnerPar<T>(T[] src, Int32 p1, Int32 r1, Int32 p2, Int32 r2, T[] dst, Int32 p3, Comparer<T> comparer = null)
         {
             //Console.WriteLine("#1 " + p1 + " " + r1 + " " + p2 + " " + r2);
             Int32 length1 = r1 - p1 + 1;
@@ -58,15 +59,26 @@ namespace HPCsharp
                 Int32 q3 = p3 + (q1 - p1) + (q2 - p2);
                 dst[q3] = src[q1];
                 Parallel.Invoke(
-                    () => { MergePar<T>(src, p1,     q1 - 1, p2, q2 - 1, dst, p3,     comparer); },
-                    () => { MergePar<T>(src, q1 + 1, r1,     q2, r2,     dst, q3 + 1, comparer); }
+                    () => { MergeInnerPar<T>(src, p1,     q1 - 1, p2, q2 - 1, dst, p3,     comparer); },
+                    () => { MergeInnerPar<T>(src, q1 + 1, r1,     q2, r2,     dst, q3 + 1, comparer); }
                 );
             }
         }
-
-        public static void MergePar2<T>(T[] src, Int32 p1, Int32 length1, Int32 p2, Int32 length2, T[] dst, Int32 p3, Comparer<T> comparer = null)
+        /// <summary>
+        /// Divide-and-Conquer Merge of two segments of a source array into destination array starting at index dstStart.
+        /// </summary>
+        /// <typeparam name="T">data type of each array element</typeparam>
+        /// <param name="src">source array</param>
+        /// <param name="aStart">starting index of the first  segment, inclusive</param>
+        /// <param name="aLength">number of array elements in the first segment</param>
+        /// <param name="bStart">starting index of the second segment, inclusive</param>
+        /// <param name="bLength">number of array elements in the second segment</param>
+        /// <param name="dst">destination array</param>
+        /// <param name="dstStart">starting index of the destination/result</param>
+        /// <param name="comparer">method to compare array elements</param>
+        public static void MergePar<T>(T[] src, Int32 aStart, Int32 aLength, Int32 bStart, Int32 bLength, T[] dst, Int32 dstStart, Comparer<T> comparer = null)
         {
-            MergePar<T>(src, p1, p1 + length1 - 1, p2, p2 + length2 - 1, dst, p3, comparer);
+            MergeInnerPar<T>(src, aStart, aStart + aLength - 1, bStart, bStart + bLength - 1, dst, dstStart, comparer);
         }
 
         /// <summary>
@@ -116,21 +128,21 @@ namespace HPCsharp
         }
 #endif
         /// <summary>
-        /// Divide-and-Conquer Merge of two ranges of source List src[ p1 .. r1 ] and src[ p2 .. r2 ] into destination List starting at index p3.
+        /// Divide-and-Conquer Merge of two segments of source List into destination List starting at index p3.
         /// </summary>
         /// <typeparam name="T">data type of each List element</typeparam>
         /// <param name="src">source List</param>
-        /// <param name="p1">starting index of the first  segment, inclusive</param>
-        /// <param name="r1">ending   index of the first  segment, inclusive</param>
-        /// <param name="p2">starting index of the second segment, inclusive</param>
-        /// <param name="r2">ending   index of the second segment, inclusive</param>
-        /// <param name="dstStart">starting index of the result</param>
+        /// <param name="aStart">starting index of the first  segment, inclusive</param>
+        /// <param name="aLength">number of array elements in the first segment</param>
+        /// <param name="bStart">starting index of the second segment, inclusive</param>
+        /// <param name="bLength">number of array elements in the second segment</param>
+        /// <param name="dstStart">starting index of the destination/result</param>
         /// <param name="comparer">method to compare array elements</param>
-        public static List<T> MergePar<T>(List<T> src, Int32 p1, Int32 r1, Int32 p2, Int32 r2, Int32 dstStart, Comparer<T> comparer = null)
+        public static List<T> MergePar<T>(List<T> src, Int32 aStart, Int32 aLength, Int32 bStart, Int32 bLength, Int32 dstStart, Comparer<T> comparer = null)
         {
             T[] srcCopy = src.ToArrayPar();
             T[] dstCopy = new T[src.Count];
-            MergePar(srcCopy, p1, r1, p2, r2, dstCopy, dstStart, comparer);
+            MergePar(srcCopy, aStart, aLength, bStart, bLength, dstCopy, dstStart, comparer);
             return new List<T>(dstCopy);
         }
 
@@ -174,7 +186,7 @@ namespace HPCsharp
                     Int32 numPairs = sourceSpans.Count / 2;
                     for (Int32 p = 0; p < numPairs; p++)
                     {
-                        MergePar2<T>(sourceArray,     sourceSpans[i    ].Start, sourceSpans[i    ].Length,
+                        MergePar<T>(sourceArray,      sourceSpans[i    ].Start, sourceSpans[i    ].Length,
                                                       sourceSpans[i + 1].Start, sourceSpans[i + 1].Length,
                                     destinationArray, sourceSpans[i    ].Start,
                                     comparer);
