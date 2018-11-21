@@ -6,6 +6,7 @@ Linear and stable Radix Sort algorithm for arrays and lists of user defined clas
 Free and open source HPCsharp package on https://www.nuget.org
 
 **_Version 3.0.0_** Just released!
+
 Higher performance Merge Sort. Stable Merge Sort. In-place Merge Sort interfaces for arrays and lists.
 Parallel and serial multi-merge. Changed interfaces on Merge Sort and Merge to be consistent with Microsoft C# algorithms.
 Dynamic Priority Queue and Fixed Size Priority Queue.
