@@ -6,15 +6,15 @@
     <Company>FooState</Company>
     <Product>HPCsharp</Product>
     <Description>High performance C#/.NET generic algorithms. Community driven to move C# toward high performance computing.
-Includes parallel Merge Sort, parallel Merge, linear and stable Radix Sort algorithm, of arrays and lists, and more...
+Includes parallel Merge Sort, parallel Merge, linear and stable Radix Sort algorithm, of arrays and lists, Priority Queue and more...
 Sorting algorithms use the same interfaces as C# Array.Sort and Linq.</Description>
     <Copyright>© 2018 FooState</Copyright>
     <PackageLicenseUrl>https://github.com/DragonSpit/HPCsharp/blob/master/LICENSE</PackageLicenseUrl>
-    <PackageReleaseNotes>Added serial multi-merge: merging of multiple pre-sorted arrays.
-Improved performance of paralle and serial merge sort by using a faster 2-way merge.
-Added two types of priority queues.
-Changed interfaces on merge to be consistent with C# standard algorithms.
-Added stable merge sort: serial and parallel.</PackageReleaseNotes>
+    <PackageReleaseNotes>Changed interfaces on Merge to be consistent with C# standard algorithms.
+Added parallel and serial multi-merge: merging of multiple pre-sorted arrays.
+Improved performance of parallel and serial merge sort.
+Added stable merge sort: serial and parallel.
+Added two types of priority queues.</PackageReleaseNotes>
     <PackageId>HPCsharp</PackageId>
     <PackageTags>high perfromance algorithms, C#, high performance, high performance computing, HPC, algorithm, algorithms, Linq, parallel, parallel algorithm</PackageTags>
     <PackageIconUrl>https://foostate.com/images/default_lib_icon_64.png</PackageIconUrl>
