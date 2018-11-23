@@ -7,9 +7,13 @@ Free and open source HPCsharp package on https://www.nuget.org
 
 **_Version 3.0.0_** Just released!
 
-Higher performance Merge Sort. Stable Merge Sort. In-place Merge Sort interfaces for arrays and lists.
-Parallel and serial multi-merge. Changed interfaces on Merge Sort and Merge to be consistent with Microsoft C# algorithms.
+Higher performance parallel and serial 2-way Merge, with parallel faster by 1.7%. Stable Merge Sort.
+In-place Merge Sort interfaces for arrays and lists.
+Parallel and serial Multi-Merge. Changed interfaces on Merge Sort and Merge to be consistent with Microsoft C# algorithms.
 Dynamic Priority Queue and Fixed Size Priority Queue.
+
+Warning: The latest benchmarks are showing Parallel Merge Sort being slower than version 2.0.1: 72 MegaInts/sec versus 87 MegaInts/sec. Investigating, since
+parallel merge is faster, which is used by Parallel Merge Sort. Hopefully, the new version just needs tuning of thresholds.
 
 More info coming soon... Give it a shot
 
