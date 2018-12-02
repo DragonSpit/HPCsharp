@@ -12,9 +12,6 @@ In-place Merge Sort interfaces for arrays and lists.
 Parallel and serial Multi-Merge. Changed interfaces on Merge Sort and Merge to be consistent with Microsoft C# algorithms.
 Dynamic Priority Queue and Fixed Size Priority Queue.
 
-Warning: The latest benchmarks are showing Parallel Merge Sort being slower than version 2.0.1: 72 MegaInts/sec versus 87. Investigating, since
-parallel merge is faster, which is used by Parallel Merge Sort. Hopefully, the new version just needs tuning of thresholds.
-
 More info coming soon... Give it a shot
 
 **_Version 2.0_** algorithm performance is shown in the following tables:
