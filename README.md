@@ -5,16 +5,19 @@ Parallel algorithms for sorting, merging, copying and others. Parallel Merge Sor
 Linear and stable Radix Sort algorithm for arrays and lists of user defined classes sorted by key.
 Free and open source HPCsharp package on https://www.nuget.org
 
-**_Version 3.0.0_** Just released!
+**_Version 3.0.1_** Just released!
 
-Higher performance parallel and serial 2-way Merge, with parallel faster by 1.7%. Stable Merge Sort.
-In-place Merge Sort interfaces for arrays and lists.
-Parallel and serial Multi-Merge. Changed interfaces on Merge Sort and Merge to be consistent with Microsoft C# algorithms.
-Dynamic Priority Queue and Fixed Size Priority Queue.
+- Higher performance parallel and serial 2-way Merge, with parallel faster by 1.7%.
+- Added a Stable Merge Sort.
+- Tuned Parallel Merge Sort performance for 5-10% gain.
+- In-place Merge Sort interfaces for arrays and lists.
+- Parallel and serial Multi-Merge.
+- Changed interfaces on Merge Sort and Merge to be consistent with Microsoft C# algorithms.
+- Added Dynamic Priority Queue and Fixed Size Priority Queue.
 
-More info coming soon... Give it a shot
+More details and examples coming soon... Give it a shot!
 
-**_Version 2.0_** algorithm performance is shown in the following tables:
+**_Version 3.0.1_** algorithm performance is shown in the following tables:
 
 *Algorithm*|*Collection*|*Distribution*|*vs .Sort*|*vs Linq*|*vs Linq.AsParallel*|*MegaInts/sec*|*Data Type*
 --- | --- | --- | --- | --- | --- | --- | ---
@@ -43,11 +46,11 @@ Parallel Merge Sort|Array|Random|5X-14X|19X-90X|7X-47X|Stable
 Parallel Merge Sort|Array|Presorted|1X-6X|5X-60X|16X-122X|Stable
 Parallel Merge Sort|Array|Constant|TBD|TBD|9X-44X|Stable
 
-*Algorithm*|*Collection*|*Distribution*|*vs .Sort*|*vs Linq*|*vs Linq.AsParallel*
+*Algorithm*|*Collection*|*Distribution*|*vs .Sort*|*vs Linq*|*vs Linq.AsParallel*|*Description
 --- | --- | --- | --- | --- | ---
-Merge Sort|Array|Random|0.6X-0.7X|2X-4X|1X-3X
-Merge Sort|Array|Presorted|0.3X-0.3X|4X-5X|2X-3X|
-Merge Sort|Array|Constant|0.5X-0.6X|3X-4X|2X-3X|
+Merge Sort|Array|Random|0.6X|2.5X|1X|5 MegaInt32s/sec
+Merge Sort|Array|Presorted|0.3X|3X|2X|17 MegaInt32s/sec
+Merge Sort|Array|Constant|0.5X|3X|2X|15 MegaInt32s/sec
 
 Merge Sort is O(NlgN), never O(N<sup>2</sup>), generic, and runs on a single CPU core. Faster than Linq.OrderBy and Linq.OrderBy.AsParallel.
 
