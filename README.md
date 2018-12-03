@@ -42,12 +42,12 @@ Faster than Array.Sort and List.Sort across all distributions. Substantially fas
 
 *Algorithm*|*Collection*|*Distribution*|*vs .Sort*|*vs Linq*|*vs Linq.AsParallel*|*Description*
 --- | --- | --- | --- | --- | --- | ---
-Parallel Merge Sort|Array|Random|5X-14X|19X-90X|7X-47X|Stable
-Parallel Merge Sort|Array|Presorted|1X-6X|5X-60X|16X-122X|Stable
-Parallel Merge Sort|Array|Constant|TBD|TBD|9X-44X|Stable
+Parallel Merge Sort|Array|Random|5X-14X|19X-90X|7X-47X|
+Parallel Merge Sort|Array|Presorted|1X-6X|5X-60X|16X-122X|
+Parallel Merge Sort|Array|Constant|TBD|TBD|9X-44X|
 
-*Algorithm*|*Collection*|*Distribution*|*vs .Sort*|*vs Linq*|*vs Linq.AsParallel*|*Description
---- | --- | --- | --- | --- | ---
+*Algorithm*|*Collection*|*Distribution*|*vs .Sort*|*vs Linq*|*vs Linq.AsParallel*|*Description*
+--- | --- | --- | --- | --- | --- | ---
 Merge Sort|Array|Random|0.6X|2.5X|1X|5 MegaInt32s/sec
 Merge Sort|Array|Presorted|0.3X|3X|2X|17 MegaInt32s/sec
 Merge Sort|Array|Constant|0.5X|3X|2X|15 MegaInt32s/sec
