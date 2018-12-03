@@ -29,9 +29,9 @@ Parallel Merge Sort uses multiple CPU cores to accelerate performance. On a quad
 
 *Algorithm*|*Collection*|*Distribution*|*vs .Sort*|*vs Linq*|*vs Linq.AsParallel*|*Description*
 --- | --- | --- | --- | --- | --- | ---
-Parallel Merge Sort|Array|Random|2X-3X|10X-16X|4X-8X|Stable
-Parallel Merge Sort|Array|Presorted|1.2X-2.3X|17X-34X|7X-20X|Stable
-Parallel Merge Sort|Array|Constant|2X-3X|13X-20X|7X-13X|Stable
+Parallel Merge Sort|Array|Random|3X|12X|5X|
+Parallel Merge Sort|Array|Presorted|2X|22X|13X|
+Parallel Merge Sort|Array|Constant|2X-3X|13X-20X|7X-13X|
 
 Faster than Array.Sort and List.Sort across all distributions. Substantially faster than Linq.OrderBy and Linq.OrderBy.AsParallel
 
