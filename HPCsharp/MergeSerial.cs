@@ -248,6 +248,40 @@ namespace HPCsharp
             var equalityComparer = comparer ?? Comparer<T>.Default;
             Int32 aEnd = aStart + aLength - 1;
             Int32 bEnd = bStart + bLength - 1;
+
+            while (aStart <= aEnd && bStart <= bEnd)
+            {
+                if (equalityComparer.Compare(a[aStart], b[bStart]) <= 0)   	    // if elements are equal, then a[] element is output
+                    dst[dstStart++] = a[aStart++];
+                else
+                    dst[dstStart++] = b[bStart++];
+            }
+
+            //Array.Copy(a, aStart, dst, dstStart, aEnd - aStart + 1);
+            while (aStart <= aEnd) dst[dstStart++] = a[aStart++];    // copy(a[aStart, aEnd] to dst[dstStart]
+            //Array.Copy(b, bStart, dst, dstStart, bEnd - bStart + 1);
+            while (bStart <= bEnd) dst[dstStart++] = b[bStart++];
+        }
+        /// <summary>
+        /// Merge two sorted Array segments, placing the result into a destination Array, starting at an index.
+        /// </summary>
+        /// <param name="a">first source Array to be merged</param>
+        /// <param name="aStart">starting index of the first sorted Array, inclusive</param>
+        /// <param name="aLength">length of the first sorted segment</param>
+        /// <param name="b">second source Array to be merged</param>
+        /// <param name="bStart">starting index of the second sorted Array, inclusive</param>
+        /// <param name="bLength">length of the second sorted segment</param>
+        /// <param name="dst">destination Array where the result of two merged Arrays is to be placed</param>
+        /// <param name="dstStart">starting index within the destination Array where the merged sorted Array is to be placed</param>
+        /// <param name="comparer">optional method to compare array elements</param>
+        static public void Merge2<T>(T[] a, Int32 aStart, Int32 aLength,
+                                     T[] b, Int32 bStart, Int32 bLength,
+                                     T[] dst, Int32 dstStart,
+                                     Comparer<T> comparer = null)
+        {
+            var equalityComparer = comparer ?? Comparer<T>.Default;
+            Int32 aEnd = aStart + aLength - 1;
+            Int32 bEnd = bStart + bLength - 1;
             while (aStart <= aEnd && bStart <= bEnd)
             {
                 while (true)
@@ -271,6 +305,39 @@ namespace HPCsharp
             while (bStart <= bEnd) dst[dstStart++] = b[bStart++];
         }
         /// <summary>
+        /// Merge two sorted Array segments, placing the result into a destination Array, starting at an index.
+        /// </summary>
+        /// <param name="a">first source Array to be merged</param>
+        /// <param name="aStart">starting index of the first sorted Array, inclusive</param>
+        /// <param name="aLength">length of the first sorted segment</param>
+        /// <param name="bStart">starting index of the second sorted Array, inclusive</param>
+        /// <param name="bLength">length of the second sorted segment</param>
+        /// <param name="dst">destination Array where the result of two merged Arrays is to be placed</param>
+        /// <param name="dstStart">starting index within the destination Array where the merged sorted Array is to be placed</param>
+        /// <param name="comparer">optional method to compare array elements</param>
+        static public void Merge<T>(T[] a, Int32 aStart, Int32 aLength,
+                                           Int32 bStart, Int32 bLength,
+                                    T[] dst, Int32 dstStart,
+                                    Comparer<T> comparer = null)
+        {
+            var equalityComparer = comparer ?? Comparer<T>.Default;
+            Int32 aEnd = aStart + aLength - 1;
+            Int32 bEnd = bStart + bLength - 1;
+
+            while (aStart <= aEnd && bStart <= bEnd)
+            {
+                if (equalityComparer.Compare(a[aStart], a[bStart]) <= 0)   	    // if elements are equal, then a[] element is output
+                    dst[dstStart++] = a[aStart++];
+                else
+                    dst[dstStart++] = a[bStart++];
+            }
+
+            //Array.Copy(a, aStart, dst, dstStart, aEnd - aStart + 1);
+            while (aStart <= aEnd) dst[dstStart++] = a[aStart++];           // copy(a[aStart, aEnd] to dst[dstStart]
+            //Array.Copy(b, bStart, dst, dstStart, bEnd - bStart + 1);
+            while (bStart <= bEnd) dst[dstStart++] = a[bStart++];
+        }
+        /// <summary>
         /// Merge two sorted ranges of an Array, placing the result into a destination Array, starting at an index.
         /// </summary>
         /// <param name="src">source List</param>
@@ -281,8 +348,8 @@ namespace HPCsharp
         /// <param name="dst">destination Array where the result of two merged Arrays is to be placed</param>
         /// <param name="dstStart">starting index within the destination Array where the merged sorted Array is to be placed</param>
         /// <param name="comparer">optional method to compare array elements</param>
-        static public void Merge<T>(T[] src, Int32 aStart, Int32 aLength, Int32 bStart, Int32 bLength,
-                                    T[] dst, Int32 dstStart, Comparer<T> comparer = null)
+        static public void Merge2<T>(T[] src, Int32 aStart, Int32 aLength, Int32 bStart, Int32 bLength,
+                                     T[] dst, Int32 dstStart, Comparer<T> comparer = null)
         {
             var equalityComparer = comparer ?? Comparer<T>.Default;
             Int32 aEnd = aStart + aLength - 1;
@@ -512,10 +579,10 @@ namespace HPCsharp
         /// <summary>
         /// Smaller than threshold will use non-divide-and-conquer algorithm to merge arrays
         /// </summary>
-        static Int32 MergeArrayThreshold { get; set; } = 8192;
+        public static Int32 MergeArrayThreshold { get; set; } = 4 * 1024;
         /// <summary>
         /// Divide-and-Conquer Merge of two ranges of source array src[ p1 .. r1 ] and src[ p2 .. r2 ] into destination array starting at index p3.
-        /// This is a stable merge
+        /// This is a stable merge.
         /// </summary>
         /// <typeparam name="T">data type of each array element</typeparam>
         /// <param name="src">source array</param>
@@ -526,7 +593,7 @@ namespace HPCsharp
         /// <param name="dst">destination array</param>
         /// <param name="p3">starting index of the result</param>
         /// <param name="comparer">method to compare array elements</param>
-        internal static void MergeDivideAndConquer<T>(T[] src, Int32 aStart, Int32 aEnd, Int32 bStart, Int32 bEnd, T[] dst, Int32 p3, Comparer<T> comparer = null)
+        public static void MergeDivideAndConquer<T>(T[] src, Int32 aStart, Int32 aEnd, Int32 bStart, Int32 bEnd, T[] dst, Int32 p3, Comparer<T> comparer = null)
         {
             //Console.WriteLine("#1 " + p1 + " " + r1 + " " + p2 + " " + r2);
             Int32 length1 = aEnd - aStart + 1;

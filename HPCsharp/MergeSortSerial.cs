@@ -3,6 +3,7 @@
 // TODO: See if implementing stable IEnumerable sorting is faster than LINQ sorting, since that's the only stable one.
 // TODO: Compare performance of sorting arrays and lists of classes with .Sort and LINQ to see if the advantages are bigger or smaller
 // TODO: Expose all of the thresholds for users to be able to conrol
+// TODO: Test whether Merge is also stable, so that we don't have to resort to DivideAndConquerMerge for stability and give up performance in the process.
 using System;
 using System.Collections.Generic;
 
@@ -10,6 +11,15 @@ namespace HPCsharp
 {
     static public partial class Algorithm
     {
+        /// <summary>
+        /// Arrays or Lists smaller than this value will use Insertion Sort
+        /// </summary>
+        public static Int32 SortMergeInsertionThreshold { get; set; } = 16;
+        /// <summary>
+        /// Arrays or Lists smaller than this value will use Insertion Sort
+        /// </summary>
+        public static Int32 SortMergeStableInsertionThreshold { get; set; } = 16;
+
         static private void MergeSortInner<T>(this T[] src, int l, int r, T[] dst, bool srcToDst = true, Comparer<T> comparer = null)
         {
             if (r == l)
@@ -17,7 +27,7 @@ namespace HPCsharp
                 if (srcToDst) dst[l] = src[l];    // copy the single element from src to dst
                 return;
             }
-            else if ((r - l) < 16)
+            else if ((r - l) < SortMergeInsertionThreshold)
             {
                 HPCsharp.Algorithm.InsertionSort<T>(src, l, r - l + 1, comparer);  // want to do dstToSrc, can just do it in-place, just sort the src, no need to copy
                 if (srcToDst)
@@ -36,6 +46,7 @@ namespace HPCsharp
             else          Merge(dst, l, length1, m + 1, length2, src, l, comparer);
         }
 
+        // Uses stable sort for recursion leaf nodes and stable merge to ensure that Merge Sort is stable
         internal static void MergeSortStableInner<T>(this T[] src, int l, int r, T[] dst, bool srcToDst = true, Comparer<T> comparer = null)
         {
             if (r == l)
@@ -43,7 +54,7 @@ namespace HPCsharp
                 if (srcToDst) dst[l] = src[l];    // copy the single element from src to dst
                 return;
             }
-            else if ((r - l) < 16)
+            else if ((r - l) < SortMergeStableInsertionThreshold)
             {
                 HPCsharp.Algorithm.InsertionSort<T>(src, l, r - l + 1, comparer);  // want to do dstToSrc, can just do it in-place, just sort the src, no need to copy
                 if (srcToDst)

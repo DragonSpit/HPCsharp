@@ -2,6 +2,10 @@
 // TODO: Figure out a way to specify both stable as a method like LINQ does .Stable and .Parallel
 // TODO: Expose all of the thresholds for users to be able to conrol
 // TODO: Tune Merge Sort Stable threshold to my current laptop (as a good starting point)
+// TODO: Implement Parallel Merge Sort in a more generic way where there are not just thresholds, but also selection of serial algorithms to choose from
+//       to optimize depending on how well the serial algorithms perform on a particular hardware platform.
+// TODO: For readme, compare Radix Sort with Linq Sort and C# .Sort using several array sizes to show that the delta grows as size grows
+// TODO: Show the difference between Stable Merge Sort and Linq Sorting to compare apples to apples
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -17,15 +21,11 @@ namespace HPCsharp
         /// <summary>
         /// Arrays or Lists smaller than this value will not be copied using a parallel copy
         /// </summary>
-        public static Int32 SortMergeParallelThreshold { get; set; } = 8 * 1024;
+        public static Int32 SortMergeParallelThreshold { get; set; } = 24 * 1024;
         /// <summary>
         /// Arrays or Lists smaller than this value will not be copied using a parallel copy
         /// </summary>
         public static Int32 SortMergeStableParallelThreshold { get; set; } = 8 * 1024;
-        /// <summary>
-        /// Arrays or Lists smaller than this value will not be copied using a parallel copy
-        /// </summary>
-        public static Int32 SortMerge2ParallelThreshold { get; set; } = 1024 * 1024;
         /// <summary>
         /// Arrays or Lists smaller than this value will not be copied using a parallel copy
         /// </summary>
@@ -100,8 +100,6 @@ namespace HPCsharp
             else if ((r - l) <= SortMergeStableParallelThreshold)
             {
                 HPCsharp.Algorithm.MergeSortStableInner<T>(src, l, r, dst, srcToDst, comparer);
-                //if (srcToDst)
-                //    for (int i = l; i <= r; i++) dst[i] = src[i];	// copy from src to dst, when the result needs to be in dst
                 return;
             }
             int m = ((r + l) / 2);
@@ -114,31 +112,6 @@ namespace HPCsharp
             else          MergeInnerPar<T>(dst, l, m, m + 1, r, src, l, comparer);
         }
 
-        // Hybrid algorithms of Parallel Merge Sort at the high level and Radix Sort at the inner level
-        private static void SortMergeInner2Par(this uint[] src, Int32 l, Int32 r, uint[] dst, uint[] tmp, bool srcToDst = true)
-        {
-            if (r == l)
-            {    // termination/base case of sorting a single element
-                if (srcToDst) dst[l] = src[l];    // copy the single element from src to dst
-                return;
-            }
-            if ((r - l) <= SortMerge2ParallelThreshold)
-            {
-                Algorithm.SortRadix(src, l, r - l + 1, tmp);
-                //Array.Sort<uint>(src, l, r - l + 1);
-                if (srcToDst)
-                    for (int i = l; i <= r; i++) dst[i] = src[i];	// copy from src to dst, when the result needs to be in dst
-                return;
-            }
-            int m = (((r + l) / 2) / 16 ) * 16;     // 16 * sizeof(uint) = 64 bytes == cache line size
-            Parallel.Invoke(
-                () => { SortMergeInner2Par(src, l,     m, dst, tmp, !srcToDst); },      // reverse direction of srcToDst for the next level of recursion
-                () => { SortMergeInner2Par(src, m + 1, r, dst, tmp, !srcToDst); }
-            );
-            // reverse direction of srcToDst for the next level of recursion
-            if (srcToDst) MergeInnerPar<uint>(src, l, m, m + 1, r, dst, l);
-            else          MergeInnerPar<uint>(dst, l, m, m + 1, r, src, l);
-        }
         /// <summary>
         /// Parallel Merge Sort. Takes a range of the src array, sorts it, and then returns just the sorted range
         /// </summary>
@@ -201,17 +174,6 @@ namespace HPCsharp
         {
             var dst = new T[src.Length];
             src.SortMergeStableInnerPar<T>(0, src.Length - 1, dst, true, comparer);
-            return dst;
-        }
-        /// <summary>
-        /// Parallel Merge Sort. Allocates the resulting sorted array and returns it.
-        /// </summary>
-        /// <param name="src">source array</param>
-        public static uint[] SortMerge2Par(this uint[] src)
-        {
-            var dst = new uint[src.Length];
-            var tmp = new uint[src.Length];
-            src.SortMergeInner2Par(0, src.Length - 1, dst, tmp, true);
             return dst;
         }
         /// <summary>

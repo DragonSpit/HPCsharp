@@ -1,5 +1,6 @@
 ﻿// TODO: Create a single multi-merge generic algorithm (inner) where the 2-way merge is passed in as a function parameter (serial or parallel)
 //       The trouble is where does this generic algorithm live, ParallelAlgorithm or Algorithm class? Maybe we should have a single class
+// TODO: For Divide-and-Conquer parallel merge split the array on cache line boundaries to eliminate sharing of cache lines between threads.
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -20,7 +21,7 @@ namespace HPCsharp
         /// <summary>
         /// Smaller than threshold will use non-parallel algorithm to merge arrays
         /// </summary>
-        static Int32 MergeParallelArrayThreshold { get; set; } = 64000;
+        public static Int32 MergeParallelArrayThreshold { get; set; } = 128 * 1024;
         /// <summary>
         /// Divide-and-Conquer Merge of two ranges of source array src[ p1 .. r1 ] and src[ p2 .. r2 ] into destination array starting at index p3.
         /// </summary>

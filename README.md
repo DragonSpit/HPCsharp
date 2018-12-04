@@ -38,6 +38,14 @@ Parallel Merge Sort|Array|Constant|2X|15X|9X|74 MegaInt32s/sec
 
 Faster than Array.Sort and List.Sort across all distributions. Substantially faster than Linq.OrderBy and Linq.OrderBy.AsParallel
 
+*Algorithm*|*Collection*|*Distribution*|*vs .Sort*|*vs Linq*|*vs Linq.AsParallel*|*Description*
+--- | --- | --- | --- | --- | --- | ---
+Parallel Stable Merge Sort|Array|Random||8X|3X|17 MegaInt32s/sec
+Parallel Stable Merge Sort|Array|Presorted||11X|7X|54 MegaInt32s/sec
+Parallel Stable Merge Sort|Array|Constant||10X|6X|50 MegaInt32s/sec
+
+Array.Sort and List.Sort are not stable. Linq.OrderBy and Linq.OrderBy.AsParallel are stable. Parallel Stable Merge Sort is many times faster than Linq sorting.
+
 **_28-core (56-threads) AWS c5.18xlarge_**
 
 *Algorithm*|*Collection*|*Distribution*|*vs .Sort*|*vs Linq*|*vs Linq.AsParallel*|*Description*
