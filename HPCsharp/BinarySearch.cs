@@ -40,7 +40,7 @@ namespace HPCsharp
         /// <param name="right">right/high index of the source List, inclusive</param>
         /// <param name="comparer">comparison to be used</param>
         /// <returns></returns>
-        public static Int32 BinarySearch<T>(T value, List<T> a, Int32 left, Int32 right, Comparer<T> comparer = null)
+        public static Int32 BinarySearch<T>(T value, List<T> a, Int32 left, Int32 right, IComparer<T> comparer = null)
         {
             var equalityComparer = comparer ?? Comparer<T>.Default;
             Int32 low = left;
@@ -66,7 +66,7 @@ namespace HPCsharp
         /// <param name="right">right/high index of the source array, inclusive</param>
         /// <param name="comparer">comparison to be used</param>
         /// <returns></returns>
-        public static Int32 BinarySearch<T>(T value, T[] a, Int32 left, Int32 right, Comparer<T> comparer = null)
+        public static Int32 BinarySearch<T>(T value, T[] a, Int32 left, Int32 right, IComparer<T> comparer = null)
         {
             var equalityComparer = comparer ?? Comparer<T>.Default;
             Int32 low = left;

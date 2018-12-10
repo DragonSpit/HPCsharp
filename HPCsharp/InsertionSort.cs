@@ -14,7 +14,7 @@ namespace HPCsharp
         /// size: number of elements to sort
         /// comparer: optional compare method
         /// </summary>
-        public static void InsertionSort<T>(List<T> a, Int32 l, Int32 size, Comparer<T> comparer = null)
+        public static void InsertionSort<T>(List<T> a, Int32 l, Int32 size, IComparer<T> comparer = null)
         {
             var equalityComparer = comparer ?? Comparer<T>.Default;
             Int32 r = l + size;
@@ -41,7 +41,7 @@ namespace HPCsharp
         /// size: number of elements to sort
         /// comparer: optional compare method
         /// </summary>
-        public static void InsertionSort<T>(T[] a, Int32 l, Int32 size, Comparer<T> comparer = null)
+        public static void InsertionSort<T>(T[] a, Int32 l, Int32 size, IComparer<T> comparer = null)
         {
             var equalityComparer = comparer ?? Comparer<T>.Default;
             Int32 r = l + size;

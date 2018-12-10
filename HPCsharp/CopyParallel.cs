@@ -1,4 +1,5 @@
-﻿using System;
+﻿// TODO: Optimize parallel copy using our new statistical methods, since these are paying off for sorting and merging.
+using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 

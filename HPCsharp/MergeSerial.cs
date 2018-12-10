@@ -1,6 +1,8 @@
 ﻿// TODO: Implement a knob for the merge algorithm, to use multi-merge and specify how many way to split the merge, for divide-and-conquer too.
 // TODO: Multi-merge should use 2-way, 3-way and possibly 4-way before using the more general multi-way merge to go faster.
+// TODO: 3-way and 4-way merge need to be implemented using the algorithm that uses fewest boundary comparisons, as it may pay off as the way merge increases.
 // TODO: Is it faster to copy a List to an Array, then do the merge and then to copy the result back to a List? Currently, List merge runs at 1/2 the speed of Array merge.
+// TODO: Does it pay off to use the parallel copy.
 using System;
 using System.Collections.Generic;
 
@@ -29,7 +31,7 @@ namespace HPCsharp
         static public void Merge<T>(List<T> a, Int32 aStart, Int32 aLength,
                                     List<T> b, Int32 bStart, Int32 bLength,
                                     List<T> dst, Int32 dstStart,
-                                    Comparer<T> comparer = null)
+                                    IComparer<T> comparer = null)
         {
             var equalityComparer = comparer ?? Comparer<T>.Default;
             Int32 aEnd = aStart + aLength - 1;
@@ -66,7 +68,7 @@ namespace HPCsharp
         /// <param name="dstStart">starting index within the destination List where the merged sorted List is to be placed</param>
         /// <param name="comparer">optional method to compare array elements</param>
         static public void Merge<T>(List<T> src, Int32 aStart, Int32 aLength, Int32 bStart, Int32 bLength,
-                                    List<T> dst, Int32 dstStart, Comparer<T> comparer = null)
+                                    List<T> dst, Int32 dstStart, IComparer<T> comparer = null)
         {
             var equalityComparer = comparer ?? Comparer<T>.Default;
             Int32 aEnd = aStart + aLength - 1;
@@ -243,7 +245,7 @@ namespace HPCsharp
         static public void Merge<T>(T[] a, Int32 aStart, Int32 aLength,
                                     T[] b, Int32 bStart, Int32 bLength,
                                     T[] dst, Int32 dstStart,
-                                    Comparer<T> comparer = null)
+                                    IComparer<T> comparer = null)
         {
             var equalityComparer = comparer ?? Comparer<T>.Default;
             Int32 aEnd = aStart + aLength - 1;
@@ -277,7 +279,7 @@ namespace HPCsharp
         static public void Merge2<T>(T[] a, Int32 aStart, Int32 aLength,
                                      T[] b, Int32 bStart, Int32 bLength,
                                      T[] dst, Int32 dstStart,
-                                     Comparer<T> comparer = null)
+                                     IComparer<T> comparer = null)
         {
             var equalityComparer = comparer ?? Comparer<T>.Default;
             Int32 aEnd = aStart + aLength - 1;
@@ -318,7 +320,7 @@ namespace HPCsharp
         static public void Merge<T>(T[] a, Int32 aStart, Int32 aLength,
                                            Int32 bStart, Int32 bLength,
                                     T[] dst, Int32 dstStart,
-                                    Comparer<T> comparer = null)
+                                    IComparer<T> comparer = null)
         {
             var equalityComparer = comparer ?? Comparer<T>.Default;
             Int32 aEnd = aStart + aLength - 1;
@@ -349,7 +351,7 @@ namespace HPCsharp
         /// <param name="dstStart">starting index within the destination Array where the merged sorted Array is to be placed</param>
         /// <param name="comparer">optional method to compare array elements</param>
         static public void Merge2<T>(T[] src, Int32 aStart, Int32 aLength, Int32 bStart, Int32 bLength,
-                                     T[] dst, Int32 dstStart, Comparer<T> comparer = null)
+                                     T[] dst, Int32 dstStart, IComparer<T> comparer = null)
         {
             var equalityComparer = comparer ?? Comparer<T>.Default;
             Int32 aEnd = aStart + aLength - 1;
@@ -388,7 +390,7 @@ namespace HPCsharp
         /// <param name="comparer">optional method to compare array elements</param>
         static public void Merge<T>(T[] src, List<SortedSpan> srcSpans,
                                     T[] dst,
-                                    Comparer<T> comparer = null)
+                                    IComparer<T> comparer = null)
         {
             if (dst.Length != src.Length)
             {
@@ -439,11 +441,67 @@ namespace HPCsharp
             }
         }
 
+        // This implementation uses a fixed size priority queue to extract the min element in O(1) time and to insert a new element O(lgK) time, where K is the K-way merge and K is known in advance
+        // since we know how many spans are being merged. Performs multi-way merge in one pass, from the source to destination.
+        static public void MergeMulti<T>(T[] src, List<SortedSpan> srcSpans,
+                                         T[] dst,
+                                         IComparer<T> comparer = null)
+        {
+            if (dst.Length != src.Length)
+            {
+                throw new ArgumentException("Destination array must be the same size as the source array");
+            }
+            if (srcSpans == null || srcSpans.Count == 0)    // nothing to merge
+            {
+                return;
+            }
+            else
+            {
+                bool srcToDst = true;
+                while (srcSpans.Count > 2)
+                {
+                    var dstSpans = new List<SortedSpan>();
+                    Int32 i = 0;
+
+                    // Merge neighboring pairs of spans
+                    Int32 numPairs = srcSpans.Count / 2;
+                    for (Int32 p = 0; p < numPairs; p++)
+                    {
+                        Merge<T>(src, srcSpans[i].Start, srcSpans[i].Length,
+                                 src, srcSpans[i + 1].Start, srcSpans[i + 1].Length,
+                                 dst, srcSpans[i].Start,
+                                 comparer);
+                        dstSpans.Add(new SortedSpan { Start = srcSpans[i].Start, Length = srcSpans[i].Length + srcSpans[i + 1].Length });
+                        i += 2;
+                    }
+                    // Copy the last left over odd segment (if there is one) from src to dst and add it to dstSpans
+                    if (i == (srcSpans.Count - 1))
+                    {
+                        Array.Copy(src, srcSpans[i].Start, dst, srcSpans[i].Start, srcSpans[i].Length);
+                        dstSpans.Add(new SortedSpan { Start = srcSpans[i].Start, Length = srcSpans[i].Length });
+                    }
+                    srcSpans = dstSpans;
+                    var tmp = src;          // swap src and dst arrays
+                    src = dst;
+                    dst = tmp;
+                    srcToDst = srcToDst ? false : true; // keep track of merge direction
+                }
+                if (srcSpans.Count == 2)
+                {
+                    // TODO: call a 2-way merge
+                }
+                else if (srcSpans.Count == 1)
+                {
+                    Array.Copy(src, srcSpans[0].Start, dst, srcSpans[0].Start, srcSpans[0].Length);
+                }
+            }
+        }
+
         static public void MergeThree<T>(T[] a, Int32 aStart, Int32 aLength,
                                          T[] b, Int32 bStart, Int32 bLength,
                                          T[] c, Int32 cStart, Int32 cLength,
                                          T[] dst, Int32 dstStart,
-                                         Comparer<T> comparer = null)
+                                         IComparer<T> comparer = null)
         {
             var equalityComparer = comparer ?? Comparer<T>.Default;
             Int32 aEnd = aStart + aLength - 1;
@@ -496,7 +554,7 @@ namespace HPCsharp
                                         T[] c, Int32 cStart, Int32 cLength,
                                         T[] d, Int32 dStart, Int32 dLength,
                                         T[] dst, Int32 dstStart,
-                                        Comparer<T> comparer = null)
+                                        IComparer<T> comparer = null)
         {
             var equalityComparer = comparer ?? Comparer<T>.Default;
             Int32 aEnd = aStart + aLength - 1;
@@ -593,7 +651,7 @@ namespace HPCsharp
         /// <param name="dst">destination array</param>
         /// <param name="p3">starting index of the result</param>
         /// <param name="comparer">method to compare array elements</param>
-        public static void MergeDivideAndConquer<T>(T[] src, Int32 aStart, Int32 aEnd, Int32 bStart, Int32 bEnd, T[] dst, Int32 p3, Comparer<T> comparer = null)
+        public static void MergeDivideAndConquer<T>(T[] src, Int32 aStart, Int32 aEnd, Int32 bStart, Int32 bEnd, T[] dst, Int32 p3, IComparer<T> comparer = null)
         {
             //Console.WriteLine("#1 " + p1 + " " + r1 + " " + p2 + " " + r2);
             Int32 length1 = aEnd - aStart + 1;

@@ -18,9 +18,9 @@ namespace HPCsharpExamples
 
             for (int i = 0; i < arraySize; i++)
             {
-                benchArrayOne[i] = (uint)randNum.Next(0, Int32.MaxValue);    // fill array with random value between min and max
-                //benchArrayOne[i] = (uint)i;
-                //benchArrayOne[i] = 0;
+                benchArrayOne[i] = (uint)randNum.Next(0, Int32.MaxValue);    // fill array with random       values between min and max
+                //benchArrayOne[i] = (uint)i;                                // fill array with incrementing values
+                //benchArrayOne[i] = 0;                                      // fill array with constant     values
                 benchArrayTwo[i] = benchArrayOne[i];
             }
 
@@ -58,9 +58,9 @@ namespace HPCsharpExamples
 
             for (int i = 0; i < ListSize; i++)
             {
-                benchListOne.Add((uint)randNum.Next(0, Int32.MaxValue));    // fill lists with random value between min and max
-                //benchListOne.Add((uint)i);
-                //benchListOne.Add(0);
+                benchListOne.Add((uint)randNum.Next(0, Int32.MaxValue));    // fill lists with random       values between min and max
+                //benchListOne.Add((uint)i);                                // fill lists with incrementing values
+                //benchListOne.Add(0);                                      // fill lists with constant     values
                 benchListTwo.Add(benchListOne[i]);
             }
 

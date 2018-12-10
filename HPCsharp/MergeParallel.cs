@@ -34,7 +34,7 @@ namespace HPCsharp
         /// <param name="dst">destination array</param>
         /// <param name="p3">starting index of the result</param>
         /// <param name="comparer">method to compare array elements</param>
-        internal static void MergeInnerPar<T>(T[] src, Int32 p1, Int32 r1, Int32 p2, Int32 r2, T[] dst, Int32 p3, Comparer<T> comparer = null)
+        internal static void MergeInnerPar<T>(T[] src, Int32 p1, Int32 r1, Int32 p2, Int32 r2, T[] dst, Int32 p3, IComparer<T> comparer = null)
         {
             //Console.WriteLine("#1 " + p1 + " " + r1 + " " + p2 + " " + r2);
             Int32 length1 = r1 - p1 + 1;
