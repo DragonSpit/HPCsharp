@@ -14,7 +14,8 @@ Sorting algorithms use the same interfaces as C# Array.Sort and Linq.</Descripti
 Added parallel and serial multi-merge: merging of multiple pre-sorted arrays.
 Improved performance of parallel and serial merge sort.
 Added stable merge sort: serial and parallel.
-Added two types of priority queues.</PackageReleaseNotes>
+Added two types of priority queues.
+Implemented Merge Sort of List.</PackageReleaseNotes>
     <PackageId>HPCsharp</PackageId>
     <PackageTags>high perfromance algorithms, C#, high performance, high performance computing, HPC, algorithm, algorithms, Linq, parallel, parallel algorithm</PackageTags>
     <PackageIconUrl>https://foostate.com/images/default_lib_icon_64.png</PackageIconUrl>
