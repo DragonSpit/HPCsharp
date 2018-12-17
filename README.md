@@ -5,7 +5,12 @@ Parallel algorithms for sorting, merging, copying and others. Parallel Merge Sor
 Linear and stable Radix Sort algorithm for arrays and lists of user defined classes sorted by key.
 Free and open source HPCsharp package on https://www.nuget.org
 
-**_Version 3.0.2_** Just released!
+**_Version 3.0.3_** Coming Shortly!
+
+- Removed Stable Merge Sort (serial and parallel), as further testing revealed them to not be stable.
+- Initial testing have shown serial Merge Sort to be stable, but further testing and code examination are needed to determine stability.
+
+**_Version 3.0.2_**
 
 - Fixed Merge Sort of user defined classes (data types). Examples of usage and benchmarks coming soon.
 - Implemented Serial Merge Sort of List.
@@ -41,15 +46,8 @@ Parallel Merge Sort|Array|Random|3X|12X|5X|25 MegaInt32s/sec
 Parallel Merge Sort|Array|Presorted|2X|22X|13X|110 MegaInt32s/sec
 Parallel Merge Sort|Array|Constant|2X|15X|9X|74 MegaInt32s/sec
 
-Faster than Array.Sort and List.Sort across all distributions. Substantially faster than Linq.OrderBy and Linq.OrderBy.AsParallel
-
-*Algorithm*|*Collection*|*Distribution*|*vs .Sort*|*vs Linq*|*vs Linq.AsParallel*|*Description*
---- | --- | --- | --- | --- | --- | ---
-Parallel Stable Merge Sort|Array|Random||8X|3X|17 MegaInt32s/sec
-Parallel Stable Merge Sort|Array|Presorted||11X|7X|54 MegaInt32s/sec
-Parallel Stable Merge Sort|Array|Constant||10X|6X|50 MegaInt32s/sec
-
-Array.Sort and List.Sort are not stable. Linq.OrderBy and Linq.OrderBy.AsParallel are stable. Parallel Stable Merge Sort is many times faster than Linq sorting.
+Parallel Merge Sort is not stable, just like Array.Sort. Faster than Array.Sort and List.Sort across all distributions.
+Substantially faster than Linq.OrderBy and Linq.OrderBy.AsParallel
 
 **_28-core (56-threads) AWS c5.18xlarge_**
 
@@ -66,6 +64,7 @@ Merge Sort|Array|Presorted|0.3X|3X|2X|17 MegaInt32s/sec
 Merge Sort|Array|Constant|0.5X|3X|2X|15 MegaInt32s/sec
 
 Merge Sort is O(NlgN), never O(N<sup>2</sup>), generic, and runs on a single CPU core. Faster than Linq.OrderBy and Linq.OrderBy.AsParallel.
+Initial testing have shown this implementation to be stable, but further testing and code examination are needed to determine stability.
 
 Other algorithms provided:
 - Insertion Sort which is O(N<sup>2</sup>), and useful for fast in-place sorting of very small collections.
