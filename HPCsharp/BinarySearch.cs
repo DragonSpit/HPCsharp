@@ -24,7 +24,7 @@ namespace HPCsharp
         // Compare with the smallest element and if it's smaller then we are done as well and need to move the entire array over 
 
         // Searches for the value within array "a", from a[ left ] to a[ right ] inclusively
-        // Returns the the left-most index at which the element of the array is larger than the value.
+        // Returns the the left-most index at which the element of the array is larger or equal to the value.
         // Thus, the return index can be between left and (right + 1)
         // Expects "a" array to be pre-sorted with the smallest element on the left and the largest on the right.
         // It would be cool if the routine worked automagically for the condition of right < left  (i.e. no  elements) - return left
@@ -39,7 +39,7 @@ namespace HPCsharp
         /// <param name="left">left/low index of the source List, inclusive</param>
         /// <param name="right">right/high index of the source List, inclusive</param>
         /// <param name="comparer">comparison to be used</param>
-        /// <returns></returns>
+        /// <returns>Returns the the left-most index at which the element of the array is larger or equal to the value</returns>
         public static Int32 BinarySearch<T>(T value, List<T> a, Int32 left, Int32 right, IComparer<T> comparer = null)
         {
             var equalityComparer = comparer ?? Comparer<T>.Default;
@@ -65,7 +65,7 @@ namespace HPCsharp
         /// <param name="left">left/low index of the source array, inclusive</param>
         /// <param name="right">right/high index of the source array, inclusive</param>
         /// <param name="comparer">comparison to be used</param>
-        /// <returns></returns>
+        /// <returns>Returns the the left-most index at which the element of the array is larger or equal to the value</returns>
         public static Int32 BinarySearch<T>(T value, T[] a, Int32 left, Int32 right, IComparer<T> comparer = null)
         {
             var equalityComparer = comparer ?? Comparer<T>.Default;
