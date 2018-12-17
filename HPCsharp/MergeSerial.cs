@@ -419,9 +419,9 @@ namespace HPCsharp
                     Int32 numPairs = srcSpans.Count / 2;
                     for (Int32 p = 0; p < numPairs; p++)
                     {
-                        Merge<T>(src, srcSpans[i    ].Start, srcSpans[i    ].Length,
+                        Merge<T>(src, srcSpans[i].Start, srcSpans[i].Length,
                                  src, srcSpans[i + 1].Start, srcSpans[i + 1].Length,
-                                 dst, srcSpans[i    ].Start,
+                                 dst, srcSpans[i].Start,
                                  comparer);
                         dstSpans.Add(new SortedSpan { Start = srcSpans[i].Start, Length = srcSpans[i].Length + srcSpans[i + 1].Length });
                         i += 2;
@@ -640,7 +640,7 @@ namespace HPCsharp
         public static Int32 MergeArrayThreshold { get; set; } = 4 * 1024;
         /// <summary>
         /// Divide-and-Conquer Merge of two ranges of source array src[ p1 .. r1 ] and src[ p2 .. r2 ] into destination array starting at index p3.
-        /// This is a stable merge.
+        /// This merge is not stable.
         /// </summary>
         /// <typeparam name="T">data type of each array element</typeparam>
         /// <param name="src">source array</param>
@@ -653,7 +653,7 @@ namespace HPCsharp
         /// <param name="comparer">method to compare array elements</param>
         public static void MergeDivideAndConquer<T>(T[] src, Int32 aStart, Int32 aEnd, Int32 bStart, Int32 bEnd, T[] dst, Int32 p3, IComparer<T> comparer = null)
         {
-            //Console.WriteLine("#1 " + p1 + " " + r1 + " " + p2 + " " + r2);
+            //Console.WriteLine("#1 " + aStart + " " + aEnd + " " + bStart + " " + bEnd);
             Int32 length1 = aEnd - aStart + 1;
             Int32 length2 = bEnd - bStart + 1;
             if (length1 < length2)
@@ -665,7 +665,7 @@ namespace HPCsharp
             if (length1 == 0) return;
             if ((length1 + length2) <= MergeArrayThreshold)
             {
-                //Console.WriteLine("#3 " + p1 + " " + length1 + " " + p2 + " " + length2 + " " + p3);
+                //Console.WriteLine("Merge: aStart = {0} length1 = {1} bStart = {2} length2 = {3} p3 = {2}", aStart, length1, bStart, length2, p3);
                 Merge<T>(src, aStart, length1,
                          src, bStart, length2,
                          dst, p3, comparer);            // in Dr. Dobb's Journal paper
@@ -676,9 +676,154 @@ namespace HPCsharp
                 Int32 q2 = Algorithm.BinarySearch(src[q1], src, bStart, bEnd, comparer);
                 Int32 q3 = p3 + (q1 - aStart) + (q2 - bStart);
                 dst[q3] = src[q1];
-                MergeDivideAndConquer(src, aStart, q1 - 1, bStart, q2 - 1, dst, p3, comparer);
-                MergeDivideAndConquer(src, q1 + 1, aEnd, q2, bEnd, dst, q3 + 1, comparer);
+                MergeDivideAndConquer(src, aStart, q1 - 1, bStart, q2 - 1, dst, p3, comparer);  // lower half
+                MergeDivideAndConquer(src, q1 + 1, aEnd, q2, bEnd, dst, q3 + 1, comparer);  // upper half
             }
         }
     }
+}
+
+// These are work in progress and should not be used until it has been moved to the Algorithm namespace
+namespace HPCsharpExperimental
+{
+    static public partial class Algorithm
+    {
+        public static void MergeDivideAndConquerExperimental<T>(T[] src, Int32 aStart, Int32 aEnd, Int32 bStart, Int32 bEnd, T[] dst, Int32 p3, IComparer<T> comparer = null)
+        {
+            //var equalityComparer = comparer ?? Comparer<T>.Default;
+            //Console.WriteLine("#1 " + p1 + " " + r1 + " " + p2 + " " + r2);
+            Int32 length1 = aEnd - aStart + 1;
+            Int32 length2 = bEnd - bStart + 1;
+            if (length1 < length2)
+            {
+                HPCsharp.ParallelAlgorithm.Exchange(ref aStart, ref bStart);
+                HPCsharp.ParallelAlgorithm.Exchange(ref aEnd, ref bEnd);
+                HPCsharp.ParallelAlgorithm.Exchange(ref length1, ref length2);
+            }
+            if (length1 == 0) return;
+            if ((length1 + length2) <= HPCsharp.Algorithm.MergeArrayThreshold)
+            {
+                Console.WriteLine("Merge: aStart = {0} length1 = {1} bStart = {2} length2 = {3} p3 = {2}", aStart, length1, bStart, length2, p3);
+                HPCsharp.Algorithm.Merge<T>(src, aStart, length1,
+                                            src, bStart, length2,
+                                            dst, p3, comparer);            // in Dr. Dobb's Journal paper
+            }
+            else
+            {
+                Int32 q1 = (aStart + aEnd) / 2;
+                Int32 q2 = HPCsharp.Algorithm.BinarySearch(src[q1], src, bStart, bEnd, comparer);
+                Int32 q3 = p3 + (q1 - aStart) + (q2 - bStart);
+                // TODO: The flaw seems to be when q2 == bStart. In this case, there may not be a split of the [bStart-bEnd] range, and we need to detect and account for this case
+                //       as we always need the left part of the b-range-split to be strictly less than the q1 element. Otherwise, we may not even need to move the q1 element (maybe)
+                Console.WriteLine("aStart = {0} aEnd = {1} bStart = {2} bEnd = {3} q1 = {4} q2 = {5} q3 = {6} p3 = {7}", aStart, aEnd, bStart, bEnd, q1, q2, q3, p3);
+                // When the src[bStart] is equal to src[q1], BinarySearch will return bStart as q1
+                // However, to support stability 
+                if (q2 > bStart)
+                {
+                    dst[q3] = src[q1];
+                    Console.Write("Before Merge: ");
+                    foreach (var p in dst) Console.Write(p);
+                    Console.WriteLine();
+                    MergeDivideAndConquerExperimental(src, aStart, q1 - 1, bStart, q2 - 1, dst, p3, comparer);  // lower half
+                    Console.Write("Between Merges: ");
+                    foreach (var p in dst) Console.Write(p);
+                    Console.WriteLine();
+                    MergeDivideAndConquerExperimental(src, q1 + 1, aEnd, q2, bEnd, dst, q3 + 1, comparer);  // upper half
+                    Console.Write("After Both Merges: ");
+                    foreach (var p in dst) Console.Write(p);
+                    Console.WriteLine();
+                }
+                else  // q2 <= bStart which implies no split for segment B
+                {
+                    //dst[q3] = src[q1];
+                    Console.Write("Before Merge: ");
+                    foreach (var p in dst) Console.Write(p);
+                    Console.WriteLine();
+                    MergeDivideAndConquerExperimental(src, aStart, q1 - 1, bStart, q2 - 1, dst, p3, comparer); // lower half
+                    Console.Write("Between Merges: ");
+                    foreach (var p in dst) Console.Write(p);
+                    Console.WriteLine();
+                    MergeDivideAndConquerExperimental(src, q1 + 1, aEnd, q2, bEnd, dst, q3 + 1, comparer);  // upper half
+                    Console.Write("After Both Merges: ");
+                    foreach (var p in dst) Console.Write(p);
+                    Console.WriteLine();
+                }
+            }
+        }
+        // Unrolled version, which is useful for debug
+        public static void MergeDivideAndConquerUnrolled<T>(T[] src, Int32 aStart, Int32 aEnd, Int32 bStart, Int32 bEnd, T[] dst, Int32 p3, IComparer<T> comparer = null)
+        {
+            //var equalityComparer = comparer ?? Comparer<T>.Default;
+            //Console.WriteLine("#1 " + p1 + " " + r1 + " " + p2 + " " + r2);
+            Int32 length1 = aEnd - aStart + 1;
+            Int32 length2 = bEnd - bStart + 1;
+            if (length1 >= length2)             // A segment is longer than B segment
+            {
+                Console.WriteLine("length1 >= length2");
+                if (length1 == 0) return;
+                if ((length1 + length2) <= HPCsharp.Algorithm.MergeArrayThreshold)
+                {
+                    Console.WriteLine("Merge: aStart = {0} length1 = {1} bStart = {2} length2 = {3} p3 = {2}", aStart, length1, bStart, length2, p3);
+                    HPCsharp.Algorithm.Merge<T>(src, aStart, length1,
+                                                src, bStart, length2,
+                                                dst, p3, comparer);            // in Dr. Dobb's Journal paper
+                }
+                else
+                {
+                    Int32 q1 = (aStart + aEnd) / 2;
+                    Int32 q2 = HPCsharp.Algorithm.BinarySearch(src[q1], src, bStart, bEnd, comparer);
+                    Int32 q3 = p3 + (q1 - aStart) + (q2 - bStart);
+                    // TODO: The flaw seems to be when q2 == bStart. In this case, there may not be a split of the [bStart-bEnd] range, and we need to detect and account for this case
+                    //       as we always need the left part of the b-range-split to be strictly less than the q1 element. Otherwise, we may not even need to move the q1 element (maybe)
+                    Console.WriteLine("aStart = {0} aEnd = {1} bStart = {2} bEnd = {3} q1 = {4} q2 = {5} q3 = {6} p3 = {7}", aStart, aEnd, bStart, bEnd, q1, q2, q3, p3);
+                    dst[q3] = src[q1];
+                    Console.Write("Before Merge: ");
+                    foreach (var p in dst) Console.Write(p);
+                    Console.WriteLine();
+                    MergeDivideAndConquerUnrolled(src, aStart, q1 - 1, bStart, q2 - 1, dst, p3, comparer);  // lower half
+                    Console.Write("Between Merges: ");
+                    foreach (var p in dst) Console.Write(p);
+                    Console.WriteLine();
+                    MergeDivideAndConquerUnrolled(src, q1 + 1, aEnd, q2, bEnd, dst, q3 + 1, comparer);      // upper half
+                    Console.Write("After Both Merges: ");
+                    foreach (var p in dst) Console.Write(p);
+                    Console.WriteLine();
+                }
+            }
+            else  // length2 > length1        B segment is longer than A segment
+            {
+                Console.WriteLine("length2 > length1");
+                if (length2 == 0) return;
+                if ((length1 + length2) <= HPCsharp.Algorithm.MergeArrayThreshold)
+                {
+                    Console.WriteLine("Merge: aStart = {0} length1 = {1} bStart = {2} length2 = {3} p3 = {2}", aStart, length1, bStart, length2, p3);
+                    HPCsharp.Algorithm.Merge<T>(src, aStart, length1,
+                                                src, bStart, length2,
+                                                dst, p3, comparer);            // in Dr. Dobb's Journal paper
+                }
+                else
+                {
+                    Int32 q1 = (bStart + bEnd) / 2;
+                    Int32 q2 = HPCsharp.Algorithm.BinarySearch(src[q1], src, aStart, aEnd, comparer);
+                    Int32 q3 = p3 + (q1 - bStart) + (q2 - aStart);
+                    // TODO: The flaw seems to be when q2 == bStart. In this case, there may not be a split of the [bStart-bEnd] range, and we need to detect and account for this case
+                    //       as we always need the left part of the b-range-split to be strictly less than the q1 element. Otherwise, we may not even need to move the q1 element (maybe)
+                    Console.WriteLine("aStart = {0} aEnd = {1} bStart = {2} bEnd = {3} q1 = {4} q2 = {5} q3 = {6} p3 = {7}", aStart, aEnd, bStart, bEnd, q1, q2, q3, p3);
+                    dst[q3] = src[q1];
+                    Console.Write("Before Merge: ");
+                    foreach (var p in dst) Console.Write(p);
+                    Console.WriteLine();
+                    MergeDivideAndConquerUnrolled(src, bStart, q1 - 1, aStart, q2 - 1, dst, p3, comparer);  // upper half
+                    Console.Write("Between Merges: ");
+                    foreach (var p in dst) Console.Write(p);
+                    Console.WriteLine();
+                    MergeDivideAndConquerUnrolled(src, q1 + 1, bEnd, q2, aEnd, dst, q3 + 1, comparer);      // lower half
+                    Console.Write("After Both Merges: ");
+                    foreach (var p in dst) Console.Write(p);
+                    Console.WriteLine();
+                }
+            }
+        }
+    }
+
 }
