@@ -21,3 +21,5 @@
 //       ability to add comparison method (lambda) to either user defined class or a standard class.
 // TODO: Since Parallel Merge Sort uses .Sort as the base case, the whole algorithm becomes non-stable => stability can not be claimed.
 //       As we determiner DivideAndConquer to be not-stable Parallel Merge Sort isn't stable also
+// TODO: Bring back Stable Merge Sort (parallel only, since serial Merge Sort is already stable) and provide parallel version of it. This will provide limited
+//       acceleration, but at least will provide some and will beat LINQ, since that's the only current option for C# developers.
