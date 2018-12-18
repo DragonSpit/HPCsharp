@@ -13,7 +13,7 @@ Free and open source HPCsharp package on https://www.nuget.org
 **_Version 3.0.1_**
 
 - Higher performance parallel and serial 2-way Merge, with parallel faster by 1.7%.
-- Added a Stable Merge Sort.
+- Added a Stable Parallel Merge Sort. Current, Serial Merge Sort is already stable.
 - Tuned Parallel Merge Sort performance for 5-10% gain.
 - In-place Merge Sort interfaces for arrays and lists.
 - Parallel and serial Multi-Merge.
@@ -54,12 +54,11 @@ Parallel Merge Sort|Array|Constant|TBD|TBD|9X-44X|
 
 *Algorithm*|*Collection*|*Distribution*|*vs .Sort*|*vs Linq*|*vs Linq.AsParallel*|*Description*
 --- | --- | --- | --- | --- | --- | ---
-Merge Sort|Array|Random|0.6X|2.5X|1X|5 MegaInt32s/sec
-Merge Sort|Array|Presorted|0.3X|3X|2X|17 MegaInt32s/sec
-Merge Sort|Array|Constant|0.5X|3X|2X|15 MegaInt32s/sec
+Merge Sort (stable)|Array|Random|0.6X|2.5X|1X|5 MegaInt32s/sec
+Merge Sort (stable)|Array|Presorted|0.3X|3X|2X|17 MegaInt32s/sec
+Merge Sort (stable)|Array|Constant|0.5X|3X|2X|15 MegaInt32s/sec
 
-Merge Sort is O(NlgN), never O(N<sup>2</sup>), generic, and runs on a single CPU core. Faster than Linq.OrderBy and Linq.OrderBy.AsParallel.
-Initial testing have shown this implementation to be stable, but further testing and code examination are needed to determine stability.
+Merge Sort is O(NlgN), never O(N<sup>2</sup>), generic, stable, and runs on a single CPU core. Faster than Linq.OrderBy and Linq.OrderBy.AsParallel.
 
 Other algorithms provided:
 - Insertion Sort which is O(N<sup>2</sup>), and useful for fast in-place sorting of very small collections.

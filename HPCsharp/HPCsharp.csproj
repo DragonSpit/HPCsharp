@@ -15,7 +15,8 @@ Added parallel and serial multi-merge: merging of multiple pre-sorted arrays.
 Improved performance of parallel and serial merge sort.
 Added stable merge sort: serial and parallel.
 Added two types of priority queues.
-Implemented Merge Sort of List. Fixed Merge Sorting of user defined classes.</PackageReleaseNotes>
+Implemented Merge Sort of List. Fixed Merge Sorting of user defined classes.
+Fixed stability of Stable Parallel Merge Sort.</PackageReleaseNotes>
     <PackageId>HPCsharp</PackageId>
     <PackageTags>high perfromance algorithms, C#, high performance, high performance computing, HPC, algorithm, algorithms, Linq, parallel, parallel algorithm</PackageTags>
     <PackageIconUrl>https://foostate.com/images/default_lib_icon_64.png</PackageIconUrl>
@@ -24,9 +25,9 @@ Implemented Merge Sort of List. Fixed Merge Sorting of user defined classes.</Pa
     <PackageProjectUrl>https://github.com/DragonSpit/HPCsharp</PackageProjectUrl>
     <RepositoryUrl>https://github.com/DragonSpit/HPCsharp</RepositoryUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <AssemblyVersion>3.0.2.0</AssemblyVersion>
-    <FileVersion>3.0.2.0</FileVersion>
-    <Version>3.0.2</Version>
+    <AssemblyVersion>3.0.3.0</AssemblyVersion>
+    <FileVersion>3.0.3.0</FileVersion>
+    <Version>3.0.3</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

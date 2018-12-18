@@ -16,7 +16,7 @@ namespace HPCsharp
         /// </summary>
         public static Int32 SortMergeInsertionThreshold { get; set; } = 16;
 
-        static private void SortMergeInner<T>(this T[] src, int l, int r, T[] dst, bool srcToDst = true, IComparer<T> comparer = null)
+        static internal void SortMergeInner<T>(this T[] src, int l, int r, T[] dst, bool srcToDst = true, IComparer<T> comparer = null)
         {
             if (r == l)
             {    // termination/base case of sorting a single element
