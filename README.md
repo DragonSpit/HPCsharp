@@ -5,6 +5,10 @@ Parallel algorithms for sorting, merging, copying and others. Parallel Merge Sor
 Linear and stable Radix Sort algorithm for arrays and lists of user defined classes sorted by key.
 Free and open source HPCsharp package on https://www.nuget.org
 
+**_Version 3.0.3_** Just Released! Give it a try.
+
+- Fixed Stability of Stable Parallel Merge Sort. Serial Merge Sort is already stable.
+
 **_Version 3.0.2_**
 
 - Fixed Merge Sort of user defined classes (data types). Examples of usage and benchmarks coming soon.
