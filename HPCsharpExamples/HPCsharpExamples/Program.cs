@@ -9,6 +9,41 @@ namespace HPCsharpExamples
     {
         static void Main(string[] args)
         {
+            // Test Radix Sort
+            uint[] ArrayOne   = { 21, 43, 16, 5, 54, 3 };
+            uint[] ArrayTwo   = { 21, 43, 16, 5, 54, 3 };
+            uint[] ArrayThree = { 21, 43, 16, 5, 54, 3 };
+            uint[] ArrayFour  = { 21, 43, 16, 5, 54, 3 };
+            uint[] ArrayFive  = { 21, 43, 16, 5, 54, 3 };
+            uint[] ArraySix   = { 21, 43, 16, 5, 54, 3 };
+
+            Array.Sort(ArrayOne);                                   // C# standard in-place Sort
+            ArrayTwo.SortMergeInPlace();                            // HPCsharp    in-place Merge Sort (serial)
+            ArrayThree.SortMergeInPlacePar();                       // HPCsharp    in-place Merge Sort (parallel)
+
+            uint[] sortedArrayFour = ArrayFour.SortRadix();         // HPCsharp Radix Sort (not in-place, serial)
+            uint[] sortedArrayFive = ArrayFive.SortMerge();         // HPCsharp Merge Sort (not in-place, serial)
+            uint[] sortedArraySix  = ArraySix.SortMergePar();       // HPCsharp Merge Sort (not in-place, parallel)
+
+            bool equalSortedArraysOneAndTwo   = ArrayOne.SequenceEqual(ArrayTwo);
+            bool equalSortedArraysOneAndThree = ArrayOne.SequenceEqual(ArrayThree);
+            bool equalSortedArraysOneAndFour  = ArrayOne.SequenceEqual(ArrayFour);
+            bool equalSortedArraysOneAndFive  = ArrayOne.SequenceEqual(ArrayFive);
+            bool equalSortedArraysOneAndSix   = ArrayOne.SequenceEqual(ArraySix);
+
+            if (equalSortedArraysOneAndTwo && equalSortedArraysOneAndThree && equalSortedArraysOneAndFour &&
+                equalSortedArraysOneAndFive && equalSortedArraysOneAndSix)
+                Console.WriteLine("Sorting results are equal");
+            else
+                Console.WriteLine("Sorting results are not equal!");
+
+            // Measure Array RadixSort speedup
+            SortMeasureArraySpeedup();
+            // Measure List RadixSort speedup
+            SortMeasureListSpeedup();
+
+
+
             // Check array equality
             int[] arrayOne = { 21, 43, 16, 5, 4, -3 };
             int[] arrayTwo = { 21, 43, 16, 5, 4, -3 };
@@ -77,25 +112,6 @@ namespace HPCsharpExamples
             MaxMeasureArraySpeedup();
             // Measure List.Max speedup
             MaxMeasureListSpeedup();
-
-            // Test Radix Sort
-            uint[] arrayFour = { 21, 43, 16, 5, 54, 3 };
-            uint[] arrayFive = { 21, 43, 16, 5, 54, 3 };
-
-            uint[] sortedArrayFour = arrayFour.SortRadix();
-            Array.Sort(arrayFive);
-
-            bool equalSortedArrays = sortedArrayFour.SequenceEqual(arrayFive);
-
-            if (equalSortedArrays)
-                Console.WriteLine("Sorting results are equal");
-            else
-                Console.WriteLine("Sorting results did not compare!");
-
-            // Measure Array RadixSort speedup
-            SortMeasureArraySpeedup();
-            // Measure List RadixSort speedup
-            SortMeasureListSpeedup();
         }
     }
 }
