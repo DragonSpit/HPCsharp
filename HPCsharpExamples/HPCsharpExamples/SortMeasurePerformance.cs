@@ -8,13 +8,14 @@ namespace HPCsharpExamples
 {
     partial class Program
     {
-        public static void SortMeasureArraySpeedup()
+        public static void SortMeasureArraySpeedup(bool parallel, bool vsLinq)
         {
             Random randNum = new Random(5);
             int arraySize = 16 * 1024 * 1024;
             uint[] benchArrayOne = new uint[arraySize];
             uint[] benchArrayTwo = new uint[arraySize];
             uint[] sortedArrayOne = new uint[arraySize];
+            uint[] sortedArrayTwo = new uint[arraySize];
 
             for (int i = 0; i < arraySize; i++)
             {
@@ -29,23 +30,68 @@ namespace HPCsharpExamples
             long nanosecPerTick = (1000L * 1000L * 1000L) / frequency;
 
             stopwatch.Restart();
-            //uint[] sortedArrayOne = benchArrayOne.RadixSortLSD();
-            benchArrayOne.SortMergeInPlace();
+            if (!vsLinq)
+            {
+                if (!parallel)
+                    benchArrayOne.SortMergeInPlace();
+                else
+                    benchArrayOne.SortMergeInPlacePar();
+            }
+            else
+            {
+                if (!parallel)
+                    sortedArrayOne = benchArrayOne.SortMerge();
+                else
+                    sortedArrayOne = benchArrayOne.SortMergePar();
+            }
             stopwatch.Stop();
             double timeMergeSort = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
             stopwatch.Restart();
-            Array.Sort(benchArrayTwo);
+            if (!vsLinq)
+            {
+                Array.Sort(benchArrayTwo);
+            }
+            else
+            {
+                if (parallel)
+                    sortedArrayTwo = benchArrayTwo.AsParallel().OrderBy(element => element).ToArray();
+                else
+                    sortedArrayTwo = benchArrayTwo.OrderBy(element => element).ToArray();
+            }
             stopwatch.Stop();
             double timeArraySort = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
 
-            bool equalSortedArrays = benchArrayOne.SequenceEqual(benchArrayTwo);
-            if (equalSortedArrays)
-                Console.WriteLine("Sorting results are equal");
+            if (!vsLinq)
+            {
+                bool equalSortedArrays = benchArrayOne.SequenceEqual(benchArrayTwo);
+                if (!equalSortedArrays)
+                    Console.WriteLine("Sorting results using Merge Sort are not equal!");
+            }
             else
-                Console.WriteLine("Sorting results did not compare!");
+            {
+                bool equalSortedArrays = sortedArrayOne.SequenceEqual(sortedArrayTwo);
+                if (!equalSortedArrays)
+                    Console.WriteLine("Sorting results using Merge Sort are not equal!");
+            }
 
-            Console.WriteLine("C# array of size {0}: Array.Sort {1:0.000} sec, SortMerge {2:0.000} sec, speedup {3:0.00}", arraySize,
-                               timeArraySort, timeMergeSort, timeArraySort / timeMergeSort);
+            if (!vsLinq)
+            {
+                if (!parallel)
+                    Console.WriteLine("C# array of size {0}: Array.Sort {1:0.000} sec, Serial   Merge Sort {2:0.000} sec, speedup {3:0.00}", arraySize,
+                                   timeArraySort, timeMergeSort, timeArraySort / timeMergeSort);
+                else
+                    Console.WriteLine("C# array of size {0}: Array.Sort {1:0.000} sec, Parallel Merge Sort {2:0.000} sec, speedup {3:0.00}", arraySize,
+                                   timeArraySort, timeMergeSort, timeArraySort / timeMergeSort);
+            }
+            else
+            {
+                if (!parallel)
+                    Console.WriteLine("C# array of size {0}: Linq.SortBy Serial     {1:0.000} sec, Serial   Merge Sort {2:0.000} sec, speedup {3:0.00}", arraySize,
+                                   timeArraySort, timeMergeSort, timeArraySort / timeMergeSort);
+                else
+                    Console.WriteLine("C# array of size {0}: Linq.SortBy.AsParallel {1:0.000} sec, Parallel Merge Sort {2:0.000} sec, speedup {3:0.00}", arraySize,
+                                   timeArraySort, timeMergeSort, timeArraySort / timeMergeSort);
+            }
         }
 
         public static void SortMeasureListSpeedup()
@@ -78,9 +124,9 @@ namespace HPCsharpExamples
 
             bool equalSortedArrays = sortedArrayOne.SequenceEqual(benchListTwo);
             if (equalSortedArrays)
-                Console.WriteLine("Sorting results are equal");
+                Console.WriteLine("Sorting for Radix Sort are equal");
             else
-                Console.WriteLine("Sorting results did not compare!");
+                Console.WriteLine("Sorting for Radix Sort are not equal!");
 
             Console.WriteLine("C# List of size {0}: List.Sort {1:0.000} sec, SortRadix {2:0.000} sec, speedup {3:0.00}", ListSize,
                                timeListSort, timeRadixSort, timeListSort / timeRadixSort);

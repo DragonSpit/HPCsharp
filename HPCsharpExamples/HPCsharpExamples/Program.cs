@@ -33,12 +33,15 @@ namespace HPCsharpExamples
 
             if (equalSortedArraysOneAndTwo && equalSortedArraysOneAndThree && equalSortedArraysOneAndFour &&
                 equalSortedArraysOneAndFive && equalSortedArraysOneAndSix)
-                Console.WriteLine("Sorting results are equal");
+                Console.WriteLine("Sorting for variety of Merge Sort(s) results are equal");
             else
-                Console.WriteLine("Sorting results are not equal!");
+                Console.WriteLine("Sorting for variety of Merge Sort(s) results are not equal!");
 
-            // Measure Array RadixSort speedup
-            SortMeasureArraySpeedup();
+            SortMeasureArraySpeedup(false, false);     // Measure Array Sorting speedup for Serial   Merge Sort
+            SortMeasureArraySpeedup(true,  false);     // Measure Array Sorting speedup for Parallel Merge Sort
+            SortMeasureArraySpeedup(false, true);      // Measure Linq Serial   Sorting speedup for Serial   Merge Sort
+            SortMeasureArraySpeedup(true,  true);      // Measure Linq Parallel Sorting speedup for Parallel Merge Sort
+
             // Measure List RadixSort speedup
             SortMeasureListSpeedup();
 
