@@ -2,8 +2,10 @@
 
 High performance C# generic algorithms. Community driven to raise C# performance.
 Parallel algorithms for sorting, merging, copying and others. Parallel Merge Sort and parallel Merge of arrays and lists.
-Linear and stable Radix Sort algorithm for arrays and lists of user defined classes sorted by key.
-Free and open source HPCsharp package on https://www.nuget.org
+Linear and stable Radix Sort algorithm for arrays and lists of user defined classes sorted by key. Familiar interface, which
+is similar to standard C# Sort. Free and open source HPCsharp package on https://www.nuget.org
+
+Updated VisualStudio 2017 example solution, demonstrating usage with working examples.
 
 **_Version 3.0.3_** Just Released! Give it a try.
 
