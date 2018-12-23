@@ -8,12 +8,11 @@ namespace HPCsharpExamples
 {
     partial class Program
     {
-        public static void SortMeasureArraySpeedup(bool parallel, bool vsLinq)
+        public static void SortMeasureArraySpeedup(int arraySize, bool parallel, bool vsLinq)
         {
             Random randNum = new Random(5);
-            int arraySize = 16 * 1024 * 1024;
-            uint[] benchArrayOne = new uint[arraySize];
-            uint[] benchArrayTwo = new uint[arraySize];
+            uint[] benchArrayOne  = new uint[arraySize];
+            uint[] benchArrayTwo  = new uint[arraySize];
             uint[] sortedArrayOne = new uint[arraySize];
             uint[] sortedArrayTwo = new uint[arraySize];
 
@@ -42,7 +41,10 @@ namespace HPCsharpExamples
                 if (!parallel)
                     sortedArrayOne = benchArrayOne.SortMerge();
                 else
-                    sortedArrayOne = benchArrayOne.SortMergePar();
+                {
+                    //sortedArrayOne = benchArrayOne.SortMergePar();
+                    sortedArrayOne = benchArrayOne.SortMergeStablePar();
+                }
             }
             stopwatch.Stop();
             double timeMergeSort = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
