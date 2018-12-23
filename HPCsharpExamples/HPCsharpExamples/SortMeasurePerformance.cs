@@ -8,9 +8,10 @@ namespace HPCsharpExamples
 {
     partial class Program
     {
-        public static void SortMeasureArraySpeedup(int arraySize, bool parallel, bool vsLinq)
+        public static void SortMeasureArraySpeedup(bool parallel, bool vsLinq, bool radixSort)
         {
             Random randNum = new Random(5);
+            int arraySize = 10 * 1000 * 1000;
             uint[] benchArrayOne  = new uint[arraySize];
             uint[] benchArrayTwo  = new uint[arraySize];
             uint[] sortedArrayOne = new uint[arraySize];
@@ -39,11 +40,21 @@ namespace HPCsharpExamples
             else
             {
                 if (!parallel)
-                    sortedArrayOne = benchArrayOne.SortMerge();
+                {
+                    if (!radixSort)
+                        sortedArrayOne = benchArrayOne.SortMerge();
+                    else
+                        sortedArrayOne = benchArrayOne.SortRadix();
+                }
                 else
                 {
-                    //sortedArrayOne = benchArrayOne.SortMergePar();
-                    sortedArrayOne = benchArrayOne.SortMergeStablePar();
+                    if (!radixSort)
+                    {
+                        sortedArrayOne = benchArrayOne.SortMergePar();          // Stable sorting is not necessary for array of integers
+                        //sortedArrayOne = benchArrayOne.SortMergeStablePar();
+                    }
+                    else
+                        sortedArrayOne = benchArrayOne.SortRadix();
                 }
             }
             stopwatch.Stop();
@@ -82,17 +93,35 @@ namespace HPCsharpExamples
                     Console.WriteLine("C# array of size {0}: Array.Sort {1:0.000} sec, Serial   Merge Sort {2:0.000} sec, speedup {3:0.00}", arraySize,
                                    timeArraySort, timeMergeSort, timeArraySort / timeMergeSort);
                 else
-                    Console.WriteLine("C# array of size {0}: Array.Sort {1:0.000} sec, Parallel Merge Sort {2:0.000} sec, speedup {3:0.00}", arraySize,
-                                   timeArraySort, timeMergeSort, timeArraySort / timeMergeSort);
+                {
+                    if (!radixSort)
+                        Console.WriteLine("C# array of size {0}: Array.Sort {1:0.000} sec, Parallel Merge Sort {2:0.000} sec, speedup {3:0.00}", arraySize,
+                                            timeArraySort, timeMergeSort, timeArraySort / timeMergeSort);
+                    else
+                        Console.WriteLine("C# array of size {0}: Array.Sort {1:0.000} sec, Serial Radix Sort {2:0.000} sec, speedup {3:0.00}", arraySize,
+                                            timeArraySort, timeMergeSort, timeArraySort / timeMergeSort);
+                }
             }
             else
             {
                 if (!parallel)
-                    Console.WriteLine("C# array of size {0}: Linq.SortBy Serial     {1:0.000} sec, Serial   Merge Sort {2:0.000} sec, speedup {3:0.00}", arraySize,
-                                   timeArraySort, timeMergeSort, timeArraySort / timeMergeSort);
+                {
+                    if (!radixSort)
+                        Console.WriteLine("C# array of size {0}: Linq.SortBy Serial     {1:0.000} sec, Serial   Merge Sort {2:0.000} sec, speedup {3:0.00}", arraySize,
+                                            timeArraySort, timeMergeSort, timeArraySort / timeMergeSort);
+                    else
+                        Console.WriteLine("C# array of size {0}: Linq.SortBy Serial     {1:0.000} sec, Serial   Radix Sort {2:0.000} sec, speedup {3:0.00}", arraySize,
+                                            timeArraySort, timeMergeSort, timeArraySort / timeMergeSort);
+                }
                 else
-                    Console.WriteLine("C# array of size {0}: Linq.SortBy.AsParallel {1:0.000} sec, Parallel Merge Sort {2:0.000} sec, speedup {3:0.00}", arraySize,
-                                   timeArraySort, timeMergeSort, timeArraySort / timeMergeSort);
+                {
+                    if (!radixSort)
+                        Console.WriteLine("C# array of size {0}: Linq.SortBy.AsParallel {1:0.000} sec, Parallel Merge Sort {2:0.000} sec, speedup {3:0.00}", arraySize,
+                                            timeArraySort, timeMergeSort, timeArraySort / timeMergeSort);
+                    else
+                        Console.WriteLine("C# array of size {0}: Linq.SortBy.AsParallel {1:0.000} sec, Serial   Radix Sort {2:0.000} sec, speedup {3:0.00}", arraySize,
+                                            timeArraySort, timeMergeSort, timeArraySort / timeMergeSort);
+                }
             }
         }
 
