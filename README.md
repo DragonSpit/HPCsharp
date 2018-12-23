@@ -1,7 +1,7 @@
 # High Performance Computing in C# (HPCsharp)
 
 High performance C# generic algorithms. Community driven to raise C# performance.
-Parallel algorithms for sorting, merging, copying and others. Parallel Merge Sort and parallel Merge of arrays and lists.
+Parallel algorithms for sorting, merging, copying and others. Newly Parallel Stable Merge Sort and parallel Merge of arrays and lists.
 Linear and stable Radix Sort algorithm for arrays and lists of user defined classes sorted by key. Familiar interfaces, which
 are similar to standard C# Sort. Free and open source HPCsharp package on https://www.nuget.org
 
