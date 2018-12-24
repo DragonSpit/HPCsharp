@@ -149,7 +149,7 @@ namespace HPCsharpExamples
         {
             Stopwatch stopwatch = new Stopwatch();
             Random randNum = new Random(2);
-            int ListSize = 16 * 1024 * 1024;
+            int ListSize = 10 * 1000 * 1000;
             List<uint> benchListOne = new List<uint>(ListSize);
             List<uint> benchListTwo = new List<uint>(ListSize);
 
@@ -174,12 +174,10 @@ namespace HPCsharpExamples
             double timeListSort = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
 
             bool equalSortedArrays = sortedArrayOne.SequenceEqual(benchListTwo);
-            if (equalSortedArrays)
-                Console.WriteLine("Sorting for Radix Sort are equal");
-            else
-                Console.WriteLine("Sorting for Radix Sort are not equal!");
+            if (!equalSortedArrays)
+                Console.WriteLine("Sorting List for Radix Sort are not equal!");
 
-            Console.WriteLine("C# List of size {0}: List.Sort {1:0.000} sec, SortRadix {2:0.000} sec, speedup {3:0.00}", ListSize,
+            Console.WriteLine("C# List of size {0}: List.Sort {1:0.000} sec, Serial Radix Sort {2:0.000} sec, speedup {3:0.00}", ListSize,
                                timeListSort, timeRadixSort, timeListSort / timeRadixSort);
         }
     }
