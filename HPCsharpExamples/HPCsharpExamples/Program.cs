@@ -37,20 +37,24 @@ namespace HPCsharpExamples
             else
                 Console.WriteLine("Sorting for variety of Merge Sort(s) results are not equal!");
 
+            Console.WriteLine();
             SortMeasureArraySpeedup(false, false, false);     // Measure Array Serial  Sorting speedup for Serial   Merge Sort
-            SortMeasureArraySpeedup(true,  false, false);     // Measure Array Serial  Sorting speedup for Parallel Merge Sort
-            SortMeasureArraySpeedup(false, true,  false);     // Measure Linq  Serial  Sorting speedup for Serial   Merge Sort
-            SortMeasureArraySpeedup(true,  true,  false);     // Measure Linq Parallel Sorting speedup for Parallel Merge Sort
+            SortMeasureArraySpeedup(true, false, false);     // Measure Array Serial  Sorting speedup for Parallel Merge Sort
+            SortMeasureArraySpeedup(false, true, false);     // Measure Linq  Serial  Sorting speedup for Serial   Merge Sort
+            SortMeasureArraySpeedup(true, true, false);     // Measure Linq Parallel Sorting speedup for Parallel Merge Sort
 
-            SortMeasureArraySpeedup(false, true, true);       // Measure Array Serial Sorting speedup for Serial Radix Sort
-            SortMeasureArraySpeedup(false, true, true);       // Measure Linq  Serial Sorting speedup for Serial Radix Sort
-            SortMeasureArraySpeedup(true,  true, true);        // Measure Array Serial Sorting speedup for Serial Radix Sort
-            SortMeasureArraySpeedup(true,  true, true);        // Measure Linq  Serial Sorting speedup for Serial Radix Sort
+            Console.WriteLine();
+            SortMeasureArraySpeedup(false, false, true);       // Measure Array Serial Sorting speedup for Serial Radix Sort
+            SortMeasureArraySpeedup(false, true,  true);       // Measure Linq  Serial Sorting speedup for Serial Radix Sort
+            //SortMeasureArraySpeedup(true,  false, true);       // Measure Array Serial Sorting speedup for Serial Radix Sort
+            SortMeasureArraySpeedup(true,  true,  true);       // Measure Linq  Serial Sorting speedup for Serial Radix Sort
+            //SortMeasureArraySpeedup(false, false, true);      // Measure Array Serial Sorting speedup for Serial Radix Sort
+            //SortMeasureArraySpeedup(false, false, true);      // Measure Linq  Serial Sorting speedup for Serial Radix Sort
 
+            Console.WriteLine();
             // Measure List RadixSort speedup
             SortMeasureListSpeedup();
-
-
+            Console.WriteLine();
 
             // Check array equality
             int[] arrayOne = { 21, 43, 16, 5, 4, -3 };
