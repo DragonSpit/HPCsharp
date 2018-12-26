@@ -1,4 +1,8 @@
-﻿using System;
+﻿// TODO: Implement SequenceCompare, where the user provides a non-default comparison, so that sequences can be compared for less than, equal to and greater than using a custom comparison method
+//       This should be easy to parallelize and for the user to provide their own comparison method for their own custom user classes. An easy and consistent way would be to expose the 
+//       Comparer in the same way we did for Merge Sort.
+// TODO: Add the ability to pass an equality comparison, similar to C# standard routines to support equality comparison for user defined classes.
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
