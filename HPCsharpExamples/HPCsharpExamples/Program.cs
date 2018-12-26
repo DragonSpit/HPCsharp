@@ -36,11 +36,13 @@ namespace HPCsharpExamples
                 Console.WriteLine("Sorting for variety of Merge Sort(s) results are equal");
             else
                 Console.WriteLine("Sorting for variety of Merge Sort(s) results are not equal!");
+            Console.WriteLine();
             #endregion
 
             #region Examples of sorting of user defined classes
             MergeSortOfUserDefinedClass.SimpleInPlaceExample();
             MergeSortOfUserDefinedClass.SimpleNotInPlaceExample();
+            RadixSortOfUserDefinedClass.SimpleExample();
             #endregion
 
             //if (!StabilityTest.SortingArrayOfUserDefinedClass(true, true))
