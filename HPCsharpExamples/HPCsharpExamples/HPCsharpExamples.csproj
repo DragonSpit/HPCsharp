@@ -67,10 +67,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MinMaxMeasurePerformance.cs" />
+    <Compile Include="MergeSortOfUserDefinedClass.cs" />
     <Compile Include="SequenceEqualMeasurePerformance.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SortMeasurePerformance.cs" />
+    <Compile Include="StabilityTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
