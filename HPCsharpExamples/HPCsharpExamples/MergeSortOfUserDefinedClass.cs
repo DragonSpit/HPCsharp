@@ -24,7 +24,7 @@ namespace HPCsharpExamples
         }
     }
 
-    public class UserClassComparer : IComparer<UserDefinedClass>
+    public class UserDefinedClassComparer : IComparer<UserDefinedClass>
     {
         public int Compare(UserDefinedClass first, UserDefinedClass second)
         {
@@ -32,11 +32,23 @@ namespace HPCsharpExamples
         }
     }
 
+    public class UserDefinedClassEquality : IEqualityComparer<UserDefinedClass>
+    {
+        public bool Equals(UserDefinedClass x, UserDefinedClass y)
+        {
+            return x.Key == y.Key;
+        }
+        public int GetHashCode(UserDefinedClass obj)    // Do not use. Just a placeholder to make IEqualityComparer happy
+        {
+            return (int)obj.Key;
+        }
+    }
+
     class MergeSortOfUserDefinedClass
     {
         public static void SimpleInPlaceExample()
         {
-            var comparer = new UserClassComparer();
+            var comparer = new UserDefinedClassComparer();
 
             UserDefinedClass[] userArray = new UserDefinedClass[]
             {
@@ -52,10 +64,11 @@ namespace HPCsharpExamples
                 Console.Write(item);
             Console.WriteLine();
 
-            Algorithm.SortMergeInPlace(userArray, comparer);                        // Serial   Merge Sort
-            //ParallelAlgorithm.SortMergeInPlacePar(userArray, comparer);           // Parallel Merge Sort
-            //ParallelAlgorithm.SortMergeInPlaceStablePar(userArray, comparer);     // Parallel Merge Sort (stable)
-            //Array.Sort(userArray, comparer);                                      // Serial   Array.Sort (C# standard sort)
+            userArray.SortMergeInPlace(comparer);              // Serial   Merge Sort
+            //Algorithm.SortMergeInPlace(userArray, comparer); // Serial   Merge Sort. This syntax works too.
+            //userArray.SortMergeInPlacePar(comparer);           // Parallel Merge Sort
+            //userArray.SortMergeInPlaceStablePar(comparer);     // Parallel Merge Sort (stable)
+            //Array.Sort(userArray, comparer);                   // Serial   Array.Sort (C# standard sort)
 
             Console.Write("Sorted   array of user defined class: ");
             foreach (UserDefinedClass item in userArray)
@@ -65,7 +78,7 @@ namespace HPCsharpExamples
 
         public static void SimpleNotInPlaceExample()
         {
-            var comparer = new UserClassComparer();
+            var comparer = new UserDefinedClassComparer();
 
             UserDefinedClass[] userArray = new UserDefinedClass[]
             {

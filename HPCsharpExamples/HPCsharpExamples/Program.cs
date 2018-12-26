@@ -69,7 +69,23 @@ namespace HPCsharpExamples
             Console.WriteLine();
             #endregion
 
+            #region Performance comparison of Merge Sort of User Defined Class
+            Console.WriteLine();
+            SortMeasureArrayOfUserDefinedClassSpeedup(false, false, false);     // Measure Array Serial  Sorting speedup for Serial   Merge Sort
+            SortMeasureArrayOfUserDefinedClassSpeedup(true,  false, false);     // Measure Array Serial  Sorting speedup for Parallel Merge Sort
+            SortMeasureArrayOfUserDefinedClassSpeedup(false, true,  false);     // Measure Linq  Serial  Sorting speedup for Serial   Merge Sort
+            SortMeasureArrayOfUserDefinedClassSpeedup(true,  true,  false);     // Measure Linq Parallel Sorting speedup for Parallel Merge Sort
+            #endregion
+
+            #region Performance comparison of Serial Radix Sort for Array of User Defined Class
+            Console.WriteLine();
+            SortMeasureArrayOfUserDefinedClassSpeedup(false, false, true);       // Measure Array Serial   Sorting speedup for Serial Radix Sort
+            SortMeasureArrayOfUserDefinedClassSpeedup(false, true,  true);       // Measure Linq  Serial   Sorting speedup for Serial Radix Sort
+            SortMeasureArrayOfUserDefinedClassSpeedup(true,  true,  true);       // Measure Linq  Parallel Sorting speedup for Serial Radix Sort
+            #endregion
+
             #region Example of sequence equality checking - serial and parallel
+            Console.WriteLine();
             // Check array equality
             int[] arrayOne = { 21, 43, 16, 5, 4, -3 };
             int[] arrayTwo = { 21, 43, 16, 5, 4, -3 };
