@@ -6,7 +6,7 @@
     <id>HPCsharp</id>
 
     <!-- The package version number that is used when resolving dependencies -->
-    <version>1.0.8-beta</version>
+    <version>3.0.4</version>
 
     <!-- Authors contain text that appears directly on the gallery -->
     <authors>Victor J. Duvanenko</authors>
@@ -27,19 +27,19 @@
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
 
     <!-- Any details about this particular release -->
-    <releaseNotes>Added linear time and stable Radix Sort. Added stable Merge Sort. Merge Sort is O(nlgn) and will never run O(n^2). Merge Sort supports sub-range</releaseNotes>
+    <releaseNotes>Added Stable Parallel Merge Sort. Updated HPCsharp examples solution to use the latest HPCsharp library and demonstrate speedup and sorting user defined classes</releaseNotes>
 
     <!-- The description can be used in package manager UI. Note that the
             nuget.org gallery uses information you add in the portal. -->
-    <description>High performance C#/.NET generic algorithms. Community driven to move C# toward high performance computing.
-Includes linear and stable Radix Sort algorithm, as well as stable Merge Sort and Merge of arrays and lists.
-Provides a trade-off between performance and level of abstraction: Array, List, IList, IEnumerable.</description>
+    <description>High performance C#/.NET generic algorithms. Community driven raise C# performance.
+Includes parallel stable Merge Sort, parallel Merge, O(N) stable Radix Sort algorithm, of arrays and lists, Priority Queue and more...
+Parallel Sorting is several times faster, capable of sorting user defined classes, providing familiar interfaces to C# Array.Sort and Linq.</description>
 
     <!-- Copyright information -->
     <copyright>Copyright ©2018 Foostate</copyright>
 
     <!-- Tags appear in the gallery and can be used for tag searches -->
-    <tags>high perfromance algorithms, C#, high performance, high performance computing, HPC, algorithm, algorithms, Linq, parallel, parallel algorithm</tags>
+    <tags>high perfromance algorithms, C#, high performance, high performance computing, HPC, algorithm, algorithms, Linq, parallel, parallel algorithm, stable sorting, parallel sorting, sort, sorting</tags>
 
     </metadata>
 

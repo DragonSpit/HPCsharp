@@ -6,6 +6,9 @@
 //       to optimize depending on how well the serial algorithms perform on a particular hardware platform.
 // TODO: For readme, compare Radix Sort with Linq Sort and C# .Sort using several array sizes to show that the delta grows as size grows
 // TODO: Show the difference between Stable Merge Sort and Linq Sorting to compare apples to apples
+// TODO: While doing the Binary Search looking for the split for divide-and-conquer portion, since we know the index of each element as we are working on them before
+//       moving them, could we keep the position in mind as part of the comparison to break the ties during the comparison? Would that help?
+// TODO: Make sure to document the fact that not-in-place merge and merge sort change the input array in the process of sorting.
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;

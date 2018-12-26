@@ -5,18 +5,11 @@
     <Authors>Victor J. Duvanenko</Authors>
     <Company>FooState</Company>
     <Product>HPCsharp</Product>
-    <Description>High performance C#/.NET generic algorithms. Community driven to move C# toward high performance computing.
-Includes parallel Merge Sort, parallel Merge, linear and stable Radix Sort algorithm, of arrays and lists, Priority Queue and more...
-Sorting algorithms use the same interfaces as C# Array.Sort and Linq.</Description>
+    <Description>High performance C#/.NET generic algorithms. Community driven raise C# performance.
+Includes parallel stable Merge Sort, parallel Merge, O(N) stable Radix Sort algorithm, of arrays and lists, Priority Queue and more... Parallel Sorting is several times faster, capable of sorting user defined classes, providing familiar interfaces to C# Array.Sort and Linq.</Description>
     <Copyright>© 2018 FooState</Copyright>
     <PackageLicenseUrl>https://github.com/DragonSpit/HPCsharp/blob/master/LICENSE</PackageLicenseUrl>
-    <PackageReleaseNotes>Changed interfaces on Merge to be consistent with C# standard algorithms.
-Added parallel and serial multi-merge: merging of multiple pre-sorted arrays.
-Improved performance of parallel and serial merge sort.
-Added stable merge sort: serial and parallel.
-Added two types of priority queues.
-Implemented Merge Sort of List. Fixed Merge Sorting of user defined classes.
-Fixed stability of Stable Parallel Merge Sort.</PackageReleaseNotes>
+    <PackageReleaseNotes>Created a Stable Parallel Merge Sort. Updated HPCsharp examples solution to use the latest HPCsharp library and demonstrate speedup and sorting user defined classes</PackageReleaseNotes>
     <PackageId>HPCsharp</PackageId>
     <PackageTags>high perfromance algorithms, C#, high performance, high performance computing, HPC, algorithm, algorithms, Linq, parallel, parallel algorithm</PackageTags>
     <PackageIconUrl>https://foostate.com/images/default_lib_icon_64.png</PackageIconUrl>
@@ -25,9 +18,9 @@ Fixed stability of Stable Parallel Merge Sort.</PackageReleaseNotes>
     <PackageProjectUrl>https://github.com/DragonSpit/HPCsharp</PackageProjectUrl>
     <RepositoryUrl>https://github.com/DragonSpit/HPCsharp</RepositoryUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <AssemblyVersion>3.0.3.0</AssemblyVersion>
-    <FileVersion>3.0.3.0</FileVersion>
-    <Version>3.0.3</Version>
+    <AssemblyVersion>3.0.4.0</AssemblyVersion>
+    <FileVersion>3.0.4.0</FileVersion>
+    <Version>3.0.4</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
