@@ -1,8 +1,8 @@
 ﻿// TODO: Implement SequenceCompare, where the user provides a non-default comparison, so that sequences can be compared for less than, equal to and greater than using a custom comparison method
 //       This should be easy to parallelize and for the user to provide their own comparison method for their own custom user classes. An easy and consistent way would be to expose the 
 //       Comparer in the same way we did for Merge Sort.
-// TODO: Add the ability to pass an equality comparison, similar to C# standard routines to support equality comparison for user defined classes.
-// TODO: Standardize summary/description of each of these methods to properly format summary and all of the parameters. Currently, most of these are done wrong.
+// TODO: Add the ability to pass an equality lambda function.
+// TODO: Add the ability to determine equality of a List of sequences, serial and parallel.
 // TODO: Create a more general SequenceOperate() where a function is passed in that returns a bool for example which operates across the arrays, and then another function that works
 //       along the array to combine the results of each from the previous step. MapReduce - the user would pass in a Map function and a Reduce function. Linq has some functionality
 //       but may not work across multiple arrays (need to verify).
