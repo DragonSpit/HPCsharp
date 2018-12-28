@@ -1,4 +1,6 @@
-﻿using System;
+﻿// TODO: Write a technical paper on RadixSort2, with it's new method to improve memory access pattern of Radix Sort, which is especially affective when sorting
+//       arrays or user defined classes, which use references and thus can be scattered all over the heap. Measurements are showing 10X performance improvement.
+using System;
 using System.Collections.Generic;
 using System.Text;
 
