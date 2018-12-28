@@ -10,6 +10,8 @@ namespace HPCsharpExamples
         static void Main(string[] args)
         {
             #region Simple example of serial and parallel sorting of integer arrays
+            Console.WriteLine("Simple example of serial and parallel sorting of integer arrays");
+
             uint[] ArrayOne   = { 21, 43, 16, 5, 54, 3 };
             uint[] ArrayTwo   = { 21, 43, 16, 5, 54, 3 };
             uint[] ArrayThree = { 21, 43, 16, 5, 54, 3 };
@@ -40,6 +42,8 @@ namespace HPCsharpExamples
             #endregion
 
             #region Examples of sorting of user defined classes
+            Console.WriteLine("Examples of sorting of user defined classes");
+
             MergeSortOfUserDefinedClass.SimpleInPlaceExample();
             MergeSortOfUserDefinedClass.SimpleNotInPlaceExample();
             RadixSortOfUserDefinedClass.SimpleExample();
@@ -50,6 +54,8 @@ namespace HPCsharpExamples
 
             #region Performance comparison of Merge Sort
             Console.WriteLine();
+            Console.WriteLine("Performance comparison of Merge Sort");
+
             SortMeasureArraySpeedup(false, false, false);     // Measure Array Serial  Sorting speedup for Serial   Merge Sort
             SortMeasureArraySpeedup(true,  false, false);     // Measure Array Serial  Sorting speedup for Parallel Merge Sort
             SortMeasureArraySpeedup(false, true,  false);     // Measure Linq  Serial  Sorting speedup for Serial   Merge Sort
@@ -58,6 +64,8 @@ namespace HPCsharpExamples
 
             #region Performance comparison of Serial Radix Sort for Array
             Console.WriteLine();
+            Console.WriteLine("Performance comparison of Serial Radix Sort for Array");
+
             SortMeasureArraySpeedup(false, false, true);       // Measure Array Serial   Sorting speedup for Serial Radix Sort
             SortMeasureArraySpeedup(false, true,  true);       // Measure Linq  Serial   Sorting speedup for Serial Radix Sort
             SortMeasureArraySpeedup(true,  true,  true);       // Measure Linq  Parallel Sorting speedup for Serial Radix Sort
@@ -65,12 +73,15 @@ namespace HPCsharpExamples
 
             #region Performance comparison of Serial Radix Sort for List
             Console.WriteLine();
+            Console.WriteLine("Performance comparison of Serial Radix Sort for List");
+
             SortMeasureListSpeedup();       // Measure List.Sort speedup for Serial Radix Sort
-            Console.WriteLine();
             #endregion
 
             #region Performance comparison of Merge Sort of User Defined Class
             Console.WriteLine();
+            Console.WriteLine("Performance comparison of Merge Sort of User Defined Class");
+
             SortMeasureArrayOfUserDefinedClassSpeedup(false, false, false);     // Measure Array Serial  Sorting speedup for Serial   Merge Sort
             SortMeasureArrayOfUserDefinedClassSpeedup(true,  false, false);     // Measure Array Serial  Sorting speedup for Parallel Merge Sort
             SortMeasureArrayOfUserDefinedClassSpeedup(false, true,  false);     // Measure Linq  Serial  Sorting speedup for Serial   Merge Sort
@@ -79,6 +90,8 @@ namespace HPCsharpExamples
 
             #region Performance comparison of Serial Radix Sort for Array of User Defined Class
             Console.WriteLine();
+            Console.WriteLine("Performance comparison of Serial Radix Sort for Array of User Defined Class");
+
             SortMeasureArrayOfUserDefinedClassSpeedup(false, false, true);       // Measure Array Serial   Sorting speedup for Serial Radix Sort
             SortMeasureArrayOfUserDefinedClassSpeedup(false, true,  true);       // Measure Linq  Serial   Sorting speedup for Serial Radix Sort
             SortMeasureArrayOfUserDefinedClassSpeedup(true,  true,  true);       // Measure Linq  Parallel Sorting speedup for Serial Radix Sort
@@ -86,7 +99,8 @@ namespace HPCsharpExamples
 
             #region Example of sequence equality checking - serial and parallel
             Console.WriteLine();
-            // Check array equality
+            Console.WriteLine("Example of sequence equality checking - serial and parallel");
+
             int[] arrayOne = { 21, 43, 16, 5, 4, -3 };
             int[] arrayTwo = { 21, 43, 16, 5, 4, -3 };
 
@@ -122,6 +136,9 @@ namespace HPCsharpExamples
             #endregion
 
             #region Example of sequence Min/Max - serial and parallel
+            Console.WriteLine();
+            Console.WriteLine("Example of sequence Min/Max - serial and parallel");
+
             // Array Min
             int minLinq = arrayOne.Min();
             int minHpc  = arrayOne.MinHpc();
@@ -144,6 +161,9 @@ namespace HPCsharpExamples
             #endregion
 
             #region Performance comparison of sequence equality and Min/Max - serial and parallel
+            Console.WriteLine();
+            Console.WriteLine("Performance comparison of sequence equality and Min/Max - serial and parallel");
+
             // Measure array.SequenceEqual speedup
             EqualMeasureArraySpeedup();
             // Measure List.SequenceEqual speedup
