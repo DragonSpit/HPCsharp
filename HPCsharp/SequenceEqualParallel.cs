@@ -74,6 +74,35 @@ namespace HPCsharp
             );
             return (leftHalfEqual && rightHalfEqual);   // Combine two boolean results
         }
+
+        private static bool SequenceEqualInner<T>(T[] array1, T[] array2, Int32 l, Int32 r, Func<T, T, bool> equalityComparer)
+        {
+            if (l > r)      // zero elements to compare
+                return true;
+            if ((r - l + 1) <= ThresholdSequenceEqual)
+            {
+                for (Int32 i = l; i <= r; i++)     // inclusive of l and r
+                {
+                    if (!equalityComparer(array1[i], array2[i]))
+                        return false;
+                }
+                return true;
+            }
+
+            int m = ((r + l) / 2);
+            bool leftHalfEqual = false;
+            bool rightHalfEqual = false;
+            Parallel.Invoke(() =>
+                {
+                    leftHalfEqual = SequenceEqualInner<T>(array1, array2, l, m, equalityComparer);
+                },
+                () =>
+                {
+                    rightHalfEqual = SequenceEqualInner<T>(array1, array2, m + 1, r, equalityComparer);
+                }
+            );
+            return (leftHalfEqual && rightHalfEqual);   // Combine two boolean results
+        }
         /// <summary>
         /// Determines whether two sequences are equal by comparing the elements by using
         /// the default equality comparer for their type.
@@ -108,6 +137,27 @@ namespace HPCsharp
         /// <exception>TSource:System.ArgumentNullException: first or second is null.</exception>
         /// <exception>TSource:System.ArgumentOutOfRangeException: if l or r is not inside the array bounds.</exception>
         public static bool SequenceEqualHpcPar<T>(this T[] first, T[] second, Int32 l, Int32 r, IEqualityComparer<T> equalityComparer)
+        {
+            if (first == null || second == null)
+                throw new System.ArgumentNullException();
+            if (!(l >= 0 && r < first.Length && r >= 0 && r < second.Length))
+                throw new System.ArgumentOutOfRangeException();
+            return SequenceEqualInner<T>(first, second, l, r, equalityComparer);
+        }
+        /// <summary>
+        /// Determines whether two sequences are equal by comparing the elements by using
+        /// the default equality comparer for their type.
+        /// </summary>
+        /// <typeparam name="T">array of type TSource</typeparam>
+        /// <param name="first">An array to compare to second</param>
+        /// <param name="second">An array to compare to the first sequence</param>
+        /// <param name="l">Index of the left array element: the starting array element for the comparison (inclusive)</param>
+        /// <param name="r">Index of the right array element: the ending array element for the comparison (inclusive)</param>
+        /// <param name="equalityComparer">Lambda equality comparer used to compare two array elements of type TSource</param>
+        /// <returns>true is the two arrays are of equal length and corresponding elements are all equal, false if they are not equal</returns>
+        /// <exception>TSource:System.ArgumentNullException: first or second is null.</exception>
+        /// <exception>TSource:System.ArgumentOutOfRangeException: if l or r is not inside the array bounds.</exception>
+        public static bool SequenceEqualHpcPar<T>(this T[] first, T[] second, Int32 l, Int32 r, Func<T, T, bool> equalityComparer)
         {
             if (first == null || second == null)
                 throw new System.ArgumentNullException();
