@@ -7,7 +7,14 @@ are similar to standard C# Sort. Free and open source HPCsharp package on https:
 
 Updated VisualStudio 2017 examples solution, demonstrating usage through working examples.
 
-**_Version 3.0.3_** Just Released! Give it a try.
+**_Version 3.1.0_** Just Released! Give it a shot.
+
+- Found and fixed more stability issues with Stable Parallel Merge Sort.
+- Found stability issues with Linq.AsParallel() usage.
+- Added IEqualityComparer to SequenceEqual to support equality comparison of arrays and List of user defined classes
+- Added Lambda function for SequenceEqual (parallel versions only)
+
+**_Version 3.0.3_**
 
 - Fixed Stability of Stable Parallel Merge Sort. Serial Merge Sort is already stable.
 
@@ -26,7 +33,7 @@ Updated VisualStudio 2017 examples solution, demonstrating usage through working
 - Changed interfaces on Merge Sort and Merge to be consistent with Microsoft C# algorithms.
 - Added Dynamic Priority Queue and Fixed Size Priority Queue.
 
-More details and examples coming soon... Give it a shot!
+More details and examples coming soon...
 
 **_Version 3.0.1_** algorithm performance is shown in the following tables:
 
