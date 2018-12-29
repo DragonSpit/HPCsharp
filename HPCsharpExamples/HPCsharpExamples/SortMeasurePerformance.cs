@@ -259,7 +259,7 @@ namespace HPCsharpExamples
             else
             {
                 if (parallel)
-                    sortedArrayTwo = benchArrayTwo.AsParallel().OrderBy(element => element.Key).ToArray();
+                    sortedArrayTwo = benchArrayTwo.OrderBy(element => element.Key).AsParallel().ToArray();
                 else
                     sortedArrayTwo = benchArrayTwo.OrderBy(element => element.Key).ToArray();
             }

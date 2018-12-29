@@ -111,8 +111,8 @@ namespace HPCsharp
                 () => { SortMergeStableInnerPar<T>(src, m + 1, r, dst, !srcToDst, comparer); }
             );
             // reverse direction of srcToDst for the next level of recursion
-            if (srcToDst) MergeInnerPar<T>(src, l, m, m + 1, r, dst, l, comparer);
-            else          MergeInnerPar<T>(dst, l, m, m + 1, r, src, l, comparer);
+            if (srcToDst) HPCsharp.Algorithm.Merge<T>(src, l, m - l + 1, m + 1, r - m, dst, l, comparer);
+            else          HPCsharp.Algorithm.Merge<T>(dst, l, m - l + 1, m + 1, r - m, src, l, comparer);
         }
 
         /// <summary>
