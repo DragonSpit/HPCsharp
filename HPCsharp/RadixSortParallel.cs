@@ -1,6 +1,7 @@
 ﻿// TODO: Idea: Since SortRadix2 significantly improves memory access pattern of Radix Sort of User Defined Classes (i.e. array of references with are scattered within the heap)
 //       use this improvement (which is about 10X speedup) to speedup the parallel version, as each of the tasks will only get in each other's way during the first pass, and
 //       will use the much improved memory access pattern of subsequent passes of the LSD Radix Sort algorithm, hopefully providing parallel acceleration.
+// TODO: Set parallelism for Parallel Radix Sort to the number of CPU cores by default.
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -21,6 +22,10 @@ namespace HPCsharp
         /// </summary>
         public static UInt32 SortRadixParallelWorkQuanta { get; set; } = 8 * 1024;
         /// <summary>
+        /// Number of tasks that will run in parallel within the Parallel Radix Sort algorithm
+        /// </summary>
+        //public static Int32 SortRadixParallelAmountOfParallelism { get; set; } = Environment.ProcessorCount;
+        /// <summary>
         /// Sort an array of unsigned integers using Parallel Radix Sorting algorithm (least significant digit variation)
         /// </summary>
         /// <param name="inputArray"></param>
@@ -32,14 +37,14 @@ namespace HPCsharp
             uint[] outputArray = new uint[inputArray.Length];
             bool outputArrayHasResult = false;
 
-            uint numWorkItems;
-            if (inputArray.Length % SortRadixParallelWorkQuanta == 0)
-                numWorkItems = (uint)inputArray.Length / SortRadixParallelWorkQuanta;
-            else
-                numWorkItems = (uint)inputArray.Length / SortRadixParallelWorkQuanta + 1;
+            uint numWorkItems = (uint)inputArray.Length / SortRadixParallelWorkQuanta + 1;
 
-            uint[,] count      = new uint[numWorkItems, numberOfBins];  // count        for each parallel work item
-            uint[,] startOfBin = new uint[numWorkItems, numberOfBins];  // start of bit for each parallel work item
+            uint[][] count = new uint[numWorkItems][];          // count        for each parallel work item
+            for (int i = 0; i < numWorkItems; i++)
+                count[i] = new uint[numberOfBins];
+            uint[][] startOfBin = new uint[numWorkItems][];     // start of bin for each parallel work item
+            for (int i = 0; i < numWorkItems; i++)
+                startOfBin[i] = new uint[numberOfBins];
 
             // Use TPL ideas from https://docs.microsoft.com/en-us/dotnet/standard/parallel-programming/task-based-asynchronous-programming
 
@@ -50,24 +55,23 @@ namespace HPCsharp
             {
                 for (uint r = 0; r < numWorkItems; r++)
                     for (uint c = 0; c < numberOfBins; c++)
-                        count[r, c] = 0;
+                        count[r][c] = 0;
                 for (uint current = 0; current < inputArray.Length; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
                 {
                     uint r = current / SortRadixParallelWorkQuanta;
-                    count[r, ExtractDigit(inputArray[current], bitMask, shiftRightAmount)]++;
+                    count[r][ExtractDigit(inputArray[current], bitMask, shiftRightAmount)]++;
                 }
-                // There is probably a faster and possibly parallel way of accomplishing this
                 for (uint c = 0; c < numberOfBins; c++)     // for each column, which is a bin, create startOfBin for each work item, but relative to zero
                 {
-                    startOfBin[0, c] = 0;
+                    startOfBin[0][c] = 0;
                     for (uint r = 1; r < numWorkItems; r++) // Victor J. Duvanenko https://github.com/DragonSpit/HPCsharp
-                        startOfBin[r, c] = (uint)(startOfBin[r - 1, c] + count[r - 1, c]);
+                        startOfBin[r][c] = (uint)(startOfBin[r - 1][c] + count[r - 1][c]);
                 }
                 for (uint c = 1; c < numberOfBins; c++)     // adjust each item within each bin by the offset of previous bin and that bins size
                 {
-                    uint sizeOfPreviouBin = startOfBin[numWorkItems - 1, c - 1] + count[numWorkItems - 1, c - 1];
+                    uint sizeOfPreviouBin = startOfBin[numWorkItems - 1][c - 1] + count[numWorkItems - 1][c - 1];
                     for (uint r = 0; r < numWorkItems; r++)
-                        startOfBin[r, c] += sizeOfPreviouBin;
+                        startOfBin[r][c] += sizeOfPreviouBin;
                 }
 
 #if false
@@ -89,10 +93,11 @@ namespace HPCsharp
                                 return;
                             uint currIndex = data.current;
                             uint rLoc = data.r;
+                            uint[] startOfBinLoc = startOfBin[rLoc];
                             //Console.WriteLine("current = {0}, r = {1}, bitMask = {2}, shiftRightAmount = {3}", currIndex, rLoc, data.bitMask, data.shiftRightAmount);
                             for (uint i = 0; i < SortRadixParallelWorkQuanta; i++)
                             {
-                                outputArray[startOfBin[rLoc, ExtractDigit(inputArray[currIndex], data.bitMask, data.shiftRightAmount)]++] = inputArray[currIndex];
+                                outputArray[startOfBinLoc[ExtractDigit(inputArray[currIndex], data.bitMask, data.shiftRightAmount)]++] = inputArray[currIndex];
                                 currIndex++;
                             }
                         },
@@ -117,7 +122,7 @@ namespace HPCsharp
                 uint numItems = (uint)inputArray.Length % SortRadixParallelWorkQuanta;
                 for (uint i = 0; i < numItems; i++)
                 {
-                    outputArray[startOfBin[(numWorkItems - 1), ExtractDigit(inputArray[currentLast], bitMask, shiftRightAmount)]++] = inputArray[currentLast];
+                    outputArray[startOfBin[(numWorkItems - 1)][ExtractDigit(inputArray[currentLast], bitMask, shiftRightAmount)]++] = inputArray[currentLast];
                     currentLast++;
                 }
 #endif
