@@ -11,7 +11,7 @@ namespace HPCsharpExamples
         public static void SortMeasureArraySpeedup(bool parallel, bool vsLinq, bool radixSort)
         {
             Random randNum = new Random(5);
-            int arraySize = 10 * 1000 * 1000;
+            int arraySize = 1 * 1000 * 1000;
             uint[] benchArrayOne  = new uint[arraySize];
             uint[] benchArrayTwo  = new uint[arraySize];
             uint[] sortedArrayOne = new uint[arraySize];
@@ -59,7 +59,10 @@ namespace HPCsharpExamples
                         //sortedArrayOne = benchArrayOne.SortMergeStablePar();
                     }
                     else
-                        sortedArrayOne = benchArrayOne.SortRadix();
+                    {
+                        //sortedArrayOne = benchArrayOne.SortRadix();
+                        sortedArrayOne = benchArrayOne.SortRadixPar();
+                    }
                 }
             }
             stopwatch.Stop();
@@ -184,7 +187,7 @@ namespace HPCsharpExamples
         public static void SortMeasureArrayOfUserDefinedClassSpeedup(bool parallel, bool vsLinq, bool radixSort)
         {
             Random randNum = new Random(5);
-            int arraySize = 10 * 1000 * 1000;
+            int arraySize = 1 * 1000 * 1000;
 
             var comparer = new UserDefinedClassComparer();
             var equal = new UserDefinedClassEquality();

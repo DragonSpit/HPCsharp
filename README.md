@@ -7,6 +7,8 @@ are similar to standard C# Sort. Free and open source HPCsharp package on https:
 
 Updated VisualStudio 2017 examples solution, demonstrating usage through working examples.
 
+To get the maximum performance make sure to target x64 processor architecture in VisualStudio, increasing performance by as much as 50%.
+
 **_Version 3.1.0_** Just Released! Give it a shot.
 
 - Found and fixed more stability issues with Stable Parallel Merge Sort.
