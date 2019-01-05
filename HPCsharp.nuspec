@@ -6,7 +6,7 @@
     <id>HPCsharp</id>
 
     <!-- The package version number that is used when resolving dependencies -->
-    <version>3.1.1</version>
+    <version>3.1.2</version>
 
     <!-- Authors contain text that appears directly on the gallery -->
     <authors>Victor J. Duvanenko</authors>
@@ -36,7 +36,7 @@ Includes parallel stable Merge Sort, parallel Merge, O(N) stable Radix Sort algo
 Parallel Sorting is several times faster, capable of sorting user defined classes, providing familiar interfaces to C# Array.Sort and Linq.</description>
 
     <!-- Copyright information -->
-    <copyright>Copyright ©2018 Foostate</copyright>
+    <copyright>Copyright ©2019 Foostate</copyright>
 
     <!-- Tags appear in the gallery and can be used for tag searches -->
     <tags>high perfromance algorithms, C#, high performance, high performance computing, HPC, algorithm, algorithms, Linq, parallel, parallel algorithm, stable sorting, parallel sorting, sort, sorting</tags>

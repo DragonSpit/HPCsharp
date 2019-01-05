@@ -1,3 +1,6 @@
+Version 3.1.2
+Improved performance of serial Radix Sort by 17%.
+
 Version 3.1.1
 Improved parallel Radix Sort performance by 15%, but still slower than the serial version.
 
