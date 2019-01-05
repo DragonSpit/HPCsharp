@@ -1,0 +1,28 @@
+Version 3.1.1
+Improved parallel Radix Sort performance by 15%, but still slower than the serial version.
+
+Version 3.1.0
+
+Found and fixed more stability issues with Stable Parallel Merge Sort.
+Found stability issues with Linq.AsParallel() usage.
+Added IEqualityComparer to SequenceEqual to support equality comparison of arrays and List of user defined classes
+Added Lambda function for SequenceEqual (parallel versions only)
+
+Version 3.0.3
+
+Fixed Stability of Stable Parallel Merge Sort. Serial Merge Sort is already stable.
+
+Version 3.0.2
+
+Fixed Merge Sort of user defined classes (data types). Examples of usage and benchmarks coming soon.
+Implemented Serial Merge Sort of List.
+
+Version 3.0.1
+
+Higher performance parallel and serial 2-way Merge, with parallel faster by 1.7%.
+Added a Stable Parallel Merge Sort. Current Serial Merge Sort is already stable.
+Tuned Parallel Merge Sort performance for 5-10% gain.
+In-place Merge Sort interfaces for arrays and lists.
+Parallel and serial Multi-Merge.
+Changed interfaces on Merge Sort and Merge to be consistent with Microsoft C# algorithms.
+Added Dynamic Priority Queue and Fixed Size Priority Queue.
