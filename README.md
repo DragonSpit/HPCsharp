@@ -5,45 +5,30 @@ Parallel algorithms for sorting, merging, copying and others. New Parallel Stabl
 Linear and stable Radix Sort algorithm for arrays and lists of user defined classes sorted by key. Familiar interfaces, which
 are similar to standard C# Sort. Free and open source HPCsharp package on https://www.nuget.org
 
-Updated VisualStudio 2017 examples solution, demonstrating usage through working examples.
+Updated VisualStudio 2017 examples solution, demonstrating usage through working examples. Build and run it to see performance gains on your machine.
 
 To get the maximum performance make sure to target x64 processor architecture in VisualStudio, increasing performance by as much as 50%.
 
-**_Version 3.1.0_** Just Released! Give it a shot.
+**_Version 3.1.2_** Just Released! Give it a shot.
+
+- Improved performance of Serial Radix Sort by 17%
+
+**_Version 3.1.0_** 
 
 - Found and fixed more stability issues with Stable Parallel Merge Sort.
 - Found stability issues with Linq.AsParallel() usage.
 - Added IEqualityComparer to SequenceEqual to support equality comparison of arrays and List of user defined classes
 - Added Lambda function for SequenceEqual (parallel versions only)
 
-**_Version 3.0.3_**
+Full release history is in ReleaseNotes.txt file
 
-- Fixed Stability of Stable Parallel Merge Sort. Serial Merge Sort is already stable.
-
-**_Version 3.0.2_**
-
-- Fixed Merge Sort of user defined classes (data types). Examples of usage and benchmarks coming soon.
-- Implemented Serial Merge Sort of List.
-
-**_Version 3.0.1_**
-
-- Higher performance parallel and serial 2-way Merge, with parallel faster by 1.7%.
-- Added a Stable Parallel Merge Sort. Current, Serial Merge Sort is already stable.
-- Tuned Parallel Merge Sort performance for 5-10% gain.
-- In-place Merge Sort interfaces for arrays and lists.
-- Parallel and serial Multi-Merge.
-- Changed interfaces on Merge Sort and Merge to be consistent with Microsoft C# algorithms.
-- Added Dynamic Priority Queue and Fixed Size Priority Queue.
-
-More details and examples coming soon...
-
-**_Version 3.0.1_** algorithm performance is shown in the following tables:
+**_Version 3.1.2_** algorithm performance is shown in the following tables:
 
 *Algorithm*|*Collection*|*Distribution*|*vs .Sort*|*vs Linq*|*vs Linq.AsParallel*|*MegaInts/sec*|*Data Type*
 --- | --- | --- | --- | --- | --- | --- | ---
-Radix Sort|Array, List|Random|4X-7X|14X-35X|4X-9X|93, 75|UInt32
-Radix Sort|Array, List|Presorted|0.3X-0.5X|3X-5X|1X-3X||UInt32
-Radix Sort|Array, List|Constant|1X-1.5X|5X-8X|2X-3X||UInt32
+Radix Sort|Array, List|Random|5X-8X|14X-35X|4X-9X|82|UInt32
+Radix Sort|Array, List|Presorted|0.3X-0.6X|3X-5X|1X-3X|48|UInt32
+Radix Sort|Array, List|Constant|1.3X-1.8X|5X-8X|2X-3X||UInt32
 
 Radix Sort is linear time O(N) and stable. Radix Sort runs on a single core, whereas Linq.AsParallel ran on all the cores.
 Only slower when sorting presorted Array or List, but faster in all other cases, even faster than parallel Linq.OrderBy.AsParallel.
