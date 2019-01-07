@@ -4,10 +4,163 @@
 // TODO: Set parallelism for Parallel Radix Sort to the number of CPU cores by default.
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 namespace HPCsharp
 {
+    static public partial class ParallelAlgorithm
+    {
+        public static Int32 ThresholdByteCount { get; set; } = 64 * 1024;
+
+        private static uint[][] ByteCountInner(uint[] inArray, Int32 l, Int32 r, int numberOfDigits, int numberOfBins)
+        {
+            uint[][] countLeft = new uint[numberOfDigits][];
+            for (int i = 0; i < numberOfDigits; i++)
+                countLeft[i] = new uint[numberOfBins];
+
+            if (l > r)      // zero elements to compare
+                return countLeft;
+            if ((r - l + 1) <= ThresholdByteCount)
+            {
+                var digits = new byte[4];
+                UInt32ByteUnion union = new UInt32ByteUnion();
+                for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
+                {
+                    union.integer = inArray[current];
+                    countLeft[0][union.byte0]++;
+                    countLeft[1][union.byte1]++;
+                    countLeft[2][union.byte2]++;
+                    countLeft[3][union.byte3]++;
+                }
+                return countLeft;
+            }
+
+            int m = (r + l) / 2;
+
+            uint[][] countRight = new uint[numberOfDigits][];
+            for (int i = 0; i < numberOfDigits; i++)
+                countRight[i] = new uint[numberOfBins];
+
+            Parallel.Invoke(() =>
+                {
+                    countLeft = ByteCountInner(inArray, l,      m, numberOfDigits, numberOfBins);
+                },
+                () =>
+                {
+                    countRight = ByteCountInner(inArray, m + 1, r, numberOfDigits, numberOfBins);
+                }
+            );
+            // Combine left and right results
+            for (int i = 0; i < numberOfDigits; i++)
+                for(int j = 0; j < numberOfBins; j++)
+                    countLeft[i][j] += countRight[i][j];
+
+            return countLeft;
+        }
+
+        [StructLayout(LayoutKind.Explicit)]
+        struct UInt32ByteUnion
+        {
+            [FieldOffset(0)]
+            public byte byte0;
+            [FieldOffset(1)]
+            public byte byte1;
+            [FieldOffset(2)]
+            public byte byte2;
+            [FieldOffset(3)]
+            public byte byte3;
+
+            [FieldOffset(0)]
+            public UInt32 integer;
+        }
+        /// <summary>
+        /// Sort an array of unsigned integers using Radix Sorting algorithm (least significant digit variation)
+        /// </summary>
+        /// <param name="inputArray"></param>
+        /// <returns>array of unsigned integers</returns>
+        public static uint[] SortRadixPar(this uint[] inputArray)
+        {
+            int numberOfBins = 256;
+            int numberOfDigits = 4;
+            int Log2ofPowerOfTwoRadix = 8;
+            int d = 0;
+            uint[] outputArray = new uint[inputArray.Length];
+
+            uint[][] count = new uint[numberOfDigits][];
+            for (int i = 0; i < numberOfDigits; i++)
+                count[i] = new uint[numberOfBins];
+            uint[][] startOfBin = new uint[numberOfDigits][];
+            for (int i = 0; i < numberOfDigits; i++)
+                startOfBin[i] = new uint[numberOfBins];
+            bool outputArrayHasResult = false;
+
+            uint bitMask = 255;
+            int shiftRightAmount = 0;
+
+            //Stopwatch stopwatch = new Stopwatch();
+            //long frequency = Stopwatch.Frequency;
+            ////Console.WriteLine("  Timer frequency in ticks per second = {0}", frequency);
+            //long nanosecPerTick = (1000L * 1000L * 1000L) / frequency;
+
+            //stopwatch.Restart();
+#if false
+            var digits = new byte[4];
+            UInt32ByteUnion union = new UInt32ByteUnion();
+            for (uint current = 0; current < inputArray.Length; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
+            {
+                union.integer = inputArray[current];
+                count[0][union.byte0]++;
+                count[1][union.byte1]++;
+                count[2][union.byte2]++;
+                count[3][union.byte3]++;
+            }
+#else
+            count = ByteCountInner(inputArray, 0, inputArray.Length - 1, numberOfDigits, numberOfBins);
+#endif
+            //stopwatch.Stop();
+            //double timeForCounting = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
+            //Console.WriteLine("Time for counting: {0}", timeForCounting);
+
+            for (d = 0; d < numberOfDigits; d++)
+            {
+                startOfBin[d][0] = 0;
+                for (uint i = 1; i < numberOfBins; i++)
+                    startOfBin[d][i] = startOfBin[d][i - 1] + count[d][i - 1];
+            }
+
+            d = 0;
+            while (bitMask != 0)    // end processing digits when all the mask bits have been processed and shifted out, leaving no bits set in the bitMask
+            {
+                //stopwatch.Restart();
+                uint[] startOfBinLoc = startOfBin[d];
+                for (uint current = 0; current < inputArray.Length; current++)
+                {
+                    //outputArray[startOfBinLoc[ExtractDigit(inputArray[current], bitMask, shiftRightAmount)]++] = inputArray[current];
+                    outputArray[startOfBinLoc[(inputArray[current] & bitMask) >> shiftRightAmount]++] = inputArray[current];
+                }
+                //stopwatch.Stop();
+                //double timeForPermuting = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
+                //Console.WriteLine("Time for permuting: {0}", timeForPermuting);
+
+                bitMask <<= Log2ofPowerOfTwoRadix;
+                shiftRightAmount += Log2ofPowerOfTwoRadix;
+                outputArrayHasResult = !outputArrayHasResult;
+                d++;
+
+                uint[] tmp = inputArray;       // swap input and output arrays
+                inputArray = outputArray;
+                outputArray = tmp;
+            }
+            if (outputArrayHasResult)
+                for (uint current = 0; current < inputArray.Length; current++)    // copy from output array into the input array
+                    inputArray[current] = outputArray[current];
+
+            return inputArray;
+        }
+    }
+
     class CustomData
     {
         public uint current;
@@ -15,22 +168,23 @@ namespace HPCsharp
         public uint bitMask;
         public int shiftRightAmount;
     }
-    static public partial class ParallelAlgorithm
+
+    static public partial class ParallelAlgorithmExperimental
     {
         /// <summary>
         /// Minimal amount of work to be performed in parallel
         /// </summary>
         public static UInt32 SortRadixParallelWorkQuanta { get; set; } = 8 * 1024;
-        /// <summary>
-        /// Number of tasks that will run in parallel within the Parallel Radix Sort algorithm
-        /// </summary>
+        ///// <summary>
+        ///// Number of tasks that will run in parallel within the Parallel Radix Sort algorithm
+        ///// </summary>
         //public static Int32 SortRadixParallelAmountOfParallelism { get; set; } = Environment.ProcessorCount;
         /// <summary>
         /// Sort an array of unsigned integers using Parallel Radix Sorting algorithm (least significant digit variation)
         /// </summary>
         /// <param name="inputArray"></param>
         /// <returns>array of unsigned integers</returns>
-        public static uint[] SortRadixPar(this uint[] inputArray)
+        public static uint[] SortRadixPar1(this uint[] inputArray)
         {
             uint numberOfBins = 256;
             int Log2ofPowerOfTwoRadix = 8;
