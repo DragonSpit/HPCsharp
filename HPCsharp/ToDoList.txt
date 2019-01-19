@@ -23,3 +23,4 @@
 //       As we determiner DivideAndConquer to be not-stable Parallel Merge Sort isn't stable also
 // TODO: Bring back Stable Merge Sort (parallel only, since serial Merge Sort is already stable) and provide parallel version of it. This will provide limited
 //       acceleration, but at least will provide some and will beat LINQ, since that's the only current option for C# developers.
+// TODO: List all available algorithms in the Readme, right up front to allow new users to see what's available to them
