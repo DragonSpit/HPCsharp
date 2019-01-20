@@ -10,6 +10,8 @@
 // TODO: Implement serial Fill of byte, ushort and uint using ulong to accelerate it.
 // TODO: Figure out how to make accelerated Fill generic, such as done for .NET core 2.X
 // TODO: Change SSE Fill to look at alignment of the buffer first and do scalar up to 32-byte alignment and then do SSE - otherwise performance is abysmal.
+// TODO: Something strange is going on with performance of BlockCopy for ushort when the offset is not zero. I'm guessing that Microsoft messed up the implementation and
+//       if they use SSE instructions, then forgot to align these on 32-byte/256-bit boundary, and when SSE is not aligned then performance is abysmal.
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -44,14 +46,13 @@ namespace HPCsharp
                 array[index++] = value;
 
             endIndex = array.Length;
-            while (index < endIndex)
+            for(; index < endIndex; index += block, block *= 2)
             {
                 int actualBlockSize = Math.Min(block, endIndex - index);
                 Buffer.BlockCopy(array, 0, array, index, actualBlockSize);
-                index += block;
-                block *= 2;
             }
         }
+
         public static void FillUsingBlockCopy(this byte[] array, byte value, int startIndex, int count)
         {
             int block = 32, index = startIndex;
@@ -61,48 +62,136 @@ namespace HPCsharp
                 array[index++] = value;
 
             endIndex = startIndex + count;
-            while (index < endIndex)
+            for (; index < endIndex; index += block, block *= 2)
             {
                 int actualBlockSize = Math.Min(block, endIndex - index);
                 Buffer.BlockCopy(array, startIndex, array, index, actualBlockSize);
-                index += block;
-                block *= 2;
             }
         }
+
         public static void FillUsingBlockCopy(this ushort[] array, ushort value)
         {
             int block = 32, index = 0;
-            int length = Math.Min(block, array.Length);
+            int endIndex = Math.Min(block, array.Length);
             int numBytesInItem = sizeof(ushort);
 
-            while (index < length)          // Fill the initial array
+            while (index < endIndex)          // Fill the initial array
                 array[index++] = value;
 
-            length = array.Length;
-            while (index < length)
+            endIndex = array.Length;
+            for (; index < endIndex; index += block, block *= 2)
             {
-                int actualBlockSize = Math.Min(block, length - index);
+                int actualBlockSize = Math.Min(block, endIndex - index);
+                Buffer.BlockCopy(array, 0, array, index * numBytesInItem, actualBlockSize * numBytesInItem);
+            }
+        }
+
+        public static void FillUsingBlockCopy(this ushort[] array, ushort value, int startIndex, int count)
+        {
+            int block = 32, index = startIndex;
+            int endIndex = startIndex + Math.Min(block, count);
+            int numBytesInItem = sizeof(ushort);
+
+            while (index < endIndex)          // Fill the initial block
+                array[index++] = value;
+
+            endIndex = startIndex + count;
+            for (; index < endIndex; index += block, block *= 2)
+            {
+                int actualBlockSize = Math.Min(block, endIndex - index);
+                Buffer.BlockCopy(array, startIndex * numBytesInItem, array, index * numBytesInItem, actualBlockSize * numBytesInItem);
+            }
+        }
+
+        public static void FillUsingBlockCopy(this int[] array, int value)
+        {
+            int block = 32, index = 0;
+            int endIndex = Math.Min(block, array.Length);
+            int numBytesInItem = sizeof(int);
+
+            while (index < endIndex)          // Fill the initial array
+                array[index++] = value;
+
+            endIndex = array.Length;
+            while (index < endIndex)
+            {
+                int actualBlockSize = Math.Min(block, endIndex - index);
                 Buffer.BlockCopy(array, 0, array, index * numBytesInItem, actualBlockSize * numBytesInItem);
                 index += block;
                 block *= 2;
             }
         }
-        public static void FillUsingBlockCopy(this int[] array, int value)
+
+        public static void FillUsingBlockCopy(this int[] array, ushort value, int startIndex, int count)
         {
-            int block = 32, index = 0;
-            int length = Math.Min(block, array.Length);
+            int block = 32, index = startIndex;
+            int endIndex = startIndex + Math.Min(block, count);
             int numBytesInItem = sizeof(int);
 
-            while (index < length)          // Fill the initial array
+            while (index < endIndex)          // Fill the initial block
                 array[index++] = value;
 
-            length = array.Length;
-            while (index < length)
+            endIndex = startIndex + count;
+            for (; index < endIndex; index += block, block *= 2)
             {
-                int actualBlockSize = Math.Min(block, length - index);
+                int actualBlockSize = Math.Min(block, endIndex - index);
+                Buffer.BlockCopy(array, startIndex * numBytesInItem, array, index * numBytesInItem, actualBlockSize * numBytesInItem);
+            }
+        }
+
+        public static void FillUsingBlockCopyGeneric<T>(this T[] array, T value) where T : struct
+        {
+            int numBytesInItem = 0;
+            if (typeof(T) == typeof(byte) || typeof(T) == typeof(sbyte))
+                numBytesInItem = 1;
+            else if (typeof(T) == typeof(ushort) || typeof(T) != typeof(short))
+                numBytesInItem = 2;
+            else if (typeof(T) == typeof(uint) || typeof(T) != typeof(int))
+                numBytesInItem = 4;
+            else if (typeof(T) == typeof(ulong) || typeof(T) != typeof(long))
+                numBytesInItem = 8;
+            else
+                throw new ArgumentException(string.Format("Type '{0}' is unsupported.", typeof(T).ToString()));
+            
+            int block = 32, index = 0;
+            int endIndex = Math.Min(block, array.Length);
+
+            while (index < endIndex)          // Fill the initial block
+                array[index++] = value;
+
+            endIndex = array.Length;
+            for (; index < endIndex; index += block, block *= 2)
+            {
+                int actualBlockSize = Math.Min(block, endIndex - index);
                 Buffer.BlockCopy(array, 0, array, index * numBytesInItem, actualBlockSize * numBytesInItem);
-                index += block;
-                block *= 2;
+            }
+        }
+
+        public static void FillUsingBlockCopyGeneric<T>(this T[] array, T value, int startIndex, int count) where T : struct
+        {
+            int numBytesInItem = 0;
+            if (typeof(T) == typeof(byte) || typeof(T) == typeof(sbyte))
+                numBytesInItem = 1;
+            else if (typeof(T) == typeof(ushort) || typeof(T) != typeof(short))
+                numBytesInItem = 2;
+            else if (typeof(T) == typeof(uint) || typeof(T) != typeof(int))
+                numBytesInItem = 4;
+            else if (typeof(T) == typeof(ulong) || typeof(T) != typeof(long))
+                numBytesInItem = 8;
+            else
+                throw new ArgumentException(string.Format("Type '{0}' is unsupported.", typeof(T).ToString()));
+
+            int block = 32, index = startIndex;
+            int endIndex = startIndex + Math.Min(block, count);
+
+            while (index < endIndex)          // Fill the initial block
+                array[index++] = value;
+
+            endIndex = startIndex + count;
+            for (; index < endIndex; index += block, block *= 2)
+            {
+                int actualBlockSize = Math.Min(block, endIndex - index);
+                Buffer.BlockCopy(array, startIndex * numBytesInItem, array, index * numBytesInItem, actualBlockSize * numBytesInItem);
             }
         }
     }

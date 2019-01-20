@@ -18,7 +18,6 @@ namespace HPCsharp
             int startIndex = 0;
             for (uint countIndex = 0; countIndex < counts.Length; countIndex++)
             {
-                //sortedArray.Fill((byte)countIndex, startIndex, counts[countIndex]);
                 sortedArray.FillUsingBlockCopy((byte)countIndex, startIndex, counts[countIndex]);
                 startIndex += counts[countIndex];
             }
@@ -33,7 +32,7 @@ namespace HPCsharp
             int startIndex = 0;
             for (uint countIndex = 0; countIndex < counts.Length; countIndex++)
             {
-                arrayToSort.Fill((byte)countIndex, startIndex, counts[countIndex]);
+                arrayToSort.FillUsingBlockCopyGeneric((byte)countIndex, startIndex, counts[countIndex]);
                 startIndex += counts[countIndex];
             }
         }
@@ -47,7 +46,7 @@ namespace HPCsharp
             int startIndex = 0;
             for (uint countIndex = 0; countIndex < counts.Length; countIndex++)
             {
-                sortedArray.Fill((ushort)countIndex, startIndex, counts[countIndex]);
+                sortedArray.FillUsingBlockCopyGeneric((ushort)countIndex, startIndex, counts[countIndex]);
                 startIndex += counts[countIndex];
             }
 
