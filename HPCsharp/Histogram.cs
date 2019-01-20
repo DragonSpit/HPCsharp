@@ -11,36 +11,24 @@ namespace HPCsharp
 {
     static public partial class Algorithm
     {
-        public static int[] Histogram(this byte[] arrayToCount)
+        public static int[] Histogram(this byte[] inArray)
         {
             int numberOfBins = 256;
             int[] counts = new int[numberOfBins];
 
-            for (uint currIndex = 0; currIndex < arrayToCount.Length; currIndex++)
-                counts[arrayToCount[currIndex]]++;
+            for (uint currIndex = 0; currIndex < inArray.Length; currIndex++)
+                counts[inArray[currIndex]]++;
 
             return counts;
         }
 
-        public static int[] Histogram(this ushort[] arrayToCount)
+        public static int[] Histogram(this ushort[] inArray)
         {
             int numberOfBins = 256 * 256;
             int[] counts = new int[numberOfBins];
 
-            for (uint currIndex = 0; currIndex < arrayToCount.Length; currIndex++)
-                counts[arrayToCount[currIndex]]++;
-
-            return counts;
-        }
-
-        public static int[] Histogram(this short[] arrayToCount)
-        {
-            int numberOfBins = 256 * 256;
-            int[] counts = new int[numberOfBins];
-
-            // TODO: Since short values are signed and can be negative, we need to figure out a way to handle negative indexes
-            for (uint currIndex = 0; currIndex < arrayToCount.Length; currIndex++)
-                counts[arrayToCount[currIndex]]++;
+            for (uint currIndex = 0; currIndex < inArray.Length; currIndex++)
+                counts[inArray[currIndex]]++;
 
             return counts;
         }

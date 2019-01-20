@@ -7,6 +7,9 @@
 //       https://stackoverflow.com/questions/31999479/using-simd-operation-from-c-sharp-in-net-framework-4-6-is-slower
 // TODO: Make sure to mention that .NET core has a Fill method implemented already. Modify my version to have the same interface, and provide a parallel version that's even faster.
 // TODO: Benchmark my Fill version on a quad-memory channel system to see how much bandwidth it provides - the fill rate! ;-) kinda like graphics.
+// TODO: Implement serial Fill of byte, ushort and uint using ulong to accelerate it.
+// TODO: Figure out how to make accelerated Fill generic, such as done for .NET core 2.X
+// TODO: Change SSE Fill to look at alignment of the buffer first and do scalar up to 32-byte alignment and then do SSE - otherwise performance is abysmal.
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -23,7 +26,7 @@ namespace HPCsharp
                 arrayToFill[i] = value;
         }
 
-        public static void Fill<T>(this T[] arrayToFill, int startIndex, int length, T value)
+        public static void Fill<T>(this T[] arrayToFill, T value, int startIndex, int length)
         {
             int index    = startIndex;
             int endIndex = startIndex + length;
@@ -32,27 +35,45 @@ namespace HPCsharp
         }
 
         // From StackOverflow fast fill question https://stackoverflow.com/questions/1897555/what-is-the-equivalent-of-memset-in-c
-        public static void FillWithBlockCopy(int[] array, int value)
+        public static void FillUsingBlockCopy(this byte[] array, byte value)
         {
             int block = 32, index = 0;
-            int length = Math.Min(block, array.Length);
+            int endIndex = Math.Min(block, array.Length);
 
-            while (index < length)          // Fill the initial array
+            while (index < endIndex)          // Fill the initial block
                 array[index++] = value;
 
-            length = array.Length;
-            while (index < length)
+            endIndex = array.Length;
+            while (index < endIndex)
             {
-                int actualBlockSize = Math.Min(block, length - index);
-                Buffer.BlockCopy(array, 0, array, index << 2, actualBlockSize << 2);
+                int actualBlockSize = Math.Min(block, endIndex - index);
+                Buffer.BlockCopy(array, 0, array, index, actualBlockSize);
                 index += block;
                 block *= 2;
             }
         }
-        public static void FillWithBlockCopy(byte[] array, byte value)
+        public static void FillUsingBlockCopy(this byte[] array, byte value, int startIndex, int count)
+        {
+            int block = 32, index = startIndex;
+            int endIndex = startIndex + Math.Min(block, count);
+
+            while (index < endIndex)          // Fill the initial block
+                array[index++] = value;
+
+            endIndex = startIndex + count;
+            while (index < endIndex)
+            {
+                int actualBlockSize = Math.Min(block, endIndex - index);
+                Buffer.BlockCopy(array, startIndex, array, index, actualBlockSize);
+                index += block;
+                block *= 2;
+            }
+        }
+        public static void FillUsingBlockCopy(this ushort[] array, ushort value)
         {
             int block = 32, index = 0;
             int length = Math.Min(block, array.Length);
+            int numBytesInItem = sizeof(ushort);
 
             while (index < length)          // Fill the initial array
                 array[index++] = value;
@@ -61,7 +82,25 @@ namespace HPCsharp
             while (index < length)
             {
                 int actualBlockSize = Math.Min(block, length - index);
-                Buffer.BlockCopy(array, 0, array, index, actualBlockSize);
+                Buffer.BlockCopy(array, 0, array, index * numBytesInItem, actualBlockSize * numBytesInItem);
+                index += block;
+                block *= 2;
+            }
+        }
+        public static void FillUsingBlockCopy(this int[] array, int value)
+        {
+            int block = 32, index = 0;
+            int length = Math.Min(block, array.Length);
+            int numBytesInItem = sizeof(int);
+
+            while (index < length)          // Fill the initial array
+                array[index++] = value;
+
+            length = array.Length;
+            while (index < length)
+            {
+                int actualBlockSize = Math.Min(block, length - index);
+                Buffer.BlockCopy(array, 0, array, index * numBytesInItem, actualBlockSize * numBytesInItem);
                 index += block;
                 block *= 2;
             }

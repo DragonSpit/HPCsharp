@@ -26,6 +26,7 @@ Includes parallel stable Merge Sort, parallel Merge, O(N) stable Radix Sort algo
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DocumentationFile>bin\Release\netstandard2.0\HPCsharp.xml</DocumentationFile>
     <WarningLevel>3</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
