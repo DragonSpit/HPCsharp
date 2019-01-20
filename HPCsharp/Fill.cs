@@ -37,109 +37,7 @@ namespace HPCsharp
         }
 
         // From StackOverflow fast fill question https://stackoverflow.com/questions/1897555/what-is-the-equivalent-of-memset-in-c
-        public static void FillUsingBlockCopy(this byte[] array, byte value)
-        {
-            int block = 32, index = 0;
-            int endIndex = Math.Min(block, array.Length);
-
-            while (index < endIndex)          // Fill the initial block
-                array[index++] = value;
-
-            endIndex = array.Length;
-            for(; index < endIndex; index += block, block *= 2)
-            {
-                int actualBlockSize = Math.Min(block, endIndex - index);
-                Buffer.BlockCopy(array, 0, array, index, actualBlockSize);
-            }
-        }
-
-        public static void FillUsingBlockCopy(this byte[] array, byte value, int startIndex, int count)
-        {
-            int block = 32, index = startIndex;
-            int endIndex = startIndex + Math.Min(block, count);
-
-            while (index < endIndex)          // Fill the initial block
-                array[index++] = value;
-
-            endIndex = startIndex + count;
-            for (; index < endIndex; index += block, block *= 2)
-            {
-                int actualBlockSize = Math.Min(block, endIndex - index);
-                Buffer.BlockCopy(array, startIndex, array, index, actualBlockSize);
-            }
-        }
-
-        public static void FillUsingBlockCopy(this ushort[] array, ushort value)
-        {
-            int block = 32, index = 0;
-            int endIndex = Math.Min(block, array.Length);
-            int numBytesInItem = sizeof(ushort);
-
-            while (index < endIndex)          // Fill the initial array
-                array[index++] = value;
-
-            endIndex = array.Length;
-            for (; index < endIndex; index += block, block *= 2)
-            {
-                int actualBlockSize = Math.Min(block, endIndex - index);
-                Buffer.BlockCopy(array, 0, array, index * numBytesInItem, actualBlockSize * numBytesInItem);
-            }
-        }
-
-        public static void FillUsingBlockCopy(this ushort[] array, ushort value, int startIndex, int count)
-        {
-            int block = 32, index = startIndex;
-            int endIndex = startIndex + Math.Min(block, count);
-            int numBytesInItem = sizeof(ushort);
-
-            while (index < endIndex)          // Fill the initial block
-                array[index++] = value;
-
-            endIndex = startIndex + count;
-            for (; index < endIndex; index += block, block *= 2)
-            {
-                int actualBlockSize = Math.Min(block, endIndex - index);
-                Buffer.BlockCopy(array, startIndex * numBytesInItem, array, index * numBytesInItem, actualBlockSize * numBytesInItem);
-            }
-        }
-
-        public static void FillUsingBlockCopy(this int[] array, int value)
-        {
-            int block = 32, index = 0;
-            int endIndex = Math.Min(block, array.Length);
-            int numBytesInItem = sizeof(int);
-
-            while (index < endIndex)          // Fill the initial array
-                array[index++] = value;
-
-            endIndex = array.Length;
-            while (index < endIndex)
-            {
-                int actualBlockSize = Math.Min(block, endIndex - index);
-                Buffer.BlockCopy(array, 0, array, index * numBytesInItem, actualBlockSize * numBytesInItem);
-                index += block;
-                block *= 2;
-            }
-        }
-
-        public static void FillUsingBlockCopy(this int[] array, ushort value, int startIndex, int count)
-        {
-            int block = 32, index = startIndex;
-            int endIndex = startIndex + Math.Min(block, count);
-            int numBytesInItem = sizeof(int);
-
-            while (index < endIndex)          // Fill the initial block
-                array[index++] = value;
-
-            endIndex = startIndex + count;
-            for (; index < endIndex; index += block, block *= 2)
-            {
-                int actualBlockSize = Math.Min(block, endIndex - index);
-                Buffer.BlockCopy(array, startIndex * numBytesInItem, array, index * numBytesInItem, actualBlockSize * numBytesInItem);
-            }
-        }
-
-        public static void FillUsingBlockCopyGeneric<T>(this T[] array, T value) where T : struct
+        public static void FillUsingBlockCopy<T>(this T[] array, T value) where T : struct
         {
             int numBytesInItem = 0;
             if (typeof(T) == typeof(byte) || typeof(T) == typeof(sbyte))
@@ -167,7 +65,7 @@ namespace HPCsharp
             }
         }
 
-        public static void FillUsingBlockCopyGeneric<T>(this T[] array, T value, int startIndex, int count) where T : struct
+        public static void FillUsingBlockCopy<T>(this T[] array, T value, int startIndex, int count) where T : struct
         {
             int numBytesInItem = 0;
             if (typeof(T) == typeof(byte) || typeof(T) == typeof(sbyte))
