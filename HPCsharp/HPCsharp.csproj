@@ -9,7 +9,7 @@
 Includes parallel stable Merge Sort, parallel Merge, O(N) stable Radix Sort algorithm, of arrays and lists, Priority Queue and more... Parallel Sorting is several times faster, capable of sorting user defined classes, providing familiar interfaces to C# Array.Sort and Linq.</Description>
     <Copyright>© 2018 FooState</Copyright>
     <PackageLicenseUrl>https://github.com/DragonSpit/HPCsharp/blob/master/LICENSE</PackageLicenseUrl>
-    <PackageReleaseNotes>Implemented Parallel Radix Sort a different way, which is faster than Serial Radix Sort, but limits parallelism for now.</PackageReleaseNotes>
+    <PackageReleaseNotes>Added crazy fast Counting Sort. Added Array.Fill of full and partial arrays. Increased performance of serial Radix Sort by 17%. Created a Stable Parallel Merge Sort.</PackageReleaseNotes>
     <PackageId>HPCsharp</PackageId>
     <PackageTags>high perfromance algorithms, C#, high performance, high performance computing, HPC, algorithm, algorithms, Linq, parallel, parallel algorithm</PackageTags>
     <PackageIconUrl>https://foostate.com/images/default_lib_icon_64.png</PackageIconUrl>

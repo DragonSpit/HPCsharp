@@ -3,6 +3,8 @@
 // TODO: 3-way and 4-way merge need to be implemented using the algorithm that uses fewest boundary comparisons, as it may pay off as the way merge increases.
 // TODO: Is it faster to copy a List to an Array, then do the merge and then to copy the result back to a List? Currently, List merge runs at 1/2 the speed of Array merge.
 // TODO: Does it pay off to use the parallel copy.
+// TODO: Change all in-place sorting functions to return the original reference to improve Functional composition and pipelining, since it's returning void anyways.
+// TODO: Refactor other methods to possibly return a destination, if it makes sense.
 using System;
 using System.Collections.Generic;
 
