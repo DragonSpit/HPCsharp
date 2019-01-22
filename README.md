@@ -2,14 +2,20 @@
 
 High performance C# generic algorithms. Community driven to raise C# performance.
 Parallel algorithms for sorting, merging, copying and others. New Parallel Stable Merge Sort and parallel Merge of arrays and lists.
-Linear and stable Radix Sort algorithm for arrays and lists of user defined classes sorted by key. Familiar interfaces, which
+Linear and stable Radix Sort algorithm for arrays and lists of user defined classes sorted by key. Crazy fast Counting Sort,
+and Array.Fill for full and partial arrays. Familiar interfaces, which
 are similar to standard C# Sort. Free and open source HPCsharp package on https://www.nuget.org
 
 Updated VisualStudio 2017 examples solution, demonstrating usage through working examples. Build and run it to see performance gains on your machine.
 
 To get the maximum performance make sure to target x64 processor architecture in VisualStudio, increasing performance by as much as 50%.
 
-**_Version 3.1.2_** Just Released! Give it a shot.
+**_Version 3.1.3_** Just Released! Give it a shot.
+
+- Added a crazy fast Counting Sort for arrays of byte and ushort (in-place and not)
+- Added Array.Fill for full and partial arrays, which sets an array to a value
+
+**_Version 3.1.2_**
 
 - Improved performance of Serial Radix Sort by 17%
 
@@ -23,6 +29,15 @@ To get the maximum performance make sure to target x64 processor architecture in
 Full release history is in ReleaseNotes.txt file
 
 **_Version 3.1.2_** algorithm performance is shown in the following tables:
+
+*Algorithm*|*Collection*|*Distribution*|*vs .Sort*|*vs Linq*|*vs Linq.AsParallel*|*MegaBytes/sec*|*Data Type*
+--- | --- | --- | --- | --- | --- | --- | ---
+Counting Sort|Array|Random|27X-56X|||846|byte
+Counting Sort|Array|Presorted|26X-56X|||864|byte
+Counting Sort|Array|Constant|30X-56X|||847|byte
+
+Counting Sort is linear time O(N) and sorts either an array of byte or ushort. In-place and not-in-place version have been implementated.
+This algorithm runs at GPU speeds!
 
 *Algorithm*|*Collection*|*Distribution*|*vs .Sort*|*vs Linq*|*vs Linq.AsParallel*|*MegaInts/sec*|*Data Type*
 --- | --- | --- | --- | --- | --- | --- | ---
