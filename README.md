@@ -32,9 +32,9 @@ Full release history is in ReleaseNotes.txt file
 
 *Algorithm*|*Collection*|*Distribution*|*vs .Sort*|*vs Linq*|*vs Linq.AsParallel*|*MegaBytes/sec*|*Data Type*
 --- | --- | --- | --- | --- | --- | --- | ---
-Counting Sort|Array|Random|27X-56X|||846|byte
-Counting Sort|Array|Presorted|26X-56X|||864|byte
-Counting Sort|Array|Constant|30X-56X|||847|byte
+Counting Sort|Array|Random|27X-56X|156X-343X|39X-70X|846|byte
+Counting Sort|Array|Presorted|26X-56X|168X-344X|38X-66X|864|byte
+Counting Sort|Array|Constant|30X-56X|165X-321X|34X-70X|847|byte
 
 Counting Sort is linear time O(N) and sorts either an array of byte or ushort. In-place and not-in-place version have been implementated.
 This algorithm runs at GPU speeds!
