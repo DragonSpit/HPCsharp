@@ -103,24 +103,30 @@ namespace HPCsharp
         public static void FillSse(this byte[] arrayToFill, byte value, int startIndex, int length)
         {
             var fillVector = new Vector<byte>(value);
-            int endOfFullVectorsIndex = (length / Vector<byte>.Count) * Vector<byte>.Count;
-            int numBytesUnaligned = 0;
-            int i;
+            int endOfFullVectorsIndex, numBytesUnaligned, i = startIndex;
             unsafe
             {
                 fixed (byte* ptrToArray = &arrayToFill[startIndex])
                 {
-                    numBytesUnaligned = Vector<byte>.Count - (int)((ulong)ptrToArray & (ulong)(Vector<byte>.Count- 1));
-                    int endUnalignedIndex = startIndex + numBytesUnaligned;
-                    for (i = startIndex; i < endUnalignedIndex; i++)
-                        arrayToFill[i] = value;
-                    endOfFullVectorsIndex = ((length - numBytesUnaligned) / Vector<byte>.Count) * Vector<byte>.Count;
-                    Console.WriteLine("Pointer offset = {0}  ptr = {1:X}  startIndex = {2}  i = {3} endIndex = {4} length = {5}", numBytesUnaligned, (ulong)ptrToArray, startIndex, i, endOfFullVectorsIndex, length);
+                    numBytesUnaligned = (int)((ulong)ptrToArray & (ulong)(Vector<byte>.Count- 1));
+                    int endOfByteUnaligned = (numBytesUnaligned == 0) ? 0 : Vector<byte>.Count;
+                    int numBytesFilled = 0;
+                    for (int j = numBytesUnaligned; j < endOfByteUnaligned; j++, i++, numBytesFilled++)
+                    {
+                        if (numBytesFilled < length)
+                            arrayToFill[i] = value;
+                        else
+                            break;
+                    }
+                    endOfFullVectorsIndex = i + ((length - numBytesFilled) / Vector<byte>.Count) * Vector<byte>.Count;
+                    //Console.WriteLine("Pointer offset = {0}  ptr = {1:X}  startIndex = {2}  i = {3} endIndex = {4} length = {5} lengthLeft = {6}",
+                    //    numBytesUnaligned, (ulong)ptrToArray, startIndex, i, endOfFullVectorsIndex, length, length - numBytesFilled);
                 }
             }
             for (; i < endOfFullVectorsIndex; i += Vector<byte>.Count)
                 fillVector.CopyTo(arrayToFill, i);
-            for (; i < length; i++)
+            //Console.WriteLine("After fill using Vector, i = {0}", i);
+            for (; i < startIndex + length; i++)
                 arrayToFill[i] = value;
         }
     }
