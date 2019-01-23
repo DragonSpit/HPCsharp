@@ -121,10 +121,10 @@ namespace HPCsharp
                     endOfFullVectorsIndex = i + ((length - numBytesFilled) / Vector<byte>.Count) * Vector<byte>.Count;
                     //Console.WriteLine("Pointer offset = {0}  ptr = {1:X}  startIndex = {2}  i = {3} endIndex = {4} length = {5} lengthLeft = {6}",
                     //    numBytesUnaligned, (ulong)ptrToArray, startIndex, i, endOfFullVectorsIndex, length, length - numBytesFilled);
+                    for (; i < endOfFullVectorsIndex; i += Vector<byte>.Count)
+                        fillVector.CopyTo(arrayToFill, i);
                 }
             }
-            for (; i < endOfFullVectorsIndex; i += Vector<byte>.Count)
-                fillVector.CopyTo(arrayToFill, i);
             //Console.WriteLine("After fill using Vector, i = {0}", i);
             for (; i < startIndex + length; i++)
                 arrayToFill[i] = value;

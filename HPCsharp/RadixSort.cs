@@ -19,6 +19,21 @@
 // TODO: Change the count array into a 1-D array to minimize cache contention, since 2-D array gets allocated one row at a time and may cache interfere between rows,
 //       depending on how each row gets allocated. With 1-D the memory layout is guaranteed to be contigous, which should produce less cache contention.
 //       Do the same with startOfBin 2-D array. It'll be a little bit more painful to use, but performance gains should make it worthwhile.
+// TODO: Implement Counting Sort (serial and parallel) for byte, short and ushort data types, as this will be the highest performance possible, especially for byte sorting.
+//       This will be fun to present, as the speed will be ludicrous! These should be in-place implementations.
+// TODO: Implement a generic Sort (in-place and not versions) for all of the data types that John listed that would select internally which algorithm to use, so that
+//       the user doesn't have to. Maybe allow the user to select the algorithm.
+// TODO: Extend Radix Sort to borrow some good ideas from the Radix Sort video and expand on them, such instead of returning just one number from the user defined
+//       function, but also accept returning a Tuple of supported data types, and then sort based on these in-order, and throw an unsupported type exception if the user
+//       provides a data type that is not supported.
+// TODO: Separate the Counting Sort portion from Radix Sort and not only parallelize the counting portion, since that parallelizes counting and reading of the source array
+//       but also parallelize the writing portion by splitting up the count array into either divide-and-conquer write method, or more regular chunks.
+// TODO: Instead of divide-and-conquer parallel Count by splitting the input array into page size chunks on cache line boundaries (possibly by checking the array starting
+//       pointer address) and then divide on page boundaried in a for loop, which should lead to even higher performance.
+// TODO: Do a similar method of splitting up the Count array into page size chunks and checking the destination pointer address and splitting up by either divide-and-conquer
+//       and by a for loop where each iteration is in parallel and a certain number of pages.
+// TODO: To optimize performance of MSB Radix Sort apply optimizations discussed in https://www.youtube.com/watch?v=zqs87a_7zxw, which may bring performance closer
+//       to the not-in-place version
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -168,6 +183,7 @@ namespace HPCsharp
 
             return inputArray;
         }
+
         [StructLayout(LayoutKind.Explicit)]
         struct UInt32ByteUnion
         {
@@ -243,6 +259,7 @@ namespace HPCsharp
                 {
                     //outputArray[startOfBinLoc[ExtractDigit(inputArray[current], bitMask, shiftRightAmount)]++] = inputArray[current];
                     outputArray[startOfBinLoc[(inputArray[current] & bitMask) >> shiftRightAmount]++] = inputArray[current];
+                    //Console.WriteLine("curr: {0}, index: {1}, startOfBin: {2}", current, (inputArray[current] & bitMask) >> shiftRightAmount, startOfBinLoc[(inputArray[current] & bitMask) >> shiftRightAmount]);
                 }
                 //stopwatch.Stop();
                 //double timeForPermuting = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;

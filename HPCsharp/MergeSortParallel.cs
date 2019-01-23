@@ -9,6 +9,13 @@
 // TODO: While doing the Binary Search looking for the split for divide-and-conquer portion, since we know the index of each element as we are working on them before
 //       moving them, could we keep the position in mind as part of the comparison to break the ties during the comparison? Would that help?
 // TODO: Make sure to document the fact that not-in-place merge and merge sort change the input array in the process of sorting.
+// TODO: Focus not only on the worst case of random value arrays, but also on the best case of nearly sorted arrays to compete with TimSort, as Merge Sort does well in this case.
+// TODO: Implement HeapSort to be able to create more hybrix variations.
+// TODO: Try removing Insertion Sort, since ArraySort already implements it, and to also verify that Insertion Sort (with a copy) is helping performance in the worst case and best case.
+// TODO: Implement a hybrid of Parallel Merge Sort and Radix Sort as base case, with the threshold of being completely inside the cache, to allow better random access pattern (inside cache)
+//       as that should help Radix Sort.
+// TODO: Add the ability to limit the recursion depth to limit parallelism, as is done in http://dzmitryhuba.blogspot.com/2010/10/parallel-merge-sort.html this may help control parallelism better
+//       than Microsoft does and possibly limit oversubscription.
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -393,5 +400,99 @@ namespace HPCsharp
             SortMergeParallel<T>(src, 0, src.Count - 1, dst, false);
 #endif
         }
+
+        private static void SortMergeHybridWithRadixInnerPar<T>(this T[] src, Int32 l, Int32 r, T[] dst, bool srcToDst, Func<T, UInt32> getKey, IComparer<T> comparer = null)
+        {
+            if (r == l)
+            {    // termination/base case of sorting a single element
+                if (srcToDst) dst[l] = src[l];    // copy the single element from src to dst
+                return;
+            }
+            // TODO: This threshold may not be needed as C# sort already does it
+            if ((r - l) <= SortMergeParallelInsertionThreshold)
+            {
+                HPCsharp.Algorithm.InsertionSort<T>(src, l, r - l + 1, comparer);  // want to do dstToSrc, can just do it in-place, just sort the src, no need to copy
+                if (srcToDst)
+                    for (int i = l; i <= r; i++) dst[i] = src[i];	// copy from src to dst, when the result needs to be in dst
+                return;
+            }
+            //else if ((r - l) <= SortMergeParallelThreshold)
+            //{
+            //    Array.Sort<T>(src, l, r - l + 1, comparer);     // not a stable sort
+            //    if (srcToDst)
+            //        for (int i = l; i <= r; i++) dst[i] = src[i];	// copy from src to dst, when the result needs to be in dst
+            //    return;
+            //}
+            else if ((r - l) <= SortMergeParallelThreshold)
+            {
+                HPCsharp.Algorithm.SortRadix<T>(src, l, r - l + 1, dst, getKey);
+            }
+            int m = ((r + l) / 2);
+            Parallel.Invoke(
+                () => { SortMergeInnerPar<T>(src, l,     m, dst, !srcToDst, comparer); },      // reverse direction of srcToDst for the next level of recursion
+                () => { SortMergeInnerPar<T>(src, m + 1, r, dst, !srcToDst, comparer); }
+            );
+            // reverse direction of srcToDst for the next level of recursion
+            if (srcToDst) MergeInnerPar<T>(src, l, m, m + 1, r, dst, l, comparer);
+            else          MergeInnerPar<T>(dst, l, m, m + 1, r, src, l, comparer);
+        }
+
+        private static void SortMergeHybridWithRadixInnerPar<T>(this T[] src, Int32 l, Int32 r, T[] dst, bool srcToDst, IComparer<T> comparer = null)
+        {
+            if (r == l)
+            {    // termination/base case of sorting a single element
+                if (srcToDst) dst[l] = src[l];    // copy the single element from src to dst
+                return;
+            }
+            // TODO: This threshold may not be needed as C# sort already does it
+            if ((r - l) <= SortMergeParallelInsertionThreshold)
+            {
+                HPCsharp.Algorithm.InsertionSort<T>(src, l, r - l + 1, comparer);  // want to do dstToSrc, can just do it in-place, just sort the src, no need to copy
+                if (srcToDst)
+                    for (int i = l; i <= r; i++) dst[i] = src[i];	// copy from src to dst, when the result needs to be in dst
+                return;
+            }
+            //else if ((r - l) <= SortMergeParallelThreshold)
+            //{
+            //    Array.Sort<T>(src, l, r - l + 1, comparer);     // not a stable sort
+            //    if (srcToDst)
+            //        for (int i = l; i <= r; i++) dst[i] = src[i];	// copy from src to dst, when the result needs to be in dst
+            //    return;
+            //}
+            else if ((r - l) <= SortMergeParallelThreshold)
+            {
+                // TODO: Need a version that doesn't require a getKey function
+                //HPCsharp.Algorithm.SortRadixNew<T>(src, l, r - l + 1, dst);
+            }
+            int m = ((r + l) / 2);
+            Parallel.Invoke(
+                () => { SortMergeInnerPar<T>(src, l, m, dst, !srcToDst, comparer); },      // reverse direction of srcToDst for the next level of recursion
+                () => { SortMergeInnerPar<T>(src, m + 1, r, dst, !srcToDst, comparer); }
+            );
+            // reverse direction of srcToDst for the next level of recursion
+            if (srcToDst) MergeInnerPar<T>(src, l, m, m + 1, r, dst, l, comparer);
+            else MergeInnerPar<T>(dst, l, m, m + 1, r, src, l, comparer);
+        }
+        /// <summary>
+        /// Parallel Merge Sort. Takes a range of the src array, sorts it, and then returns just the sorted range
+        /// </summary>
+        /// <typeparam name="T">array of type T</typeparam>
+        /// <param name="src">source array</param>
+        /// <param name="startIndex">index within the src array where sorting starts</param>
+        /// <param name="length">number of elements starting with startIndex to be sorted</param>
+        /// <param name="comparer">comparer used to compare two array elements of type T</param>
+        /// <returns>returns an array of length specified</returns>
+        static public T[] SortMergeHybridWithRadixPar<T>(this T[] src, int startIndex, int length, Func<T, UInt32> getKey, IComparer<T> comparer = null)
+        {
+            T[] srcTrimmed = new T[length];
+            T[] dst        = new T[length];
+
+            Array.Copy(src, startIndex, srcTrimmed, 0, length);
+
+            srcTrimmed.SortMergeHybridWithRadixInnerPar<T>(0, length - 1, dst, true, getKey, comparer);
+
+            return dst;
+        }
+
     }
 }
