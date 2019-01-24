@@ -36,7 +36,8 @@ namespace HPCsharp
             int startIndex = 0;
             for (uint countIndex = 0; countIndex < counts.Length; countIndex++)
             {
-                arrayToSort.FillUsingBlockCopy((byte)countIndex, startIndex, counts[countIndex]);
+                //arrayToSort.FillUsingBlockCopy((byte)countIndex, startIndex, counts[countIndex]);
+                arrayToSort.FillSse((byte)countIndex, startIndex, counts[countIndex]);
                 startIndex += counts[countIndex];
             }
         }

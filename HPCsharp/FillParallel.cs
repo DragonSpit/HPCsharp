@@ -8,6 +8,7 @@
 // TODO: Make sure to mention that .NET core has a Fill method implemented already. Modify my version to have the same interface, and provide a parallel version that's even faster.
 // TODO: Benchmark my Fill version on a quad-memory channel system to see how much bandwidth it provides - the fill rate! ;-) kinda like graphics.
 // TODO: Create generic versions and data type specific version, since data specific versions seem to be significantly faster than generic.
+// TODO: Implement FillSse for ushort
 
 using System;
 using System.Collections.Generic;
