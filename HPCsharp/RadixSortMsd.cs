@@ -28,6 +28,26 @@ namespace HPCsharp
         }
 #endif
 
+        public static void SortRadixMsd(this byte[] arrayToBeSorted)
+        {
+            arrayToBeSorted.SortCountingInPlace();
+        }
+
+        public static void SortRadixMsd(this sbyte[] arrayToBeSorted)
+        {
+            arrayToBeSorted.SortCountingInPlace();
+        }
+
+        public static void SortRadixMsd(this ushort[] arrayToBeSorted)
+        {
+            arrayToBeSorted.SortCountingInPlace();
+        }
+
+        public static void SortRadixMsd(this short[] arrayToBeSorted)
+        {
+            arrayToBeSorted.SortCountingInPlace();
+        }
+
         public static void SortRadixMsd(this long[] arrayToBeSorted)
         {
         }

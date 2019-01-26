@@ -187,6 +187,26 @@ namespace HPCsharp
             return inputArray;
         }
 
+        public static byte[] SortRadix(this byte[] arrayToBeSorted)
+        {
+            return arrayToBeSorted.SortCountingInPlaceFunctional();
+        }
+
+        public static sbyte[] SortRadix(this sbyte[] arrayToBeSorted)
+        {
+            return arrayToBeSorted.SortCountingInPlaceFunctional();
+        }
+
+        public static ushort[] SortRadix(this ushort[] arrayToBeSorted)
+        {
+            return arrayToBeSorted.SortCountingInPlaceFunctional();
+        }
+
+        public static short[] SortRadix(this short[] arrayToBeSorted)
+        {
+            return arrayToBeSorted.SortCountingInPlaceFunctional();
+        }
+
         [StructLayout(LayoutKind.Explicit)]
         struct UInt32ByteUnion
         {
