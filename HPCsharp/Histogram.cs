@@ -17,18 +17,29 @@ namespace HPCsharp
     {
         public static int[] Histogram(this byte[] inArray)
         {
-            int numberOfBins = 256;
+            const int numberOfBins = 256;
             int[] counts = new int[numberOfBins];
 
             for (uint currIndex = 0; currIndex < inArray.Length; currIndex++)
                 counts[inArray[currIndex]]++;
+
+            return counts;
+        }
+
+        public static int[] Histogram(this sbyte[] inArray)
+        {
+            const int numberOfBins = 256;
+            int[] counts = new int[numberOfBins];
+
+            for (uint currIndex = 0; currIndex < inArray.Length; currIndex++)
+                counts[(int)inArray[currIndex] + 128]++;
 
             return counts;
         }
 
         public static int[] Histogram(this ushort[] inArray)
         {
-            int numberOfBins = 256 * 256;
+            const int numberOfBins = 256 * 256;
             int[] counts = new int[numberOfBins];
 
             for (uint currIndex = 0; currIndex < inArray.Length; currIndex++)
@@ -37,24 +48,16 @@ namespace HPCsharp
             return counts;
         }
 
-        // So far, not any faster, but works correctly
-        private static int[] HistogramSse(this byte[] inArray)
+        public static int[] Histogram(this short[] inArray)
         {
-            int numberOfBins = 256;
+            const int numberOfBins = 256 * 256;
             int[] counts = new int[numberOfBins];
-            int vectorLength = Vector<byte>.Count;
-            int currIndex;
 
-            for (currIndex = 0; currIndex <= (inArray.Length - vectorLength); currIndex += vectorLength)
-            {
-                var readVector = new Vector<byte>(inArray, currIndex);
-                for (int i = 0; i < vectorLength; i++)
-                    counts[readVector[i]]++;
-            }
-            for (; currIndex < inArray.Length; currIndex++)
-                counts[inArray[currIndex]]++;
+            for (uint currIndex = 0; currIndex < inArray.Length; currIndex++)
+                counts[(int)inArray[currIndex] + 32768]++;
 
             return counts;
         }
+
     }
 }

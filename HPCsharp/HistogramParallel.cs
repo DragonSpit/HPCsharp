@@ -10,6 +10,26 @@ namespace HPCsharp
     {
         public static Int32 ThresholdHistogramBytePar { get; set; } = 64 * 1024;
 
+        // So far, not any faster, but works correctly
+        private static int[] HistogramSse(this byte[] inArray)
+        {
+            int numberOfBins = 256;
+            int[] counts = new int[numberOfBins];
+            int vectorLength = Vector<byte>.Count;
+            int currIndex;
+
+            for (currIndex = 0; currIndex <= (inArray.Length - vectorLength); currIndex += vectorLength)
+            {
+                var readVector = new Vector<byte>(inArray, currIndex);
+                for (int i = 0; i < vectorLength; i++)
+                    counts[readVector[i]]++;
+            }
+            for (; currIndex < inArray.Length; currIndex++)
+                counts[inArray[currIndex]]++;
+
+            return counts;
+        }
+
         public static int[] HistogramInnerPar(byte[] inArray, Int32 l, Int32 r)
         {
             int numberOfBins = 256;

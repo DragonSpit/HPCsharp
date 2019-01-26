@@ -49,6 +49,42 @@ namespace HPCsharp
             return arrayToSort;
         }
 
+        public static sbyte[] SortCounting(this sbyte[] inputArray)
+        {
+            sbyte[] sortedArray = new sbyte[inputArray.Length];
+
+            int[] counts = inputArray.Histogram();
+
+            int startIndex = 0;
+            for (uint countIndex = 0; countIndex < counts.Length; countIndex++)
+            {
+                sortedArray.FillUsingBlockCopy((sbyte)(countIndex - 128), startIndex, counts[countIndex]);
+                //sortedArray.FillSse((sbyte)countIndex, startIndex, counts[countIndex]);
+                startIndex += counts[countIndex];
+            }
+
+            return sortedArray;
+        }
+
+        public static void SortCountingInPlace(this sbyte[] arrayToSort)
+        {
+            int[] counts = arrayToSort.Histogram();
+
+            int startIndex = 0;
+            for (uint countIndex = 0; countIndex < counts.Length; countIndex++)
+            {
+                arrayToSort.FillUsingBlockCopy((sbyte)(countIndex - 128), startIndex, counts[countIndex]);
+                //arrayToSort.FillSse((byte)countIndex, startIndex, counts[countIndex]);
+                startIndex += counts[countIndex];
+            }
+        }
+
+        public static sbyte[] SortCountingInPlaceFunctional(this sbyte[] arrayToSort)
+        {
+            arrayToSort.SortCountingInPlace();
+            return arrayToSort;
+        }
+
         public static ushort[] SortCounting(this ushort[] inputArray)
         {
             ushort[] sortedArray = new ushort[inputArray.Length];
@@ -83,5 +119,38 @@ namespace HPCsharp
             return arrayToSort;
         }
 
+        public static short[] SortCounting(this short[] inputArray)
+        {
+            short[] sortedArray = new short[inputArray.Length];
+
+            int[] counts = inputArray.Histogram();
+
+            int startIndex = 0;
+            for (uint countIndex = 0; countIndex < counts.Length; countIndex++)
+            {
+                sortedArray.FillUsingBlockCopy((short)(countIndex - 32768), startIndex, counts[countIndex]);
+                startIndex += counts[countIndex];
+            }
+
+            return sortedArray;
+        }
+
+        public static void SortCountingInPlace(this short[] arrayToSort)
+        {
+            int[] counts = arrayToSort.Histogram();
+
+            int startIndex = 0;
+            for (uint countIndex = 0; countIndex < counts.Length; countIndex++)
+            {
+                arrayToSort.FillUsingBlockCopy((short)(countIndex - 32768), startIndex, counts[countIndex]);
+                startIndex += counts[countIndex];
+            }
+        }
+
+        public static short[] SortCountingInPlaceFunctional(this short[] arrayToSort)
+        {
+            arrayToSort.SortCountingInPlace();
+            return arrayToSort;
+        }
     }
 }
