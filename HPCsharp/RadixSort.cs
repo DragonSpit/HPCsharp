@@ -208,7 +208,7 @@ namespace HPCsharp
         }
 
         [StructLayout(LayoutKind.Explicit)]
-        struct UInt32ByteUnion
+        internal struct UInt32ByteUnion
         {
             [FieldOffset(0)]
             public byte byte0;
@@ -221,6 +221,29 @@ namespace HPCsharp
 
             [FieldOffset(0)]
             public UInt32 integer;
+        }
+        [StructLayout(LayoutKind.Explicit)]
+        internal struct UInt64ByteUnion
+        {
+            [FieldOffset(0)]
+            public byte byte0;
+            [FieldOffset(1)]
+            public byte byte1;
+            [FieldOffset(2)]
+            public byte byte2;
+            [FieldOffset(3)]
+            public byte byte3;
+            [FieldOffset(4)]
+            public byte byte4;
+            [FieldOffset(5)]
+            public byte byte5;
+            [FieldOffset(6)]
+            public byte byte6;
+            [FieldOffset(7)]
+            public byte byte7;
+
+            [FieldOffset(0)]
+            public UInt64 integer;
         }
         /// <summary>
         /// Sort an array of unsigned integers using Radix Sorting algorithm (least significant digit variation)

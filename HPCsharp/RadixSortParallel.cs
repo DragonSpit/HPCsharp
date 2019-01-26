@@ -24,69 +24,6 @@ namespace HPCsharp
             return arrayToBeSorted.SortCountingInPlaceFunctionalPar();
         }
 
-        public static Int32 ThresholdByteCount { get; set; } = 64 * 1024;
-
-        private static uint[][] ByteCountInnerPar(uint[] inArray, Int32 l, Int32 r, int numberOfDigits, int numberOfBins)
-        {
-            uint[][] countLeft = new uint[numberOfDigits][];
-            for (int i = 0; i < numberOfDigits; i++)
-                countLeft[i] = new uint[numberOfBins];
-
-            if (l > r)      // zero elements to compare
-                return countLeft;
-            if ((r - l + 1) <= ThresholdByteCount)
-            {
-                var digits = new byte[4];
-                UInt32ByteUnion union = new UInt32ByteUnion();
-                for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
-                {
-                    union.integer = inArray[current];
-                    countLeft[0][union.byte0]++;
-                    countLeft[1][union.byte1]++;
-                    countLeft[2][union.byte2]++;
-                    countLeft[3][union.byte3]++;
-                }
-                return countLeft;
-            }
-
-            int m = (r + l) / 2;
-
-            uint[][] countRight = new uint[numberOfDigits][];
-            for (int i = 0; i < numberOfDigits; i++)
-                countRight[i] = new uint[numberOfBins];
-
-            Parallel.Invoke(() =>
-                {
-                    countLeft = ByteCountInnerPar(inArray, l,      m, numberOfDigits, numberOfBins);
-                },
-                () =>
-                {
-                    countRight = ByteCountInnerPar(inArray, m + 1, r, numberOfDigits, numberOfBins);
-                }
-            );
-            // Combine left and right results
-            for (int i = 0; i < numberOfDigits; i++)
-                for(int j = 0; j < numberOfBins; j++)
-                    countLeft[i][j] += countRight[i][j];
-
-            return countLeft;
-        }
-
-        [StructLayout(LayoutKind.Explicit)]
-        struct UInt32ByteUnion
-        {
-            [FieldOffset(0)]
-            public byte byte0;
-            [FieldOffset(1)]
-            public byte byte1;
-            [FieldOffset(2)]
-            public byte byte2;
-            [FieldOffset(3)]
-            public byte byte3;
-
-            [FieldOffset(0)]
-            public UInt32 integer;
-        }
         /// <summary>
         /// Sort an array of unsigned integers using Radix Sorting algorithm (least significant digit variation)
         /// </summary>
@@ -129,7 +66,7 @@ namespace HPCsharp
                 count[3][union.byte3]++;
             }
 #else
-            count = ByteCountInnerPar(inputArray, 0, inputArray.Length - 1, numberOfDigits, numberOfBins);
+            count = HistogramByteComponentsPar(inputArray, 0, inputArray.Length - 1);
 #endif
             //stopwatch.Stop();
             //double timeForCounting = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
