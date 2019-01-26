@@ -34,6 +34,9 @@
 //       and by a for loop where each iteration is in parallel and a certain number of pages.
 // TODO: To optimize performance of MSB Radix Sort apply optimizations discussed in https://www.youtube.com/watch?v=zqs87a_7zxw, which may bring performance closer
 //       to the not-in-place version
+// TODO: Add a task to clean-up some of the sorting interfaces to not have "ref to arrays", just allocate needed arrays internally (less for the user to worry about)
+//       when the additional memory is needed and just document it not being a true-inplace algorithm, but just has an in-place interface
+// TODO: Document these algorithms as "not truly in-place", but providing an in-place interface. Explain how much additional memory each algorithm uses.
 using System;
 using System.Collections.Generic;
 using System.Text;

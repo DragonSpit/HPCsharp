@@ -2,6 +2,9 @@
 // TODO: Add histogramming of 2-D and jagged arrays of variety of data types, with byte and ushort counts
 // TODO: Develop more general histograms (serial and parallel) that allow components to not just be bytes, but also any number of bits within a word. For example, 10-bit or 14-bit components.
 //       and possibly even different samplings between color components.
+//       This may pay off big, and us being able to find the optimal number of bits for Radix Sort to minimize the number of passes or recursion levels.
+//       Counting array should fit into L1-cache and possibly as large as fitting into L2-cache, since these are separate for each core in Intel CPUs, whereas L3-cache is
+//       shared between all cores.
 using System;
 using System.Collections.Generic;
 using System.Text;

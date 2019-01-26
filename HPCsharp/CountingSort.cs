@@ -2,6 +2,7 @@
 // TODO: Provide documentation explaining usage and variations
 // TODO: Add unit tests for 0 length to 100 length to random, to make sure it works for 0 and 1 and less than 32 lengths when using FillSse, since that one is tricky
 // TODO: Create a generic version of Counting Sort where the Fill function is passed in, so that we can easily switch between these implementations
+// TODO: Compare performance of short/ushort Counting Sort with Radix Sort.
 using System;
 using System.Collections.Generic;
 using System.Text;
