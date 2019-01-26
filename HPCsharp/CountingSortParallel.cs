@@ -43,6 +43,12 @@ namespace HPCsharp
             }
         }
 
+        private static byte[] SortCountingInPlaceFunctionalPar(this byte[] arrayToSort)
+        {
+            arrayToSort.SortCountingInPlacePar();
+            return arrayToSort;
+        }
+
         public static ushort[] SortCountingPar(this ushort[] inputArray)
         {
             ushort[] sortedArray = new ushort[inputArray.Length];
@@ -69,6 +75,12 @@ namespace HPCsharp
                 arrayToSort.FillUsingBlockCopy((ushort)countIndex, startIndex, counts[countIndex]);
                 startIndex += counts[countIndex];
             }
+        }
+
+        private static ushort[] SortCountingInPlaceFunctionalPar(this ushort[] arrayToSort)
+        {
+            arrayToSort.SortCountingInPlacePar();
+            return arrayToSort;
         }
     }
 }

@@ -2,6 +2,8 @@
 //       use this improvement (which is about 10X speedup) to speedup the parallel version, as each of the tasks will only get in each other's way during the first pass, and
 //       will use the much improved memory access pattern of subsequent passes of the LSD Radix Sort algorithm, hopefully providing parallel acceleration.
 // TODO: Set parallelism for Parallel Radix Sort to the number of CPU cores by default.
+// TODO: To speedup parallel Counting/Histogram, create a single dimension array instead of a jagged one, which will have an optimal layout within L1 cache with counts
+//       not interfering with each other.
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -12,9 +14,19 @@ namespace HPCsharp
 {
     static public partial class ParallelAlgorithm
     {
+        public static byte[] SortRadixPar(this byte[] arrayToBeSorted)
+        {
+            return arrayToBeSorted.SortCountingInPlaceFunctionalPar();
+        }
+
+        public static ushort[] SortRadixPar(this ushort[] arrayToBeSorted)
+        {
+            return arrayToBeSorted.SortCountingInPlaceFunctionalPar();
+        }
+
         public static Int32 ThresholdByteCount { get; set; } = 64 * 1024;
 
-        private static uint[][] ByteCountInner(uint[] inArray, Int32 l, Int32 r, int numberOfDigits, int numberOfBins)
+        private static uint[][] ByteCountInnerPar(uint[] inArray, Int32 l, Int32 r, int numberOfDigits, int numberOfBins)
         {
             uint[][] countLeft = new uint[numberOfDigits][];
             for (int i = 0; i < numberOfDigits; i++)
@@ -45,11 +57,11 @@ namespace HPCsharp
 
             Parallel.Invoke(() =>
                 {
-                    countLeft = ByteCountInner(inArray, l,      m, numberOfDigits, numberOfBins);
+                    countLeft = ByteCountInnerPar(inArray, l,      m, numberOfDigits, numberOfBins);
                 },
                 () =>
                 {
-                    countRight = ByteCountInner(inArray, m + 1, r, numberOfDigits, numberOfBins);
+                    countRight = ByteCountInnerPar(inArray, m + 1, r, numberOfDigits, numberOfBins);
                 }
             );
             // Combine left and right results
@@ -117,7 +129,7 @@ namespace HPCsharp
                 count[3][union.byte3]++;
             }
 #else
-            count = ByteCountInner(inputArray, 0, inputArray.Length - 1, numberOfDigits, numberOfBins);
+            count = ByteCountInnerPar(inputArray, 0, inputArray.Length - 1, numberOfDigits, numberOfBins);
 #endif
             //stopwatch.Stop();
             //double timeForCounting = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;

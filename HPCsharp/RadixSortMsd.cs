@@ -48,20 +48,20 @@ namespace HPCsharp
             arrayToBeSorted.SortCountingInPlace();
         }
 
-        public static void SortRadixMsd(this long[] arrayToBeSorted)
+        private static void SortRadixMsd(this long[] arrayToBeSorted)
         {
         }
 
-        public static long[] SortRadixMsdInplaceFunctional(this long[] arrayToBeSorted)
+        private static long[] SortRadixMsdInplaceFunctional(this long[] arrayToBeSorted)
         {
             return arrayToBeSorted;
         }
 
-        public static void SortRadixMsd(this double[] arrayToBeSorted)
+        private static void SortRadixMsd(this double[] arrayToBeSorted)
         {
         }
 
-        public static double[] SortRadixMsdInplaceFunctional(this double[] arrayToBeSorted)
+        private static double[] SortRadixMsdInplaceFunctional(this double[] arrayToBeSorted)
         {
             return arrayToBeSorted;
         }
