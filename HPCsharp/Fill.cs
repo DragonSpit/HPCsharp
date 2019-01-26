@@ -70,11 +70,11 @@ namespace HPCsharp
             int numBytesInItem = 0;
             if (typeof(T) == typeof(byte) || typeof(T) == typeof(sbyte))
                 numBytesInItem = 1;
-            else if (typeof(T) == typeof(ushort) || typeof(T) != typeof(short))
+            else if (typeof(T) == typeof(ushort) || typeof(T) == typeof(short))
                 numBytesInItem = 2;
-            else if (typeof(T) == typeof(uint) || typeof(T) != typeof(int))
+            else if (typeof(T) == typeof(uint) || typeof(T) == typeof(int))
                 numBytesInItem = 4;
-            else if (typeof(T) == typeof(ulong) || typeof(T) != typeof(long))
+            else if (typeof(T) == typeof(ulong) || typeof(T) == typeof(long))
                 numBytesInItem = 8;
             else
                 throw new ArgumentException(string.Format("Type '{0}' is unsupported.", typeof(T).ToString()));
