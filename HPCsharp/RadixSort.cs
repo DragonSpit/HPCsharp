@@ -275,7 +275,6 @@ namespace HPCsharp
             //long nanosecPerTick = (1000L * 1000L * 1000L) / frequency;
 
             //stopwatch.Restart();
-            var digits = new byte[4];
             UInt32ByteUnion union = new UInt32ByteUnion();
             for (uint current = 0; current < inputArray.Length; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
             {

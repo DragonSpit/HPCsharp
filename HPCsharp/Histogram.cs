@@ -83,7 +83,7 @@ namespace HPCsharp
             uint[][] countLeft = new uint[numberOfDigits][];
             for (int i = 0; i < numberOfDigits; i++)
                 countLeft[i] = new uint[numberOfBins];
-
+#if true
             var union  = new UInt32ByteUnion();
             for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
             {
@@ -93,6 +93,16 @@ namespace HPCsharp
                 countLeft[2][union.byte2]++;
                 countLeft[3][union.byte3]++;
             }
+#else
+            for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
+            {
+                uint value = inArray[current];
+                countLeft[0][ value &       0xff       ]++;
+                countLeft[1][(value &     0xff00) >>  8]++;
+                countLeft[2][(value &   0xff0000) >> 16]++;
+                countLeft[3][(value & 0xff000000) >> 24]++;
+            }
+#endif
             return countLeft;
         }
 
@@ -116,6 +126,93 @@ namespace HPCsharp
                 countLeft[5][union.byte5]++;
                 countLeft[6][union.byte6]++;
                 countLeft[7][union.byte7]++;
+            }
+            return countLeft;
+        }
+
+        public static uint[][] HistogramNBitsPerComponents(uint[] inArray, Int32 l, Int32 r, int bitsPerComponent)
+        {
+            int numberOfBins = 1 << bitsPerComponent;
+            int numberOfDigits = (sizeof(uint) * 8 + bitsPerComponent - 1) / bitsPerComponent;  // round up
+            uint[][] countLeft = new uint[numberOfDigits][];
+            for (int i = 0; i < numberOfDigits; i++)
+                countLeft[i] = new uint[numberOfBins];
+            if (bitsPerComponent == 8)
+            {
+                var union = new UInt32ByteUnion();
+                for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
+                {
+                    union.integer = inArray[current];
+                    countLeft[0][union.byte0]++;
+                    countLeft[1][union.byte1]++;
+                    countLeft[2][union.byte2]++;
+                    countLeft[3][union.byte3]++;
+                }
+            }
+            else if (bitsPerComponent == 9)
+            {
+                for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
+                {
+                    uint value = inArray[current];
+                    countLeft[0][value  &      0x1ff       ]++;
+                    countLeft[1][(value &    0x3fe00) >>  9]++;
+                    countLeft[2][(value &  0x7fc0000) >> 18]++;
+                    countLeft[3][(value & 0xf8000000) >> 27]++;
+                }
+            }
+            else if (bitsPerComponent == 10)    // useful for 64-bit
+            {
+                for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
+                {
+                    uint value = inArray[current];
+                    countLeft[0][ value &      0x3ff       ]++;
+                    countLeft[1][(value &    0xffc00) >> 10]++;
+                    countLeft[2][(value & 0x3ff00000) >> 20]++;
+                    countLeft[3][(value & 0xc0000000) >> 30]++;
+                }
+            }
+            else if (bitsPerComponent == 11)    // useful for 32-bit and 64-bit
+            {
+                for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
+                {
+                    uint value = inArray[current];
+                    countLeft[0][ value &      0x7ff       ]++;
+                    countLeft[1][(value &   0x3ff800) >> 11]++;
+                    countLeft[2][(value & 0xffc00000) >> 22]++;
+                }
+            }
+            else if (bitsPerComponent == 12)
+            {
+                for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
+                {
+                    uint value = inArray[current];
+                    countLeft[0][ value &      0xfff       ]++;
+                    countLeft[1][(value &   0xfff000) >> 12]++;
+                    countLeft[2][(value & 0xff000000) >> 24]++;
+                }
+            }
+            else if (bitsPerComponent == 13)    // useful for 64-bit
+            {
+                for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
+                {
+                    uint value = inArray[current];
+                    countLeft[0][ value &     0x1fff       ]++;
+                    countLeft[1][(value &  0x3ffe000) >> 13]++;
+                    countLeft[2][(value & 0xfc000000) >> 26]++;
+                }
+            }
+            else
+            {
+                uint componentMask = (uint)numberOfBins - 1;
+                for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
+                {
+                    uint value = inArray[current];
+                    for (int i = 0; i < numberOfDigits; i++)
+                    {
+                        countLeft[i][value & componentMask]++;
+                        componentMask <<= bitsPerComponent;
+                    }
+                }
             }
             return countLeft;
         }
