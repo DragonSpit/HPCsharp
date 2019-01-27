@@ -37,9 +37,6 @@ namespace HPCsharp
             int d = 0;
             uint[] outputArray = new uint[inputArray.Length];
 
-            uint[][] count = new uint[numberOfDigits][];
-            for (int i = 0; i < numberOfDigits; i++)
-                count[i] = new uint[numberOfBins];
             uint[][] startOfBin = new uint[numberOfDigits][];
             for (int i = 0; i < numberOfDigits; i++)
                 startOfBin[i] = new uint[numberOfBins];
@@ -54,20 +51,7 @@ namespace HPCsharp
             //long nanosecPerTick = (1000L * 1000L * 1000L) / frequency;
 
             //stopwatch.Restart();
-#if false
-            var digits = new byte[4];
-            UInt32ByteUnion union = new UInt32ByteUnion();
-            for (uint current = 0; current < inputArray.Length; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
-            {
-                union.integer = inputArray[current];
-                count[0][union.byte0]++;
-                count[1][union.byte1]++;
-                count[2][union.byte2]++;
-                count[3][union.byte3]++;
-            }
-#else
-            count = HistogramByteComponentsPar(inputArray, 0, inputArray.Length - 1);
-#endif
+            uint[][] count = HistogramByteComponentsPar(inputArray, 0, inputArray.Length - 1);
             //stopwatch.Stop();
             //double timeForCounting = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
             //Console.WriteLine("Time for counting: {0}", timeForCounting);

@@ -245,6 +245,32 @@ namespace HPCsharp
             [FieldOffset(0)]
             public UInt64 integer;
         }
+        [StructLayout(LayoutKind.Explicit)]
+        internal struct UInt32UShortUnion
+        {
+            [FieldOffset(0)]
+            public ushort ushort0;
+            [FieldOffset(1)]
+            public ushort ushort1;
+
+            [FieldOffset(0)]
+            public UInt32 integer;
+        }
+        [StructLayout(LayoutKind.Explicit)]
+        internal struct UInt64UShortUnion
+        {
+            [FieldOffset(0)]
+            public ushort ushort0;
+            [FieldOffset(1)]
+            public ushort ushort1;
+            [FieldOffset(2)]
+            public ushort ushort2;
+            [FieldOffset(3)]
+            public ushort ushort3;
+
+            [FieldOffset(0)]
+            public UInt64 integer;
+        }
         /// <summary>
         /// Sort an array of unsigned integers using Radix Sorting algorithm (least significant digit variation)
         /// </summary>
@@ -258,9 +284,6 @@ namespace HPCsharp
             int d = 0;
             uint[] outputArray = new uint[inputArray.Length];
 
-            uint[][] count = new uint[numberOfDigits][];
-            for (int i = 0; i < numberOfDigits; i++)
-                count[i] = new uint[numberOfBins];
             uint[][] startOfBin = new uint[numberOfDigits][];
             for (int i = 0; i < numberOfDigits; i++)
                 startOfBin[i] = new uint[numberOfBins];
@@ -275,15 +298,7 @@ namespace HPCsharp
             //long nanosecPerTick = (1000L * 1000L * 1000L) / frequency;
 
             //stopwatch.Restart();
-            UInt32ByteUnion union = new UInt32ByteUnion();
-            for (uint current = 0; current < inputArray.Length; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
-            {
-                union.integer = inputArray[current];
-                count[0][union.byte0]++;
-                count[1][union.byte1]++;
-                count[2][union.byte2]++;
-                count[3][union.byte3]++;
-            }
+            uint[][] count = HistogramByteComponents(inputArray, 0, inputArray.Length - 1);
             //stopwatch.Stop();
             //double timeForCounting = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
             //Console.WriteLine("Time for counting: {0}", timeForCounting);
@@ -302,7 +317,6 @@ namespace HPCsharp
                 uint[] startOfBinLoc = startOfBin[d];
                 for (uint current = 0; current < inputArray.Length; current++)
                 {
-                    //outputArray[startOfBinLoc[ExtractDigit(inputArray[current], bitMask, shiftRightAmount)]++] = inputArray[current];
                     outputArray[startOfBinLoc[(inputArray[current] & bitMask) >> shiftRightAmount]++] = inputArray[current];
                     //Console.WriteLine("curr: {0}, index: {1}, startOfBin: {2}", current, (inputArray[current] & bitMask) >> shiftRightAmount, startOfBinLoc[(inputArray[current] & bitMask) >> shiftRightAmount]);
                 }
