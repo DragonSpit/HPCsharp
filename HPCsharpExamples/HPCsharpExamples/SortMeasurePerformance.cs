@@ -34,22 +34,21 @@ namespace HPCsharpExamples
             {
                 if (!parallel)
                 {
-                    if (!radixSort)
-                        benchArrayOne.SortMergeInPlace();
-                    else
-                        sortedArrayOne = benchArrayOne.SortRadix();
+                    if (!radixSort) benchArrayOne.SortMergeInPlace();
+                    else            sortedArrayOne = benchArrayOne.SortRadix();
                 }
                 else
-                    benchArrayOne.SortMergeInPlacePar();
+                {
+                    if (!radixSort) benchArrayOne.SortMergeInPlacePar();
+                    else            sortedArrayOne = benchArrayOne.SortRadixPar();
+                }
             }
             else
             {
                 if (!parallel)
                 {
-                    if (!radixSort)
-                        sortedArrayOne = benchArrayOne.SortMerge();
-                    else
-                        sortedArrayOne = benchArrayOne.SortRadix();
+                    if (!radixSort)   sortedArrayOne = benchArrayOne.SortMerge();
+                    else              sortedArrayOne = benchArrayOne.SortRadix();
                 }
                 else
                 {
@@ -69,15 +68,11 @@ namespace HPCsharpExamples
             double timeMergeSort = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
             stopwatch.Restart();
             if (!vsLinq)
-            {
                 Array.Sort(benchArrayTwo);
-            }
             else
             {
-                if (parallel)
-                    sortedArrayTwo = benchArrayTwo.AsParallel().OrderBy(element => element).ToArray();
-                else
-                    sortedArrayTwo = benchArrayTwo.OrderBy(element => element).ToArray();
+                if (parallel)  sortedArrayTwo = benchArrayTwo.AsParallel().OrderBy(element => element).ToArray();
+                else           sortedArrayTwo = benchArrayTwo.OrderBy(element => element).ToArray();
             }
             stopwatch.Stop();
             double timeArraySort = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
@@ -121,7 +116,7 @@ namespace HPCsharpExamples
                         Console.WriteLine("C# array of size {0}: Array.Sort             {1:0.000} sec, Parallel Merge Sort {2:0.000} sec, speedup {3:0.00}", arraySize,
                                             timeArraySort, timeMergeSort, timeArraySort / timeMergeSort);
                     else
-                        Console.WriteLine("C# array of size {0}: Array.Sort             {1:0.000} sec, Serial   Radix Sort {2:0.000} sec, speedup {3:0.00}", arraySize,
+                        Console.WriteLine("C# array of size {0}: Array.Sort             {1:0.000} sec, Parallel Radix Sort {2:0.000} sec, speedup {3:0.00}", arraySize,
                                             timeArraySort, timeMergeSort, timeArraySort / timeMergeSort);
                 }
             }
@@ -142,7 +137,7 @@ namespace HPCsharpExamples
                         Console.WriteLine("C# array of size {0}: Linq.SortBy.AsParallel {1:0.000} sec, Parallel Merge Sort {2:0.000} sec, speedup {3:0.00}", arraySize,
                                             timeArraySort, timeMergeSort, timeArraySort / timeMergeSort);
                     else
-                        Console.WriteLine("C# array of size {0}: Linq.SortBy.AsParallel {1:0.000} sec, Serial   Radix Sort {2:0.000} sec, speedup {3:0.00}", arraySize,
+                        Console.WriteLine("C# array of size {0}: Linq.SortBy.AsParallel {1:0.000} sec, Parallel Radix Sort {2:0.000} sec, speedup {3:0.00}", arraySize,
                                             timeArraySort, timeMergeSort, timeArraySort / timeMergeSort);
                 }
             }

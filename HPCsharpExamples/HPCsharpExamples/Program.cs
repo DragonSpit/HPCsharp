@@ -64,7 +64,7 @@ namespace HPCsharpExamples
 
             #region Performance comparison of Serial Radix Sort for Array
             Console.WriteLine();
-            Console.WriteLine("Performance comparison of Serial Radix Sort for Array");
+            Console.WriteLine("Performance comparison of Serial and Parallel Radix Sort for Array");
 
             SortMeasureArraySpeedup(false, false, true);       // Measure Array Serial   Sorting speedup for Serial Radix Sort
             SortMeasureArraySpeedup(false, true,  true);       // Measure Linq  Serial   Sorting speedup for Serial Radix Sort
