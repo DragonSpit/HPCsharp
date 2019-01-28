@@ -1,12 +1,11 @@
 ﻿// TODO: Add histogramming of arrays of other data types, with byte and ushort counts
 // TODO: Add histogramming of 2-D and jagged arrays of variety of data types, with byte and ushort counts
-// TODO: Develop more general histograms (serial and parallel) that allow components to not just be bytes, but also any number of bits within a word. For example, 10-bit or 14-bit components.
-//       and possibly even different samplings between color components.
-//       This may pay off big, and us being able to find the optimal number of bits for Radix Sort to minimize the number of passes or recursion levels.
+// TODO: This may pay off big, and us being able to find the optimal number of bits for Radix Sort to minimize the number of passes or recursion levels.
 //       Counting array should fit into L1-cache and possibly as large as fitting into L2-cache, since these are separate for each core in Intel CPUs, whereas L3-cache is
 //       shared between all cores.
 // TODO: Pull out the Histogram/Counting algorithm from LSD Radix Sort where multiple components are being counted in one pass, generalize it and parallelize it.
-// TODO: Simplify example benchmarks by passing in the two sorting functions to be compared. This will reduce complexity a lot!
+// TODO: Simplify example benchmarks by passing in the two sorting functions to be compared. This will reduce complexity a lot! Couldn't do it since Linq Sort are not
+//       really functions, but are extension methods. How do you pass those in
 // TODO: Consider for 64-bit Histogram and 9-bits/component implementing 9/10-bit components, where most are 9-bit, but the last one is 10-bit, to save one pass.
 using System;
 using System.Collections.Generic;
@@ -104,6 +103,24 @@ namespace HPCsharp
                 countLeft[3][(value & 0xff000000) >> 24]++;
             }
 #endif
+            return countLeft;
+        }
+
+        public static uint[] HistogramByteComponents1D(uint[] inArray, Int32 l, Int32 r)
+        {
+            const int numberOfBins = 256;
+            const int numberOfDigits = sizeof(uint);
+            uint[] countLeft = new uint[numberOfDigits * numberOfBins];
+
+            var union = new UInt32ByteUnion();
+            for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
+            {
+                union.integer = inArray[current];
+                countLeft[      union.byte0]++;
+                countLeft[256 + union.byte1]++;
+                countLeft[512 + union.byte2]++;
+                countLeft[768 + union.byte3]++;
+            }
             return countLeft;
         }
 
