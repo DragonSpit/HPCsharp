@@ -37,6 +37,7 @@
 // TODO: Add a task to clean-up some of the sorting interfaces to not have "ref to arrays", just allocate needed arrays internally (less for the user to worry about)
 //       when the additional memory is needed and just document it not being a true-inplace algorithm, but just has an in-place interface
 // TODO: Document these algorithms as "not truly in-place", but providing an in-place interface. Explain how much additional memory each algorithm uses.
+// TODO: Instead of masking and shifting in the inner loop of Radix Sort, use the union, once writes have been de-randomized, it may to improve performance then.
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -278,9 +279,10 @@ namespace HPCsharp
         /// <returns>array of unsigned integers</returns>
         public static uint[] SortRadix(this uint[] inputArray)
         {
-            int numberOfBins = 256;
-            int numberOfDigits = 4;
-            int Log2ofPowerOfTwoRadix = 8;
+            const int bitsPerDigit = 8;
+            uint numberOfBins = 1 << bitsPerDigit;
+            uint numberOfDigits = (sizeof(uint) * 8 + bitsPerDigit - 1) / bitsPerDigit;
+            //Console.WriteLine("SortRadix: NumberOfDigits = {0}", numberOfDigits);
             int d = 0;
             uint[] outputArray = new uint[inputArray.Length];
 
@@ -289,7 +291,7 @@ namespace HPCsharp
                 startOfBin[i] = new uint[numberOfBins];
             bool outputArrayHasResult = false;
 
-            uint bitMask = 255;
+            uint bitMask = numberOfBins - 1;
             int shiftRightAmount = 0;
 
             //Stopwatch stopwatch = new Stopwatch();
@@ -324,8 +326,8 @@ namespace HPCsharp
                 //double timeForPermuting = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
                 //Console.WriteLine("Time for permuting: {0}", timeForPermuting);
 
-                bitMask <<= Log2ofPowerOfTwoRadix;
-                shiftRightAmount += Log2ofPowerOfTwoRadix;
+                bitMask <<= bitsPerDigit;
+                shiftRightAmount += bitsPerDigit;
                 outputArrayHasResult = !outputArrayHasResult;
                 d++;
 
@@ -333,6 +335,7 @@ namespace HPCsharp
                 inputArray = outputArray;
                 outputArray = tmp;
             }
+            //Console.WriteLine("SortRadix: outputArrayHasResult = {0}", outputArrayHasResult);
             if (outputArrayHasResult)
                 for (uint current = 0; current < inputArray.Length; current++)    // copy from output array into the input array
                     inputArray[current] = outputArray[current];
