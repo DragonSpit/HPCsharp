@@ -106,6 +106,8 @@ namespace HPCsharp
             return countLeft;
         }
 
+        // The idea of 1-D array is that the individual digit counts (256 per digit in case of 8-bit digits) don't interfere with each other in L1 cache
+        // whereas with jagged array they may depending on how each row happens to be allocated on the heap
         public static uint[] HistogramByteComponents1D(uint[] inArray, Int32 l, Int32 r)
         {
             const int numberOfBins = 256;
@@ -113,7 +115,7 @@ namespace HPCsharp
             uint[] countLeft = new uint[numberOfDigits * numberOfBins];
 
             var union = new UInt32ByteUnion();
-            for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
+            for (int current = l; current <= r; current++)
             {
                 union.integer = inArray[current];
                 countLeft[      union.byte0]++;
@@ -152,6 +154,7 @@ namespace HPCsharp
         {
             int numberOfBins = 1 << bitsPerComponent;
             int numberOfDigits = (sizeof(uint) * 8 + bitsPerComponent - 1) / bitsPerComponent;  // round up
+            //Console.WriteLine("HistogramNBitsPerComponents: NumberOfDigits = {0}", numberOfDigits);
             uint[][] countLeft = new uint[numberOfDigits][];
             for (int i = 0; i < numberOfDigits; i++)
                 countLeft[i] = new uint[numberOfBins];

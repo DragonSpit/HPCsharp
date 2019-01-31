@@ -335,12 +335,7 @@ namespace HPCsharp
                 inputArray = outputArray;
                 outputArray = tmp;
             }
-            //Console.WriteLine("SortRadix: outputArrayHasResult = {0}", outputArrayHasResult);
-            if (outputArrayHasResult)
-                for (uint current = 0; current < inputArray.Length; current++)    // copy from output array into the input array
-                    inputArray[current] = outputArray[current];
-
-            return inputArray;
+            return outputArrayHasResult ? outputArray : inputArray;
         }
         /// <summary>
         /// Sort an array of unsigned integers using Radix Sorting algorithm (least significant digit variation)
@@ -389,6 +384,117 @@ namespace HPCsharp
 
             //return inputArray;
         }
+
+        private static uint[] SortRadixExperimental(this uint[] inputArray)
+        {
+            const int bitsPerDigit = 8;
+            const uint numberOfBins = 1 << bitsPerDigit;
+            const uint numberOfDigits = (sizeof(uint) * 8 + bitsPerDigit - 1) / bitsPerDigit;
+            int d = 0;
+            uint[] outputArray = new uint[inputArray.Length];
+
+            uint[][] startOfBin = new uint[numberOfDigits][];
+            for (int i = 0; i < numberOfDigits; i++)
+                startOfBin[i] = new uint[numberOfBins];
+            bool outputArrayHasResult = false;
+
+            const uint bitMask = numberOfBins - 1;
+            int shiftRightAmount = 0;
+
+            uint[][] count = HistogramByteComponents(inputArray, 0, inputArray.Length - 1);
+
+            for (d = 0; d < numberOfDigits; d++)
+            {
+                startOfBin[d][0] = 0;
+                for (uint i = 1; i < numberOfBins; i++)
+                    startOfBin[d][i] = startOfBin[d][i - 1] + count[d][i - 1];
+            }
+
+            for (d = 0; d < numberOfDigits; d++)
+            {
+                uint[] startOfBinLoc = startOfBin[d];
+                for (uint current = 0; current < inputArray.Length; current++)
+                {
+                    //outputArray[startOfBinLoc[(inputArray[current] >> shiftRightAmount) & bitMask]++] = inputArray[current];
+                    outputArray[startOfBinLoc[(byte)(inputArray[current] >> shiftRightAmount)]++] = inputArray[current];
+                }
+
+                shiftRightAmount += bitsPerDigit;
+                outputArrayHasResult = !outputArrayHasResult;
+
+                uint[] tmp = inputArray;       // swap input and output arrays
+                inputArray = outputArray;
+                outputArray = tmp;
+            }
+            return outputArrayHasResult ? outputArray : inputArray;
+        }
+
+        private static uint[] SortRadixExperimental2(this uint[] inputArray)
+        {
+            const int bitsPerDigit = 8;
+            const uint numberOfBins = 1 << bitsPerDigit;
+            const uint numberOfDigits = (sizeof(uint) * 8 + bitsPerDigit - 1) / bitsPerDigit;
+            //Console.WriteLine("SortRadix: NumberOfDigits = {0}", numberOfDigits);
+            int d = 0;
+            uint[] outputArray = new uint[inputArray.Length];
+
+            uint[][] startOfBin = new uint[numberOfDigits][];
+            for (int i = 0; i < numberOfDigits; i++)
+                startOfBin[i] = new uint[numberOfBins];
+            bool outputArrayHasResult = false;
+
+            uint bitMask = numberOfBins - 1;
+            int shiftRightAmount = 0;
+
+            //Stopwatch stopwatch = new Stopwatch();
+            //long frequency = Stopwatch.Frequency;
+            ////Console.WriteLine("  Timer frequency in ticks per second = {0}", frequency);
+            //long nanosecPerTick = (1000L * 1000L * 1000L) / frequency;
+
+            //stopwatch.Restart();
+            uint[][] count = HistogramByteComponents(inputArray, 0, inputArray.Length - 1);
+            //uint[][] count = HistogramNBitsPerComponents(inputArray, 0, inputArray.Length - 1, bitsPerDigit);
+
+            //stopwatch.Stop();
+            //double timeForCounting = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
+            //Console.WriteLine("Time for counting: {0}", timeForCounting);
+
+            for (d = 0; d < numberOfDigits; d++)
+            {
+                startOfBin[d][0] = 0;
+                for (uint i = 1; i < numberOfBins; i++)
+                    startOfBin[d][i] = startOfBin[d][i - 1] + count[d][i - 1];
+            }
+
+            d = 0;
+            while (bitMask != 0)    // end processing digits when all the mask bits have been processed and shifted out, leaving no bits set in the bitMask
+            {
+                //Console.WriteLine("SortRadix: NumberOfDigits = {0:X} ShiftRightAmount = {1}", bitMask, shiftRightAmount);
+
+                //stopwatch.Restart();
+                uint[] startOfBinLoc = startOfBin[d];
+                for (uint current = 0; current < inputArray.Length; current++)
+                {
+                    outputArray[startOfBinLoc[(inputArray[current] & bitMask) >> shiftRightAmount]++] = inputArray[current];
+                    //Console.WriteLine("curr: {0}, index: {1}, startOfBin: {2}", current, (inputArray[current] & bitMask) >> shiftRightAmount, startOfBinLoc[(inputArray[current] & bitMask) >> shiftRightAmount]);
+                }
+                //stopwatch.Stop();
+                //double timeForPermuting = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
+                //Console.WriteLine("Time for permuting: {0}", timeForPermuting);
+
+                bitMask <<= bitsPerDigit;
+                shiftRightAmount += bitsPerDigit;
+                outputArrayHasResult = !outputArrayHasResult;
+                d++;
+
+                uint[] tmp = inputArray;       // swap input and output arrays
+                inputArray = outputArray;
+                outputArray = tmp;
+            }
+            //Console.WriteLine("SortRadix: outputArrayHasResult = {0}", outputArrayHasResult);
+            return outputArrayHasResult ? outputArray : inputArray;
+        }
+
         /// <summary>
         /// Sort an List of unsigned integers using Radix Sorting algorithm (least significant digit variation)
         /// </summary>
