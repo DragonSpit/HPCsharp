@@ -43,7 +43,7 @@ namespace HPCsharp
             }
         }
 
-        private static byte[] SortCountingInPlaceFunctionalPar(this byte[] arrayToSort)
+        private static byte[] SortCountingInPlaceFuncPar(this byte[] arrayToSort)
         {
             arrayToSort.SortCountingInPlacePar();
             return arrayToSort;
@@ -77,7 +77,7 @@ namespace HPCsharp
             }
         }
 
-        private static ushort[] SortCountingInPlaceFunctionalPar(this ushort[] arrayToSort)
+        private static ushort[] SortCountingInPlaceFuncPar(this ushort[] arrayToSort)
         {
             arrayToSort.SortCountingInPlacePar();
             return arrayToSort;

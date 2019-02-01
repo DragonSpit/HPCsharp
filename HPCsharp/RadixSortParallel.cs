@@ -16,12 +16,12 @@ namespace HPCsharp
     {
         public static byte[] SortRadixPar(this byte[] arrayToBeSorted)
         {
-            return arrayToBeSorted.SortCountingInPlaceFunctionalPar();
+            return arrayToBeSorted.SortCountingInPlaceFuncPar();
         }
 
         public static ushort[] SortRadixPar(this ushort[] arrayToBeSorted)
         {
-            return arrayToBeSorted.SortCountingInPlaceFunctionalPar();
+            return arrayToBeSorted.SortCountingInPlaceFuncPar();
         }
 
         /// <summary>

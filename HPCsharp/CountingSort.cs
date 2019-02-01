@@ -46,7 +46,7 @@ namespace HPCsharp
             }
         }
 
-        public static byte[] SortCountingInPlaceFunctional(this byte[] arrayToSort)
+        public static byte[] SortCountingInPlaceFunc(this byte[] arrayToSort)
         {
             arrayToSort.SortCountingInPlace();
             return arrayToSort;
@@ -82,7 +82,7 @@ namespace HPCsharp
             }
         }
 
-        public static sbyte[] SortCountingInPlaceFunctional(this sbyte[] arrayToSort)
+        public static sbyte[] SortCountingInPlaceFunc(this sbyte[] arrayToSort)
         {
             arrayToSort.SortCountingInPlace();
             return arrayToSort;
@@ -116,7 +116,7 @@ namespace HPCsharp
             }
         }
 
-        public static ushort[] SortCountingInPlaceFunctional(this ushort[] arrayToSort)
+        public static ushort[] SortCountingInPlaceFunc(this ushort[] arrayToSort)
         {
             arrayToSort.SortCountingInPlace();
             return arrayToSort;
@@ -150,7 +150,7 @@ namespace HPCsharp
             }
         }
 
-        public static short[] SortCountingInPlaceFunctional(this short[] arrayToSort)
+        public static short[] SortCountingInPlaceFunc(this short[] arrayToSort)
         {
             arrayToSort.SortCountingInPlace();
             return arrayToSort;

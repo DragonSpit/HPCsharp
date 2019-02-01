@@ -52,7 +52,7 @@ namespace HPCsharp
         {
         }
 
-        private static long[] SortRadixMsdInplaceFunctional(this long[] arrayToBeSorted)
+        private static long[] SortRadixMsdInplaceFunc(this long[] arrayToBeSorted)
         {
             return arrayToBeSorted;
         }
@@ -61,7 +61,7 @@ namespace HPCsharp
         {
         }
 
-        private static double[] SortRadixMsdInplaceFunctional(this double[] arrayToBeSorted)
+        private static double[] SortRadixMsdInplaceFunc(this double[] arrayToBeSorted)
         {
             return arrayToBeSorted;
         }

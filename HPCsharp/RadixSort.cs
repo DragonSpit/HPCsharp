@@ -190,22 +190,22 @@ namespace HPCsharp
 
         public static byte[] SortRadix(this byte[] arrayToBeSorted)
         {
-            return arrayToBeSorted.SortCountingInPlaceFunctional();
+            return arrayToBeSorted.SortCountingInPlaceFunc();
         }
 
         public static sbyte[] SortRadix(this sbyte[] arrayToBeSorted)
         {
-            return arrayToBeSorted.SortCountingInPlaceFunctional();
+            return arrayToBeSorted.SortCountingInPlaceFunc();
         }
 
         public static ushort[] SortRadix(this ushort[] arrayToBeSorted)
         {
-            return arrayToBeSorted.SortCountingInPlaceFunctional();
+            return arrayToBeSorted.SortCountingInPlaceFunc();
         }
 
         public static short[] SortRadix(this short[] arrayToBeSorted)
         {
-            return arrayToBeSorted.SortCountingInPlaceFunctional();
+            return arrayToBeSorted.SortCountingInPlaceFunc();
         }
 
         [StructLayout(LayoutKind.Explicit)]
@@ -398,7 +398,7 @@ namespace HPCsharp
                 startOfBin[i] = new uint[numberOfBins];
             bool outputArrayHasResult = false;
 
-            const uint bitMask = numberOfBins - 1;
+            //const uint bitMask = numberOfBins - 1;
             int shiftRightAmount = 0;
 
             uint[][] count = HistogramByteComponents(inputArray, 0, inputArray.Length - 1);
