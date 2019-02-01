@@ -12,8 +12,8 @@ To get the maximum performance make sure to target x64 processor architecture in
 
 **_Version 3.2.0_** Just Released! Give it a shot.
 
-- Added ludicrous speed Parallel Counting Sort and Parallel Radix Sort for arrays of byte and ushort, which is in-place.
-- Added Counting Sort and Radix Sort for arrays of signed types: sbyte and short, which is in-place.
+- Added ludicrous speed Parallel Counting Sort and Parallel Radix Sort for arrays of byte and ushort, which are in-place.
+- Added Counting Sort and Radix Sort for arrays of signed types: sbyte and short, which are in-place.
 - Added Histogram of components/bytes/digits within UInt32 and UInt64
 - Implemented parallel Histogram functions, which sped up well
 - Ported three Block Swap algorithms from C++ to C#, which swap neighboring blocks within an array of unequal size in-place.
