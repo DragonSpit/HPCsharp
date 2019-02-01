@@ -10,7 +10,16 @@ Updated VisualStudio 2017 examples solution, demonstrating usage through working
 
 To get the maximum performance make sure to target x64 processor architecture in VisualStudio, increasing performance by as much as 50%.
 
-**_Version 3.1.3_** Just Released! Give it a shot.
+**_Version 3.2.0_** Just Released! Give it a shot.
+
+- Added ludicrous speed Parallel Counting Sort and Parallel Radix Sort for arrays of byte and ushort, which is in-place.
+- Added Counting Sort and Radix Sort for arrays of signed types: sbyte and short, which is in-place.
+- Added Histogram of components/bytes/digits within UInt32 and UInt64
+- Implemented parallel Histogram functions, which sped up well
+- Ported three Block Swap algorithms from C++ to C#, which swap neighboring blocks within an array of unequal size in-place.
+- Eliminate a copy at the end of LSD Radix Sort (thank you John for the suggestion)
+
+**_Version 3.1.3_**
 
 - Added a crazy fast Counting Sort for arrays of byte and ushort (in-place and not)
 - Added Array.Fill for full and partial arrays, which sets an array to a value
@@ -18,13 +27,6 @@ To get the maximum performance make sure to target x64 processor architecture in
 **_Version 3.1.2_**
 
 - Improved performance of Serial Radix Sort by 17%
-
-**_Version 3.1.0_** 
-
-- Found and fixed more stability issues with Stable Parallel Merge Sort.
-- Found stability issues with Linq.AsParallel() usage.
-- Added IEqualityComparer to SequenceEqual to support equality comparison of arrays and List of user defined classes
-- Added Lambda function for SequenceEqual (parallel versions only)
 
 Full release history is in ReleaseNotes.txt file
 
