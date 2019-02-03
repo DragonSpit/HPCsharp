@@ -117,10 +117,10 @@ namespace HPCsharp
 
         private static void RadixSortUnsignedPowerOf2RadixSimple(ushort[] a, int first, int length, ushort bitMask, int shiftRightAmount, int Threshold)
         {
-            Console.WriteLine("Lower: first = {0} length = {1} bitMask = {2:X} shiftRightAmount = {3} ", first, length, bitMask, shiftRightAmount);
+            //Console.WriteLine("Lower: first = {0} length = {1} bitMask = {2:X} shiftRightAmount = {3} ", first, length, bitMask, shiftRightAmount);
             if (length < Threshold)
             {
-                Console.WriteLine("InsertionSort: start = {0} length = {1}", first, length);
+                //Console.WriteLine("InsertionSort: start = {0} length = {1}", first, length);
                 InsertionSort(a, first, length);
                 return;
             }
@@ -129,31 +129,31 @@ namespace HPCsharp
             var count = new int[PowerOfTwoRadix];
             for (int i = 0; i < PowerOfTwoRadix; i++)
                 count[i] = 0;
-            Console.WriteLine("inArray: ");
+            //Console.WriteLine("inArray: ");
             for (int _current = first; _current <= last; _current++)
             {
-                Console.Write("{0:X} ", a[_current]);
+                //Console.Write("{0:X} ", a[_current]);
                 count[(a[_current] & bitMask) >> shiftRightAmount]++;
             }
-            Console.WriteLine();
+            //Console.WriteLine();
 
-            Console.WriteLine("count: ");
-            for (int i = 0; i < PowerOfTwoRadix; i++)
-                Console.Write(count[i] + " ");
-            Console.WriteLine();
+            //Console.WriteLine("count: ");
+            //for (int i = 0; i < PowerOfTwoRadix; i++)
+            //    Console.Write(count[i] + " ");
+            //Console.WriteLine();
 
             var startOfBin = new int[PowerOfTwoRadix + 1];
             var endOfBin   = new int[PowerOfTwoRadix];
             int nextBin = 1;
-            Console.WriteLine("EndOfBin: ");
+            //Console.WriteLine("EndOfBin: ");
             startOfBin[0] = endOfBin[0] = first; startOfBin[PowerOfTwoRadix] = -1;         // sentinal
-            Console.Write(endOfBin[0] + " ");
+            //Console.Write(endOfBin[0] + " ");
             for (int i = 1; i < PowerOfTwoRadix; i++)
             {
                 startOfBin[i] = endOfBin[i] = startOfBin[i - 1] + count[i - 1];
-                Console.Write(endOfBin[i] + " ");
+                //Console.Write(endOfBin[i] + " ");
             }
-            Console.WriteLine();
+            //Console.WriteLine();
 
             for (int _current = first; _current <= last;)
             {
@@ -185,7 +185,7 @@ namespace HPCsharp
             int shiftRightAmount = sizeof(ushort) * 8 - Log2ofPowerOfTwoRadix;
             ushort bitMask = (ushort)(((ushort)(PowerOfTwoRadix - 1)) << shiftRightAmount);  // bitMask controls/selects how many and which bits we process at a time
             const int Threshold = 2;
-            Console.WriteLine("Root: bitMask = {0:X} shiftRightAmount = {1}", bitMask, shiftRightAmount);
+            //Console.WriteLine("Root: bitMask = {0:X} shiftRightAmount = {1}", bitMask, shiftRightAmount);
             RadixSortUnsignedPowerOf2RadixSimple(arrayToBeSorted, 0, arrayToBeSorted.Length, bitMask, shiftRightAmount, Threshold);
             return arrayToBeSorted;
         }
