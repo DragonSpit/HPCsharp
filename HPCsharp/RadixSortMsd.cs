@@ -61,13 +61,14 @@ namespace HPCsharp
         private const int PowerOfTwoRadix       = 256;
         private const int Log2ofPowerOfTwoRadix =   8;
 
-        private static void RadixSortUnsignedPowerOf2RadixSimple(ulong[] a, int first, int last, ulong bitMask, int shiftRightAmount, int Threshold)
+        private static void RadixSortUnsignedPowerOf2RadixSimple(ulong[] a, int first, int length, ulong bitMask, int shiftRightAmount, int Threshold)
         {
-            if ((last - first) < Threshold)
+            if (length < Threshold)
             {
-                InsertionSort(a, first, last - first + 1);
+                InsertionSort(a, first, length);
                 return;
             }
+            int last = first + length - 1;
 
             var count = new int[PowerOfTwoRadix];
             for (int i = 0; i < PowerOfTwoRadix; i++)
@@ -78,7 +79,7 @@ namespace HPCsharp
             var startOfBin = new int[PowerOfTwoRadix + 1];
             var endOfBin   = new int[PowerOfTwoRadix];
             int nextBin = 1;
-            startOfBin[0] = endOfBin[0] = 0; startOfBin[PowerOfTwoRadix] = -1;         // sentinal
+            startOfBin[0] = endOfBin[0] = first; startOfBin[PowerOfTwoRadix] = -1;         // sentinal
             for (int i = 1; i < PowerOfTwoRadix; i++)
                 startOfBin[i] = endOfBin[i] = startOfBin[i - 1] + count[i - 1];
 
@@ -102,16 +103,16 @@ namespace HPCsharp
 
                 //Console.WriteLine("Lower: bitMask = {0:X} shiftRightAmount = {1}", bitMask, shiftRightAmount);
                 for (int i = 0; i < PowerOfTwoRadix; i++ )
-                    RadixSortUnsignedPowerOf2RadixSimple( a, startOfBin[i], endOfBin[i] - startOfBin[i] - 1, bitMask, shiftRightAmount, Threshold );
+                    RadixSortUnsignedPowerOf2RadixSimple( a, startOfBin[i], endOfBin[i] - startOfBin[i], bitMask, shiftRightAmount, Threshold );
             }
         }
         public static ulong[] RadixSortMsd(this ulong[] arrayToBeSorted)
         {
             int shiftRightAmount = sizeof(ulong) * 8 - Log2ofPowerOfTwoRadix;
             ulong bitMask = ((ulong)(PowerOfTwoRadix - 1)) << shiftRightAmount;  // bitMask controls/selects how many and which bits we process at a time
-            const int Threshold = 0;
+            const int Threshold = 25;
             //Console.WriteLine("Root: bitMask = {0:X} shiftRightAmount = {1}", bitMask, shiftRightAmount);
-            RadixSortUnsignedPowerOf2RadixSimple(arrayToBeSorted, 0, arrayToBeSorted.Length - 1, bitMask, shiftRightAmount, Threshold);
+            RadixSortUnsignedPowerOf2RadixSimple(arrayToBeSorted, 0, arrayToBeSorted.Length, bitMask, shiftRightAmount, Threshold);
             return arrayToBeSorted;
         }
 
@@ -184,7 +185,7 @@ namespace HPCsharp
         {
             int shiftRightAmount = sizeof(ushort) * 8 - Log2ofPowerOfTwoRadix;
             ushort bitMask = (ushort)(((ushort)(PowerOfTwoRadix - 1)) << shiftRightAmount);  // bitMask controls/selects how many and which bits we process at a time
-            const int Threshold = 2;
+            const int Threshold = 25;
             //Console.WriteLine("Root: bitMask = {0:X} shiftRightAmount = {1}", bitMask, shiftRightAmount);
             RadixSortUnsignedPowerOf2RadixSimple(arrayToBeSorted, 0, arrayToBeSorted.Length, bitMask, shiftRightAmount, Threshold);
             return arrayToBeSorted;
