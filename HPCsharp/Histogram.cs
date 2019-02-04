@@ -7,6 +7,7 @@
 // TODO: Simplify example benchmarks by passing in the two sorting functions to be compared. This will reduce complexity a lot! Couldn't do it since Linq Sort are not
 //       really functions, but are extension methods. How do you pass those in
 // TODO: Consider for 64-bit Histogram and 9-bits/component implementing 9/10-bit components, where most are 9-bit, but the last one is 10-bit, to save one pass.
+// TODO: Figure out which way is faster for byte component Histogram (one byte version): // ?? Which way is faster. Need to look at assembly language listing too
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -80,30 +81,30 @@ namespace HPCsharp
         {
             const int numberOfBins = 256;
             const int numberOfDigits = sizeof(uint);
-            uint[][] countLeft = new uint[numberOfDigits][];
+            uint[][] count = new uint[numberOfDigits][];
             for (int i = 0; i < numberOfDigits; i++)
-                countLeft[i] = new uint[numberOfBins];
+                count[i] = new uint[numberOfBins];
 #if true
             var union  = new UInt32ByteUnion();
             for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
             {
                 union.integer = inArray[current];
-                countLeft[0][union.byte0]++;
-                countLeft[1][union.byte1]++;
-                countLeft[2][union.byte2]++;
-                countLeft[3][union.byte3]++;
+                count[0][union.byte0]++;
+                count[1][union.byte1]++;
+                count[2][union.byte2]++;
+                count[3][union.byte3]++;
             }
 #else
             for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
             {
                 uint value = inArray[current];
-                countLeft[0][ value &       0xff       ]++;
-                countLeft[1][(value &     0xff00) >>  8]++;
-                countLeft[2][(value &   0xff0000) >> 16]++;
-                countLeft[3][(value & 0xff000000) >> 24]++;
+                count[0][ value &       0xff       ]++;
+                count[1][(value &     0xff00) >>  8]++;
+                count[2][(value &   0xff0000) >> 16]++;
+                count[3][(value & 0xff000000) >> 24]++;
             }
 #endif
-            return countLeft;
+            return count;
         }
 
         // The idea of 1-D array is that the individual digit counts (256 per digit in case of 8-bit digits) don't interfere with each other in L1 cache
@@ -112,42 +113,126 @@ namespace HPCsharp
         {
             const int numberOfBins = 256;
             const int numberOfDigits = sizeof(uint);
-            uint[] countLeft = new uint[numberOfDigits * numberOfBins];
+            uint[] count = new uint[numberOfDigits * numberOfBins];
 
             var union = new UInt32ByteUnion();
             for (int current = l; current <= r; current++)
             {
                 union.integer = inArray[current];
-                countLeft[      union.byte0]++;
-                countLeft[256 + union.byte1]++;
-                countLeft[512 + union.byte2]++;
-                countLeft[768 + union.byte3]++;
+                count[      union.byte0]++;
+                count[256 + union.byte1]++;
+                count[512 + union.byte2]++;
+                count[768 + union.byte3]++;
             }
-            return countLeft;
+            return count;
         }
 
         public static uint[][] HistogramByteComponents(ulong[] inArray, Int32 l, Int32 r)
         {
             const int numberOfBins = 256;
             const int numberOfDigits = sizeof(ulong);
-            uint[][] countLeft = new uint[numberOfDigits][];
+            uint[][] count = new uint[numberOfDigits][];
             for (int i = 0; i < numberOfDigits; i++)
-                countLeft[i] = new uint[numberOfBins];
+                count[i] = new uint[numberOfBins];
 
             var union  = new UInt64ByteUnion();
             for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
             {
                 union.integer = inArray[current];
-                countLeft[0][union.byte0]++;
-                countLeft[1][union.byte1]++;
-                countLeft[2][union.byte2]++;
-                countLeft[3][union.byte3]++;
-                countLeft[4][union.byte4]++;
-                countLeft[5][union.byte5]++;
-                countLeft[6][union.byte6]++;
-                countLeft[7][union.byte7]++;
+                count[0][union.byte0]++;
+                count[1][union.byte1]++;
+                count[2][union.byte2]++;
+                count[3][union.byte3]++;
+                count[4][union.byte4]++;
+                count[5][union.byte5]++;
+                count[6][union.byte6]++;
+                count[7][union.byte7]++;
             }
-            return countLeft;
+            return count;
+        }
+
+        public static int[] HistogramByteComponents(ulong[] inArray, Int32 l, Int32 r, int shiftRightAmount)
+        {
+            const int numberOfBins = 256;
+            const ulong byteMask = numberOfBins - 1;
+            int[] count = new int[numberOfBins];
+
+            for (int current = l; current <= r; current++)
+            {
+                //count[(inArray[current] >> shiftRightAmount) & byteMask]++;
+                count[(byte)(inArray[current] >> shiftRightAmount)]++;          // ?? Which way is faster. Need to look at assembly language listing too
+            }
+
+            return count;
+        }
+
+        private static int[] HistogramByteComponents1(ulong[] inArray, Int32 l, Int32 r, int whichByte)
+        {
+            const int numberOfBins = 256;
+            int[] count = new int[numberOfBins];
+
+            var union = new UInt64ByteUnion();
+
+            switch (whichByte)
+            {
+                case 0:
+                    for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
+                    {
+                        union.integer = inArray[current];
+                        count[union.byte0]++;
+                    }
+                    break;
+                case 1:
+                    for (int current = l; current <= r; current++)
+                    {
+                        union.integer = inArray[current];
+                        count[union.byte1]++;
+                    }
+                    break;
+                case 2:
+                    for (int current = l; current <= r; current++)
+                    {
+                        union.integer = inArray[current];
+                        count[union.byte2]++;
+                    }
+                    break;
+                case 3:
+                    for (int current = l; current <= r; current++)
+                    {
+                        union.integer = inArray[current];
+                        count[union.byte3]++;
+                    }
+                    break;
+                case 4:
+                    for (int current = l; current <= r; current++)
+                    {
+                        union.integer = inArray[current];
+                        count[union.byte4]++;
+                    }
+                    break;
+                case 5:
+                    for (int current = l; current <= r; current++)
+                    {
+                        union.integer = inArray[current];
+                        count[union.byte5]++;
+                    }
+                    break;
+                case 6:
+                    for (int current = l; current <= r; current++)
+                    {
+                        union.integer = inArray[current];
+                        count[union.byte6]++;
+                    }
+                    break;
+                case 7:
+                    for (int current = l; current <= r; current++)
+                    {
+                        union.integer = inArray[current];
+                        count[union.byte7]++;
+                    }
+                    break;
+            }
+            return count;
         }
 
         public static uint[][] HistogramNBitsPerComponents(uint[] inArray, Int32 l, Int32 r, int bitsPerComponent)
