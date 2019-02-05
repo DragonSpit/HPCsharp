@@ -97,6 +97,7 @@ namespace HPCsharp
                 while (endOfBin[nextBin - 1] == startOfBin[nextBin]) nextBin++;   // skip over empty and full bins, when the end of the current bin reaches the start of the next bin
                 _current = endOfBin[nextBin - 1];
             }
+// TODO: Bad termination condition since bitMask no longer changes. Use the one developed in long array Radix Sort. Change all instances of this!
             if (bitMask != 0 )                     // end recursion when all the bits have been processes
             {
                 if (shiftRightAmount >= Log2ofPowerOfTwoRadix ) shiftRightAmount -= Log2ofPowerOfTwoRadix;
@@ -113,6 +114,74 @@ namespace HPCsharp
             const int Threshold = 1000;
             //Console.WriteLine("Root: bitMask = {0:X} shiftRightAmount = {1}", bitMask, shiftRightAmount);
             RadixSortUnsignedPowerOf2RadixSimple(arrayToBeSorted, 0, arrayToBeSorted.Length, shiftRightAmount, Threshold);
+            return arrayToBeSorted;
+        }
+
+        private static void RadixSortSignedPowerOf2RadixSimple(long[] a, int first, int length, int shiftRightAmount, int Threshold)
+        {
+            if (length < Threshold)
+            {
+                //InsertionSort(a, first, length);
+                Array.Sort(a, first, length);
+                return;
+            }
+            int last = first + length - 1;
+            const ulong bitMask = PowerOfTwoRadix - 1;
+
+            var count = HistogramByteComponents(a, first, last, shiftRightAmount);
+
+            var startOfBin = new int[PowerOfTwoRadix + 1];
+            var endOfBin = new int[PowerOfTwoRadix];
+            int nextBin = 1;
+            startOfBin[0] = endOfBin[0] = first; startOfBin[PowerOfTwoRadix] = -1;         // sentinal
+            for (int i = 1; i < PowerOfTwoRadix; i++)
+                startOfBin[i] = endOfBin[i] = startOfBin[i - 1] + count[i - 1];
+
+            if (shiftRightAmount == 56)     // Most significant digit
+            {
+                for (int _current = first; _current <= last;)
+                {
+                    ulong digit;
+                    long current_element = a[_current];  // get the compiler to recognize that a register can be used for the loop instead of a[_current] memory location
+                    while (endOfBin[digit = ((ulong)current_element >> shiftRightAmount) + 128] != _current)
+                        Swap(ref current_element, a, endOfBin[digit]++);
+                    a[_current] = current_element;
+
+                    endOfBin[digit]++;
+                    while (endOfBin[nextBin - 1] == startOfBin[nextBin]) nextBin++;   // skip over empty and full bins, when the end of the current bin reaches the start of the next bin
+                    _current = endOfBin[nextBin - 1];
+                }
+            }
+            else
+            {
+                for (int _current = first; _current <= last;)
+                {
+                    ulong digit;
+                    long current_element = a[_current];  // get the compiler to recognize that a register can be used for the loop instead of a[_current] memory location
+                    while (endOfBin[digit = ((ulong)current_element >> shiftRightAmount) & bitMask] != _current)
+                        Swap(ref current_element, a, endOfBin[digit]++);
+                    a[_current] = current_element;
+
+                    endOfBin[digit]++;
+                    while (endOfBin[nextBin - 1] == startOfBin[nextBin]) nextBin++;   // skip over empty and full bins, when the end of the current bin reaches the start of the next bin
+                    _current = endOfBin[nextBin - 1];
+                }
+            }
+            if (shiftRightAmount > 0)                     // end recursion when all the bits have been processes
+            {
+                if (shiftRightAmount >= Log2ofPowerOfTwoRadix) shiftRightAmount -= Log2ofPowerOfTwoRadix;
+                else shiftRightAmount = 0;
+
+                for (int i = 0; i < PowerOfTwoRadix; i++)
+                    RadixSortSignedPowerOf2RadixSimple(a, startOfBin[i], endOfBin[i] - startOfBin[i], shiftRightAmount, Threshold);
+            }
+        }
+        public static long[] RadixSortMsd(this long[] arrayToBeSorted)
+        {
+            int shiftRightAmount = sizeof(ulong) * 8 - Log2ofPowerOfTwoRadix;
+            ulong bitMask = ((ulong)(PowerOfTwoRadix - 1)) << shiftRightAmount;  // bitMask controls/selects how many and which bits we process at a time
+            const int Threshold = 1000;
+            RadixSortSignedPowerOf2RadixSimple(arrayToBeSorted, 0, arrayToBeSorted.Length, shiftRightAmount, Threshold);
             return arrayToBeSorted;
         }
 

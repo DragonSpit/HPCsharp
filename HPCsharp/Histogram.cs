@@ -154,13 +154,39 @@ namespace HPCsharp
         public static int[] HistogramByteComponents(ulong[] inArray, Int32 l, Int32 r, int shiftRightAmount)
         {
             const int numberOfBins = 256;
-            const ulong byteMask = numberOfBins - 1;
+            //const ulong byteMask = numberOfBins - 1;
             int[] count = new int[numberOfBins];
 
             for (int current = l; current <= r; current++)
             {
                 //count[(inArray[current] >> shiftRightAmount) & byteMask]++;
                 count[(byte)(inArray[current] >> shiftRightAmount)]++;          // ?? Which way is faster. Need to look at assembly language listing too
+            }
+
+            return count;
+        }
+
+        public static int[] HistogramByteComponents(long[] inArray, Int32 l, Int32 r, int shiftRightAmount)
+        {
+            const int numberOfBins = 256;
+            const ulong byteMask = numberOfBins - 1;
+            int[] count = new int[numberOfBins];
+
+            if (shiftRightAmount != 56)
+            {
+                for (int current = l; current <= r; current++)
+                {
+                    count[((ulong)inArray[current] >> shiftRightAmount) & byteMask]++;
+                    //count[(byte)(inArray[current] >> shiftRightAmount)]++;          // ?? Which way is faster. Need to look at assembly language listing too
+                }
+            }
+            else
+            {
+                for (int current = l; current <= r; current++)
+                {
+                    count[((ulong)inArray[current] >> shiftRightAmount) + 128]++;
+                    //count[(byte)(inArray[current] >> shiftRightAmount) + 128]++;
+                }
             }
 
             return count;
