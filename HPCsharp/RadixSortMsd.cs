@@ -97,8 +97,7 @@ namespace HPCsharp
                 while (endOfBin[nextBin - 1] == startOfBin[nextBin]) nextBin++;   // skip over empty and full bins, when the end of the current bin reaches the start of the next bin
                 _current = endOfBin[nextBin - 1];
             }
-// TODO: Bad termination condition since bitMask no longer changes. Use the one developed in long array Radix Sort. Change all instances of this!
-            if (bitMask != 0 )                     // end recursion when all the bits have been processes
+            if (shiftRightAmount > 0)          // end recursion when all the bits have been processes
             {
                 if (shiftRightAmount >= Log2ofPowerOfTwoRadix ) shiftRightAmount -= Log2ofPowerOfTwoRadix;
                 else                                            shiftRightAmount  = 0;
@@ -131,7 +130,7 @@ namespace HPCsharp
             var count = HistogramByteComponents(a, first, last, shiftRightAmount);
 
             var startOfBin = new int[PowerOfTwoRadix + 1];
-            var endOfBin = new int[PowerOfTwoRadix];
+            var endOfBin   = new int[PowerOfTwoRadix];
             int nextBin = 1;
             startOfBin[0] = endOfBin[0] = first; startOfBin[PowerOfTwoRadix] = -1;         // sentinal
             for (int i = 1; i < PowerOfTwoRadix; i++)
@@ -167,7 +166,7 @@ namespace HPCsharp
                     _current = endOfBin[nextBin - 1];
                 }
             }
-            if (shiftRightAmount > 0)                     // end recursion when all the bits have been processes
+            if (shiftRightAmount > 0)    // end recursion when all the bits have been processes
             {
                 if (shiftRightAmount >= Log2ofPowerOfTwoRadix) shiftRightAmount -= Log2ofPowerOfTwoRadix;
                 else shiftRightAmount = 0;

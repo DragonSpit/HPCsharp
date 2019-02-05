@@ -183,10 +183,7 @@ namespace HPCsharp
             else
             {
                 for (int current = l; current <= r; current++)
-                {
                     count[((ulong)inArray[current] >> shiftRightAmount) + 128]++;
-                    //count[(byte)(inArray[current] >> shiftRightAmount) + 128]++;
-                }
             }
 
             return count;
