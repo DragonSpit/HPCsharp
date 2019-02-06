@@ -26,6 +26,13 @@ namespace HPCsharp
             B             = temp;
         }
 
+        public static void Swap<T>(ref T a, ref T b)
+        {
+            T temp = a;
+            a = b;
+            b = temp;
+        }
+
         // reverse/mirror a range from l to r, inclusively, in-place
         public static void Reversal<T>(this T[] inArray, int l, int r)
         {

@@ -62,16 +62,23 @@ namespace HPCsharp
         {
         }
 
-        // Port of Victor's article in Dr. Dobb's Journal January 14, 2011
+        public static Int32 SortRadixMsdShortThreshold { get; set; } = 1024;
+        public static Int32 SortRadixMsdUShortThreshold { get; set; } = 1024;
+        public static Int32 SortRadixMsdULongThreshold { get; set; } = 1024;
+        public static Int32 SortRadixMsdLongThreshold { get; set; } = 1024;
+        public static Int32 SortRadixMsdDoubleThreshold { get; set; } = 1024;
+
+
+        // Port of Victor's articles in Dr. Dobb's Journal January 14, 2011
         // Plain function In-place MSD Radix Sort implementation (simplified).
         private const int PowerOfTwoRadix       = 256;
         private const int Log2ofPowerOfTwoRadix =   8;
         private const int PowerOfTwoRadixDouble       = 4096;
         private const int Log2ofPowerOfTwoRadixDouble =   12;
 
-        private static void RadixSortUnsignedPowerOf2RadixSimple(ulong[] a, int first, int length, int shiftRightAmount, int Threshold)
+        private static void RadixSortMsdULongInner(ulong[] a, int first, int length, int shiftRightAmount)
         {
-            if (length < Threshold)
+            if (length < SortRadixMsdULongThreshold)
             {
                 //InsertionSort(a, first, length);
                 Array.Sort(a, first, length);
@@ -107,22 +114,19 @@ namespace HPCsharp
                 else                                            shiftRightAmount  = 0;
 
                 for (int i = 0; i < PowerOfTwoRadix; i++ )
-                    RadixSortUnsignedPowerOf2RadixSimple( a, startOfBin[i], endOfBin[i] - startOfBin[i], shiftRightAmount, Threshold );
+                    RadixSortMsdULongInner( a, startOfBin[i], endOfBin[i] - startOfBin[i], shiftRightAmount );
             }
         }
         public static ulong[] RadixSortMsd(this ulong[] arrayToBeSorted)
         {
             int shiftRightAmount = sizeof(ulong) * 8 - Log2ofPowerOfTwoRadix;
-            ulong bitMask = ((ulong)(PowerOfTwoRadix - 1)) << shiftRightAmount;  // bitMask controls/selects how many and which bits we process at a time
-            const int Threshold = 1000;
-            //Console.WriteLine("Root: bitMask = {0:X} shiftRightAmount = {1}", bitMask, shiftRightAmount);
-            RadixSortUnsignedPowerOf2RadixSimple(arrayToBeSorted, 0, arrayToBeSorted.Length, shiftRightAmount, Threshold);
+            RadixSortMsdULongInner(arrayToBeSorted, 0, arrayToBeSorted.Length, shiftRightAmount);
             return arrayToBeSorted;
         }
 
-        private static void RadixSortSignedPowerOf2RadixSimple(long[] a, int first, int length, int shiftRightAmount, int Threshold)
+        private static void RadixSortMsdSignedInner(long[] a, int first, int length, int shiftRightAmount)
         {
-            if (length < Threshold)
+            if (length < SortRadixMsdLongThreshold)
             {
                 //InsertionSort(a, first, length);
                 Array.Sort(a, first, length);
@@ -176,21 +180,19 @@ namespace HPCsharp
                 else shiftRightAmount = 0;
 
                 for (int i = 0; i < PowerOfTwoRadix; i++)
-                    RadixSortSignedPowerOf2RadixSimple(a, startOfBin[i], endOfBin[i] - startOfBin[i], shiftRightAmount, Threshold);
+                    RadixSortMsdSignedInner(a, startOfBin[i], endOfBin[i] - startOfBin[i], shiftRightAmount);
             }
         }
         public static long[] RadixSortMsd(this long[] arrayToBeSorted)
         {
             int shiftRightAmount = sizeof(ulong) * 8 - Log2ofPowerOfTwoRadix;
-            ulong bitMask = ((ulong)(PowerOfTwoRadix - 1)) << shiftRightAmount;  // bitMask controls/selects how many and which bits we process at a time
-            const int Threshold = 1000;
-            RadixSortSignedPowerOf2RadixSimple(arrayToBeSorted, 0, arrayToBeSorted.Length, shiftRightAmount, Threshold);
+            RadixSortMsdSignedInner(arrayToBeSorted, 0, arrayToBeSorted.Length, shiftRightAmount);
             return arrayToBeSorted;
         }
 
-        private static void RadixSortDoubleInner(double[] a, int first, int length, int shiftRightAmount, int Threshold)
+        private static void RadixSortDoubleInner(double[] a, int first, int length, int shiftRightAmount)
         {
-            if (length < Threshold)
+            if (length < SortRadixMsdDoubleThreshold)
             {
                 //InsertionSort(a, first, length);
                 Array.Sort(a, first, length);
@@ -244,14 +246,13 @@ namespace HPCsharp
                 else shiftRightAmount = 0;
 
                 for (int i = 0; i < PowerOfTwoRadixDouble; i++)
-                    RadixSortDoubleInner(a, startOfBin[i], endOfBin[i] - startOfBin[i], shiftRightAmount, Threshold);
+                    RadixSortDoubleInner(a, startOfBin[i], endOfBin[i] - startOfBin[i], shiftRightAmount);
             }
         }
         public static double[] RadixSortMsd(this double[] arrayToBeSorted)
         {
             int shiftRightAmount = sizeof(double) * 8 - Log2ofPowerOfTwoRadixDouble;
-            const int Threshold = 1000;
-            RadixSortDoubleInner(arrayToBeSorted, 0, arrayToBeSorted.Length, shiftRightAmount, Threshold);
+            RadixSortDoubleInner(arrayToBeSorted, 0, arrayToBeSorted.Length, shiftRightAmount);
             return arrayToBeSorted;
         }
 
@@ -309,13 +310,14 @@ namespace HPCsharp
             return arrayToBeSorted;
         }
 #endif
-        private static void RadixSortUnsignedPowerOf2RadixSimple(ushort[] a, int first, int length, ushort bitMask, int shiftRightAmount, int Threshold)
+        private static void RadixSortMsdUShortInner(ushort[] a, int first, int length, ushort bitMask, int shiftRightAmount)
         {
             //Console.WriteLine("Lower: first = {0} length = {1} bitMask = {2:X} shiftRightAmount = {3} ", first, length, bitMask, shiftRightAmount);
-            if (length < Threshold)
+            if (length < SortRadixMsdUShortThreshold)
             {
                 //Console.WriteLine("InsertionSort: start = {0} length = {1}", first, length);
-                InsertionSort(a, first, length);
+                //InsertionSort(a, first, length);
+                Array.Sort(a, first, length);
                 return;
             }
             int last = first + length - 1;
@@ -370,7 +372,7 @@ namespace HPCsharp
                 for (int i = 0; i < PowerOfTwoRadix; i++)
                 {
                     if (endOfBin[i] - startOfBin[i] > 0)    // TODO: This should not be needed and is only there to ease porting to C#
-                        RadixSortUnsignedPowerOf2RadixSimple(a, startOfBin[i], endOfBin[i] - startOfBin[i], bitMask, shiftRightAmount, Threshold);
+                        RadixSortMsdUShortInner(a, startOfBin[i], endOfBin[i] - startOfBin[i], bitMask, shiftRightAmount);
                 }
             }
         }
@@ -378,9 +380,7 @@ namespace HPCsharp
         {
             int shiftRightAmount = sizeof(ushort) * 8 - Log2ofPowerOfTwoRadix;
             ushort bitMask = (ushort)(((ushort)(PowerOfTwoRadix - 1)) << shiftRightAmount);  // bitMask controls/selects how many and which bits we process at a time
-            const int Threshold = 25;
-            //Console.WriteLine("Root: bitMask = {0:X} shiftRightAmount = {1}", bitMask, shiftRightAmount);
-            RadixSortUnsignedPowerOf2RadixSimple(arrayToBeSorted, 0, arrayToBeSorted.Length, bitMask, shiftRightAmount, Threshold);
+            RadixSortMsdUShortInner(arrayToBeSorted, 0, arrayToBeSorted.Length, bitMask, shiftRightAmount);
             return arrayToBeSorted;
         }
 

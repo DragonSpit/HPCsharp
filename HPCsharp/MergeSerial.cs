@@ -660,9 +660,9 @@ namespace HPCsharp
             Int32 length2 = bEnd - bStart + 1;
             if (length1 < length2)
             {
-                HPCsharp.ParallelAlgorithm.Exchange(ref aStart, ref bStart);
-                HPCsharp.ParallelAlgorithm.Exchange(ref aEnd, ref bEnd);
-                HPCsharp.ParallelAlgorithm.Exchange(ref length1, ref length2);
+                Swap(ref aStart, ref bStart);
+                Swap(ref aEnd, ref bEnd);
+                Swap(ref length1, ref length2);
             }
             if (length1 == 0) return;
             if ((length1 + length2) <= MergeArrayThreshold)
@@ -698,9 +698,9 @@ namespace HPCsharpExperimental
             Int32 length2 = bEnd - bStart + 1;
             if (length1 < length2)
             {
-                HPCsharp.ParallelAlgorithm.Exchange(ref aStart, ref bStart);
-                HPCsharp.ParallelAlgorithm.Exchange(ref aEnd, ref bEnd);
-                HPCsharp.ParallelAlgorithm.Exchange(ref length1, ref length2);
+                HPCsharp.Algorithm.Swap(ref aStart, ref bStart);
+                HPCsharp.Algorithm.Swap(ref aEnd, ref bEnd);
+                HPCsharp.Algorithm.Swap(ref length1, ref length2);
             }
             if (length1 == 0) return;
             if ((length1 + length2) <= HPCsharp.Algorithm.MergeArrayThreshold)

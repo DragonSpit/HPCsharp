@@ -12,12 +12,6 @@ namespace HPCsharp
     /// </summary>
     static public partial class ParallelAlgorithm
     {
-        public static void Exchange<T>(ref T a, ref T b)
-        {
-            T temp = a;
-            a = b;
-            b = temp;
-        }
         /// <summary>
         /// Smaller than threshold will use non-parallel algorithm to merge arrays
         /// </summary>
@@ -41,9 +35,9 @@ namespace HPCsharp
             Int32 length2 = r2 - p2 + 1;
             if (length1 < length2)
             {
-                Exchange(ref p1, ref p2);
-                Exchange(ref r1, ref r2);
-                Exchange(ref length1, ref length2);
+                Algorithm.Swap(ref p1, ref p2);
+                Algorithm.Swap(ref r1, ref r2);
+                Algorithm.Swap(ref length1, ref length2);
             }
             if (length1 == 0) return;
             if ((length1 + length2) <= MergeParallelArrayThreshold)
