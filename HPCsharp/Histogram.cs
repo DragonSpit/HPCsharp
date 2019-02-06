@@ -189,6 +189,26 @@ namespace HPCsharp
             return count;
         }
 
+        public static int[] Histogram12bitComponents(double[] inArray, Int32 l, Int32 r, int shiftRightAmount)
+        {
+            const int numberOfBins = 4096;
+            const ulong bitMask = numberOfBins - 1;
+            int[] count = new int[numberOfBins];
+
+            if (shiftRightAmount != 52)
+            {
+                for (int current = l; current <= r; current++)
+                    count[((ulong)inArray[current] >> shiftRightAmount) & bitMask]++;
+            }
+            else
+            {
+                for (int current = l; current <= r; current++)
+                    count[((ulong)inArray[current] >> shiftRightAmount) + 2048]++;
+            }
+
+            return count;
+        }
+
         private static int[] HistogramByteComponents1(ulong[] inArray, Int32 l, Int32 r, int whichByte)
         {
             const int numberOfBins = 256;

@@ -4,6 +4,8 @@
 //       of .NET. Find the optimal threshold, which could be pretty large.
 // TODO: One way to experiment to small % performance enhancements is to create two versions and compare their performance against each other. Plus find your statistical
 //       analysis stuff and apply it as well. We need to be able to capture many small performance improvements.
+// TODO: Implement Malte's discovery of taking advantage of ILP of the CPU, by "unrolling" series of swaps by reducing dependencies across several swaps.
+//       It may be possible to create a function to generalize this method and make it available to developers, to extract more performance out of cascaded swaps.
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -64,6 +66,8 @@ namespace HPCsharp
         // Plain function In-place MSD Radix Sort implementation (simplified).
         private const int PowerOfTwoRadix       = 256;
         private const int Log2ofPowerOfTwoRadix =   8;
+        private const int PowerOfTwoRadixDouble       = 4096;
+        private const int Log2ofPowerOfTwoRadixDouble =   12;
 
         private static void RadixSortUnsignedPowerOf2RadixSimple(ulong[] a, int first, int length, int shiftRightAmount, int Threshold)
         {
@@ -181,6 +185,73 @@ namespace HPCsharp
             ulong bitMask = ((ulong)(PowerOfTwoRadix - 1)) << shiftRightAmount;  // bitMask controls/selects how many and which bits we process at a time
             const int Threshold = 1000;
             RadixSortSignedPowerOf2RadixSimple(arrayToBeSorted, 0, arrayToBeSorted.Length, shiftRightAmount, Threshold);
+            return arrayToBeSorted;
+        }
+
+        private static void RadixSortDoubleInner(double[] a, int first, int length, int shiftRightAmount, int Threshold)
+        {
+            if (length < Threshold)
+            {
+                //InsertionSort(a, first, length);
+                Array.Sort(a, first, length);
+                return;
+            }
+            int last = first + length - 1;
+            const ulong bitMask = 0xfff;        // 12-bits for the exponent and process mantissa 12-bits at a time
+
+            var count = Histogram12bitComponents(a, first, last, shiftRightAmount);
+
+            var startOfBin = new int[PowerOfTwoRadixDouble + 1];
+            var endOfBin   = new int[PowerOfTwoRadixDouble];
+            int nextBin = 1;
+            startOfBin[0] = endOfBin[0] = first; startOfBin[PowerOfTwoRadixDouble] = -1;         // sentinal
+            for (int i = 1; i < PowerOfTwoRadixDouble; i++)
+                startOfBin[i] = endOfBin[i] = startOfBin[i - 1] + count[i - 1];
+
+            if (shiftRightAmount == 52)     // Exponent
+            {
+                for (int _current = first; _current <= last;)
+                {
+                    ulong digit;
+                    double current_element = a[_current];  // get the compiler to recognize that a register can be used for the loop instead of a[_current] memory location
+                    while (endOfBin[digit = ((ulong)current_element >> shiftRightAmount) + 2048] != _current)
+                        Swap(ref current_element, a, endOfBin[digit]++);
+                    a[_current] = current_element;
+
+                    endOfBin[digit]++;
+                    while (endOfBin[nextBin - 1] == startOfBin[nextBin]) nextBin++;   // skip over empty and full bins, when the end of the current bin reaches the start of the next bin
+                    _current = endOfBin[nextBin - 1];
+                }
+            }
+            else     // Mantissa
+            {
+                for (int _current = first; _current <= last;)
+                {
+                    ulong digit;
+                    double current_element = a[_current];  // get the compiler to recognize that a register can be used for the loop instead of a[_current] memory location
+                    while (endOfBin[digit = ((ulong)current_element >> shiftRightAmount) & bitMask] != _current)
+                        Swap(ref current_element, a, endOfBin[digit]++);
+                    a[_current] = current_element;
+
+                    endOfBin[digit]++;
+                    while (endOfBin[nextBin - 1] == startOfBin[nextBin]) nextBin++;   // skip over empty and full bins, when the end of the current bin reaches the start of the next bin
+                    _current = endOfBin[nextBin - 1];
+                }
+            }
+            if (shiftRightAmount > 0)    // end recursion when all the bits have been processes
+            {
+                if (shiftRightAmount >= Log2ofPowerOfTwoRadixDouble) shiftRightAmount -= Log2ofPowerOfTwoRadixDouble;
+                else shiftRightAmount = 0;
+
+                for (int i = 0; i < PowerOfTwoRadixDouble; i++)
+                    RadixSortDoubleInner(a, startOfBin[i], endOfBin[i] - startOfBin[i], shiftRightAmount, Threshold);
+            }
+        }
+        public static double[] RadixSortMsd(this double[] arrayToBeSorted)
+        {
+            int shiftRightAmount = sizeof(double) * 8 - Log2ofPowerOfTwoRadixDouble;
+            const int Threshold = 1000;
+            RadixSortDoubleInner(arrayToBeSorted, 0, arrayToBeSorted.Length, shiftRightAmount, Threshold);
             return arrayToBeSorted;
         }
 
