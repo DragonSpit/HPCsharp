@@ -36,40 +36,80 @@ namespace HPCsharp
         }
 #endif
 
+        /// <summary>
+        /// In-place Radix Sort (Most Significant Digit), not stable.
+        /// </summary>
+        /// <param name="arrayToBeSorted">array that is to be sorted in place</param>
         public static void SortRadixMsd(this byte[] arrayToBeSorted)
         {
             arrayToBeSorted.SortCountingInPlace();
         }
+
+        /// <summary>
+        /// In-place Radix Sort (Most Significant Digit), not stable. Functional style interface, which returns the input array, but sorted.
+        /// </summary>
+        /// <param name="arrayToBeSorted">array that is to be sorted in place</param>
+        /// <returns>returns the input array itself, but sorted</returns>
         public static byte[] SortRadixMsdInPlaceFunc(this byte[] arrayToBeSorted)
         {
             arrayToBeSorted.SortCountingInPlace();
             return arrayToBeSorted;
         }
 
+        /// <summary>
+        /// In-place Radix Sort (Most Significant Digit), not stable.
+        /// </summary>
+        /// <param name="arrayToBeSorted">array that is to be sorted in place</param>
         public static void SortRadixMsd(this sbyte[] arrayToBeSorted)
         {
             arrayToBeSorted.SortCountingInPlace();
         }
+
+        /// <summary>
+        /// In-place Radix Sort (Most Significant Digit), not stable. Functional style interface, which returns the input array, but sorted.
+        /// </summary>
+        /// <param name="arrayToBeSorted">array that is to be sorted in place</param>
+        /// <returns>returns the input array itself, but sorted</returns>
         public static sbyte[] SortRadixMsdInPlaceFunc(this sbyte[] arrayToBeSorted)
         {
             arrayToBeSorted.SortCountingInPlace();
             return arrayToBeSorted;
         }
 
+        /// <summary>
+        /// In-place Radix Sort (Most Significant Digit), not stable.
+        /// </summary>
+        /// <param name="arrayToBeSorted">array that is to be sorted in place</param>
         public static void SortRadixMsd(this ushort[] arrayToBeSorted)
         {
             arrayToBeSorted.SortCountingInPlace();
         }
+
+        /// <summary>
+        /// In-place Radix Sort (Most Significant Digit), not stable. Functional style interface, which returns the input array, but sorted.
+        /// </summary>
+        /// <param name="arrayToBeSorted">array that is to be sorted in place</param>
+        /// <returns>returns the input array itself, but sorted</returns>
         public static ushort[] SortRadixMsdInPlaceFunc(this ushort[] arrayToBeSorted)
         {
             arrayToBeSorted.SortCountingInPlace();
             return arrayToBeSorted;
         }
 
+        /// <summary>
+        /// In-place Radix Sort (Most Significant Digit), not stable.
+        /// </summary>
+        /// <param name="arrayToBeSorted">array that is to be sorted in place</param>
         public static void SortRadixMsd(this short[] arrayToBeSorted)
         {
             arrayToBeSorted.SortCountingInPlace();
         }
+
+        /// <summary>
+        /// In-place Radix Sort (Most Significant Digit), not stable. Functional style interface, which returns the input array, but sorted.
+        /// </summary>
+        /// <param name="arrayToBeSorted">array that is to be sorted in place</param>
+        /// <returns>returns the input array itself, but sorted</returns>
         public static short[] SortRadixMsdInPlaceFunc(this short[] arrayToBeSorted)
         {
             arrayToBeSorted.SortCountingInPlace();
@@ -140,12 +180,22 @@ namespace HPCsharp
                     RadixSortMsdULongInner( a, startOfBin[i], endOfBin[i] - startOfBin[i], shiftRightAmount, baseCaseInPlaceSort );
             }
         }
+        /// <summary>
+        /// In-place Radix Sort (Most Significant Digit), not stable.
+        /// </summary>
+        /// <param name="arrayToBeSorted">array that is to be sorted in place</param>
         public static void RadixSortMsd(this ulong[] arrayToBeSorted)
         {
             int shiftRightAmount = sizeof(ulong) * 8 - Log2ofPowerOfTwoRadix;
             // InsertionSort could be passed in as another base case since it's in-place
             RadixSortMsdULongInner(arrayToBeSorted, 0, arrayToBeSorted.Length, shiftRightAmount, Array.Sort);
         }
+
+        /// <summary>
+        /// In-place Radix Sort (Most Significant Digit), not stable. Functional style interface, which returns the input array, but sorted.
+        /// </summary>
+        /// <param name="arrayToBeSorted">array that is to be sorted in place</param>
+        /// <returns>returns the input array itself, but sorted</returns>
         public static ulong[] RadixSortMsdInPlaceFunc(this ulong[] arrayToBeSorted)
         {
             arrayToBeSorted.RadixSortMsd();
@@ -210,12 +260,22 @@ namespace HPCsharp
                     RadixSortMsdLongInner(a, startOfBin[i], endOfBin[i] - startOfBin[i], shiftRightAmount, baseCaseInPlaceSort);
             }
         }
+        /// <summary>
+        /// In-place Radix Sort (Most Significant Digit), not stable.
+        /// </summary>
+        /// <param name="arrayToBeSorted">array that is to be sorted in place</param>
         public static void RadixSortMsd(this long[] arrayToBeSorted)
         {
             int shiftRightAmount = sizeof(ulong) * 8 - Log2ofPowerOfTwoRadix;
             // InsertionSort could be passed in as another base case since it's in-place
             RadixSortMsdLongInner(arrayToBeSorted, 0, arrayToBeSorted.Length, shiftRightAmount, Array.Sort);
         }
+
+        /// <summary>
+        /// In-place Radix Sort (Most Significant Digit), not stable. Functional style interface, which returns the input array, but sorted.
+        /// </summary>
+        /// <param name="arrayToBeSorted">array that is to be sorted in place</param>
+        /// <returns>returns the input array itself, but sorted</returns>
         public static long[] RadixSortMsdInPlaceFunc(this long[] arrayToBeSorted)
         {
             arrayToBeSorted.RadixSortMsd();
@@ -280,12 +340,22 @@ namespace HPCsharp
                     RadixSortDoubleInner(a, startOfBin[i], endOfBin[i] - startOfBin[i], shiftRightAmount, baseCaseInPlaceSort);
             }
         }
+        /// <summary>
+        /// In-place Radix Sort (Most Significant Digit), not stable.
+        /// </summary>
+        /// <param name="arrayToBeSorted">array that is to be sorted in place</param>
         public static void RadixSortMsd(this double[] arrayToBeSorted)
         {
             int shiftRightAmount = sizeof(double) * 8 - Log2ofPowerOfTwoRadixDouble;
             // InsertionSort could be passed in as another base case since it's in-place
             RadixSortDoubleInner(arrayToBeSorted, 0, arrayToBeSorted.Length, shiftRightAmount, Array.Sort);
         }
+
+        /// <summary>
+        /// In-place Radix Sort (Most Significant Digit), not stable. Functional style interface, which returns the input array, but sorted.
+        /// </summary>
+        /// <param name="arrayToBeSorted">array that is to be sorted in place</param>
+        /// <returns>returns the input array itself, but sorted</returns>
         public static double[] RadixSortMsdInPlaceFunc(this double[] arrayToBeSorted)
         {
             arrayToBeSorted.RadixSortMsd();
