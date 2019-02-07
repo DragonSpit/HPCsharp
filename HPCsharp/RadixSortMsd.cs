@@ -40,28 +40,50 @@ namespace HPCsharp
         {
             arrayToBeSorted.SortCountingInPlace();
         }
+        public static byte[] SortRadixMsdInPlaceFunc(this byte[] arrayToBeSorted)
+        {
+            arrayToBeSorted.SortCountingInPlace();
+            return arrayToBeSorted;
+        }
 
         public static void SortRadixMsd(this sbyte[] arrayToBeSorted)
         {
             arrayToBeSorted.SortCountingInPlace();
+        }
+        public static sbyte[] SortRadixMsdInPlaceFunc(this sbyte[] arrayToBeSorted)
+        {
+            arrayToBeSorted.SortCountingInPlace();
+            return arrayToBeSorted;
         }
 
         public static void SortRadixMsd(this ushort[] arrayToBeSorted)
         {
             arrayToBeSorted.SortCountingInPlace();
         }
+        public static ushort[] SortRadixMsdInPlaceFunc(this ushort[] arrayToBeSorted)
+        {
+            arrayToBeSorted.SortCountingInPlace();
+            return arrayToBeSorted;
+        }
 
         public static void SortRadixMsd(this short[] arrayToBeSorted)
         {
             arrayToBeSorted.SortCountingInPlace();
         }
-
-        private static void SortRadixMsd(this long[] arrayToBeSorted)
+        public static short[] SortRadixMsdInPlaceFunc(this short[] arrayToBeSorted)
         {
+            arrayToBeSorted.SortCountingInPlace();
+            return arrayToBeSorted;
         }
 
-        private static void SortRadixMsd(this ulong[] arrayToBeSorted)
+        private static void SortRadixMsd(this int[] arrayToBeSorted)
         {
+            // TODO: Implement me
+        }
+
+        private static void SortRadixMsd(this uint[] arrayToBeSorted)
+        {
+            // TODO: Implement me
         }
 
         public static Int32 SortRadixMsdShortThreshold { get; set; } = 1024;
@@ -118,11 +140,15 @@ namespace HPCsharp
                     RadixSortMsdULongInner( a, startOfBin[i], endOfBin[i] - startOfBin[i], shiftRightAmount, baseCaseInPlaceSort );
             }
         }
-        public static ulong[] RadixSortMsd(this ulong[] arrayToBeSorted)
+        public static void RadixSortMsd(this ulong[] arrayToBeSorted)
         {
             int shiftRightAmount = sizeof(ulong) * 8 - Log2ofPowerOfTwoRadix;
             // InsertionSort could be passed in as another base case since it's in-place
             RadixSortMsdULongInner(arrayToBeSorted, 0, arrayToBeSorted.Length, shiftRightAmount, Array.Sort);
+        }
+        public static ulong[] RadixSortMsdInPlaceFunc(this ulong[] arrayToBeSorted)
+        {
+            arrayToBeSorted.RadixSortMsd();
             return arrayToBeSorted;
         }
 
@@ -184,11 +210,15 @@ namespace HPCsharp
                     RadixSortMsdLongInner(a, startOfBin[i], endOfBin[i] - startOfBin[i], shiftRightAmount, baseCaseInPlaceSort);
             }
         }
-        public static long[] RadixSortMsd(this long[] arrayToBeSorted)
+        public static void RadixSortMsd(this long[] arrayToBeSorted)
         {
             int shiftRightAmount = sizeof(ulong) * 8 - Log2ofPowerOfTwoRadix;
             // InsertionSort could be passed in as another base case since it's in-place
             RadixSortMsdLongInner(arrayToBeSorted, 0, arrayToBeSorted.Length, shiftRightAmount, Array.Sort);
+        }
+        public static long[] RadixSortMsdInPlaceFunc(this long[] arrayToBeSorted)
+        {
+            arrayToBeSorted.RadixSortMsd();
             return arrayToBeSorted;
         }
 
@@ -250,11 +280,15 @@ namespace HPCsharp
                     RadixSortDoubleInner(a, startOfBin[i], endOfBin[i] - startOfBin[i], shiftRightAmount, baseCaseInPlaceSort);
             }
         }
-        public static double[] RadixSortMsd(this double[] arrayToBeSorted)
+        public static void RadixSortMsd(this double[] arrayToBeSorted)
         {
             int shiftRightAmount = sizeof(double) * 8 - Log2ofPowerOfTwoRadixDouble;
             // InsertionSort could be passed in as another base case since it's in-place
             RadixSortDoubleInner(arrayToBeSorted, 0, arrayToBeSorted.Length, shiftRightAmount, Array.Sort);
+        }
+        public static double[] RadixSortMsdInPlaceFunc(this double[] arrayToBeSorted)
+        {
+            arrayToBeSorted.RadixSortMsd();
             return arrayToBeSorted;
         }
 
@@ -376,26 +410,12 @@ namespace HPCsharp
                 }
             }
         }
-        public static ushort[] RadixSortMsd(this ushort[] arrayToBeSorted)
+        private static ushort[] SortRadixMsdInPlaceFunc2(this ushort[] arrayToBeSorted)
         {
             int shiftRightAmount = sizeof(ushort) * 8 - Log2ofPowerOfTwoRadix;
             ushort bitMask = (ushort)(((ushort)(PowerOfTwoRadix - 1)) << shiftRightAmount);  // bitMask controls/selects how many and which bits we process at a time
             // InsertionSort could be passed in as another base case since it's in-place
             RadixSortMsdUShortInner(arrayToBeSorted, 0, arrayToBeSorted.Length, bitMask, shiftRightAmount, Array.Sort);
-            return arrayToBeSorted;
-        }
-
-        private static long[] SortRadixMsdInplaceFunc(this long[] arrayToBeSorted)
-        {
-            return arrayToBeSorted;
-        }
-
-        private static void SortRadixMsd(this double[] arrayToBeSorted)
-        {
-        }
-
-        private static double[] SortRadixMsdInplaceFunc(this double[] arrayToBeSorted)
-        {
             return arrayToBeSorted;
         }
     }
