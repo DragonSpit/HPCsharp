@@ -1,5 +1,5 @@
 ﻿// TODO: Create a generic version that can sort multiple data types, possibly like was done with Fill(), where we check which data type it is and call the appropriate
-//       function underneath
+//       function underneath. This seems to be really hard in C#
 // TODO: Use Array.Sort as the base algorithm (recursion termination case) for MSD Radix Sort, since it's in-place and uses Introspective Sort in the latest version
 //       of .NET. Find the optimal threshold, which could be pretty large.
 // TODO: One way to experiment to small % performance enhancements is to create two versions and compare their performance against each other. Plus find your statistical

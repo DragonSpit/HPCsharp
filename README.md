@@ -10,7 +10,13 @@ Updated VisualStudio 2017 examples solution, demonstrating usage through working
 
 To get the maximum performance make sure to target x64 processor architecture in VisualStudio, increasing performance by as much as 50%.
 
-**_Version 3.2.0_** Just Released! Give it a shot.
+**_Version 3.2.1_** Just Released! Give it a shot.
+
+Added in-place MSD Radix Sort implementations: byte, sbyte, short, ushort, ulong, long, and double arrays.
+These use Counting Sort for byte, sbyte, short and ushort, for ludicrous speed!
+These provide in-place interface and functional interface, which is also in-place but returns the input array that has been sorted.
+
+**_Version 3.2.0_** 
 
 - Added ludicrous speed Parallel Counting Sort and Parallel Radix Sort for arrays of byte and ushort, which are in-place.
 - Added Counting Sort and Radix Sort for arrays of signed types: sbyte and short, which are in-place.
@@ -23,10 +29,6 @@ To get the maximum performance make sure to target x64 processor architecture in
 
 - Added a crazy fast Counting Sort for arrays of byte and ushort (in-place and not)
 - Added Array.Fill for full and partial arrays, which sets an array to a value
-
-**_Version 3.1.2_**
-
-- Improved performance of Serial Radix Sort by 17%
 
 Full release history is in ReleaseNotes.txt file
 
