@@ -6,6 +6,8 @@
 //       analysis stuff and apply it as well. We need to be able to capture many small performance improvements.
 // TODO: Implement Malte's discovery of taking advantage of ILP of the CPU, by "unrolling" series of swaps by reducing dependencies across several swaps.
 //       It may be possible to create a function to generalize this method and make it available to developers, to extract more performance out of cascaded swaps.
+// TODO: Consider accelerating the special case of all array elements going into one or a few bins. The case of one bin is common due to small arrays that use
+//       large indexes. In the case of a single bin, there is nothing to do. In the case of a small number of bins, can we do it faster? Let's think about this case.
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -76,12 +78,11 @@ namespace HPCsharp
         private const int PowerOfTwoRadixDouble       = 4096;
         private const int Log2ofPowerOfTwoRadixDouble =   12;
 
-        private static void RadixSortMsdULongInner(ulong[] a, int first, int length, int shiftRightAmount)
+        private static void RadixSortMsdULongInner(ulong[] a, int first, int length, int shiftRightAmount, Action<ulong[], int, int> baseCaseInPlaceSort)
         {
             if (length < SortRadixMsdULongThreshold)
             {
-                //InsertionSort(a, first, length);
-                Array.Sort(a, first, length);
+                baseCaseInPlaceSort(a, first, length);
                 return;
             }
             int last = first + length - 1;
@@ -114,22 +115,22 @@ namespace HPCsharp
                 else                                            shiftRightAmount  = 0;
 
                 for (int i = 0; i < PowerOfTwoRadix; i++ )
-                    RadixSortMsdULongInner( a, startOfBin[i], endOfBin[i] - startOfBin[i], shiftRightAmount );
+                    RadixSortMsdULongInner( a, startOfBin[i], endOfBin[i] - startOfBin[i], shiftRightAmount, baseCaseInPlaceSort );
             }
         }
         public static ulong[] RadixSortMsd(this ulong[] arrayToBeSorted)
         {
             int shiftRightAmount = sizeof(ulong) * 8 - Log2ofPowerOfTwoRadix;
-            RadixSortMsdULongInner(arrayToBeSorted, 0, arrayToBeSorted.Length, shiftRightAmount);
+            // InsertionSort could be passed in as another base case since it's in-place
+            RadixSortMsdULongInner(arrayToBeSorted, 0, arrayToBeSorted.Length, shiftRightAmount, Array.Sort);
             return arrayToBeSorted;
         }
 
-        private static void RadixSortMsdSignedInner(long[] a, int first, int length, int shiftRightAmount)
+        private static void RadixSortMsdLongInner(long[] a, int first, int length, int shiftRightAmount, Action<long[], int, int> baseCaseInPlaceSort)
         {
             if (length < SortRadixMsdLongThreshold)
             {
-                //InsertionSort(a, first, length);
-                Array.Sort(a, first, length);
+                baseCaseInPlaceSort(a, first, length);
                 return;
             }
             int last = first + length - 1;
@@ -180,22 +181,22 @@ namespace HPCsharp
                 else shiftRightAmount = 0;
 
                 for (int i = 0; i < PowerOfTwoRadix; i++)
-                    RadixSortMsdSignedInner(a, startOfBin[i], endOfBin[i] - startOfBin[i], shiftRightAmount);
+                    RadixSortMsdLongInner(a, startOfBin[i], endOfBin[i] - startOfBin[i], shiftRightAmount, baseCaseInPlaceSort);
             }
         }
         public static long[] RadixSortMsd(this long[] arrayToBeSorted)
         {
             int shiftRightAmount = sizeof(ulong) * 8 - Log2ofPowerOfTwoRadix;
-            RadixSortMsdSignedInner(arrayToBeSorted, 0, arrayToBeSorted.Length, shiftRightAmount);
+            // InsertionSort could be passed in as another base case since it's in-place
+            RadixSortMsdLongInner(arrayToBeSorted, 0, arrayToBeSorted.Length, shiftRightAmount, Array.Sort);
             return arrayToBeSorted;
         }
 
-        private static void RadixSortDoubleInner(double[] a, int first, int length, int shiftRightAmount)
+        private static void RadixSortDoubleInner(double[] a, int first, int length, int shiftRightAmount, Action<double[], int, int> baseCaseInPlaceSort)
         {
             if (length < SortRadixMsdDoubleThreshold)
             {
-                //InsertionSort(a, first, length);
-                Array.Sort(a, first, length);
+                baseCaseInPlaceSort(a, first, length);
                 return;
             }
             int last = first + length - 1;
@@ -246,13 +247,14 @@ namespace HPCsharp
                 else shiftRightAmount = 0;
 
                 for (int i = 0; i < PowerOfTwoRadixDouble; i++)
-                    RadixSortDoubleInner(a, startOfBin[i], endOfBin[i] - startOfBin[i], shiftRightAmount);
+                    RadixSortDoubleInner(a, startOfBin[i], endOfBin[i] - startOfBin[i], shiftRightAmount, baseCaseInPlaceSort);
             }
         }
         public static double[] RadixSortMsd(this double[] arrayToBeSorted)
         {
             int shiftRightAmount = sizeof(double) * 8 - Log2ofPowerOfTwoRadixDouble;
-            RadixSortDoubleInner(arrayToBeSorted, 0, arrayToBeSorted.Length, shiftRightAmount);
+            // InsertionSort could be passed in as another base case since it's in-place
+            RadixSortDoubleInner(arrayToBeSorted, 0, arrayToBeSorted.Length, shiftRightAmount, Array.Sort);
             return arrayToBeSorted;
         }
 
@@ -310,14 +312,12 @@ namespace HPCsharp
             return arrayToBeSorted;
         }
 #endif
-        private static void RadixSortMsdUShortInner(ushort[] a, int first, int length, ushort bitMask, int shiftRightAmount)
+        private static void RadixSortMsdUShortInner(ushort[] a, int first, int length, ushort bitMask, int shiftRightAmount, Action<ushort[], int, int> baseCaseInPlaceSort)
         {
             //Console.WriteLine("Lower: first = {0} length = {1} bitMask = {2:X} shiftRightAmount = {3} ", first, length, bitMask, shiftRightAmount);
             if (length < SortRadixMsdUShortThreshold)
             {
-                //Console.WriteLine("InsertionSort: start = {0} length = {1}", first, length);
-                //InsertionSort(a, first, length);
-                Array.Sort(a, first, length);
+                baseCaseInPlaceSort(a, first, length);
                 return;
             }
             int last = first + length - 1;
@@ -372,7 +372,7 @@ namespace HPCsharp
                 for (int i = 0; i < PowerOfTwoRadix; i++)
                 {
                     if (endOfBin[i] - startOfBin[i] > 0)    // TODO: This should not be needed and is only there to ease porting to C#
-                        RadixSortMsdUShortInner(a, startOfBin[i], endOfBin[i] - startOfBin[i], bitMask, shiftRightAmount);
+                        RadixSortMsdUShortInner(a, startOfBin[i], endOfBin[i] - startOfBin[i], bitMask, shiftRightAmount, baseCaseInPlaceSort);
                 }
             }
         }
@@ -380,7 +380,8 @@ namespace HPCsharp
         {
             int shiftRightAmount = sizeof(ushort) * 8 - Log2ofPowerOfTwoRadix;
             ushort bitMask = (ushort)(((ushort)(PowerOfTwoRadix - 1)) << shiftRightAmount);  // bitMask controls/selects how many and which bits we process at a time
-            RadixSortMsdUShortInner(arrayToBeSorted, 0, arrayToBeSorted.Length, bitMask, shiftRightAmount);
+            // InsertionSort could be passed in as another base case since it's in-place
+            RadixSortMsdUShortInner(arrayToBeSorted, 0, arrayToBeSorted.Length, bitMask, shiftRightAmount, Array.Sort);
             return arrayToBeSorted;
         }
 
