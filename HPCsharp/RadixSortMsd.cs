@@ -184,7 +184,7 @@ namespace HPCsharp
         /// In-place Radix Sort (Most Significant Digit), not stable.
         /// </summary>
         /// <param name="arrayToBeSorted">array that is to be sorted in place</param>
-        public static void RadixSortMsd(this ulong[] arrayToBeSorted)
+        public static void SortRadixMsd(this ulong[] arrayToBeSorted)
         {
             int shiftRightAmount = sizeof(ulong) * 8 - Log2ofPowerOfTwoRadix;
             // InsertionSort could be passed in as another base case since it's in-place
@@ -196,9 +196,9 @@ namespace HPCsharp
         /// </summary>
         /// <param name="arrayToBeSorted">array that is to be sorted in place</param>
         /// <returns>returns the input array itself, but sorted</returns>
-        public static ulong[] RadixSortMsdInPlaceFunc(this ulong[] arrayToBeSorted)
+        public static ulong[] SortRadixMsdInPlaceFunc(this ulong[] arrayToBeSorted)
         {
-            arrayToBeSorted.RadixSortMsd();
+            arrayToBeSorted.SortRadixMsd();
             return arrayToBeSorted;
         }
 
@@ -264,7 +264,7 @@ namespace HPCsharp
         /// In-place Radix Sort (Most Significant Digit), not stable.
         /// </summary>
         /// <param name="arrayToBeSorted">array that is to be sorted in place</param>
-        public static void RadixSortMsd(this long[] arrayToBeSorted)
+        public static void SortRadixMsd(this long[] arrayToBeSorted)
         {
             int shiftRightAmount = sizeof(ulong) * 8 - Log2ofPowerOfTwoRadix;
             // InsertionSort could be passed in as another base case since it's in-place
@@ -276,9 +276,9 @@ namespace HPCsharp
         /// </summary>
         /// <param name="arrayToBeSorted">array that is to be sorted in place</param>
         /// <returns>returns the input array itself, but sorted</returns>
-        public static long[] RadixSortMsdInPlaceFunc(this long[] arrayToBeSorted)
+        public static long[] SortRadixMsdInPlaceFunc(this long[] arrayToBeSorted)
         {
-            arrayToBeSorted.RadixSortMsd();
+            arrayToBeSorted.SortRadixMsd();
             return arrayToBeSorted;
         }
 
@@ -344,7 +344,7 @@ namespace HPCsharp
         /// In-place Radix Sort (Most Significant Digit), not stable.
         /// </summary>
         /// <param name="arrayToBeSorted">array that is to be sorted in place</param>
-        public static void RadixSortMsd(this double[] arrayToBeSorted)
+        public static void SortRadixMsd(this double[] arrayToBeSorted)
         {
             int shiftRightAmount = sizeof(double) * 8 - Log2ofPowerOfTwoRadixDouble;
             // InsertionSort could be passed in as another base case since it's in-place
@@ -356,9 +356,9 @@ namespace HPCsharp
         /// </summary>
         /// <param name="arrayToBeSorted">array that is to be sorted in place</param>
         /// <returns>returns the input array itself, but sorted</returns>
-        public static double[] RadixSortMsdInPlaceFunc(this double[] arrayToBeSorted)
+        public static double[] SortRadixMsdInPlaceFunc(this double[] arrayToBeSorted)
         {
-            arrayToBeSorted.RadixSortMsd();
+            arrayToBeSorted.SortRadixMsd();
             return arrayToBeSorted;
         }
 

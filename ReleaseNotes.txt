@@ -1,8 +1,11 @@
+Version 3.2.2
+Fixed Radix Sort MSD naming inconsistencies
+
 Version 3.2.1
 Added in-place MSD Radix Sort implementations. Most are ports from my Dr. Dobb's Journal articles.
 Added in-place MSD Radix Sort of double array, which is not from my articles.
 MSD Radix Sort sbyte, byte, short, and ushort use Counting Sort, since it's in-place and is way faster.
-Provided in-pace interface and functional interface for convenience in Functional usages, which returns the input array, but sorted.
+Provided in-place interface and functional interface for convenience in Functional usages, which returns the input array, but sorted.
 
 Version 3.2.0
 Added ludicrous speed Parallel Counting Sort for arrays of byte and ushort, which is in-place.
