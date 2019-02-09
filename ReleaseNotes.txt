@@ -1,3 +1,6 @@
+Version 3.2.3
+Fixed MSD Radix Sort correctness for long and double arrays, when negative values were used
+
 Version 3.2.2
 Fixed Radix Sort MSD naming inconsistencies
 

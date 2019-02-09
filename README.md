@@ -10,11 +10,12 @@ Updated VisualStudio 2017 examples solution, demonstrating usage through working
 
 To get the maximum performance make sure to target x64 processor architecture in VisualStudio, increasing performance by as much as 50%.
 
-**_Version 3.2.2_** Just Released! Give it a shot.
+**_Version 3.2.3_** Just Released! Give it a shot.
 
 Added in-place MSD Radix Sort implementations: byte, sbyte, short, ushort, ulong, long, and double arrays.
 These use Counting Sort for byte, sbyte, short and ushort, for ludicrous speed!
 These provide in-place interface and functional interface, which is also in-place but returns the input array that has been sorted.
+Fixed correctness of MSD Radix Sort for long and double arrays when negative values were used.
 
 **_Version 3.2.0_** 
 
