@@ -183,7 +183,10 @@ namespace HPCsharp
             else
             {
                 for (int current = l; current <= r; current++)
-                    count[((ulong)inArray[current] >> shiftRightAmount) + 128]++;
+                {
+                    //Console.WriteLine(((ulong)inArray[current] >> shiftRightAmount) ^ 128);
+                    count[((ulong)inArray[current] >> shiftRightAmount) ^ 128]++;
+                }
             }
 
             return count;
@@ -203,7 +206,7 @@ namespace HPCsharp
             else
             {
                 for (int current = l; current <= r; current++)
-                    count[((ulong)inArray[current] >> shiftRightAmount) + 2048]++;
+                    count[((ulong)inArray[current] >> shiftRightAmount) ^ 2048]++;
             }
 
             return count;

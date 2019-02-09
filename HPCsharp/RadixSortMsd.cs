@@ -6,8 +6,15 @@
 //       analysis stuff and apply it as well. We need to be able to capture many small performance improvements.
 // TODO: Implement Malte's discovery of taking advantage of ILP of the CPU, by "unrolling" series of swaps by reducing dependencies across several swaps.
 //       It may be possible to create a function to generalize this method and make it available to developers, to extract more performance out of cascaded swaps.
+//       And, make this a part of the swapping suite of functions.
 // TODO: Consider accelerating the special case of all array elements going into one or a few bins. The case of one bin is common due to small arrays that use
 //       large indexes. In the case of a single bin, there is nothing to do. In the case of a small number of bins, can we do it faster? Let's think about this case.
+// TODO: Unrolling cascaded swaps may require an additional array to go thru, maybe, if that makes it simpler to place elements there and then to take them out of there.
+//       Walk thru the cascaded flow by hand and see what kind of structure is needed and would work. Start by hardcoding to 2 level unroll to get it working and see if there is a benefit.
+// TODO: Create a check of each bin against the size of the CPU cache (cache aware) and sort it using Array.Sort if the bin fits within L2 cache entirely (minus a bit for overhead)
+// TODO: Parallelize Histogram of components of 64-bit elements (ulong, long, and double).
+// TODO: Parallelize lower levels of MSD Radix Sort dynamically, where only if the bin is large enough is the new task created to sort than bin further using Radix Sort, otherwise use Array.Sort
+// TODO: Create an inner loop function that uses union to pull out the desired byte/digit, since we know this is faster than shifting and masking
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -180,6 +187,55 @@ namespace HPCsharp
                     RadixSortMsdULongInner( a, startOfBin[i], endOfBin[i] - startOfBin[i], shiftRightAmount, baseCaseInPlaceSort );
             }
         }
+
+        private static void devFunction(ulong[] a, int first, int length, int shiftRightAmount)
+        {
+            var endOfBin = new int[PowerOfTwoRadix];
+            int last = first + length - 1;
+            const ulong bitMask = PowerOfTwoRadix - 1;
+
+            for (int _current = first; _current <= last;)
+            {
+                ulong digit;
+                ulong current_element = a[_current];
+                while (true)
+                {
+                    digit = (current_element >> shiftRightAmount) & bitMask;
+                    if (endOfBin[digit] == _current) break;
+                    Swap(ref current_element, a, endOfBin[digit]++);
+                }
+                a[_current] = current_element;
+            }
+        }
+        private static void devFunctionUnrolled(ulong[] a, int first, int length, int shiftRightAmount)
+        {
+            var endOfBin = new int[PowerOfTwoRadix];
+            int last = first + length - 1;
+            const ulong bitMask = PowerOfTwoRadix - 1;
+
+            for (int _current = first; _current <= last;)
+            {
+                ulong digit;
+                var elementBuffer = new ulong[4];
+                int index = 0;
+                elementBuffer[index] = a[_current];
+                while (true)
+                {
+                    digit = (elementBuffer[index] >> shiftRightAmount) & bitMask;
+                    if (endOfBin[digit] == _current) break;
+                    elementBuffer[++index] = a[endOfBin[digit]];
+                    digit = (elementBuffer[index] >> shiftRightAmount) & bitMask;
+                    if (endOfBin[digit] == _current)
+                    {
+                        a[endOfBin[digit]++] = elementBuffer[index];
+                        break;
+                    }
+                    elementBuffer[++index] = a[endOfBin[digit]++];
+                }
+                a[_current] = elementBuffer[index];
+            }
+        }
+
         /// <summary>
         /// In-place Radix Sort (Most Significant Digit), not stable.
         /// </summary>
@@ -207,6 +263,7 @@ namespace HPCsharp
             if (length < SortRadixMsdLongThreshold)
             {
                 baseCaseInPlaceSort(a, first, length);
+                //InsertionSort(a, first, length);
                 return;
             }
             int last = first + length - 1;
@@ -227,7 +284,7 @@ namespace HPCsharp
                 {
                     ulong digit;
                     long current_element = a[_current];  // get the compiler to recognize that a register can be used for the loop instead of a[_current] memory location
-                    while (endOfBin[digit = ((ulong)current_element >> shiftRightAmount) + 128] != _current)
+                    while (endOfBin[digit = ((ulong)current_element >> shiftRightAmount) ^ 128] != _current)
                         Swap(ref current_element, a, endOfBin[digit]++);
                     a[_current] = current_element;
 
@@ -307,7 +364,7 @@ namespace HPCsharp
                 {
                     ulong digit;
                     double current_element = a[_current];  // get the compiler to recognize that a register can be used for the loop instead of a[_current] memory location
-                    while (endOfBin[digit = ((ulong)current_element >> shiftRightAmount) + 2048] != _current)
+                    while (endOfBin[digit = ((ulong)current_element >> shiftRightAmount) ^ 2048] != _current)
                         Swap(ref current_element, a, endOfBin[digit]++);
                     a[_current] = current_element;
 

@@ -3,6 +3,7 @@
 //       to divide-and-conquer on cache line boundary between tasks? Or, page boundary?
 // TODO: Implement a partial integer Counting Sort - i.e. allow not just a 16-bit short-size arbitrary cutoff for Counting Sort, but let's say allow 24-bits or some number of
 //       value range that is larger than 16-bits, because it should still pay off and allow us to keep raising applicability of Counting Sort as CPU cache sizes grow and memory size grows.
+// TODO: Find out where the performance of Counting Sort (serial and parallel) falls off below Radix Sort - i.e. how many bits to sort on at once?
 using System;
 using System.Collections.Generic;
 using System.Text;

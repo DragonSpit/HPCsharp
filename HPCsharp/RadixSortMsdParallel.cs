@@ -1,4 +1,7 @@
-﻿using System;
+﻿// TODO: Add parallel versions of singed 8-bit and 16-bit Radix Sort/Counting Sort
+// TODO: Implement paralle versions of RadixSort MSD implementations for ulong, slong and double array, but only spawn new tasks for non-empty bins instead of
+//       all the bins indiscrimintently.
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
