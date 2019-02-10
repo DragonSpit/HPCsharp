@@ -8,14 +8,14 @@ are similar to standard C# Sort. Free and open source HPCsharp package on https:
 
 Updated VisualStudio 2017 examples solution, demonstrating usage through working examples. Build and run it to see performance gains on your machine.
 
-To get the maximum performance make sure to target x64 processor architecture in VisualStudio, increasing performance by as much as 50%.
+To get the maximum performance make sure to target x64 processor architecture for the Release build in VisualStudio, increasing performance by as much as 50%.
 
 **_Version 3.2.3_** Just Released! Give it a shot.
 
 - Added in-place MSD Radix Sort implementations: byte, sbyte, short, ushort, ulong, long, and double arrays.
 - These use Counting Sort for byte, sbyte, short and ushort, for ludicrous speed!
 - These provide in-place interface and functional interface, which is also in-place but returns the input array that has been sorted.
-- Fixed correctness of MSD Radix Sort for long and double arrays when negative values were used.
+- Fixed correctness of MSD Radix Sort for long and double arrays when negative values are used.
 
 **_Version 3.2.0_** 
 
