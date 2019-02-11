@@ -15,6 +15,20 @@
 // TODO: Parallelize Histogram of components of 64-bit elements (ulong, long, and double).
 // TODO: Parallelize lower levels of MSD Radix Sort dynamically, where only if the bin is large enough is the new task created to sort than bin further using Radix Sort, otherwise use Array.Sort
 // TODO: Create an inner loop function that uses union to pull out the desired byte/digit, since we know this is faster than shifting and masking
+// TODO: Create an adaptive MSD Radix Sort implementation, where if the array/bin is > 64K elements then use 32-bit entries in the count array, but if the array/bin is 64K elements or fewer
+//       then use ushort count entries, which will fit more entries into L1 and L2 cache allowing for processing of more bits of each element per iteration - e.g. instead of 8-bits/digit we
+//       could go up to 9-bits per digit, or from 10-bits/digit to 11-bits/digit, and the reduce the number of passes.
+// TODO: Defnitely implement the special case of all array elements ending up in a single bin. It's exactly how John is testing, as he generates randoms with values up to the size of the
+//       array - e.g. if array size is 1M elements then each array element has a value 0 to 1M-1. Covering this special case by checking if all elements are in a single bin, will accelerate
+//       this special case and the case of a constant array, and ramps that go up to the array size. Even with 100M elements of longs, each value is only 27-bits out of 64-bits, with the upper
+//       bits always at zero.
+// TODO: I figured out Malte's technique for more CPU ILP - it's simply handling multiple array items at a time. Instead of handling a single array item and then cascading swaps from there until
+//       it loops back, Malte's realized that he could process two or more array items at a time, probably with some inner checking to make sure the loop isn't just two items. This will need to be
+//       tested very carefully, especially using two values thru the entire array (with both possible phases). Yeah, you process two or more array elements at a time, which will add more complexity,
+//       at a significant gain of performance. Once we do this, it would be worth contacting Brad's son to discuss with him how to add this to compilers in general to recogmize this kind of a pattern
+//       and unroll it to gain performance by more ILP.
+// TODO: It may be possible to generalize most significant digit detection (instead of hardcoding 56 right shift for 8-bit digit) by detecting if the MSD includes the most significant bit in it.
+//       Could possibly codify into a function that gets rightShiftAmount and digit size. This leads to generalization of most significant digit detection to support digits of any size.
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -136,7 +150,7 @@ namespace HPCsharp
         public static Int32 SortRadixMsdShortThreshold { get; set; } = 1024;
         public static Int32 SortRadixMsdUShortThreshold { get; set; } = 1024;
         public static Int32 SortRadixMsdULongThreshold { get; set; } = 1024;
-        public static Int32 SortRadixMsdLongThreshold { get; set; } = 1024;
+        public static Int32 SortRadixMsdLongThreshold { get; set; } = 64;
         public static Int32 SortRadixMsdDoubleThreshold { get; set; } = 1024;
 
 
@@ -268,6 +282,7 @@ namespace HPCsharp
             }
             int last = first + length - 1;
             const ulong bitMask = PowerOfTwoRadix - 1;
+            const ulong halfOfPowerOfTwoRadix = PowerOfTwoRadix / 2;
 
             var count = HistogramByteComponents(a, first, last, shiftRightAmount);
 
@@ -277,44 +292,58 @@ namespace HPCsharp
             startOfBin[0] = endOfBin[0] = first; startOfBin[PowerOfTwoRadix] = -1;         // sentinal
             for (int i = 1; i < PowerOfTwoRadix; i++)
                 startOfBin[i] = endOfBin[i] = startOfBin[i - 1] + count[i - 1];
+            int bucketsUsed = 0;
+            for (int i = 0; i < count.Length; i++)
+                if (count[i] > 0) bucketsUsed++;
 
-            if (shiftRightAmount == 56)     // Most significant digit
+            if (bucketsUsed > 1)
             {
-                for (int _current = first; _current <= last;)
+                if (shiftRightAmount == 56)     // Most significant digit
                 {
-                    ulong digit;
-                    long current_element = a[_current];  // get the compiler to recognize that a register can be used for the loop instead of a[_current] memory location
-                    while (endOfBin[digit = ((ulong)current_element >> shiftRightAmount) ^ 128] != _current)
-                        Swap(ref current_element, a, endOfBin[digit]++);
-                    a[_current] = current_element;
+                    for (int _current = first; _current <= last;)
+                    {
+                        ulong digit;
+                        long current_element = a[_current];  // get the compiler to recognize that a register can be used for the loop instead of a[_current] memory location
+                        while (endOfBin[digit = ((ulong)current_element >> shiftRightAmount) ^ halfOfPowerOfTwoRadix] != _current)
+                            Swap(ref current_element, a, endOfBin[digit]++);
+                        a[_current] = current_element;
 
-                    endOfBin[digit]++;
-                    while (endOfBin[nextBin - 1] == startOfBin[nextBin]) nextBin++;   // skip over empty and full bins, when the end of the current bin reaches the start of the next bin
-                    _current = endOfBin[nextBin - 1];
+                        endOfBin[digit]++;
+                        while (endOfBin[nextBin - 1] == startOfBin[nextBin]) nextBin++;   // skip over empty and full bins, when the end of the current bin reaches the start of the next bin
+                        _current = endOfBin[nextBin - 1];
+                    }
+                }
+                else
+                {
+                    for (int _current = first; _current <= last;)
+                    {
+                        ulong digit;
+                        long current_element = a[_current];  // get the compiler to recognize that a register can be used for the loop instead of a[_current] memory location
+                        while (endOfBin[digit = ((ulong)current_element >> shiftRightAmount) & bitMask] != _current)
+                            Swap(ref current_element, a, endOfBin[digit]++);
+                        a[_current] = current_element;
+
+                        endOfBin[digit]++;
+                        while (endOfBin[nextBin - 1] == startOfBin[nextBin]) nextBin++;   // skip over empty and full bins, when the end of the current bin reaches the start of the next bin
+                        _current = endOfBin[nextBin - 1];
+                    }
+                }
+                if (shiftRightAmount > 0)    // end recursion when all the bits have been processes
+                {
+                    shiftRightAmount = shiftRightAmount >= Log2ofPowerOfTwoRadix ? shiftRightAmount -= Log2ofPowerOfTwoRadix : 0;
+
+                    for (int i = 0; i < PowerOfTwoRadix; i++)
+                        RadixSortMsdLongInner(a, startOfBin[i], endOfBin[i] - startOfBin[i], shiftRightAmount, baseCaseInPlaceSort);
                 }
             }
             else
             {
-                for (int _current = first; _current <= last;)
+                if (shiftRightAmount > 0)    // end recursion when all the bits have been processes
                 {
-                    ulong digit;
-                    long current_element = a[_current];  // get the compiler to recognize that a register can be used for the loop instead of a[_current] memory location
-                    while (endOfBin[digit = ((ulong)current_element >> shiftRightAmount) & bitMask] != _current)
-                        Swap(ref current_element, a, endOfBin[digit]++);
-                    a[_current] = current_element;
+                    shiftRightAmount = shiftRightAmount >= Log2ofPowerOfTwoRadix ? shiftRightAmount -= Log2ofPowerOfTwoRadix : 0;
 
-                    endOfBin[digit]++;
-                    while (endOfBin[nextBin - 1] == startOfBin[nextBin]) nextBin++;   // skip over empty and full bins, when the end of the current bin reaches the start of the next bin
-                    _current = endOfBin[nextBin - 1];
+                    RadixSortMsdLongInner(a, first, length, shiftRightAmount, baseCaseInPlaceSort);
                 }
-            }
-            if (shiftRightAmount > 0)    // end recursion when all the bits have been processes
-            {
-                if (shiftRightAmount >= Log2ofPowerOfTwoRadix) shiftRightAmount -= Log2ofPowerOfTwoRadix;
-                else shiftRightAmount = 0;
-
-                for (int i = 0; i < PowerOfTwoRadix; i++)
-                    RadixSortMsdLongInner(a, startOfBin[i], endOfBin[i] - startOfBin[i], shiftRightAmount, baseCaseInPlaceSort);
             }
         }
         /// <summary>
