@@ -1,3 +1,6 @@
+Version 3.2.4
+Improved performance of limited range random slong arrays and constant arrays, using an idea that John and I had.
+
 Version 3.2.3
 Fixed MSD Radix Sort correctness for long and double arrays, when negative values were used
 
