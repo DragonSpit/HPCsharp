@@ -341,7 +341,6 @@ namespace HPCsharp
                 if (shiftRightAmount > 0)    // end recursion when all the bits have been processes
                 {
                     shiftRightAmount = shiftRightAmount >= Log2ofPowerOfTwoRadix ? shiftRightAmount -= Log2ofPowerOfTwoRadix : 0;
-
                     RadixSortMsdLongInner(a, first, length, shiftRightAmount, baseCaseInPlaceSort);
                 }
             }
