@@ -16,6 +16,7 @@ To get the maximum performance make sure to target x64 processor architecture fo
 - These use Counting Sort for byte, sbyte, short and ushort, for ludicrous speed!
 - These provide in-place interface and functional interface, which is also in-place but returns the input array that has been sorted.
 - Improved performance of MSD Radix Sort of slong arrays (thank you John once again).
+- Added LSD Radix Sort for long arrays (serial and parallel), which are not in-place, but have interfaces to support in-place usage
 
 **_Version 3.2.0_** 
 
