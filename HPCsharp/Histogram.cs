@@ -151,6 +151,30 @@ namespace HPCsharp
             return count;
         }
 
+        public static uint[][] HistogramByteComponents(long[] inArray, Int32 l, Int32 r)
+        {
+            const int numberOfBins = 256;
+            const int numberOfDigits = sizeof(ulong);
+            uint[][] count = new uint[numberOfDigits][];
+            for (int i = 0; i < numberOfDigits; i++)
+                count[i] = new uint[numberOfBins];
+
+            var union = new Int64ByteUnion();
+            for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
+            {
+                union.integer = inArray[current];
+                count[0][union.byte0]++;
+                count[1][union.byte1]++;
+                count[2][union.byte2]++;
+                count[3][union.byte3]++;
+                count[4][union.byte4]++;
+                count[5][union.byte5]++;
+                count[6][union.byte6]++;
+                count[7][((ulong)inArray[current] >> 56) ^ 128]++;
+            }
+            return count;
+        }
+
         public static int[] HistogramByteComponents(ulong[] inArray, Int32 l, Int32 r, int shiftRightAmount)
         {
             const int numberOfBins = 256;
@@ -192,30 +216,11 @@ namespace HPCsharp
             return count;
         }
 
-        public static int[] Histogram12bitComponents(double[] inArray, Int32 l, Int32 r, int shiftRightAmount)
-        {
-            const int numberOfBins = 4096;
-            const ulong bitMask = numberOfBins - 1;
-            int[] count = new int[numberOfBins];
-
-            if (shiftRightAmount != 52)
-            {
-                for (int current = l; current <= r; current++)
-                    count[((ulong)inArray[current] >> shiftRightAmount) & bitMask]++;
-            }
-            else
-            {
-                for (int current = l; current <= r; current++)
-                    count[((ulong)inArray[current] >> shiftRightAmount) ^ 2048]++;
-            }
-
-            return count;
-        }
-
-        private static int[] HistogramByteComponents1(ulong[] inArray, Int32 l, Int32 r, int whichByte)
+        public static int[] HistogramByteComponentsUsingUnion(ulong[] inArray, Int32 l, Int32 r, int shiftRightAmount)
         {
             const int numberOfBins = 256;
             int[] count = new int[numberOfBins];
+            int whichByte = shiftRightAmount / 8;
 
             var union = new UInt64ByteUnion();
 
@@ -280,6 +285,96 @@ namespace HPCsharp
             }
             return count;
         }
+
+        public static int[] HistogramByteComponentsUsingUnion(long[] inArray, Int32 l, Int32 r, int shiftRightAmount)
+        {
+            const int numberOfBins = 256;
+            int[] count = new int[numberOfBins];
+            int whichByte = shiftRightAmount / 8;
+
+            var union = new Int64ByteUnion();
+
+            switch (whichByte)
+            {
+                case 0:
+                    for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
+                    {
+                        union.integer = inArray[current];
+                        count[union.byte0]++;
+                    }
+                    break;
+                case 1:
+                    for (int current = l; current <= r; current++)
+                    {
+                        union.integer = inArray[current];
+                        count[union.byte1]++;
+                    }
+                    break;
+                case 2:
+                    for (int current = l; current <= r; current++)
+                    {
+                        union.integer = inArray[current];
+                        count[union.byte2]++;
+                    }
+                    break;
+                case 3:
+                    for (int current = l; current <= r; current++)
+                    {
+                        union.integer = inArray[current];
+                        count[union.byte3]++;
+                    }
+                    break;
+                case 4:
+                    for (int current = l; current <= r; current++)
+                    {
+                        union.integer = inArray[current];
+                        count[union.byte4]++;
+                    }
+                    break;
+                case 5:
+                    for (int current = l; current <= r; current++)
+                    {
+                        union.integer = inArray[current];
+                        count[union.byte5]++;
+                    }
+                    break;
+                case 6:
+                    for (int current = l; current <= r; current++)
+                    {
+                        union.integer = inArray[current];
+                        count[union.byte6]++;
+                    }
+                    break;
+                case 7:
+                    for (int current = l; current <= r; current++)
+                    {
+                        count[((ulong)inArray[current] >> shiftRightAmount) ^ 128]++;
+                    }
+                    break;
+            }
+            return count;
+        }
+
+        public static int[] Histogram12bitComponents(double[] inArray, Int32 l, Int32 r, int shiftRightAmount)
+        {
+            const int numberOfBins = 4096;
+            const ulong bitMask = numberOfBins - 1;
+            int[] count = new int[numberOfBins];
+
+            if (shiftRightAmount != 52)
+            {
+                for (int current = l; current <= r; current++)
+                    count[((ulong)inArray[current] >> shiftRightAmount) & bitMask]++;
+            }
+            else
+            {
+                for (int current = l; current <= r; current++)
+                    count[((ulong)inArray[current] >> shiftRightAmount) ^ 2048]++;
+            }
+
+            return count;
+        }
+
 
         public static uint[][] HistogramNBitsPerComponents(uint[] inArray, Int32 l, Int32 r, int bitsPerComponent)
         {

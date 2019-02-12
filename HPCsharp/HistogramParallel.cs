@@ -179,7 +179,7 @@ namespace HPCsharp
                 countRight[i] = new uint[numberOfBins];
 
             Parallel.Invoke(
-                () => { countLeft = HistogramByteComponentsPar(inArray, l,      m); },
+                () => { countLeft  = HistogramByteComponentsPar(inArray, l,     m); },
                 () => { countRight = HistogramByteComponentsPar(inArray, m + 1, r); }
             );
             // Combine left and right results

@@ -25,10 +25,11 @@ namespace HPCsharp
         }
 
         /// <summary>
-        /// Sort an array of unsigned integers using Radix Sorting algorithm (least significant digit variation)
+        /// Parallel Sort an array of unsigned integers using Radix Sorting algorithm (least significant digit variation - LSD)
+        /// This algorithm is not in-place. This algorithm is stable.
         /// </summary>
-        /// <param name="inputArray"></param>
-        /// <returns>array of unsigned integers</returns>
+        /// <param name="inputArray">array of unsigned integers to be sorted</param>
+        /// <returns>sorted array of unsigned integers</returns>
         public static uint[] SortRadixPar(this uint[] inputArray)
         {
             int numberOfBins = 256;
@@ -45,16 +46,7 @@ namespace HPCsharp
             uint bitMask = 255;
             int shiftRightAmount = 0;
 
-            //Stopwatch stopwatch = new Stopwatch();
-            //long frequency = Stopwatch.Frequency;
-            ////Console.WriteLine("  Timer frequency in ticks per second = {0}", frequency);
-            //long nanosecPerTick = (1000L * 1000L * 1000L) / frequency;
-
-            //stopwatch.Restart();
             uint[][] count = HistogramByteComponentsPar(inputArray, 0, inputArray.Length - 1);
-            //stopwatch.Stop();
-            //double timeForCounting = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
-            //Console.WriteLine("Time for counting: {0}", timeForCounting);
 
             for (d = 0; d < numberOfDigits; d++)
             {
@@ -66,16 +58,9 @@ namespace HPCsharp
             d = 0;
             while (bitMask != 0)    // end processing digits when all the mask bits have been processed and shifted out, leaving no bits set in the bitMask
             {
-                //stopwatch.Restart();
                 uint[] startOfBinLoc = startOfBin[d];
                 for (uint current = 0; current < inputArray.Length; current++)
-                {
-                    //outputArray[startOfBinLoc[ExtractDigit(inputArray[current], bitMask, shiftRightAmount)]++] = inputArray[current];
                     outputArray[startOfBinLoc[(inputArray[current] & bitMask) >> shiftRightAmount]++] = inputArray[current];
-                }
-                //stopwatch.Stop();
-                //double timeForPermuting = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
-                //Console.WriteLine("Time for permuting: {0}", timeForPermuting);
 
                 bitMask <<= Log2ofPowerOfTwoRadix;
                 shiftRightAmount += Log2ofPowerOfTwoRadix;
@@ -91,6 +76,17 @@ namespace HPCsharp
                     inputArray[current] = outputArray[current];
 
             return inputArray;
+        }
+        /// <summary>
+        /// Parallel Sort an array of unsigned integers using Radix Sorting algorithm (least significant digit variation - LSD)
+        /// The core algorithm is not in-place, but the interface is in-place. This algorithm is stable.
+        /// </summary>
+        /// <param name="inputArray">array of unsigned integers to be sorted</param>
+        /// <returns>sorted array of unsigned integers</returns>
+        public static void SortRadixInPlaceInterfacePar(this uint[] inputArray)
+        {
+            var sortedArray = SortRadixPar(inputArray);
+            Array.Copy(sortedArray, inputArray, inputArray.Length);
         }
     }
 

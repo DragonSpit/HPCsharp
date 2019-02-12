@@ -1,7 +1,5 @@
 ﻿// TODO: Write a technical paper on RadixSort2, with it's new method to improve memory access pattern of Radix Sort, which is especially affective when sorting
 //       arrays or user defined classes, which use references and thus can be scattered all over the heap. Measurements are showing 10X performance improvement.
-// TODO: Figure out how to end RadixSort early for those cases where the keys being sorted are within a limited range, such as for keys in a database - e.g. fewer than 16 M keys which are 0 to 16M
-//       which is within 24-bits the lower bits.
 // TODO: Try Radix Sort by processing 4-bits at a time to reduce random memory access pattern.
 // TODO: To reduce random memory access pattern develop a multi-buffer class (maybe) that you write thru, which has multiple buffers that you write to, and then automatically
 //       flushes them to memory when the individual buffer size reaches its limit. This turns random memory accesses into sequential memory accesses. It also allows
@@ -9,7 +7,6 @@
 //       line size or bigger. This would be a class that you write thru. You would set the address of each destination for each buffer, and then you would write data thru
 //       individual buffer to system memory.
 // TODO: Make all multi-dimensional buffers a single array, to keep cache usage and mapping to the same cache location impossible.
-// TODO: Pull out and measure the counting portion of the algorithm, as I've done with the serial algorithm.
 // TODO: For parallel algorithm, parallel the counting portion of the algorithm, as I've done in my Dr. Dobb's papers for the parallel counting sort and MSD Radix Sort.
 //       To start with don't parallel the permuting portion of the algorithm until we figure out how to do it with a performance gain.
 // TODO: Bring in parallel Quick Sort from the link that John provided.
@@ -19,8 +16,6 @@
 // TODO: Change the count array into a 1-D array to minimize cache contention, since 2-D array gets allocated one row at a time and may cache interfere between rows,
 //       depending on how each row gets allocated. With 1-D the memory layout is guaranteed to be contigous, which should produce less cache contention.
 //       Do the same with startOfBin 2-D array. It'll be a little bit more painful to use, but performance gains should make it worthwhile.
-// TODO: Implement Counting Sort (serial and parallel) for byte, short and ushort data types, as this will be the highest performance possible, especially for byte sorting.
-//       This will be fun to present, as the speed will be ludicrous! These should be in-place implementations.
 // TODO: Implement a generic Sort (in-place and not versions) for all of the data types that John listed that would select internally which algorithm to use, so that
 //       the user doesn't have to. Maybe allow the user to select the algorithm.
 // TODO: Extend Radix Sort to borrow some good ideas from the Radix Sort video and expand on them, such instead of returning just one number from the user defined
@@ -38,6 +33,11 @@
 //       when the additional memory is needed and just document it not being a true-inplace algorithm, but just has an in-place interface
 // TODO: Document these algorithms as "not truly in-place", but providing an in-place interface. Explain how much additional memory each algorithm uses.
 // TODO: Instead of masking and shifting in the inner loop of Radix Sort, use the union, once writes have been de-randomized, it may to improve performance then.
+// TODO: Reduce memory footprint of partial array sort by allocating only enough memory for the partial array, instead of needing a temporary array that is a full size.
+// TODO: Figure out how to end RadixSort early for those cases where the keys being sorted are within a limited range, such as for keys in a database - e.g. fewer than 16 M keys which are 0 to 16M
+//       which is within 24-bits the lower bits. Bring this optimization from MSD Radix Sort, as it should help here as well. It doesn't help LSD Radix Sort as much
+//       because for slong when negative and positive values are used we end up with two bins as we get to more significant digits (unless we limit it to just positives eventhough
+//       the data type is an slong).
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -247,6 +247,29 @@ namespace HPCsharp
             public UInt64 integer;
         }
         [StructLayout(LayoutKind.Explicit)]
+        internal struct Int64ByteUnion
+        {
+            [FieldOffset(0)]
+            public byte byte0;
+            [FieldOffset(1)]
+            public byte byte1;
+            [FieldOffset(2)]
+            public byte byte2;
+            [FieldOffset(3)]
+            public byte byte3;
+            [FieldOffset(4)]
+            public byte byte4;
+            [FieldOffset(5)]
+            public byte byte5;
+            [FieldOffset(6)]
+            public byte byte6;
+            [FieldOffset(7)]
+            public byte byte7;
+
+            [FieldOffset(0)]
+            public Int64 integer;
+        }
+        [StructLayout(LayoutKind.Explicit)]
         internal struct UInt32UShortUnion
         {
             [FieldOffset(0)]
@@ -273,10 +296,11 @@ namespace HPCsharp
             public UInt64 integer;
         }
         /// <summary>
-        /// Sort an array of unsigned integers using Radix Sorting algorithm (least significant digit variation)
+        /// Sort an array of unsigned integers using Radix Sorting algorithm (least significant digit variation - LSD)
+        /// This algorithm is not in-place. This algorithm is stable.
         /// </summary>
-        /// <param name="inputArray"></param>
-        /// <returns>array of unsigned integers</returns>
+        /// <param name="inputArray">array of unsigned integers to be sorted</param>
+        /// <returns>sorted array of unsigned integers</returns>
         public static uint[] SortRadix(this uint[] inputArray)
         {
             const int bitsPerDigit = 8;
@@ -338,10 +362,25 @@ namespace HPCsharp
             return outputArrayHasResult ? outputArray : inputArray;
         }
         /// <summary>
-        /// Sort an array of unsigned integers using Radix Sorting algorithm (least significant digit variation)
+        /// Sort an array of unsigned integers using Radix Sorting algorithm (least significant digit variation - LSD)
+        /// The core algorithm is not in-place, but the interface is in-place. This algorithm is stable.
         /// </summary>
-        /// <param name="inputArray"></param>
-        /// <returns>array of unsigned integers</returns>
+        /// <param name="inputArray">array of unsigned integers to be sorted</param>
+        /// <returns>sorted array of unsigned integers</returns>
+        public static void SortRadixInPlaceInterface(this uint[] inputArray)
+        {
+            var sortedArray = SortRadix(inputArray);
+            Array.Copy(sortedArray, inputArray, inputArray.Length);
+        }
+
+        /// <summary>
+        /// Sort an array of unsigned long integers using Radix Sorting algorithm (least significant digit variation - LSD)
+        /// This algorithm is not in-place. This algorithm is stable.
+        /// </summary>
+        /// <param name="inputArray">array of unsigned long integers to be sorted</param>
+        /// <param name="startIndex">array index of where sorting will start</param>
+        /// <param name="length">number of array elements to sort</param>
+        /// <returns>sorted array of unsigned long integers</returns>
         public static void SortRadix(this uint[] inputArray, int startIndex, int length, uint[] tmpArray)
         {
             int numberOfBins = 256;
@@ -378,11 +417,133 @@ namespace HPCsharp
             uint[] tmp1 = inputArray;       // swap input and tmp arrays
             inputArray = tmpArray;
             tmpArray = tmp1;
-            //if (outputArrayHasResult)
-            //    for (int current = 0; current < inputArray.Length; current++)    // copy from output array into the input array
-            //        inputArray[current] = outputArray[current];
+        }
 
-            //return inputArray;
+        /// <summary>
+        /// Sort an array of unsigned long integers using Radix Sorting algorithm (least significant digit variation - LSD)
+        /// This algorithm is not in-place. This algorithm is stable.
+        /// </summary>
+        /// <param name="inputArray">array of unsigned long integers to be sorted</param>
+        /// <returns>sorted array of unsigned long integers</returns>
+        public static ulong[] SortRadix(this ulong[] inputArray)
+        {
+            const int bitsPerDigit = 8;
+            uint numberOfBins = 1 << bitsPerDigit;
+            uint numberOfDigits = (sizeof(ulong) * 8 + bitsPerDigit - 1) / bitsPerDigit;
+            int d = 0;
+            var outputArray = new ulong[inputArray.Length];
+
+            uint[][] startOfBin = new uint[numberOfDigits][];
+            for (int i = 0; i < numberOfDigits; i++)
+                startOfBin[i] = new uint[numberOfBins];
+            bool outputArrayHasResult = false;
+
+            ulong bitMask = numberOfBins - 1;
+            int shiftRightAmount = 0;
+
+            uint[][] count = HistogramByteComponents(inputArray, 0, inputArray.Length - 1);
+
+            for (d = 0; d < numberOfDigits; d++)
+            {
+                startOfBin[d][0] = 0;
+                for (uint i = 1; i < numberOfBins; i++)
+                    startOfBin[d][i] = startOfBin[d][i - 1] + count[d][i - 1];
+            }
+
+            d = 0;
+            while (bitMask != 0)    // end processing digits when all the mask bits have been processed and shifted out, leaving no bits set in the bitMask
+            {
+                uint[] startOfBinLoc = startOfBin[d];
+                for (uint current = 0; current < inputArray.Length; current++)
+                    outputArray[startOfBinLoc[(inputArray[current] & bitMask) >> shiftRightAmount]++] = inputArray[current];
+
+                bitMask <<= bitsPerDigit;
+                shiftRightAmount += bitsPerDigit;
+                outputArrayHasResult = !outputArrayHasResult;
+                d++;
+
+                ulong[] tmp = inputArray;       // swap input and output arrays
+                inputArray = outputArray;
+                outputArray = tmp;
+            }
+            return outputArrayHasResult ? outputArray : inputArray;
+        }
+        /// <summary>
+        /// Sort an array of unsigned long integers using Radix Sorting algorithm (least significant digit variation - LSD)
+        /// The core algorithm is not in-place, but the interface is in-place. This algorithm is stable.
+        /// </summary>
+        /// <param name="inputArray">array of unsigned long integers to be sorted</param>
+        /// <returns>sorted array of unsigned long integers</returns>
+        public static void SortRadixInPlaceInterface(this ulong[] inputArray)
+        {
+            var sortedArray = SortRadix(inputArray);
+            Array.Copy(sortedArray, inputArray, inputArray.Length);
+        }
+
+        /// <summary>
+        /// Sort an array of signed long integers using Radix Sorting algorithm (least significant digit variation - LSD)
+        /// This algorithm is not in-place. This algorithm is stable.
+        /// </summary>
+        /// <param name="inputArray">array of signed long integers to be sorted</param>
+        /// <returns>sorted array of signed long integers</returns>
+        public static long[] SortRadix(this long[] inputArray)
+        {
+            const int bitsPerDigit = 8;
+            uint numberOfBins = 1 << bitsPerDigit;
+            uint numberOfDigits = (sizeof(ulong) * 8 + bitsPerDigit - 1) / bitsPerDigit;
+            int d = 0;
+            var outputArray = new long[inputArray.Length];
+
+            uint[][] startOfBin = new uint[numberOfDigits][];
+            for (int i = 0; i < numberOfDigits; i++)
+                startOfBin[i] = new uint[numberOfBins];
+            bool outputArrayHasResult = false;
+
+            ulong bitMask = numberOfBins - 1;
+            const ulong halfOfPowerOfTwoRadix = PowerOfTwoRadix / 2;
+            int shiftRightAmount = 0;
+
+            uint[][] count = HistogramByteComponents(inputArray, 0, inputArray.Length - 1);
+
+            for (d = 0; d < numberOfDigits; d++)
+            {
+                startOfBin[d][0] = 0;
+                for (uint i = 1; i < numberOfBins; i++)
+                    startOfBin[d][i] = startOfBin[d][i - 1] + count[d][i - 1];
+            }
+
+            d = 0;
+            while (bitMask != 0)    // end processing digits when all the mask bits have been processed and shifted out, leaving no bits set in the bitMask
+            {
+                uint[] startOfBinLoc = startOfBin[d];
+                if (d != 7)
+                for (uint current = 0; current < inputArray.Length; current++)
+                    outputArray[startOfBinLoc[((ulong)inputArray[current] & bitMask) >> shiftRightAmount]++] = inputArray[current];
+                else
+                    for (uint current = 0; current < inputArray.Length; current++)
+                        outputArray[startOfBinLoc[((ulong)inputArray[current] >> shiftRightAmount) ^ halfOfPowerOfTwoRadix]++] = inputArray[current];
+
+                bitMask <<= bitsPerDigit;
+                shiftRightAmount += bitsPerDigit;
+                outputArrayHasResult = !outputArrayHasResult;
+                d++;
+
+                long[] tmp = inputArray;       // swap input and output arrays
+                inputArray = outputArray;
+                outputArray = tmp;
+            }
+            return outputArrayHasResult ? outputArray : inputArray;
+        }
+        /// <summary>
+        /// Sort an array of signed long integers using Radix Sorting algorithm (least significant digit variation - LSD)
+        /// The core algorithm is not in-place, but the interface is in-place. This algorithm is stable.
+        /// </summary>
+        /// <param name="inputArray">array of signed long integers to be sorted</param>
+        /// <returns>sorted array of signed long integers</returns>
+        public static void SortRadixInPlaceInterface(this long[] inputArray)
+        {
+            var sortedArray = SortRadix(inputArray);
+            Array.Copy(sortedArray, inputArray, inputArray.Length);
         }
 
         private static uint[] SortRadixExperimental(this uint[] inputArray)
