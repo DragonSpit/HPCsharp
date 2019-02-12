@@ -1,3 +1,8 @@
+Version 3.2.5
+Added LSD Radix Sort for signed long arrays (serial and parallel)
+Added Histogram (serial and parallel) for signed long arrays
+Added Parallel MSD Radix Sort (in-place), but it's not yet faster, needing further optimizations
+
 Version 3.2.4
 Improved performance of limited range random slong arrays and constant arrays, using an idea that John and I had.
 
