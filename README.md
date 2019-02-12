@@ -10,7 +10,7 @@ Updated VisualStudio 2017 examples solution, demonstrating usage through working
 
 To get the maximum performance make sure to target x64 processor architecture for the Release build in VisualStudio, increasing performance by as much as 50%.
 
-**_Version 3.2.4_** Just Released! Give it a shot.
+**_Version 3.2.5_** Just Released! Give it a shot.
 
 - Added in-place MSD Radix Sort implementations: byte, sbyte, short, ushort, ulong, long, and double arrays.
 - These use Counting Sort for byte, sbyte, short and ushort, for ludicrous speed!
