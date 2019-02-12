@@ -33,6 +33,7 @@
 //       when the additional memory is needed and just document it not being a true-inplace algorithm, but just has an in-place interface
 // TODO: Document these algorithms as "not truly in-place", but providing an in-place interface. Explain how much additional memory each algorithm uses.
 // TODO: Instead of masking and shifting in the inner loop of Radix Sort, use the union, once writes have been de-randomized, it may to improve performance then.
+//       Tried replacing the inner loop with union and it turned out to be slower, but this was before de-randomization.
 // TODO: Reduce memory footprint of partial array sort by allocating only enough memory for the partial array, instead of needing a temporary array that is a full size.
 // TODO: Figure out how to end RadixSort early for those cases where the keys being sorted are within a limited range, such as for keys in a database - e.g. fewer than 16 M keys which are 0 to 16M
 //       which is within 24-bits the lower bits. Bring this optimization from MSD Radix Sort, as it should help here as well. It doesn't help LSD Radix Sort as much
@@ -480,6 +481,73 @@ namespace HPCsharp
             Array.Copy(sortedArray, inputArray, inputArray.Length);
         }
 
+        private static void PermuteArrayUsingUnion(long[] inputArray, long[] outputArray, uint[] startOfBinLoc, int shiftRightAmount)
+        {
+            const ulong halfOfPowerOfTwoRadix = PowerOfTwoRadix / 2;
+            int whichByte = shiftRightAmount / 8;
+
+            var union = new Int64ByteUnion();
+
+            switch (whichByte)
+            {
+                case 0:
+                    for (uint current = 0; current < inputArray.Length; current++)
+                    {
+                        union.integer = inputArray[current];
+                        outputArray[startOfBinLoc[union.byte0]++] = inputArray[current];
+                    }
+                    break;
+                case 1:
+                    for (uint current = 0; current < inputArray.Length; current++)
+                    {
+                        union.integer = inputArray[current];
+                        outputArray[startOfBinLoc[union.byte1]++] = inputArray[current];
+                    }
+                    break;
+                case 2:
+                    for (uint current = 0; current < inputArray.Length; current++)
+                    {
+                        union.integer = inputArray[current];
+                        outputArray[startOfBinLoc[union.byte2]++] = inputArray[current];
+                    }
+                    break;
+                case 3:
+                    for (uint current = 0; current < inputArray.Length; current++)
+                    {
+                        union.integer = inputArray[current];
+                        outputArray[startOfBinLoc[union.byte3]++] = inputArray[current];
+                    }
+                    break;
+                case 4:
+                    for (uint current = 0; current < inputArray.Length; current++)
+                    {
+                        union.integer = inputArray[current];
+                        outputArray[startOfBinLoc[union.byte4]++] = inputArray[current];
+                    }
+                    break;
+                case 5:
+                    for (uint current = 0; current < inputArray.Length; current++)
+                    {
+                        union.integer = inputArray[current];
+                        outputArray[startOfBinLoc[union.byte5]++] = inputArray[current];
+                    }
+                    break;
+                case 6:
+                    for (uint current = 0; current < inputArray.Length; current++)
+                    {
+                        union.integer = inputArray[current];
+                        outputArray[startOfBinLoc[union.byte6]++] = inputArray[current];
+                    }
+                    break;
+                case 7:
+                    for (uint current = 0; current < inputArray.Length; current++)
+                    {
+                        union.integer = inputArray[current];
+                        outputArray[startOfBinLoc[((ulong)inputArray[current] >> shiftRightAmount) ^ halfOfPowerOfTwoRadix]++] = inputArray[current];
+                    }
+                    break;
+            }
+        }
         /// <summary>
         /// Sort an array of signed long integers using Radix Sorting algorithm (least significant digit variation - LSD)
         /// This algorithm is not in-place. This algorithm is stable.
@@ -516,9 +584,10 @@ namespace HPCsharp
             while (bitMask != 0)    // end processing digits when all the mask bits have been processed and shifted out, leaving no bits set in the bitMask
             {
                 uint[] startOfBinLoc = startOfBin[d];
+
                 if (d != 7)
-                for (uint current = 0; current < inputArray.Length; current++)
-                    outputArray[startOfBinLoc[((ulong)inputArray[current] & bitMask) >> shiftRightAmount]++] = inputArray[current];
+                    for (uint current = 0; current < inputArray.Length; current++)
+                        outputArray[startOfBinLoc[((ulong)inputArray[current] & bitMask) >> shiftRightAmount]++] = inputArray[current];
                 else
                     for (uint current = 0; current < inputArray.Length; current++)
                         outputArray[startOfBinLoc[((ulong)inputArray[current] >> shiftRightAmount) ^ halfOfPowerOfTwoRadix]++] = inputArray[current];

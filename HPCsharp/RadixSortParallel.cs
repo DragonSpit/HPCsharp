@@ -88,6 +88,73 @@ namespace HPCsharp
             var sortedArray = SortRadixPar(inputArray);
             Array.Copy(sortedArray, inputArray, inputArray.Length);
         }
+        /// <summary>
+        /// Parallel Sort an array of signed long integers using Radix Sorting algorithm (least significant digit variation - LSD)
+        /// This algorithm is not in-place. This algorithm is stable.
+        /// </summary>
+        /// <param name="inputArray">array of signed long integers to be sorted</param>
+        /// <returns>sorted array of signed long integers</returns>
+        public static long[] SortRadixPar(this long[] inputArray)
+        {
+            const int bitsPerDigit = 8;
+            uint numberOfBins = 1 << bitsPerDigit;
+            uint numberOfDigits = (sizeof(ulong) * 8 + bitsPerDigit - 1) / bitsPerDigit;
+            int d = 0;
+            var outputArray = new long[inputArray.Length];
+
+            uint[][] startOfBin = new uint[numberOfDigits][];
+            for (int i = 0; i < numberOfDigits; i++)
+                startOfBin[i] = new uint[numberOfBins];
+            bool outputArrayHasResult = false;
+
+            ulong bitMask = numberOfBins - 1;
+            const ulong halfOfPowerOfTwoRadix = PowerOfTwoRadix / 2;
+            int shiftRightAmount = 0;
+
+            uint[][] count = HistogramByteComponentsPar(inputArray, 0, inputArray.Length - 1);
+
+            for (d = 0; d < numberOfDigits; d++)
+            {
+                startOfBin[d][0] = 0;
+                for (uint i = 1; i < numberOfBins; i++)
+                    startOfBin[d][i] = startOfBin[d][i - 1] + count[d][i - 1];
+            }
+
+            d = 0;
+            while (bitMask != 0)    // end processing digits when all the mask bits have been processed and shifted out, leaving no bits set in the bitMask
+            {
+                uint[] startOfBinLoc = startOfBin[d];
+
+                if (d != 7)
+                    for (uint current = 0; current < inputArray.Length; current++)
+                        outputArray[startOfBinLoc[((ulong)inputArray[current] & bitMask) >> shiftRightAmount]++] = inputArray[current];
+                else
+                    for (uint current = 0; current < inputArray.Length; current++)
+                        outputArray[startOfBinLoc[((ulong)inputArray[current] >> shiftRightAmount) ^ halfOfPowerOfTwoRadix]++] = inputArray[current];
+
+                bitMask <<= bitsPerDigit;
+                shiftRightAmount += bitsPerDigit;
+                outputArrayHasResult = !outputArrayHasResult;
+                d++;
+
+                long[] tmp = inputArray;       // swap input and output arrays
+                inputArray = outputArray;
+                outputArray = tmp;
+            }
+            return outputArrayHasResult ? outputArray : inputArray;
+        }
+        /// <summary>
+        /// Sort an array of signed long integers using Radix Sorting algorithm (least significant digit variation - LSD)
+        /// The core algorithm is not in-place, but the interface is in-place. This algorithm is stable.
+        /// </summary>
+        /// <param name="inputArray">array of signed long integers to be sorted</param>
+        /// <returns>sorted array of signed long integers</returns>
+        public static void SortRadixInPlaceInterfacePar(this long[] inputArray)
+        {
+            var sortedArray = SortRadixPar(inputArray);
+            Array.Copy(sortedArray, inputArray, inputArray.Length);
+        }
+
     }
 
     class CustomData
