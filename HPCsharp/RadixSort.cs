@@ -557,7 +557,7 @@ namespace HPCsharp
         public static long[] SortRadix(this long[] inputArray)
         {
             const int bitsPerDigit = 8;
-            uint numberOfBins = 1 << bitsPerDigit;
+            const uint numberOfBins = 1 << bitsPerDigit;
             uint numberOfDigits = (sizeof(ulong) * 8 + bitsPerDigit - 1) / bitsPerDigit;
             int d = 0;
             var outputArray = new long[inputArray.Length];
@@ -567,7 +567,7 @@ namespace HPCsharp
                 startOfBin[i] = new uint[numberOfBins];
             bool outputArrayHasResult = false;
 
-            ulong bitMask = numberOfBins - 1;
+            const ulong bitMask = numberOfBins - 1;
             const ulong halfOfPowerOfTwoRadix = PowerOfTwoRadix / 2;
             int shiftRightAmount = 0;
 
@@ -581,18 +581,17 @@ namespace HPCsharp
             }
 
             d = 0;
-            while (bitMask != 0)    // end processing digits when all the mask bits have been processed and shifted out, leaving no bits set in the bitMask
+            while (d < numberOfDigits)
             {
                 uint[] startOfBinLoc = startOfBin[d];
 
                 if (d != 7)
                     for (uint current = 0; current < inputArray.Length; current++)
-                        outputArray[startOfBinLoc[((ulong)inputArray[current] & bitMask) >> shiftRightAmount]++] = inputArray[current];
+                        outputArray[startOfBinLoc[((ulong)inputArray[current] >> shiftRightAmount) & bitMask]++] = inputArray[current];
                 else
                     for (uint current = 0; current < inputArray.Length; current++)
                         outputArray[startOfBinLoc[((ulong)inputArray[current] >> shiftRightAmount) ^ halfOfPowerOfTwoRadix]++] = inputArray[current];
 
-                bitMask <<= bitsPerDigit;
                 shiftRightAmount += bitsPerDigit;
                 outputArrayHasResult = !outputArrayHasResult;
                 d++;
