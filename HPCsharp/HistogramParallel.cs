@@ -234,5 +234,30 @@ namespace HPCsharp
 
             return countLeft;
         }
+
+        public static int[] HistogramOneByteComponentPar(long[] inArray, Int32 l, Int32 r, int shiftRightAmount)
+        {
+            const int numberOfBins = 256;
+            int[] countLeft = new int[numberOfBins];
+
+            if (l > r)      // zero elements to compare
+                return countLeft;
+            if ((r - l + 1) <= ThresholdByteCount)
+                return Algorithm.HistogramByteComponents(inArray, l, r, shiftRightAmount);
+
+            int m = (r + l) / 2;
+
+            int[] countRight = new int[numberOfBins];
+
+            Parallel.Invoke(
+                () => { countLeft  = HistogramOneByteComponentPar(inArray, l,     m, shiftRightAmount); },
+                () => { countRight = HistogramOneByteComponentPar(inArray, m + 1, r, shiftRightAmount); }
+            );
+            // Combine left and right results
+            for (int i = 0; i < numberOfBins; i++)
+                countLeft[i] += countRight[i];
+
+            return countLeft;
+        }
     }
 }

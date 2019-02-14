@@ -46,7 +46,7 @@ namespace HPCsharp
             const ulong bitMask = PowerOfTwoRadix - 1;
             const ulong halfOfPowerOfTwoRadix = PowerOfTwoRadix / 2;
 
-            var count = Algorithm.HistogramByteComponents(a, first, last, shiftRightAmount);
+            var count = HistogramOneByteComponentPar(a, first, last, shiftRightAmount);
 
             var startOfBin = new int[PowerOfTwoRadix + 1];
             var endOfBin = new int[PowerOfTwoRadix];
