@@ -38,7 +38,8 @@
 // TODO: Figure out how to end RadixSort early for those cases where the keys being sorted are within a limited range, such as for keys in a database - e.g. fewer than 16 M keys which are 0 to 16M
 //       which is within 24-bits the lower bits. Bring this optimization from MSD Radix Sort, as it should help here as well. It doesn't help LSD Radix Sort as much
 //       because for slong when negative and positive values are used we end up with two bins as we get to more significant digits (unless we limit it to just positives eventhough
-//       the data type is an slong).
+//       the data type is an slong). However, two bins are find (and possibly even more), since if these bins are already in-order then there is permuting is not needed!
+//       This will be a huge speed-up for John's use case! Is it easy to tell if the bins are in the correct order quickly? All negative and all positive? This is extra overhead.
 // TODO: Wonder if paging the temporary/destination array into memory first would help performance. Otherwise, if C# does it lazily, then random access may make that slower? Maybe.
 using System;
 using System.Collections.Generic;

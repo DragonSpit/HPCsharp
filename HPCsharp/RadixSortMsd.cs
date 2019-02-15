@@ -18,6 +18,10 @@
 // TODO: Create an adaptive MSD Radix Sort implementation, where if the array/bin is > 64K elements then use 32-bit entries in the count array, but if the array/bin is 64K elements or fewer
 //       then use ushort count entries, which will fit more entries into L1 and L2 cache allowing for processing of more bits of each element per iteration - e.g. instead of 8-bits/digit we
 //       could go up to 9-bits per digit, or from 10-bits/digit to 11-bits/digit, and the reduce the number of passes.
+// TODO: Try 9-bits per digit to start with for MSD Radix Sort and leave the last digit to be 10-bits, since most likely we won't even get to that digit, or will use serial algorithm.
+//       We could use the same idea with 10-bit and leave the last 4 digits to be 11-bits.
+//       Or, we could start with 11-bit digits hoping that the upper bits will be all the same and be in one bin (optimistic).
+//       11-bit digits with an adaptive 64K bin size could really help. Actually, the 64K adaptivity is a totally orthogonal idea to others.
 // TODO: Defnitely implement the special case of all array elements ending up in a single bin. It's exactly how John is testing, as he generates randoms with values up to the size of the
 //       array - e.g. if array size is 1M elements then each array element has a value 0 to 1M-1. Covering this special case by checking if all elements are in a single bin, will accelerate
 //       this special case and the case of a constant array, and ramps that go up to the array size. Even with 100M elements of longs, each value is only 27-bits out of 64-bits, with the upper
@@ -27,7 +31,7 @@
 //       tested very carefully, especially using two values thru the entire array (with both possible phases). Yeah, you process two or more array elements at a time, which will add more complexity,
 //       at a significant gain of performance. Once we do this, it would be worth contacting Brad's son to discuss with him how to add this to compilers in general to recogmize this kind of a pattern
 //       and unroll it to gain performance by more ILP.
-// TODO: It may be possible to generalize most significant digit detection (instead of hardcoding 56 right shift for 8-bit digit) by detecting if the MSD includes the most significant bit in it.
+// TODO: It should be possible to generalize most significant digit detection (instead of hardcoding 56 right shift for 8-bit digit) by detecting if the MSD includes the most significant bit in it.
 //       Could possibly codify into a function that gets rightShiftAmount and digit size. This leads to generalization of most significant digit detection to support digits of any size.
 using System;
 using System.Collections.Generic;
@@ -307,8 +311,8 @@ namespace HPCsharp
                         while (endOfBin[digit = ((ulong)current_element >> shiftRightAmount) ^ halfOfPowerOfTwoRadix] != _current)
                             Swap(ref current_element, a, endOfBin[digit]++);
                         a[_current] = current_element;
-
                         endOfBin[digit]++;
+
                         while (endOfBin[nextBin - 1] == startOfBin[nextBin]) nextBin++;   // skip over empty and full bins, when the end of the current bin reaches the start of the next bin
                         _current = endOfBin[nextBin - 1];
                     }
@@ -322,10 +326,11 @@ namespace HPCsharp
                         while (endOfBin[digit = ((ulong)current_element >> shiftRightAmount) & bitMask] != _current)
                             Swap(ref current_element, a, endOfBin[digit]++);
                         a[_current] = current_element;
-
                         endOfBin[digit]++;
+
                         while (endOfBin[nextBin - 1] == startOfBin[nextBin]) nextBin++;   // skip over empty and full bins, when the end of the current bin reaches the start of the next bin
                         _current = endOfBin[nextBin - 1];
+
                     }
                 }
                 if (shiftRightAmount > 0)    // end recursion when all the bits have been processes
@@ -334,6 +339,108 @@ namespace HPCsharp
 
                     for (int i = 0; i < PowerOfTwoRadix; i++)
                         RadixSortMsdLongInner(a, startOfBin[i], endOfBin[i] - startOfBin[i], shiftRightAmount, baseCaseInPlaceSort);
+                }
+            }
+            else
+            {
+                if (shiftRightAmount > 0)    // end recursion when all the bits have been processes
+                {
+                    shiftRightAmount = shiftRightAmount >= Log2ofPowerOfTwoRadix ? shiftRightAmount -= Log2ofPowerOfTwoRadix : 0;
+                    RadixSortMsdLongInner(a, first, length, shiftRightAmount, baseCaseInPlaceSort);
+                }
+            }
+        }
+        private static void RadixSortMsdLongInner1(long[] a, int first, int length, int shiftRightAmount, Action<long[], int, int> baseCaseInPlaceSort)
+        {
+            if (length < SortRadixMsdLongThreshold)
+            {
+                baseCaseInPlaceSort(a, first, length);
+                //InsertionSort(a, first, length);
+                return;
+            }
+            int last = first + length - 1;
+            const ulong bitMask = PowerOfTwoRadix - 1;
+            const ulong halfOfPowerOfTwoRadix = PowerOfTwoRadix / 2;
+
+            var count = HistogramByteComponentsUsingUnion(a, first, last, shiftRightAmount);
+
+            var startOfBin = new int[PowerOfTwoRadix + 1];
+            var endOfBin = new int[PowerOfTwoRadix];
+            int nextBin = 1;
+            startOfBin[0] = endOfBin[0] = first; startOfBin[PowerOfTwoRadix] = -1;         // sentinal
+            for (int i = 1; i < PowerOfTwoRadix; i++)
+                startOfBin[i] = endOfBin[i] = startOfBin[i - 1] + count[i - 1];
+            int bucketsUsed = 0;
+            for (int i = 0; i < count.Length; i++)
+                if (count[i] > 0) bucketsUsed++;
+
+            if (bucketsUsed > 1)
+            {
+                if (shiftRightAmount == 56)     // Most significant digit
+                {
+                    for (int _current = first; _current <= last;)
+                    {
+                        ulong digit;
+                        long current_element = a[_current];  // get the compiler to recognize that a register can be used for the loop instead of a[_current] memory location
+                        while (endOfBin[digit = ((ulong)current_element >> shiftRightAmount) ^ halfOfPowerOfTwoRadix] != _current)
+                            Swap(ref current_element, a, endOfBin[digit]++);
+                        a[_current] = current_element;
+                        endOfBin[digit]++;
+
+                        while (endOfBin[nextBin - 1] == startOfBin[nextBin]) nextBin++;   // skip over empty and full bins, when the end of the current bin reaches the start of the next bin
+                        _current = endOfBin[nextBin - 1];
+                    }
+                }
+                else
+                {
+                    for (int _current = first; _current <= last;)
+                    {
+#if false
+                        ulong digit;
+                        long current_element = a[_current];  // get the compiler to recognize that a register can be used for the loop instead of a[_current] memory location
+                        while (endOfBin[digit = ((ulong)current_element >> shiftRightAmount) & bitMask] != _current)
+                            Swap(ref current_element, a, endOfBin[digit]++);
+                        a[_current] = current_element;
+                        endOfBin[digit]++;
+
+                        while (endOfBin[nextBin - 1] == startOfBin[nextBin]) nextBin++;   // skip over empty and full bins, when the end of the current bin reaches the start of the next bin
+                        _current = endOfBin[nextBin - 1];
+#else
+                        // TODO: Need to draw pictures for this code transformation. That's the only way I'll get it right/correct. First draw pictures of the original algorithm
+                        //       and then transform it to handle several elements simultaneously, as Malte suggests.
+                        ulong digit_0;
+                        ulong digit_1;
+                        long current_element_0 = a[_current];  // get the compiler to recognize that a register can be used for the loop instead of a[_current] memory location
+                        long current_element_1 = a[_current + 1];
+                        while (true)
+                        {
+                            digit_0 = ((ulong)current_element_0 >> shiftRightAmount) & bitMask;
+                            if (endOfBin[digit_0] == _current) break;
+                            Swap(ref current_element_0, a, endOfBin[digit_0]++);
+                        }
+                        a[_current] = current_element_0;
+                        endOfBin[digit_0]++;
+
+                        while (true)
+                        {
+                            digit_1 = ((ulong)current_element_1 >> shiftRightAmount) & bitMask;
+                            if (endOfBin[digit_1] == _current) break;
+                            Swap(ref current_element_1, a, endOfBin[digit_1]++);
+                        }
+                        a[_current + 1] = current_element_1;
+                        endOfBin[digit_1]++;
+
+                        while (endOfBin[nextBin - 1] == startOfBin[nextBin]) nextBin++;   // skip over empty and full bins, when the end of the current bin reaches the start of the next bin
+                        _current = endOfBin[nextBin - 1];
+#endif
+                    }
+                }
+                if (shiftRightAmount > 0)    // end recursion when all the bits have been processes
+                {
+                    shiftRightAmount = shiftRightAmount >= Log2ofPowerOfTwoRadix ? shiftRightAmount -= Log2ofPowerOfTwoRadix : 0;
+
+                    for (int i = 0; i < PowerOfTwoRadix; i++)
+                        RadixSortMsdLongInner1(a, startOfBin[i], endOfBin[i] - startOfBin[i], shiftRightAmount, baseCaseInPlaceSort);
                 }
             }
             else
