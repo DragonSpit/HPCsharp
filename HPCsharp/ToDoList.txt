@@ -25,6 +25,3 @@
 //       acceleration, but at least will provide some and will beat LINQ, since that's the only current option for C# developers.
 // TODO: List all available algorithms in the Readme, right up front to allow new users to see what's available to them
 // TODO: Figure out what the deprecated warning during the building of the NuGet package is all about
-// TODO: Implement Sum algorithm for basic data types that not only uses multi-core, but also uses SIMD instructions, because that's a fun one as it can harness
-//       data parallelism and multi-threading parallelism, and is a commonly used function. Can also harness computational unit parallelism (scalar and SIMD) in parallel.
-//       and ILP. Average can be easily implemented too, since that depends on sum. Then some of the basic statistics could also be accelerated.
