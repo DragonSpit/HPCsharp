@@ -68,6 +68,12 @@ namespace HPCsharp
             sumLeft += sumRight;
             return sumLeft;
         }
+
+        public static long SumSseIntToLongPar(int[] arrayToSum)
+        {
+            return SumSseIntToLongPar(arrayToSum, 0, arrayToSum.Length - 1);
+        }
+
 #if false
         public static void FillGenericSse<T>(this T[] arrayToFill, T value, int startIndex, int length) where T : struct
         {
@@ -128,5 +134,5 @@ namespace HPCsharp
                 arrayToFill[i] = value;
         }
 #endif
+        }
     }
-}
