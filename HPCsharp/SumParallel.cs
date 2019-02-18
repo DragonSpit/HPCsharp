@@ -95,7 +95,7 @@ namespace HPCsharp
             return partialSum0;
         }
 
-        public static int ThresholdParallelSum { get; set; } = 1024;
+        public static int ThresholdParallelSum { get; set; } = 16 * 1024;
 
         public static long SumSsePar(this int[] arrayToSum, int l, int r)
         {
