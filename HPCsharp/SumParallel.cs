@@ -22,9 +22,9 @@ namespace HPCsharp
             var sumVector = new Vector<long>();
             var longLower = new Vector<long>();
             var longUpper = new Vector<long>();
-            int numFullVectors = (arrayToSum.Length / Vector<int>.Count) * Vector<int>.Count;
+            int sseLimit = (arrayToSum.Length / Vector<int>.Count) * Vector<int>.Count;
             int i;
-            for (i = 0; i < numFullVectors; i += Vector<int>.Count)
+            for (i = 0; i < sseLimit; i += Vector<int>.Count)
             {
                 var inVector = new Vector<int>(arrayToSum, i);
                 Vector.Widen(inVector, out longLower, out longUpper);
@@ -33,7 +33,7 @@ namespace HPCsharp
             long overallSum = 0;
             for (; i < arrayToSum.Length; i++)
                 overallSum += arrayToSum[i];
-            for (i = 0; i < Vector<int>.Count; i++)
+            for (i = 0; i < Vector<long>.Count; i++)
                 overallSum += sumVector[i];
             return overallSum;
         }
