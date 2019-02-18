@@ -19,46 +19,49 @@ namespace HPCsharp
         // TODO: use the l to r implementation here to have a single core implementation
         public static long SumSse(this int[] arrayToSum)
         {
-            var sumVector = new Vector<long>();
-            var longLower = new Vector<long>();
-            var longUpper = new Vector<long>();
-            int sseLimit = (arrayToSum.Length / Vector<int>.Count) * Vector<int>.Count;
+            var sumVectorLower = new Vector<long>();
+            var sumVectorUpper = new Vector<long>();
+            var longLower      = new Vector<long>();
+            var longUpper      = new Vector<long>();
+            int sseIndexEnd = (arrayToSum.Length / Vector<int>.Count) * Vector<int>.Count;
             int i;
-            for (i = 0; i < sseLimit; i += Vector<int>.Count)
+            for (i = 0; i < sseIndexEnd; i += Vector<int>.Count)
             {
                 var inVector = new Vector<int>(arrayToSum, i);
                 Vector.Widen(inVector, out longLower, out longUpper);
-                sumVector += longLower + longUpper;
+                sumVectorLower += longLower;
+                sumVectorUpper += longUpper;
             }
             long overallSum = 0;
             for (; i < arrayToSum.Length; i++)
                 overallSum += arrayToSum[i];
+            sumVectorLower += sumVectorUpper;
             for (i = 0; i < Vector<long>.Count; i++)
-                overallSum += sumVector[i];
+                overallSum += sumVectorLower[i];
             return overallSum;
         }
 
         public static long SumSse(this int[] arrayToSum, int l, int r)
         {
-            var sumVector0 = new Vector<long>();
-            var sumVector1 = new Vector<long>();
-            var longLower  = new Vector<long>();
-            var longUpper  = new Vector<long>();
-            int numFullVectors = ((r - l + 1) / Vector<int>.Count) * Vector<int>.Count;
+            var sumVectorLower = new Vector<long>();
+            var sumVectorUpper = new Vector<long>();
+            var longLower      = new Vector<long>();
+            var longUpper      = new Vector<long>();
+            int sseIndexEnd = l + ((r - l + 1) / Vector<int>.Count) * Vector<int>.Count;
             int i;
-            for (i = l; i < numFullVectors; i += Vector<int>.Count)
+            for (i = l; i < sseIndexEnd; i += Vector<int>.Count)
             {
                 var inVector = new Vector<int>(arrayToSum, i);
                 Vector.Widen(inVector, out longLower, out longUpper);
-                sumVector0 += longLower;
-                sumVector1 += longUpper;
+                sumVectorLower += longLower;
+                sumVectorUpper += longUpper;
             }
             long overallSum = 0;
-            for (; i < r; i++)
+            for (; i <= r; i++)
                 overallSum += arrayToSum[i];
-            sumVector0 += sumVector1;
-            for (i = 0; i < Vector<int>.Count; i++)
-                overallSum += sumVector0[i];
+            sumVectorLower += sumVectorUpper;
+            for (i = 0; i < Vector<long>.Count; i++)
+                overallSum += sumVectorLower[i];
             return overallSum;
         }
 
@@ -94,7 +97,7 @@ namespace HPCsharp
 
         public static int ThresholdParallelSum { get; set; } = 1024;
 
-        public static long SumSsePar(int[] arrayToSum, int l, int r)
+        public static long SumSsePar(this int[] arrayToSum, int l, int r)
         {
             long sumLeft = 0;
 
@@ -116,7 +119,7 @@ namespace HPCsharp
             return sumLeft;
         }
 
-        public static long SumSsePar(int[] arrayToSum)
+        public static long SumSsePar(this int[] arrayToSum)
         {
             return SumSsePar(arrayToSum, 0, arrayToSum.Length - 1);
         }
