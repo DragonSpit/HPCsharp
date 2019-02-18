@@ -54,5 +54,13 @@ namespace HPCsharp
                 overallSum += arrayToSum[i];
             return overallSum;
         }
+
+        public static double Sum(this float[] arrayToSum)
+        {
+            double overallSum = 0;
+            for (int i = 0; i < arrayToSum.Length; i++)
+                overallSum += arrayToSum[i];
+            return overallSum;
+        }
     }
 }
