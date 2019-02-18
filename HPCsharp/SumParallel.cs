@@ -6,6 +6,7 @@
 //       Or, summ up an array of int32's, but use int64 for the sum to not overflow.
 // TODO: Implement aligned SIMD sum, since memory alignment is critical for SIMD instructions. So, do scalar first until we are SIMD aligned and then do SIMD, followed by more scarlar to finish all
 //       left over elements that are not SIMD size divisible.
+// TODO: Contribute to Sum C# stackoverflow page, since nobody considered overflow condition and using a larger range values for sum
 using System.Collections.Generic;
 using System.Text;
 using System.Numerics;
@@ -15,13 +16,20 @@ namespace HPCsharp
 {
     static public partial class ParallelAlgorithm
     {
-        public static long SumSseIntToLong(this int[] arrayToSum)
+        // TODO: use the l to r implementation here to have a single core implementation
+        public static long SumSse(this int[] arrayToSum)
         {
-            var sumVector = new Vector<int>();
+            var sumVector = new Vector<long>();
+            var longLower = new Vector<long>();
+            var longUpper = new Vector<long>();
             int numFullVectors = (arrayToSum.Length / Vector<int>.Count) * Vector<int>.Count;
             int i;
             for (i = 0; i < numFullVectors; i += Vector<int>.Count)
-                sumVector += new Vector<int>(arrayToSum, i);
+            {
+                var inVector = new Vector<int>(arrayToSum, i);
+                Vector.Widen(inVector, out longLower, out longUpper);
+                sumVector += longLower + longUpper;
+            }
             long overallSum = 0;
             for (; i < arrayToSum.Length; i++)
                 overallSum += arrayToSum[i];
@@ -30,48 +38,87 @@ namespace HPCsharp
             return overallSum;
         }
 
-        public static long SumSseIntToLong(this int[] arrayToSum, int l, int r)
+        public static long SumSse(this int[] arrayToSum, int l, int r)
         {
-            var sumVector = new Vector<int>();
+            var sumVector0 = new Vector<long>();
+            var sumVector1 = new Vector<long>();
+            var longLower  = new Vector<long>();
+            var longUpper  = new Vector<long>();
             int numFullVectors = ((r - l + 1) / Vector<int>.Count) * Vector<int>.Count;
             int i;
             for (i = l; i < numFullVectors; i += Vector<int>.Count)
-                sumVector += new Vector<int>(arrayToSum, i);
+            {
+                var inVector = new Vector<int>(arrayToSum, i);
+                Vector.Widen(inVector, out longLower, out longUpper);
+                sumVector0 += longLower;
+                sumVector1 += longUpper;
+            }
             long overallSum = 0;
             for (; i < r; i++)
                 overallSum += arrayToSum[i];
+            sumVector0 += sumVector1;
             for (i = 0; i < Vector<int>.Count; i++)
-                overallSum += sumVector[i];
+                overallSum += sumVector0[i];
             return overallSum;
+        }
+
+        public static long SumSseAndScalar(this int[] arrayToSum, int l, int r)
+        {
+            const int numScalarOps = 2;
+            var sumVector = new Vector<long>();
+            var longLower = new Vector<long>();
+            var longUpper = new Vector<long>();
+            int lengthForVector = (r - l + 1) / (Vector<int>.Count + numScalarOps) * Vector<int>.Count;
+            int numFullVectors = (lengthForVector / Vector<int>.Count) * Vector<int>.Count;
+            long partialSum0 = 0;
+            long partialSum1 = 0;
+            int i = l;
+            int j = numFullVectors * Vector<int>.Count;
+            int numIterations = System.Math.Min(numFullVectors, arrayToSum.Length - numFullVectors * Vector<int>.Count);
+            for (; i < numIterations; i += Vector<int>.Count)
+            {
+                var inVector = new Vector<int>(arrayToSum, i);
+                Vector.Widen(inVector, out longLower, out longUpper);
+                partialSum0 += arrayToSum[j++];
+                sumVector   += longLower;
+                partialSum1 += arrayToSum[j++];
+                sumVector   += longUpper;
+            }
+            for (i = j; i < r; i++)
+                partialSum0 += arrayToSum[i];
+            for (i = 0; i < Vector<int>.Count; i++)
+                partialSum0 += sumVector[i];
+            partialSum0 += partialSum1;
+            return partialSum0;
         }
 
         public static int ThresholdParallelSum { get; set; } = 1024;
 
-        public static long SumSseIntToLongPar(int[] arrayToSum, int l, int r)
+        public static long SumSsePar(int[] arrayToSum, int l, int r)
         {
             long sumLeft = 0;
 
             if (l > r)
                 return sumLeft;
             if ((r - l + 1) <= ThresholdParallelSum)
-                return SumSseIntToLong(arrayToSum, l, r);
+                return SumSse(arrayToSum, l, r);
 
             int m = (r + l) / 2;
 
             long sumRight = 0;
 
             Parallel.Invoke(
-                () => { sumLeft  = SumSseIntToLongPar(arrayToSum, l,     m); },
-                () => { sumRight = SumSseIntToLongPar(arrayToSum, m + 1, r); }
+                () => { sumLeft  = SumSsePar(arrayToSum, l,     m); },
+                () => { sumRight = SumSsePar(arrayToSum, m + 1, r); }
             );
             // Combine left and right results
             sumLeft += sumRight;
             return sumLeft;
         }
 
-        public static long SumSseIntToLongPar(int[] arrayToSum)
+        public static long SumSsePar(int[] arrayToSum)
         {
-            return SumSseIntToLongPar(arrayToSum, 0, arrayToSum.Length - 1);
+            return SumSsePar(arrayToSum, 0, arrayToSum.Length - 1);
         }
 
 #if false
