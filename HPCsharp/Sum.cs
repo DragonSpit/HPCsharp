@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿//TODO: Add a partial array .Sum interface (start and length)
+using System.Collections.Generic;
 using System.Text;
 using System.Numerics;
 using System.Threading.Tasks;
@@ -7,7 +8,7 @@ namespace HPCsharp
 {
     static public partial class Algorithm
     {
-        public static long Sum(this int[] arrayToSum)
+        public static long SumHpc(this int[] arrayToSum)
         {
             long overallSum = 0;
             for (int i = 0; i < arrayToSum.Length; i++)
@@ -15,7 +16,7 @@ namespace HPCsharp
             return overallSum;
         }
 
-        public static long Sum(this short[] arrayToSum)
+        public static long SumHpc(this short[] arrayToSum)
         {
             long overallSum = 0;
             for (int i = 0; i < arrayToSum.Length; i++)
@@ -23,7 +24,7 @@ namespace HPCsharp
             return overallSum;
         }
 
-        public static long Sum(this sbyte[] arrayToSum)
+        public static long SumHpc(this sbyte[] arrayToSum)
         {
             long overallSum = 0;
             for (int i = 0; i < arrayToSum.Length; i++)
@@ -31,7 +32,7 @@ namespace HPCsharp
             return overallSum;
         }
 
-        public static ulong Sum(this uint[] arrayToSum)
+        public static ulong SumHpc(this uint[] arrayToSum)
         {
             ulong overallSum = 0;
             for (int i = 0; i < arrayToSum.Length; i++)
@@ -39,7 +40,7 @@ namespace HPCsharp
             return overallSum;
         }
 
-        public static ulong Sum(this ushort[] arrayToSum)
+        public static ulong SumHpc(this ushort[] arrayToSum)
         {
             ulong overallSum = 0;
             for (int i = 0; i < arrayToSum.Length; i++)
@@ -47,7 +48,7 @@ namespace HPCsharp
             return overallSum;
         }
 
-        public static ulong Sum(this byte[] arrayToSum)
+        public static ulong SumHpc(this byte[] arrayToSum)
         {
             ulong overallSum = 0;
             for (int i = 0; i < arrayToSum.Length; i++)
@@ -55,7 +56,7 @@ namespace HPCsharp
             return overallSum;
         }
 
-        public static double Sum(this float[] arrayToSum)
+        public static double SumHpc(this float[] arrayToSum)
         {
             double overallSum = 0;
             for (int i = 0; i < arrayToSum.Length; i++)
