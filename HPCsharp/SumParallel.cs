@@ -8,6 +8,7 @@
 //       left over elements that are not SIMD size divisible.
 // TODO: Contribute to Sum C# stackoverflow page, since nobody considered overflow condition and using a larger range values for sum
 // TODO: Develop a method to split an array on a cache line (64 byte) boundary. Make it public.
+// TODO: Change the partial array interface to (start, length) for consistency with others and standard C#
 using System.Collections.Generic;
 using System.Text;
 using System.Numerics;
@@ -114,33 +115,38 @@ namespace HPCsharp
             return overallSum;
         }
 
-        public static long SumSseAndScalar(this int[] arrayToSum, int l, int r)
+        private static long SumSseAndScalar(this int[] arrayToSum, int l, int r)
         {
             const int numScalarOps = 2;
-            var sumVector = new Vector<long>();
-            var longLower = new Vector<long>();
-            var longUpper = new Vector<long>();
+            var sumVectorLower = new Vector<long>();
+            var sumVectorUpper = new Vector<long>();
+            var longLower      = new Vector<long>();
+            var longUpper      = new Vector<long>();
             int lengthForVector = (r - l + 1) / (Vector<int>.Count + numScalarOps) * Vector<int>.Count;
-            int numFullVectors = (lengthForVector / Vector<int>.Count) * Vector<int>.Count;
+            int numFullVectors = lengthForVector / Vector<int>.Count;
             long partialSum0 = 0;
             long partialSum1 = 0;
             int i = l;
-            int j = numFullVectors * Vector<int>.Count;
-            int numIterations = System.Math.Min(numFullVectors, arrayToSum.Length - numFullVectors * Vector<int>.Count);
-            for (; i < numIterations; i += Vector<int>.Count)
+            int numScalarAdditions = (arrayToSum.Length - numFullVectors * Vector<int>.Count) / numScalarOps;
+            int numIterations = System.Math.Min(numFullVectors, numScalarAdditions);
+            int scalarIndex = l + numIterations * Vector<int>.Count;
+            int sseIndexEnd = scalarIndex;
+            //System.Console.WriteLine("{0}, {1}, {2}, {3}, {4}, {5}", arrayToSum.Length, lengthForVector, numFullVectors, numScalarAdditions, numIterations, scalarIndex);
+            for (; i < sseIndexEnd; i += Vector<int>.Count)
             {
                 var inVector = new Vector<int>(arrayToSum, i);
                 Vector.Widen(inVector, out longLower, out longUpper);
-                partialSum0 += arrayToSum[j++];
-                sumVector   += longLower;
-                partialSum1 += arrayToSum[j++];
-                sumVector   += longUpper;
+                partialSum0      += arrayToSum[scalarIndex++];          // interleave SSE and Scalar operations
+                sumVectorLower   += longLower;
+                partialSum1      += arrayToSum[scalarIndex++];
+                sumVectorUpper   += longUpper;
             }
-            for (i = j; i < r; i++)
+            for (i = scalarIndex; i <= r; i++)
                 partialSum0 += arrayToSum[i];
-            for (i = 0; i < Vector<int>.Count; i++)
-                partialSum0 += sumVector[i];
-            partialSum0 += partialSum1;
+            partialSum0    += partialSum1;
+            sumVectorLower += sumVectorUpper;
+            for (i = 0; i < Vector<long>.Count; i++)
+                partialSum0 += sumVectorLower[i];
             return partialSum0;
         }
 
