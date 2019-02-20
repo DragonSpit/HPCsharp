@@ -1,4 +1,4 @@
-﻿//TODO: Add a partial array .Sum interface (start and length)
+﻿// TODO: Implement nullable versions of Sum, only faster than the standard C# ones
 using System.Collections.Generic;
 using System.Text;
 using System.Numerics;

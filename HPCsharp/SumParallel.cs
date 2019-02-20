@@ -8,9 +8,8 @@
 //       left over elements that are not SIMD size divisible. First simple step is to check alignment of SIMD portion of the sum.
 // TODO: Contribute to Sum C# stackoverflow page, since nobody considered overflow condition and using a larger range values for sum
 // TODO: Develop a method to split an array on a cache line (64 byte) boundary. Make it public.
-
-// TODO: Change the partial array interface to (start, length) for consistency with others and standard C#
-// TODO: Implement full array length versions of all SSE algorithms and multi-core algorithms
+// TODO: Implement nullable versions of Sum, only faster than the standard C# ones. Should be able to still use SSE and multi-core, but need to check out each element for null before adding it. These
+//       will be much slower than non-nullable
 using System.Collections.Generic;
 using System.Text;
 using System.Numerics;
@@ -20,32 +19,17 @@ namespace HPCsharp
 {
     static public partial class ParallelAlgorithm
     {
-        // TODO: use the l to r implementation here to have a single core implementation
         public static long SumSse(this int[] arrayToSum)
         {
-            var sumVectorLower = new Vector<long>();
-            var sumVectorUpper = new Vector<long>();
-            var longLower      = new Vector<long>();
-            var longUpper      = new Vector<long>();
-            int sseIndexEnd = (arrayToSum.Length / Vector<int>.Count) * Vector<int>.Count;
-            int i;
-            for (i = 0; i < sseIndexEnd; i += Vector<int>.Count)
-            {
-                var inVector = new Vector<int>(arrayToSum, i);
-                Vector.Widen(inVector, out longLower, out longUpper);
-                sumVectorLower += longLower;
-                sumVectorUpper += longUpper;
-            }
-            long overallSum = 0;
-            for (; i < arrayToSum.Length; i++)
-                overallSum += arrayToSum[i];
-            sumVectorLower += sumVectorUpper;
-            for (i = 0; i < Vector<long>.Count; i++)
-                overallSum += sumVectorLower[i];
-            return overallSum;
+            return arrayToSum.SumSseInner(0, arrayToSum.Length - 1);
         }
 
-        public static long SumSse(this int[] arrayToSum, int l, int r)
+        public static long SumSse(this int[] arrayToSum, int start, int length)
+        {
+            return arrayToSum.SumSseInner(start, start + length - 1);
+        }
+
+        private static long SumSseInner(this int[] arrayToSum, int l, int r)
         {
             var sumVectorLower = new Vector<long>();
             var sumVectorUpper = new Vector<long>();
@@ -69,7 +53,17 @@ namespace HPCsharp
             return overallSum;
         }
 
-        public static ulong SumSse(this uint[] arrayToSum, int l, int r)
+        public static ulong SumSse(this uint[] arrayToSum)
+        {
+            return arrayToSum.SumSseInner(0, arrayToSum.Length - 1);
+        }
+
+        public static ulong SumSse(this uint[] arrayToSum, int start, int length)
+        {
+            return arrayToSum.SumSseInner(start, start + length - 1);
+        }
+
+        private static ulong SumSseInner(this uint[] arrayToSum, int l, int r)
         {
             var sumVectorLower = new Vector<ulong>();
             var sumVectorUpper = new Vector<ulong>();
@@ -93,7 +87,17 @@ namespace HPCsharp
             return overallSum;
         }
 
-        public static double SumSse(this float[] arrayToSum, int l, int r)
+        public static double SumSse(this float[] arrayToSum)
+        {
+            return arrayToSum.SumSseInner(0, arrayToSum.Length - 1);
+        }
+
+        public static double SumSse(this float[] arrayToSum, int start, int length)
+        {
+            return arrayToSum.SumSseInner(start, start + length - 1);
+        }
+
+        private static double SumSseInner(this float[] arrayToSum, int l, int r)
         {
             var sumVectorLower = new Vector<double>();
             var sumVectorUpper = new Vector<double>();
@@ -154,7 +158,7 @@ namespace HPCsharp
 
         public static int ThresholdParallelSum { get; set; } = 16 * 1024;
 
-        public static long SumSsePar(this int[] arrayToSum, int l, int r)
+        private static long SumSseParInner(this int[] arrayToSum, int l, int r)
         {
             long sumLeft = 0;
 
@@ -168,15 +172,15 @@ namespace HPCsharp
             long sumRight = 0;
 
             Parallel.Invoke(
-                () => { sumLeft  = SumSsePar(arrayToSum, l,     m); },
-                () => { sumRight = SumSsePar(arrayToSum, m + 1, r); }
+                () => { sumLeft  = SumSseParInner(arrayToSum, l,     m); },
+                () => { sumRight = SumSseParInner(arrayToSum, m + 1, r); }
             );
             // Combine left and right results
             sumLeft += sumRight;
             return sumLeft;
         }
 
-        public static ulong SumSsePar(this uint[] arrayToSum, int l, int r)
+        private static ulong SumSseParInner(this uint[] arrayToSum, int l, int r)
         {
             ulong sumLeft = 0;
 
@@ -190,15 +194,15 @@ namespace HPCsharp
             ulong sumRight = 0;
 
             Parallel.Invoke(
-                () => { sumLeft  = SumSsePar(arrayToSum, l,     m); },
-                () => { sumRight = SumSsePar(arrayToSum, m + 1, r); }
+                () => { sumLeft  = SumSseParInner(arrayToSum, l,     m); },
+                () => { sumRight = SumSseParInner(arrayToSum, m + 1, r); }
             );
             // Combine left and right results
             sumLeft += sumRight;
             return sumLeft;
         }
 
-        public static double SumSsePar(this float[] arrayToSum, int l, int r)
+        private static double SumSseParInner(this float[] arrayToSum, int l, int r)
         {
             double sumLeft = 0;
 
@@ -212,8 +216,8 @@ namespace HPCsharp
             double sumRight = 0;
 
             Parallel.Invoke(
-                () => { sumLeft  = SumSsePar(arrayToSum, l,     m); },
-                () => { sumRight = SumSsePar(arrayToSum, m + 1, r); }
+                () => { sumLeft  = SumSseParInner(arrayToSum, l,     m); },
+                () => { sumRight = SumSseParInner(arrayToSum, m + 1, r); }
             );
             // Combine left and right results
             sumLeft += sumRight;
@@ -222,17 +226,32 @@ namespace HPCsharp
 
         public static long SumSsePar(this int[] arrayToSum)
         {
-            return SumSsePar(arrayToSum, 0, arrayToSum.Length - 1);
+            return SumSseParInner(arrayToSum, 0, arrayToSum.Length - 1);
+        }
+
+        public static long SumSsePar(this int[] arrayToSum, int start, int length)
+        {
+            return arrayToSum.SumSseInner(start, start + length - 1);
         }
 
         public static ulong SumSsePar(this uint[] arrayToSum)
         {
-            return SumSsePar(arrayToSum, 0, arrayToSum.Length - 1);
+            return SumSseParInner(arrayToSum, 0, arrayToSum.Length - 1);
+        }
+
+        public static ulong SumSsePar(this uint[] arrayToSum, int start, int length)
+        {
+            return arrayToSum.SumSseParInner(start, start + length - 1);
         }
 
         public static double SumSsePar(this float[] arrayToSum)
         {
-            return SumSsePar(arrayToSum, 0, arrayToSum.Length - 1);
+            return SumSseParInner(arrayToSum, 0, arrayToSum.Length - 1);
+        }
+
+        public static double SumSsePar(this float[] arrayToSum, int start, int length)
+        {
+            return arrayToSum.SumSseParInner(start, start + length - 1);
         }
 
 #if false
