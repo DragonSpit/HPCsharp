@@ -1,5 +1,4 @@
-# Encouragement
-If you like it, then help us keep more good stuff like this coming. Let us know what other algorithms could use acceleration
+If you like HPCsharp, then help us keep more good stuff like this coming. Let us know what other algorithms could use acceleration
 
 [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=LDD8L7UPAC7QL)
 
@@ -9,7 +8,7 @@ High performance C# generic algorithms. Community driven to raise C# performance
 Parallel algorithms for Sum, Sort, Merge, Copy, Histogram and others. Parallel Stable Merge Sort and parallel Merge of arrays and lists.
 Linear, stable or in-place Radix Sort algorithms for arrays and lists of user defined classes sorted by key. Crazy fast Counting Sort,
 and Array.Fill for full and partial arrays. Better .Sum() for arrays that doesn't overflow, uses SSE and multi-core.
-Familiar interfaces, whichare similar to standard C# Sort. Free and open source HPCsharp package on https://www.nuget.org
+Familiar interfaces, which are similar to standard C# Sort. Free and open source HPCsharp package on https://www.nuget.org
 
 Updated VisualStudio 2017 examples solution, demonstrating usage through working examples. Build and run it to see performance gains on your machine.
 

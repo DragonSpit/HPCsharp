@@ -8,6 +8,8 @@
 //       left over elements that are not SIMD size divisible. First simple step is to check alignment of SIMD portion of the sum.
 // TODO: Contribute to Sum C# stackoverflow page, since nobody considered overflow condition and using a larger range values for sum
 // TODO: Develop a method to split an array on a cache line (64 byte) boundary. Make it public.
+// TODO: Implement a for loop instead of divide-and-conquer, since they really accomplish the same thing, and the for loop will be more efficient and easier to make cache line boundary divisible.
+//       Combining will be slightly harder, but we could create an array of sums, where each task has its own array element to fill in, then we combine all of the sums at the end serially.
 // TODO: Implement nullable versions of Sum, only faster than the standard C# ones. Should be able to still use SSE and multi-core, but need to check out each element for null before adding it. These
 //       will be much slower than non-nullable
 using System.Collections.Generic;
