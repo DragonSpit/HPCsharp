@@ -1,16 +1,25 @@
+# Encouragement
+If you like it, then help us keep more good stuff like this coming. Let us know what other algorithms could use acceleration
+
+[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=LDD8L7UPAC7QL)
+
 # High Performance Computing in C# (HPCsharp)
 
 High performance C# generic algorithms. Community driven to raise C# performance.
-Parallel algorithms for sorting, merging, copying and others. New Parallel Stable Merge Sort and parallel Merge of arrays and lists.
-Linear and stable Radix Sort algorithm for arrays and lists of user defined classes sorted by key. Crazy fast Counting Sort,
-and Array.Fill for full and partial arrays. Familiar interfaces, which
-are similar to standard C# Sort. Free and open source HPCsharp package on https://www.nuget.org
+Parallel algorithms for Sum, Sort, Merge, Copy, Histogram and others. Parallel Stable Merge Sort and parallel Merge of arrays and lists.
+Linear, stable or in-place Radix Sort algorithms for arrays and lists of user defined classes sorted by key. Crazy fast Counting Sort,
+and Array.Fill for full and partial arrays. Better .Sum() for arrays that doesn't overflow, uses SSE and multi-core.
+Familiar interfaces, whichare similar to standard C# Sort. Free and open source HPCsharp package on https://www.nuget.org
 
 Updated VisualStudio 2017 examples solution, demonstrating usage through working examples. Build and run it to see performance gains on your machine.
 
 To get the maximum performance make sure to target x64 processor architecture for the Release build in VisualStudio, increasing performance by as much as 50%.
 
-**_Version 3.2.5_** Just Released! Give it a shot.
+**_Version 3.3.0_** Just Released! Give it a shot.
+- Implemented a better .Sum() than Linq provides, which does not overflow and is parallel thru SSE and multi-core for ludicrous speed! (See details below)
+- Slight performance improvements to LSD Radix Sort
+
+**_Version 3.2.5_**
 
 - Added in-place MSD Radix Sort implementations: byte, sbyte, short, ushort, ulong, long, and double arrays.
 - These use Counting Sort for byte, sbyte, short and ushort, for ludicrous speed!
@@ -27,12 +36,20 @@ To get the maximum performance make sure to target x64 processor architecture fo
 - Ported three Block Swap algorithms from C++ to C#, which swap neighboring blocks within an array of unequal size in-place.
 - Eliminate a copy at the end of LSD Radix Sort (thank you John for the suggestion)
 
-**_Version 3.1.3_**
-
-- Added a crazy fast Counting Sort for arrays of byte and ushort (in-place and not)
-- Added Array.Fill for full and partial arrays, which sets an array to a value
-
 Full release history is in ReleaseNotes.txt file
+
+## Better .Sum() ##
+Linq .Sum() for arrays and lists adds up all of the elements to produce a sum. This .Sum() returns the same data type as the elements of the array itself.
+For instance, when the array is of integers, then the result is also an integer. This can cause an overflow condition and exception, even when summing
+even two elements - e.g. when one of the elements is Int32.MaxValue and the other is a positive value greater than zero.
+
+HPCsharp version of .Sum() returns an slong for all signed integer types (int, short, sbyte) and will not overflow or throw an overflow exception.
+Also, unsigned types are supported by HPCsharp .Sum(), such as uint, ushort, and byte. For .Sum() of float arrays, double is returned producing
+a more accurate summation result. For some of the data types (at the moment) .Sum() supports data parallel and multi-core accelerated versions -
+.SumSse() and .SumSsePar(). These provide substantial speedup and run many times faster than the standard C# versions, even faster than .AsParallel.Sum(),
+plus no worries about overflow. HPCsharp versions run in GigaElements/second speeds for these parallel .Sum() implementations.
+
+## Sorting ##
 
 **_Version 3.1.2_** algorithm performance is shown in the following tables:
 
@@ -129,6 +146,6 @@ https://duvanenko.tech.blog/2018/05/23/faster-sorting-in-c/
 Visit us at https://foostate.com/ and let us know what other high performance algorithms are important to you, and you'd like to see in this NuGet package.
 
 # Encouragement
-If you like it, then buy us a cup of coffee, to help us keep more good stuff like this coming
+If you like it, then help us keep more good stuff like this coming. Let us know what other algorithms you could use.
 
 [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=LDD8L7UPAC7QL)

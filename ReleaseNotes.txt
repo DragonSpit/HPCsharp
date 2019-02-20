@@ -1,3 +1,9 @@
+Version 3.3.0
+Implemented parallel Histogram of byte components.
+Made mask a constant for LSD Radix Sort, which improved performance slightly.
+Added much improved .Sum() for arrays, which does not overflow as the standard C#/Linq implementation does.
+Implemented SSE and multi-core versions of .Sum() for increadible performance gain.
+
 Version 3.2.5
 Added LSD Radix Sort for signed long arrays (serial and parallel)
 Added Histogram (serial and parallel) for signed long arrays
