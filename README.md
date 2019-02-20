@@ -40,7 +40,7 @@ Full release history is in ReleaseNotes.txt file
 ## Better .Sum() ##
 Linq .Sum() for arrays and lists adds up all of the elements to produce a sum. This .Sum() returns the same data type as the elements of the array itself.
 For instance, when the array is of integers, then the result is also an integer. This can cause an overflow condition and exception, even when summing
-even two elements - e.g. when one of the elements is Int32.MaxValue and the other is a positive value greater than zero.
+just two elements - e.g. when one of the elements is Int32.MaxValue and the other is a positive value greater than zero.
 
 HPCsharp version of .Sum() returns an slong for all signed integer types (int, short, sbyte) and will not overflow or throw an overflow exception.
 Also, unsigned types are supported by HPCsharp .Sum(), such as uint, ushort, and byte. For .Sum() of float arrays, double is returned producing
