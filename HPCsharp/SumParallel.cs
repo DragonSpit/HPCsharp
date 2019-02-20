@@ -5,10 +5,12 @@
 // TODO: Sum should also provide two types: one for the data types being sumed and the other data type of the sum. For instance, sum up an array of longs, but use a double as the sum to not overflow.
 //       Or, summ up an array of int32's, but use int64 for the sum to not overflow.
 // TODO: Implement aligned SIMD sum, since memory alignment is critical for SIMD instructions. So, do scalar first until we are SIMD aligned and then do SIMD, followed by more scarlar to finish all
-//       left over elements that are not SIMD size divisible.
+//       left over elements that are not SIMD size divisible. First simple step is to check alignment of SIMD portion of the sum.
 // TODO: Contribute to Sum C# stackoverflow page, since nobody considered overflow condition and using a larger range values for sum
 // TODO: Develop a method to split an array on a cache line (64 byte) boundary. Make it public.
+
 // TODO: Change the partial array interface to (start, length) for consistency with others and standard C#
+// TODO: Implement full array length versions of all SSE algorithms and multi-core algorithms
 using System.Collections.Generic;
 using System.Text;
 using System.Numerics;
@@ -224,6 +226,11 @@ namespace HPCsharp
         }
 
         public static ulong SumSsePar(this uint[] arrayToSum)
+        {
+            return SumSsePar(arrayToSum, 0, arrayToSum.Length - 1);
+        }
+
+        public static double SumSsePar(this float[] arrayToSum)
         {
             return SumSsePar(arrayToSum, 0, arrayToSum.Length - 1);
         }
