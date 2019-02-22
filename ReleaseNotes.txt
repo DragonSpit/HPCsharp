@@ -1,3 +1,6 @@
+Version 3.3.1
+Added .Sum() implementations of Kahan and Neumaier floating-point summation algorithms for higher accuracy
+
 Version 3.3.0
 Implemented parallel Histogram of byte components.
 Made mask a constant for LSD Radix Sort, which improved performance slightly.

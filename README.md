@@ -15,8 +15,9 @@ Updated VisualStudio 2017 examples solution, demonstrating usage through working
 
 To get the maximum performance make sure to target x64 processor architecture for the Release build in VisualStudio, increasing performance by as much as 50%.
 
-**_Version 3.3.0_** Just Released! Give it a shot.
+**_Version 3.3.1_** Just Released! Give it a shot.
 - Implemented a better .Sum() than Linq provides, which does not overflow and is parallel thru SSE and multi-core for ludicrous speed! (See details below)
+- Added .Sum() implementations of Kahan and Neumaier floating-point summation algorithms for higher accuracy
 - Slight performance improvements to LSD Radix Sort
 
 **_Version 3.2.5_**
