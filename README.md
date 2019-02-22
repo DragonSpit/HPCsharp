@@ -46,7 +46,8 @@ just two elements - e.g. when one of the elements is Int32.MaxValue and the othe
 
 HPCsharp version of .Sum() returns an slong for all signed integer types (int, short, sbyte) and will not overflow or throw an overflow exception.
 Also, unsigned types are supported by HPCsharp .Sum(), such as uint, ushort, and byte. For .Sum() of float arrays, double is returned producing
-a more accurate summation result. For some of the data types (at the moment) .Sum() supports data parallel and multi-core accelerated versions -
+a more accurate summation result. Also, for float and double arrays, to produce even more accurate summation, Kahan and Neumaier algorithms have been
+implemented - serial only to start with. For manny data types .Sum() supports data parallel and multi-core accelerated versions -
 .SumSse() and .SumSsePar(). These provide substantial speedup and run many times faster than the standard C# versions, even faster than .AsParallel.Sum(),
 plus no worries about overflow. HPCsharp versions run in GigaElements/second speeds for these parallel .Sum() implementations.
 
