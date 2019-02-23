@@ -33,6 +33,8 @@
 //       and unroll it to gain performance by more ILP.
 // TODO: It should be possible to generalize most significant digit detection (instead of hardcoding 56 right shift for 8-bit digit) by detecting if the MSD includes the most significant bit in it.
 //       Could possibly codify into a function that gets rightShiftAmount and digit size. This leads to generalization of most significant digit detection to support digits of any size.
+// TODO: To optimize performance of MSB Radix Sort apply optimizations discussed in https://www.youtube.com/watch?v=zqs87a_7zxw, which may bring performance closer
+//       to the not-in-place version
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -350,6 +352,107 @@ namespace HPCsharp
                 }
             }
         }
+
+        private static void RadixSortMsdLongInner2(long[] a, int first, int length, int shiftRightAmount, Action<long[], int, int> baseCaseInPlaceSort)
+        {
+            if (length < SortRadixMsdLongThreshold)
+            {
+                baseCaseInPlaceSort(a, first, length);
+                //InsertionSort(a, first, length);
+                return;
+            }
+            int last = first + length - 1;
+            const ulong bitMask = PowerOfTwoRadix - 1;
+            const ulong halfOfPowerOfTwoRadix = PowerOfTwoRadix / 2;
+
+            var count = HistogramByteComponentsUsingUnion(a, first, last, shiftRightAmount);
+
+            var startOfBin = new int[PowerOfTwoRadix + 1];
+            var endOfBin = new int[PowerOfTwoRadix];
+            int nextBin = 1;
+            startOfBin[0] = endOfBin[0] = first; startOfBin[PowerOfTwoRadix] = -1;         // sentinal
+            for (int i = 1; i < PowerOfTwoRadix; i++)
+                startOfBin[i] = endOfBin[i] = startOfBin[i - 1] + count[i - 1];
+            int bucketsUsed = 0;
+            for (int i = 0; i < count.Length; i++)
+                if (count[i] > 0) bucketsUsed++;
+
+            if (bucketsUsed > 1)
+            {
+                if (shiftRightAmount == 56)     // Most significant digit
+                {
+                    for (int _current = first; _current <= last;)
+                    {
+                        ulong digit;
+                        long current_element = a[_current];  // get the compiler to recognize that a register can be used for the loop instead of a[_current] memory location
+                        while (endOfBin[digit = ((ulong)current_element >> shiftRightAmount) ^ halfOfPowerOfTwoRadix] != _current)
+                            Swap(ref current_element, a, endOfBin[digit]++);
+                        a[_current] = current_element;
+                        endOfBin[digit]++;
+
+                        while (endOfBin[nextBin - 1] == startOfBin[nextBin]) nextBin++;   // skip over empty and full bins, when the end of the current bin reaches the start of the next bin
+                        _current = endOfBin[nextBin - 1];
+                    }
+                }
+                else
+                {
+                    for (int currIndex = first; currIndex <= last;)
+                    {
+                        ulong ceDigit;                      // digit of the current element
+                        ulong neDigit;                      // digit of the next    element
+                        long currentElement = a[currIndex]; // get the compiler to recognize that a register can be used for the loop instead of a[_current] memory location
+                        long nextElement;
+                        int  nextIndex;
+                        while (true)
+                        {
+                            ceDigit = ((ulong)currentElement >> shiftRightAmount) & bitMask;
+                            if (endOfBin[ceDigit] == currIndex)
+                            {
+                                a[currIndex] = currentElement;
+                                endOfBin[ceDigit]++;
+                                break;
+                            }
+                            nextIndex = endOfBin[ceDigit];
+
+                            nextElement = endOfBin[ceDigit]++;
+                            neDigit = ((ulong)nextElement >> shiftRightAmount) & bitMask;
+                            if (endOfBin[neDigit] == currIndex)
+                            {
+                                a[currIndex] = currentElement;
+                                endOfBin[ceDigit]++;
+                                a[currIndex] = nextElement;
+                                endOfBin[neDigit]++;
+                                break;
+                            }
+
+                            Swap(ref currentElement, a, endOfBin[ceDigit]++);
+
+                        }
+
+                        while (endOfBin[nextBin - 1] == startOfBin[nextBin]) nextBin++;   // skip over empty and full bins, when the end of the current bin reaches the start of the next bin
+                        currIndex = endOfBin[nextBin - 1];
+
+                    }
+                }
+                if (shiftRightAmount > 0)    // end recursion when all the bits have been processes
+                {
+                    shiftRightAmount = shiftRightAmount >= Log2ofPowerOfTwoRadix ? shiftRightAmount -= Log2ofPowerOfTwoRadix : 0;
+
+                    for (int i = 0; i < PowerOfTwoRadix; i++)
+                        RadixSortMsdLongInner(a, startOfBin[i], endOfBin[i] - startOfBin[i], shiftRightAmount, baseCaseInPlaceSort);
+                }
+            }
+            else
+            {
+                if (shiftRightAmount > 0)    // end recursion when all the bits have been processes
+                {
+                    shiftRightAmount = shiftRightAmount >= Log2ofPowerOfTwoRadix ? shiftRightAmount -= Log2ofPowerOfTwoRadix : 0;
+                    RadixSortMsdLongInner(a, first, length, shiftRightAmount, baseCaseInPlaceSort);
+                }
+            }
+        }
+
+
         private static void RadixSortMsdLongInner1(long[] a, int first, int length, int shiftRightAmount, Action<long[], int, int> baseCaseInPlaceSort)
         {
             if (length < SortRadixMsdLongThreshold)

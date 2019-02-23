@@ -27,8 +27,6 @@
 //       pointer address) and then divide on page boundaried in a for loop, which should lead to even higher performance.
 // TODO: Do a similar method of splitting up the Count array into page size chunks and checking the destination pointer address and splitting up by either divide-and-conquer
 //       and by a for loop where each iteration is in parallel and a certain number of pages.
-// TODO: To optimize performance of MSB Radix Sort apply optimizations discussed in https://www.youtube.com/watch?v=zqs87a_7zxw, which may bring performance closer
-//       to the not-in-place version
 // TODO: Add a task to clean-up some of the sorting interfaces to not have "ref to arrays", just allocate needed arrays internally (less for the user to worry about)
 //       when the additional memory is needed and just document it not being a true-inplace algorithm, but just has an in-place interface
 // TODO: Document these algorithms as "not truly in-place", but providing an in-place interface. Explain how much additional memory each algorithm uses.
@@ -41,6 +39,7 @@
 //       the data type is an slong). However, two bins are find (and possibly even more), since if these bins are already in-order then there is permuting is not needed!
 //       This will be a huge speed-up for John's use case! Is it easy to tell if the bins are in the correct order quickly? All negative and all positive? This is extra overhead.
 // TODO: Wonder if paging the temporary/destination array into memory first would help performance. Otherwise, if C# does it lazily, then random access may make that slower? Maybe.
+// TODO: See if Wikipedia Counting Sort ideas and concepts could possibly help improve performance https://en.wikipedia.org/wiki/Counting_sort
 using System;
 using System.Collections.Generic;
 using System.Text;
