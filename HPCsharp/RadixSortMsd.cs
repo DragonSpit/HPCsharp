@@ -526,14 +526,15 @@ namespace HPCsharp
                                 break;
                             }
                             nextElement = a[endOfBin[ceDigit]];
-                            a[endOfBin[ceDigit]++] = currentElement;  // move the currentElement into its location within the array
                             neDigit = ((ulong)nextElement >> shiftRightAmount) & bitMask;
                             if (endOfBin[neDigit] == currIndex)
                             {
+                                a[endOfBin[ceDigit]++] = currentElement;  // move the currentElement into its location within the array, and advance that Bin
                                 a[currIndex] = nextElement;
                                 endOfBin[neDigit]++;
                                 break;
                             }
+                            a[endOfBin[ceDigit]++] = currentElement;  // move the currentElement into its location within the array, and advance that Bin
                             currentElement = nextElement;
                         }
 
