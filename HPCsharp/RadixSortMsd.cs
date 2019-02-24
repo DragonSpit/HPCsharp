@@ -320,12 +320,6 @@ namespace HPCsharp
 
         private static void RadixSortMsdLongInner(long[] a, int first, int length, int shiftRightAmount, Action<long[], int, int> baseCaseInPlaceSort)
         {
-            if (length < SortRadixMsdLongThreshold)
-            {
-                baseCaseInPlaceSort(a, first, length);
-                //InsertionSort(a, first, length);
-                return;
-            }
             int last = first + length - 1;
             const ulong bitMask = PowerOfTwoRadix - 1;
             const ulong halfOfPowerOfTwoRadix = PowerOfTwoRadix / 2;
@@ -380,7 +374,14 @@ namespace HPCsharp
                     shiftRightAmount = shiftRightAmount >= Log2ofPowerOfTwoRadix ? shiftRightAmount -= Log2ofPowerOfTwoRadix : 0;
 
                     for (int i = 0; i < PowerOfTwoRadix; i++)
-                        RadixSortMsdLongInner(a, startOfBin[i], endOfBin[i] - startOfBin[i], shiftRightAmount, baseCaseInPlaceSort);
+                    {
+                        int numElements = endOfBin[i] - startOfBin[i];
+
+                        if (numElements >= SortRadixMsdLongThreshold)
+                            RadixSortMsdLongInner2(a, startOfBin[i], numElements, shiftRightAmount, baseCaseInPlaceSort);
+                        else if (numElements >= 2)
+                            baseCaseInPlaceSort(a, startOfBin[i], numElements);
+                    }
                 }
             }
             else
@@ -388,7 +389,11 @@ namespace HPCsharp
                 if (shiftRightAmount > 0)    // end recursion when all the bits have been processes
                 {
                     shiftRightAmount = shiftRightAmount >= Log2ofPowerOfTwoRadix ? shiftRightAmount -= Log2ofPowerOfTwoRadix : 0;
-                    RadixSortMsdLongInner(a, first, length, shiftRightAmount, baseCaseInPlaceSort);
+
+                    if (length >= SortRadixMsdLongThreshold)
+                        RadixSortMsdLongInner2(a, first, length, shiftRightAmount, baseCaseInPlaceSort);
+                    else if (length >= 2)
+                        baseCaseInPlaceSort(a, first, length);
                 }
             }
         }
@@ -469,12 +474,6 @@ namespace HPCsharp
         // This implementation unrolls swapping to process several array elements in the swap cascade/chain
         private static void RadixSortMsdLongInner2(long[] a, int first, int length, int shiftRightAmount, Action<long[], int, int> baseCaseInPlaceSort)
         {
-            if (length < SortRadixMsdLongThreshold)
-            {
-                baseCaseInPlaceSort(a, first, length);
-                //InsertionSort(a, first, length);
-                return;
-            }
             int last = first + length - 1;
             const ulong bitMask = PowerOfTwoRadix - 1;
             const ulong halfOfPowerOfTwoRadix = PowerOfTwoRadix / 2;
@@ -547,7 +546,14 @@ namespace HPCsharp
                     shiftRightAmount = shiftRightAmount >= Log2ofPowerOfTwoRadix ? shiftRightAmount -= Log2ofPowerOfTwoRadix : 0;
 
                     for (int i = 0; i < PowerOfTwoRadix; i++)
-                        RadixSortMsdLongInner2(a, startOfBin[i], endOfBin[i] - startOfBin[i], shiftRightAmount, baseCaseInPlaceSort);
+                    {
+                        int numElements = endOfBin[i] - startOfBin[i];
+
+                        if (numElements >= SortRadixMsdLongThreshold)
+                            RadixSortMsdLongInner2(a, startOfBin[i], numElements, shiftRightAmount, baseCaseInPlaceSort);
+                        else if (numElements >= 2)
+                            baseCaseInPlaceSort(a, startOfBin[i], numElements);
+                    }
                 }
             }
             else
@@ -555,7 +561,11 @@ namespace HPCsharp
                 if (shiftRightAmount > 0)    // end recursion when all the bits have been processes
                 {
                     shiftRightAmount = shiftRightAmount >= Log2ofPowerOfTwoRadix ? shiftRightAmount -= Log2ofPowerOfTwoRadix : 0;
-                    RadixSortMsdLongInner2(a, first, length, shiftRightAmount, baseCaseInPlaceSort);
+
+                    if (length >= SortRadixMsdLongThreshold)
+                        RadixSortMsdLongInner2(a, first, length, shiftRightAmount, baseCaseInPlaceSort);
+                    else if (length >= 2)
+                        baseCaseInPlaceSort(a, first, length);
                 }
             }
         }
@@ -568,7 +578,7 @@ namespace HPCsharp
         {
             int shiftRightAmount = sizeof(ulong) * 8 - Log2ofPowerOfTwoRadix;
             // InsertionSort could be passed in as another base case since it's in-place
-            RadixSortMsdLongInner2(arrayToBeSorted, 0, arrayToBeSorted.Length, shiftRightAmount, Array.Sort);
+            RadixSortMsdLongInner(arrayToBeSorted, 0, arrayToBeSorted.Length, shiftRightAmount, Array.Sort);
         }
 
         /// <summary>
