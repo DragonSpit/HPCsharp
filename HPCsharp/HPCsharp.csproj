@@ -18,9 +18,9 @@ Includes parallel stable Merge Sort, parallel Merge, O(N) stable Radix Sort algo
     <PackageProjectUrl>https://github.com/DragonSpit/HPCsharp</PackageProjectUrl>
     <RepositoryUrl>https://github.com/DragonSpit/HPCsharp</RepositoryUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <AssemblyVersion>3.3.1.0</AssemblyVersion>
-    <FileVersion>3.3.1.0</FileVersion>
-    <Version>3.3.1</Version>
+    <AssemblyVersion>3.3.2.0</AssemblyVersion>
+    <FileVersion>3.3.2.0</FileVersion>
+    <Version>3.3.2</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

@@ -312,7 +312,7 @@ namespace HPCsharp
                         long current_element = a[_current];  // get the compiler to recognize that a register can be used for the loop instead of a[_current] memory location
                         while (endOfBin[digit = ((ulong)current_element >> shiftRightAmount) ^ halfOfPowerOfTwoRadix] != _current)
                             Swap(ref current_element, a, endOfBin[digit]++);
-                        a[_current] = current_element;
+                        a[_current] = current_element;                          // place the current_element in the a[_current] location, since we hit the end of the current loop, and advance its current bin end
                         endOfBin[digit]++;
 
                         while (endOfBin[nextBin - 1] == startOfBin[nextBin]) nextBin++;   // skip over empty and full bins, when the end of the current bin reaches the start of the next bin
@@ -402,31 +402,25 @@ namespace HPCsharp
                         ulong neDigit;                      // digit of the next    element
                         long currentElement = a[currIndex]; // get the compiler to recognize that a register can be used for the loop instead of a[_current] memory location
                         long nextElement;
-                        int  nextIndex;
                         while (true)
                         {
                             ceDigit = ((ulong)currentElement >> shiftRightAmount) & bitMask;
                             if (endOfBin[ceDigit] == currIndex)
                             {
-                                a[currIndex] = currentElement;
-                                endOfBin[ceDigit]++;
+                                a[currIndex] = currentElement;      // since we've been swapping with the currentElement, it has the latest element and we need to put it back into the array
+                                endOfBin[ceDigit]++;                // place the current_element in the a[_current] location, since we hit the end of the current loop, and advance its current bin end
                                 break;
                             }
-                            nextIndex = endOfBin[ceDigit];
-
-                            nextElement = endOfBin[ceDigit]++;
+                            nextElement = a[endOfBin[ceDigit]++];
                             neDigit = ((ulong)nextElement >> shiftRightAmount) & bitMask;
                             if (endOfBin[neDigit] == currIndex)
                             {
-                                a[currIndex] = currentElement;
-                                endOfBin[ceDigit]++;
+                                a[endOfBin[ceDigit]] = currentElement;  // move the currentElement into its location within the array
+                                endOfBin[ceDigit]++;                    // advance its Bin
                                 a[currIndex] = nextElement;
                                 endOfBin[neDigit]++;
                                 break;
                             }
-
-                            Swap(ref currentElement, a, endOfBin[ceDigit]++);
-
                         }
 
                         while (endOfBin[nextBin - 1] == startOfBin[nextBin]) nextBin++;   // skip over empty and full bins, when the end of the current bin reaches the start of the next bin
@@ -563,7 +557,7 @@ namespace HPCsharp
         {
             int shiftRightAmount = sizeof(ulong) * 8 - Log2ofPowerOfTwoRadix;
             // InsertionSort could be passed in as another base case since it's in-place
-            RadixSortMsdLongInner(arrayToBeSorted, 0, arrayToBeSorted.Length, shiftRightAmount, Array.Sort);
+            RadixSortMsdLongInner2(arrayToBeSorted, 0, arrayToBeSorted.Length, shiftRightAmount, Array.Sort);
         }
 
         /// <summary>
