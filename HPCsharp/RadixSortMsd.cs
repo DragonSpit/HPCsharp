@@ -207,6 +207,46 @@ namespace HPCsharp
                     RadixSortMsdULongInner( a, startOfBin[i], endOfBin[i] - startOfBin[i], shiftRightAmount, baseCaseInPlaceSort );
             }
         }
+        private static void RadixSortMsdULongInner1(ulong[] a, int first, int length, int shiftRightAmount, Action<ulong[], int, int> baseCaseInPlaceSort)
+        {
+            if (length < SortRadixMsdULongThreshold)
+            {
+                baseCaseInPlaceSort(a, first, length);
+                return;
+            }
+            int last = first + length - 1;
+            const ulong bitMask = PowerOfTwoRadix - 1;
+
+            var count = HistogramByteComponents(a, first, last, shiftRightAmount);
+
+            var startOfBin = new int[PowerOfTwoRadix + 1];
+            var endOfBin = new int[PowerOfTwoRadix];
+            int nextBin = 1;
+            startOfBin[0] = endOfBin[0] = first; startOfBin[PowerOfTwoRadix] = -1;         // sentinal
+            for (int i = 1; i < PowerOfTwoRadix; i++)
+                startOfBin[i] = endOfBin[i] = startOfBin[i - 1] + count[i - 1];
+
+            for (int _current = first; _current <= last;)
+            {
+                ulong digit;
+                ulong current_element = a[_current];  // get the compiler to recognize that a register can be used for the loop instead of a[_current] memory location
+                while (endOfBin[digit = (current_element >> shiftRightAmount) & bitMask] != _current)
+                    Swap(ref current_element, a, endOfBin[digit]++);
+                a[_current] = current_element;
+
+                endOfBin[digit]++;
+                while (endOfBin[nextBin - 1] == startOfBin[nextBin]) nextBin++;   // skip over empty and full bins, when the end of the current bin reaches the start of the next bin
+                _current = endOfBin[nextBin - 1];
+            }
+            if (shiftRightAmount > 0)          // end recursion when all the bits have been processes
+            {
+                if (shiftRightAmount >= Log2ofPowerOfTwoRadix) shiftRightAmount -= Log2ofPowerOfTwoRadix;
+                else shiftRightAmount = 0;
+
+                for (int i = 0; i < PowerOfTwoRadix; i++)
+                    RadixSortMsdULongInner1(a, startOfBin[i], endOfBin[i] - startOfBin[i], shiftRightAmount, baseCaseInPlaceSort);
+            }
+        }
 
         private static void devFunction(ulong[] a, int first, int length, int shiftRightAmount)
         {
@@ -264,7 +304,7 @@ namespace HPCsharp
         {
             int shiftRightAmount = sizeof(ulong) * 8 - Log2ofPowerOfTwoRadix;
             // InsertionSort could be passed in as another base case since it's in-place
-            RadixSortMsdULongInner(arrayToBeSorted, 0, arrayToBeSorted.Length, shiftRightAmount, Array.Sort);
+            RadixSortMsdULongInner1(arrayToBeSorted, 0, arrayToBeSorted.Length, shiftRightAmount, Array.Sort);
         }
 
         /// <summary>
@@ -353,6 +393,80 @@ namespace HPCsharp
             }
         }
 
+        // Simpler implementation, which just uses the array elements to swap and never extracts the current element into a variable on the inner swap loop
+        // This version is easier to reason about
+        private static void RadixSortMsdLongInner1(long[] a, int first, int length, int shiftRightAmount, Action<long[], int, int> baseCaseInPlaceSort)
+        {
+            if (length < SortRadixMsdLongThreshold)
+            {
+                baseCaseInPlaceSort(a, first, length);
+                //InsertionSort(a, first, length);
+                return;
+            }
+            int last = first + length - 1;
+            const ulong bitMask = PowerOfTwoRadix - 1;
+            const ulong halfOfPowerOfTwoRadix = PowerOfTwoRadix / 2;
+
+            var count = HistogramByteComponentsUsingUnion(a, first, last, shiftRightAmount);
+
+            var startOfBin = new int[PowerOfTwoRadix + 1];
+            var endOfBin = new int[PowerOfTwoRadix];
+            int nextBin = 1;
+            startOfBin[0] = endOfBin[0] = first; startOfBin[PowerOfTwoRadix] = -1;         // sentinal
+            for (int i = 1; i < PowerOfTwoRadix; i++)
+                startOfBin[i] = endOfBin[i] = startOfBin[i - 1] + count[i - 1];
+            int bucketsUsed = 0;
+            for (int i = 0; i < count.Length; i++)
+                if (count[i] > 0) bucketsUsed++;
+
+            if (bucketsUsed > 1)
+            {
+                if (shiftRightAmount == 56)     // Most significant digit
+                {
+                    for (int _current = first; _current <= last;)
+                    {
+                        ulong digit;
+                        while (endOfBin[digit = ((ulong)a[_current] >> shiftRightAmount) ^ halfOfPowerOfTwoRadix] != _current)
+                            Swap(a, _current, endOfBin[digit]++);
+                        endOfBin[digit]++;
+
+                        while (endOfBin[nextBin - 1] == startOfBin[nextBin]) nextBin++;   // skip over empty and full bins, when the end of the current bin reaches the start of the next bin
+                        _current = endOfBin[nextBin - 1];
+                    }
+                }
+                else
+                {
+                    for (int _current = first; _current <= last;)
+                    {
+                        ulong digit;
+                        while (endOfBin[digit = ((ulong)a[_current] >> shiftRightAmount) & bitMask] != _current)
+                            Swap(a, _current, endOfBin[digit]++);
+                        endOfBin[digit]++;
+
+                        while (endOfBin[nextBin - 1] == startOfBin[nextBin]) nextBin++;   // skip over empty and full bins, when the end of the current bin reaches the start of the next bin
+                        _current = endOfBin[nextBin - 1];
+
+                    }
+                }
+                if (shiftRightAmount > 0)    // end recursion when all the bits have been processes
+                {
+                    shiftRightAmount = shiftRightAmount >= Log2ofPowerOfTwoRadix ? shiftRightAmount -= Log2ofPowerOfTwoRadix : 0;
+
+                    for (int i = 0; i < PowerOfTwoRadix; i++)
+                        RadixSortMsdLongInner1(a, startOfBin[i], endOfBin[i] - startOfBin[i], shiftRightAmount, baseCaseInPlaceSort);
+                }
+            }
+            else
+            {
+                if (shiftRightAmount > 0)    // end recursion when all the bits have been processes
+                {
+                    shiftRightAmount = shiftRightAmount >= Log2ofPowerOfTwoRadix ? shiftRightAmount -= Log2ofPowerOfTwoRadix : 0;
+                    RadixSortMsdLongInner1(a, first, length, shiftRightAmount, baseCaseInPlaceSort);
+                }
+            }
+        }
+
+        // This implementation unrolls swapping to process several array elements in the swap cascade/chain
         private static void RadixSortMsdLongInner2(long[] a, int first, int length, int shiftRightAmount, Action<long[], int, int> baseCaseInPlaceSort)
         {
             if (length < SortRadixMsdLongThreshold)
@@ -411,21 +525,20 @@ namespace HPCsharp
                                 endOfBin[ceDigit]++;                // place the current_element in the a[_current] location, since we hit the end of the current loop, and advance its current bin end
                                 break;
                             }
-                            nextElement = a[endOfBin[ceDigit]++];
+                            nextElement = a[endOfBin[ceDigit]];
+                            a[endOfBin[ceDigit]++] = currentElement;  // move the currentElement into its location within the array
                             neDigit = ((ulong)nextElement >> shiftRightAmount) & bitMask;
                             if (endOfBin[neDigit] == currIndex)
                             {
-                                a[endOfBin[ceDigit]] = currentElement;  // move the currentElement into its location within the array
-                                endOfBin[ceDigit]++;                    // advance its Bin
                                 a[currIndex] = nextElement;
                                 endOfBin[neDigit]++;
                                 break;
                             }
+                            currentElement = nextElement;
                         }
 
                         while (endOfBin[nextBin - 1] == startOfBin[nextBin]) nextBin++;   // skip over empty and full bins, when the end of the current bin reaches the start of the next bin
                         currIndex = endOfBin[nextBin - 1];
-
                     }
                 }
                 if (shiftRightAmount > 0)    // end recursion when all the bits have been processes
@@ -433,7 +546,7 @@ namespace HPCsharp
                     shiftRightAmount = shiftRightAmount >= Log2ofPowerOfTwoRadix ? shiftRightAmount -= Log2ofPowerOfTwoRadix : 0;
 
                     for (int i = 0; i < PowerOfTwoRadix; i++)
-                        RadixSortMsdLongInner(a, startOfBin[i], endOfBin[i] - startOfBin[i], shiftRightAmount, baseCaseInPlaceSort);
+                        RadixSortMsdLongInner2(a, startOfBin[i], endOfBin[i] - startOfBin[i], shiftRightAmount, baseCaseInPlaceSort);
                 }
             }
             else
@@ -441,114 +554,11 @@ namespace HPCsharp
                 if (shiftRightAmount > 0)    // end recursion when all the bits have been processes
                 {
                     shiftRightAmount = shiftRightAmount >= Log2ofPowerOfTwoRadix ? shiftRightAmount -= Log2ofPowerOfTwoRadix : 0;
-                    RadixSortMsdLongInner(a, first, length, shiftRightAmount, baseCaseInPlaceSort);
+                    RadixSortMsdLongInner2(a, first, length, shiftRightAmount, baseCaseInPlaceSort);
                 }
             }
         }
 
-
-        private static void RadixSortMsdLongInner1(long[] a, int first, int length, int shiftRightAmount, Action<long[], int, int> baseCaseInPlaceSort)
-        {
-            if (length < SortRadixMsdLongThreshold)
-            {
-                baseCaseInPlaceSort(a, first, length);
-                //InsertionSort(a, first, length);
-                return;
-            }
-            int last = first + length - 1;
-            const ulong bitMask = PowerOfTwoRadix - 1;
-            const ulong halfOfPowerOfTwoRadix = PowerOfTwoRadix / 2;
-
-            var count = HistogramByteComponentsUsingUnion(a, first, last, shiftRightAmount);
-
-            var startOfBin = new int[PowerOfTwoRadix + 1];
-            var endOfBin = new int[PowerOfTwoRadix];
-            int nextBin = 1;
-            startOfBin[0] = endOfBin[0] = first; startOfBin[PowerOfTwoRadix] = -1;         // sentinal
-            for (int i = 1; i < PowerOfTwoRadix; i++)
-                startOfBin[i] = endOfBin[i] = startOfBin[i - 1] + count[i - 1];
-            int bucketsUsed = 0;
-            for (int i = 0; i < count.Length; i++)
-                if (count[i] > 0) bucketsUsed++;
-
-            if (bucketsUsed > 1)
-            {
-                if (shiftRightAmount == 56)     // Most significant digit
-                {
-                    for (int _current = first; _current <= last;)
-                    {
-                        ulong digit;
-                        long current_element = a[_current];  // get the compiler to recognize that a register can be used for the loop instead of a[_current] memory location
-                        while (endOfBin[digit = ((ulong)current_element >> shiftRightAmount) ^ halfOfPowerOfTwoRadix] != _current)
-                            Swap(ref current_element, a, endOfBin[digit]++);
-                        a[_current] = current_element;
-                        endOfBin[digit]++;
-
-                        while (endOfBin[nextBin - 1] == startOfBin[nextBin]) nextBin++;   // skip over empty and full bins, when the end of the current bin reaches the start of the next bin
-                        _current = endOfBin[nextBin - 1];
-                    }
-                }
-                else
-                {
-                    for (int _current = first; _current <= last;)
-                    {
-#if false
-                        ulong digit;
-                        long current_element = a[_current];  // get the compiler to recognize that a register can be used for the loop instead of a[_current] memory location
-                        while (endOfBin[digit = ((ulong)current_element >> shiftRightAmount) & bitMask] != _current)
-                            Swap(ref current_element, a, endOfBin[digit]++);
-                        a[_current] = current_element;
-                        endOfBin[digit]++;
-
-                        while (endOfBin[nextBin - 1] == startOfBin[nextBin]) nextBin++;   // skip over empty and full bins, when the end of the current bin reaches the start of the next bin
-                        _current = endOfBin[nextBin - 1];
-#else
-                        // TODO: Need to draw pictures for this code transformation. That's the only way I'll get it right/correct. First draw pictures of the original algorithm
-                        //       and then transform it to handle several elements simultaneously, as Malte suggests.
-                        ulong digit_0;
-                        ulong digit_1;
-                        long current_element_0 = a[_current];  // get the compiler to recognize that a register can be used for the loop instead of a[_current] memory location
-                        long current_element_1 = a[_current + 1];
-                        while (true)
-                        {
-                            digit_0 = ((ulong)current_element_0 >> shiftRightAmount) & bitMask;
-                            if (endOfBin[digit_0] == _current) break;
-                            Swap(ref current_element_0, a, endOfBin[digit_0]++);
-                        }
-                        a[_current] = current_element_0;
-                        endOfBin[digit_0]++;
-
-                        while (true)
-                        {
-                            digit_1 = ((ulong)current_element_1 >> shiftRightAmount) & bitMask;
-                            if (endOfBin[digit_1] == _current) break;
-                            Swap(ref current_element_1, a, endOfBin[digit_1]++);
-                        }
-                        a[_current + 1] = current_element_1;
-                        endOfBin[digit_1]++;
-
-                        while (endOfBin[nextBin - 1] == startOfBin[nextBin]) nextBin++;   // skip over empty and full bins, when the end of the current bin reaches the start of the next bin
-                        _current = endOfBin[nextBin - 1];
-#endif
-                    }
-                }
-                if (shiftRightAmount > 0)    // end recursion when all the bits have been processes
-                {
-                    shiftRightAmount = shiftRightAmount >= Log2ofPowerOfTwoRadix ? shiftRightAmount -= Log2ofPowerOfTwoRadix : 0;
-
-                    for (int i = 0; i < PowerOfTwoRadix; i++)
-                        RadixSortMsdLongInner1(a, startOfBin[i], endOfBin[i] - startOfBin[i], shiftRightAmount, baseCaseInPlaceSort);
-                }
-            }
-            else
-            {
-                if (shiftRightAmount > 0)    // end recursion when all the bits have been processes
-                {
-                    shiftRightAmount = shiftRightAmount >= Log2ofPowerOfTwoRadix ? shiftRightAmount -= Log2ofPowerOfTwoRadix : 0;
-                    RadixSortMsdLongInner(a, first, length, shiftRightAmount, baseCaseInPlaceSort);
-                }
-            }
-        }
         /// <summary>
         /// In-place Radix Sort (Most Significant Digit), not stable.
         /// </summary>
