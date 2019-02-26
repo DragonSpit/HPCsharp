@@ -706,7 +706,7 @@ namespace HPCsharp
         /// <param name="arrayToBeSorted">array that is to be sorted in place</param>
         public static void SortRadixMsd(this long[] arrayToBeSorted)
         {
-            int shiftRightAmount = sizeof(ulong) * 8 - PowerOfTwoRadix;
+            int shiftRightAmount = sizeof(ulong) * 8 - Log2ofPowerOfTwoRadix;
             // InsertionSort could be passed in as another base case since it's in-place
             RadixSortMsdLongInner(arrayToBeSorted, 0, arrayToBeSorted.Length, shiftRightAmount, Array.Sort);
         }
@@ -716,7 +716,7 @@ namespace HPCsharp
         /// </summary>
         /// <param name="arrayToBeSorted">array that is to be sorted in place</param>
         /// <returns>returns the input array itself, but sorted</returns>
-        public static long[] SortRadixMsdInPlaceFunc(this long[] arrayToBeSorted, int numberOfBitsPerDigit = 8)
+        public static long[] SortRadixMsdInPlaceFunc(this long[] arrayToBeSorted)
         {
             arrayToBeSorted.SortRadixMsd();
             return arrayToBeSorted;
