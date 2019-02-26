@@ -704,7 +704,29 @@ namespace HPCsharp
         /// In-place Radix Sort (Most Significant Digit), not stable.
         /// </summary>
         /// <param name="arrayToBeSorted">array that is to be sorted in place</param>
-        public static void SortRadixMsd(this long[] arrayToBeSorted, int numberOfBitsPerDigit = 8)
+        public static void SortRadixMsd(this long[] arrayToBeSorted)
+        {
+            int shiftRightAmount = sizeof(ulong) * 8 - PowerOfTwoRadix;
+            // InsertionSort could be passed in as another base case since it's in-place
+            RadixSortMsdLongInner(arrayToBeSorted, 0, arrayToBeSorted.Length, shiftRightAmount, Array.Sort);
+        }
+
+        /// <summary>
+        /// In-place Radix Sort (Most Significant Digit), not stable. Functional style interface, which returns the input array, but sorted.
+        /// </summary>
+        /// <param name="arrayToBeSorted">array that is to be sorted in place</param>
+        /// <returns>returns the input array itself, but sorted</returns>
+        public static long[] SortRadixMsdInPlaceFunc(this long[] arrayToBeSorted, int numberOfBitsPerDigit = 8)
+        {
+            arrayToBeSorted.SortRadixMsd();
+            return arrayToBeSorted;
+        }
+
+        /// <summary>
+        /// In-place Radix Sort (Most Significant Digit), not stable.
+        /// </summary>
+        /// <param name="arrayToBeSorted">array that is to be sorted in place</param>
+        public static void SortRadixNbitMsd(this long[] arrayToBeSorted, int numberOfBitsPerDigit = 10)
         {
             int shiftRightAmount = sizeof(ulong) * 8 - numberOfBitsPerDigit;
             // InsertionSort could be passed in as another base case since it's in-place
@@ -716,9 +738,9 @@ namespace HPCsharp
         /// </summary>
         /// <param name="arrayToBeSorted">array that is to be sorted in place</param>
         /// <returns>returns the input array itself, but sorted</returns>
-        public static long[] SortRadixMsdInPlaceFunc(this long[] arrayToBeSorted, int numberOfBitsPerDigit = 8)
+        public static long[] SortRadixMsdNbitInPlaceFunc(this long[] arrayToBeSorted, int numberOfBitsPerDigit = 10)
         {
-            arrayToBeSorted.SortRadixMsd(numberOfBitsPerDigit);
+            arrayToBeSorted.SortRadixNbitMsd(numberOfBitsPerDigit);
             return arrayToBeSorted;
         }
 
