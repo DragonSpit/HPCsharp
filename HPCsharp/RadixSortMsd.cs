@@ -13,7 +13,6 @@
 //       Walk thru the cascaded flow by hand and see what kind of structure is needed and would work. Start by hardcoding to 2 level unroll to get it working and see if there is a benefit.
 // TODO: Create a check of each bin against the size of the CPU cache (cache aware) and sort it using Array.Sort if the bin fits within L2 cache entirely (minus a bit for overhead)
 // TODO: Parallelize Histogram of components of 64-bit elements (ulong, long, and double).
-// TODO: Parallelize lower levels of MSD Radix Sort dynamically, where only if the bin is large enough is the new task created to sort than bin further using Radix Sort, otherwise use Array.Sort
 // TODO: Create an inner loop function that uses union to pull out the desired byte/digit, since we know this is faster than shifting and masking
 // TODO: Create an adaptive MSD Radix Sort implementation, where if the array/bin is > 64K elements then use 32-bit entries in the count array, but if the array/bin is 64K elements or fewer
 //       then use ushort count entries, which will fit more entries into L1 and L2 cache allowing for processing of more bits of each element per iteration - e.g. instead of 8-bits/digit we
@@ -22,10 +21,6 @@
 //       We could use the same idea with 10-bit and leave the last 4 digits to be 11-bits.
 //       Or, we could start with 11-bit digits hoping that the upper bits will be all the same and be in one bin (optimistic).
 //       11-bit digits with an adaptive 64K bin size could really help. Actually, the 64K adaptivity is a totally orthogonal idea to others.
-// TODO: Defnitely implement the special case of all array elements ending up in a single bin. It's exactly how John is testing, as he generates randoms with values up to the size of the
-//       array - e.g. if array size is 1M elements then each array element has a value 0 to 1M-1. Covering this special case by checking if all elements are in a single bin, will accelerate
-//       this special case and the case of a constant array, and ramps that go up to the array size. Even with 100M elements of longs, each value is only 27-bits out of 64-bits, with the upper
-//       bits always at zero.
 // TODO: I figured out Malte's technique for more CPU ILP - it's simply handling multiple array items at a time. Instead of handling a single array item and then cascading swaps from there until
 //       it loops back, Malte's realized that he could process two or more array items at a time, probably with some inner checking to make sure the loop isn't just two items. This will need to be
 //       tested very carefully, especially using two values thru the entire array (with both possible phases). Yeah, you process two or more array elements at a time, which will add more complexity,
@@ -226,17 +221,70 @@ namespace HPCsharp
             for (int i = 1; i < PowerOfTwoRadix; i++)
                 startOfBin[i] = endOfBin[i] = startOfBin[i - 1] + count[i - 1];
 
-            for (int _current = first; _current <= last;)
+            for (int currIndex = first; currIndex <= last;)
             {
+#if false
                 ulong digit;
-                ulong current_element = a[_current];  // get the compiler to recognize that a register can be used for the loop instead of a[_current] memory location
-                while (endOfBin[digit = (current_element >> shiftRightAmount) & bitMask] != _current)
-                    Swap(ref current_element, a, endOfBin[digit]++);
-                a[_current] = current_element;
-
+                while (endOfBin[digit = (a[currIndex] >> shiftRightAmount) & bitMask] != currIndex)
+                    Swap(a, currIndex, endOfBin[digit]++);
                 endOfBin[digit]++;
+#else
+                // TODO: Also the next element is not necessarily (currIndex + 1), since this element could be part of a Bin with already processed elements. So, we need to have a procedure to search for the
+                //       next element that has not been processed yet, using the procedure as we do at the end of the "for" loop.
+                if (currIndex + 1 <= last)      // Can we process two array elements concurrently
+                {
+                    ulong currDigit;
+                    ulong nextDigit;
+                    bool doneWith2ndElement = false;
+                    while (true)
+                    {
+                        currDigit = (a[currIndex] >> shiftRightAmount) & bitMask;
+                        if (endOfBin[currDigit] != currIndex)
+                        {
+                            Swap(a, currIndex, endOfBin[currDigit]++);
+
+                            // TODO: Need to guard against the (current+1) element hitting the (current) element when it needs to place an element into that Bin (e.g. Bin0 at the beginning of processing)
+                            //       I need to figure out what to do in that case and draw this case out. When the second element hits the first! I think in this case processing needs to stop, possibly, and
+                            //       we go to the top of the for loop again. Most likely that's the problem with the algorithm at the moment, as processing the second element is interfereing with processing of
+                            //       the first, since this is an in-place algorithm.
+
+                            if (!doneWith2ndElement)
+                            {
+                                nextDigit = (a[currIndex + 1] >> shiftRightAmount) & bitMask;   // concurrently process the next (currIndex+1) element of the array
+                                if (endOfBin[nextDigit] == currIndex)       // 2nd element (currIndex + 1) hits the 1st element (currIndex)
+                                {
+                                    Swap(a, currIndex + 1, endOfBin[nextDigit]++);
+                                    break;
+                                }
+
+                                if (endOfBin[nextDigit] != (currIndex + 1))
+                                {
+                                    Swap(a, currIndex + 1, endOfBin[nextDigit]++);
+                                }
+                                else
+                                {
+                                    endOfBin[nextDigit]++;
+                                    doneWith2ndElement = true;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            endOfBin[currDigit]++;
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    ulong digit;
+                    while (endOfBin[digit = (a[currIndex] >> shiftRightAmount) & bitMask] != currIndex)
+                        Swap(a, currIndex, endOfBin[digit]++);
+                    endOfBin[digit]++;
+                }
+#endif
                 while (endOfBin[nextBin - 1] == startOfBin[nextBin]) nextBin++;   // skip over empty and full bins, when the end of the current bin reaches the start of the next bin
-                _current = endOfBin[nextBin - 1];
+                currIndex = endOfBin[nextBin - 1];
             }
             if (shiftRightAmount > 0)          // end recursion when all the bits have been processes
             {
@@ -304,7 +352,7 @@ namespace HPCsharp
         {
             int shiftRightAmount = sizeof(ulong) * 8 - Log2ofPowerOfTwoRadix;
             // InsertionSort could be passed in as another base case since it's in-place
-            RadixSortMsdULongInner1(arrayToBeSorted, 0, arrayToBeSorted.Length, shiftRightAmount, Array.Sort);
+            RadixSortMsdULongInner(arrayToBeSorted, 0, arrayToBeSorted.Length, shiftRightAmount, Array.Sort);
         }
 
         /// <summary>
@@ -570,15 +618,97 @@ namespace HPCsharp
             }
         }
 
+        private static void RadixSortMsdLongNbitInner(long[] a, int first, int length, int shiftRightAmount, int numberOfBitsPerDigit, Action<long[], int, int> baseCaseInPlaceSort)
+        {
+            int last = first + length - 1;
+            const int NumBitsInLong = sizeof(long) * 8;
+            ulong numberOfBins  = 1UL << numberOfBitsPerDigit;
+            ulong bitMask       = numberOfBins - 1;
+            ulong halfOfPowerOfTwoRadix = numberOfBins / 2;
+
+            var count = HistogramNbitComponents(a, first, last, shiftRightAmount, numberOfBitsPerDigit);
+
+            var startOfBin = new int[numberOfBins + 1];
+            var endOfBin   = new int[numberOfBins];
+            int nextBin = 1;
+            startOfBin[0] = endOfBin[0] = first; startOfBin[numberOfBins] = -1;         // sentinal
+            for (int i = 1; i < (int)numberOfBins; i++)
+                startOfBin[i] = endOfBin[i] = startOfBin[i - 1] + count[i - 1];
+            int bucketsUsed = 0;
+            for (int i = 0; i < count.Length; i++)
+                if (count[i] > 0) bucketsUsed++;
+
+            if (bucketsUsed > 1)
+            {
+                if (shiftRightAmount == (NumBitsInLong - numberOfBitsPerDigit))     // Most significant digit
+                {
+                    for (int _current = first; _current <= last;)
+                    {
+                        ulong digit;
+                        long current_element = a[_current];  // get the compiler to recognize that a register can be used for the loop instead of a[_current] memory location
+                        while (endOfBin[digit = ((ulong)current_element >> shiftRightAmount) ^ halfOfPowerOfTwoRadix] != _current)
+                            Swap(ref current_element, a, endOfBin[digit]++);
+                        a[_current] = current_element;                          // place the current_element in the a[_current] location, since we hit the end of the current loop, and advance its current bin end
+                        endOfBin[digit]++;
+
+                        while (endOfBin[nextBin - 1] == startOfBin[nextBin]) nextBin++;   // skip over empty and full bins, when the end of the current bin reaches the start of the next bin
+                        _current = endOfBin[nextBin - 1];
+                    }
+                }
+                else
+                {
+                    for (int _current = first; _current <= last;)
+                    {
+                        ulong digit;
+                        long current_element = a[_current];  // get the compiler to recognize that a register can be used for the loop instead of a[_current] memory location
+                        while (endOfBin[digit = ((ulong)current_element >> shiftRightAmount) & bitMask] != _current)
+                            Swap(ref current_element, a, endOfBin[digit]++);
+                        a[_current] = current_element;
+                        endOfBin[digit]++;
+
+                        while (endOfBin[nextBin - 1] == startOfBin[nextBin]) nextBin++;   // skip over empty and full bins, when the end of the current bin reaches the start of the next bin
+                        _current = endOfBin[nextBin - 1];
+
+                    }
+                }
+                if (shiftRightAmount > 0)    // end recursion when all the bits have been processes
+                {
+                    shiftRightAmount = shiftRightAmount >= numberOfBitsPerDigit ? shiftRightAmount -= numberOfBitsPerDigit : 0;
+
+                    for (int i = 0; i < (int)numberOfBins; i++)
+                    {
+                        int numElements = endOfBin[i] - startOfBin[i];
+
+                        if (numElements >= SortRadixMsdLongThreshold)
+                            RadixSortMsdLongNbitInner(a, startOfBin[i], numElements, shiftRightAmount, numberOfBitsPerDigit, baseCaseInPlaceSort);
+                        else if (numElements >= 2)
+                            baseCaseInPlaceSort(a, startOfBin[i], numElements);
+                    }
+                }
+            }
+            else
+            {
+                if (shiftRightAmount > 0)    // end recursion when all the bits have been processes
+                {
+                    shiftRightAmount = shiftRightAmount >= numberOfBitsPerDigit ? shiftRightAmount -= numberOfBitsPerDigit : 0;
+
+                    if (length >= SortRadixMsdLongThreshold)
+                        RadixSortMsdLongNbitInner(a, first, length, shiftRightAmount, numberOfBitsPerDigit, baseCaseInPlaceSort);
+                    else if (length >= 2)
+                        baseCaseInPlaceSort(a, first, length);
+                }
+            }
+        }
+
         /// <summary>
         /// In-place Radix Sort (Most Significant Digit), not stable.
         /// </summary>
         /// <param name="arrayToBeSorted">array that is to be sorted in place</param>
-        public static void SortRadixMsd(this long[] arrayToBeSorted)
+        public static void SortRadixMsd(this long[] arrayToBeSorted, int numberOfBitsPerDigit = 8)
         {
-            int shiftRightAmount = sizeof(ulong) * 8 - Log2ofPowerOfTwoRadix;
+            int shiftRightAmount = sizeof(ulong) * 8 - numberOfBitsPerDigit;
             // InsertionSort could be passed in as another base case since it's in-place
-            RadixSortMsdLongInner(arrayToBeSorted, 0, arrayToBeSorted.Length, shiftRightAmount, Array.Sort);
+            RadixSortMsdLongNbitInner(arrayToBeSorted, 0, arrayToBeSorted.Length, shiftRightAmount, numberOfBitsPerDigit, Array.Sort);
         }
 
         /// <summary>
@@ -586,9 +716,9 @@ namespace HPCsharp
         /// </summary>
         /// <param name="arrayToBeSorted">array that is to be sorted in place</param>
         /// <returns>returns the input array itself, but sorted</returns>
-        public static long[] SortRadixMsdInPlaceFunc(this long[] arrayToBeSorted)
+        public static long[] SortRadixMsdInPlaceFunc(this long[] arrayToBeSorted, int numberOfBitsPerDigit = 8)
         {
-            arrayToBeSorted.SortRadixMsd();
+            arrayToBeSorted.SortRadixMsd(numberOfBitsPerDigit);
             return arrayToBeSorted;
         }
 
