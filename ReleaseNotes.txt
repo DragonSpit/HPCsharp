@@ -1,3 +1,7 @@
+Version 3.3.2
+Implemented N-bit/digit MSD Radix Sort
+Improved recursion termination performance of MSD Radix Sort for long arrays to match C++ implementation from my Dr. Dobb's Journal article
+
 Version 3.3.1
 Added .Sum() implementations of Kahan and Neumaier floating-point summation algorithms for higher accuracy
 
