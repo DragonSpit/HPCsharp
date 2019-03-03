@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Numerics;
 using System.Threading.Tasks;
+using System;
 
 namespace HPCsharp
 {
@@ -168,7 +169,7 @@ namespace HPCsharp
             if (l > r)
                 return sumLeft;
             if ((r - l + 1) <= ThresholdParallelSum)
-                return SumSse(arrayToSum, l, r);
+                return SumSse(arrayToSum, l, r - l + 1);
 
             int m = (r + l) / 2;
 
@@ -190,7 +191,7 @@ namespace HPCsharp
             if (l > r)
                 return sumLeft;
             if ((r - l + 1) <= ThresholdParallelSum)
-                return SumSse(arrayToSum, l, r);
+                return SumSse(arrayToSum, l, r - l + 1);
 
             int m = (r + l) / 2;
 
@@ -212,7 +213,7 @@ namespace HPCsharp
             if (l > r)
                 return sumLeft;
             if ((r - l + 1) <= ThresholdParallelSum)
-                return SumSse(arrayToSum, l, r);
+                return SumSse(arrayToSum, l, r - l + 1);
 
             int m = (r + l) / 2;
 
@@ -234,7 +235,7 @@ namespace HPCsharp
 
         public static long SumSsePar(this int[] arrayToSum, int start, int length)
         {
-            return arrayToSum.SumSseInner(start, start + length - 1);
+            return arrayToSum.SumSseParInner(start, start + length - 1);
         }
 
         public static ulong SumSsePar(this uint[] arrayToSum)
