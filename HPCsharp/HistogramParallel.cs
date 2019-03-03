@@ -224,7 +224,7 @@ namespace HPCsharp
                 countRight[i] = new uint[numberOfBins];
 
             Parallel.Invoke(
-                () => { countLeft = HistogramByteComponentsPar(inArray, l, m); },
+                () => { countLeft  = HistogramByteComponentsPar(inArray, l,     m); },
                 () => { countRight = HistogramByteComponentsPar(inArray, m + 1, r); }
             );
             // Combine left and right results
@@ -243,7 +243,7 @@ namespace HPCsharp
             if (l > r)      // zero elements to compare
                 return countLeft;
             if ((r - l + 1) <= ThresholdByteCount)
-                return Algorithm.HistogramByteComponents(inArray, l, r, shiftRightAmount);
+                return Algorithm.HistogramOneByteComponent(inArray, l, r, shiftRightAmount);
 
             int m = (r + l) / 2;
 

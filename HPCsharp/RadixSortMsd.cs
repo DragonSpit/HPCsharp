@@ -30,6 +30,7 @@
 //       Could possibly codify into a function that gets rightShiftAmount and digit size. This leads to generalization of most significant digit detection to support digits of any size.
 // TODO: To optimize performance of MSB Radix Sort apply optimizations discussed in https://www.youtube.com/watch?v=zqs87a_7zxw, which may bring performance closer
 //       to the not-in-place version
+// TODO: Consider implementing an unsafe version of MSD Radix Sort to see if performance increases because of fewer checks done C#.
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -172,7 +173,7 @@ namespace HPCsharp
             int last = first + length - 1;
             const ulong bitMask = PowerOfTwoRadix - 1;
 
-            var count = HistogramByteComponents(a, first, last, shiftRightAmount);
+            var count = HistogramOneByteComponent(a, first, last, shiftRightAmount);
 
             var startOfBin = new int[PowerOfTwoRadix + 1];
             var endOfBin   = new int[PowerOfTwoRadix];
@@ -212,7 +213,7 @@ namespace HPCsharp
             int last = first + length - 1;
             const ulong bitMask = PowerOfTwoRadix - 1;
 
-            var count = HistogramByteComponents(a, first, last, shiftRightAmount);
+            var count = HistogramOneByteComponent(a, first, last, shiftRightAmount);
 
             var startOfBin = new int[PowerOfTwoRadix + 1];
             var endOfBin = new int[PowerOfTwoRadix];
@@ -371,8 +372,18 @@ namespace HPCsharp
             int last = first + length - 1;
             const ulong bitMask = PowerOfTwoRadix - 1;
             const ulong halfOfPowerOfTwoRadix = PowerOfTwoRadix / 2;
+            //Stopwatch stopwatch = new Stopwatch();
+            //long frequency = Stopwatch.Frequency;
+            //Console.WriteLine("  Timer frequency in ticks per second = {0}", frequency);
+            //long nanosecPerTick = (1000L * 1000L * 1000L) / frequency;
 
-            var count = HistogramByteComponentsUsingUnion(a, first, last, shiftRightAmount);
+            //stopwatch.Restart();
+
+            var count = HistogramOneByteComponent(a, first, last, shiftRightAmount);
+
+            //stopwatch.Stop();
+            //double timeForCounting = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
+            //Console.WriteLine("Time for counting: {0}", timeForCounting);
 
             var startOfBin = new int[PowerOfTwoRadix + 1];
             var endOfBin   = new int[PowerOfTwoRadix];
@@ -383,6 +394,8 @@ namespace HPCsharp
             int bucketsUsed = 0;
             for (int i = 0; i < count.Length; i++)
                 if (count[i] > 0) bucketsUsed++;
+
+            //stopwatch.Restart();
 
             if (bucketsUsed > 1)
             {
@@ -417,6 +430,10 @@ namespace HPCsharp
 
                     }
                 }
+                //stopwatch.Stop();
+                //double timeForPermuting = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
+                //Console.WriteLine("Size = {0}, Time for counting: {1}, Time for permuting: {2}, Ratio = {3:0.00}", length, timeForCounting, timeForPermuting, timeForCounting/timeForPermuting);
+
                 if (shiftRightAmount > 0)    // end recursion when all the bits have been processes
                 {
                     shiftRightAmount = shiftRightAmount >= Log2ofPowerOfTwoRadix ? shiftRightAmount -= Log2ofPowerOfTwoRadix : 0;
@@ -426,8 +443,9 @@ namespace HPCsharp
                         int numElements = endOfBin[i] - startOfBin[i];
 
                         if (numElements >= SortRadixMsdLongThreshold)
-                            RadixSortMsdLongInner2(a, startOfBin[i], numElements, shiftRightAmount, baseCaseInPlaceSort);
+                            RadixSortMsdLongInner(a, startOfBin[i], numElements, shiftRightAmount, baseCaseInPlaceSort);
                         else if (numElements >= 2)
+                            //InsertionSort(a, startOfBin[i], numElements);
                             baseCaseInPlaceSort(a, startOfBin[i], numElements);
                     }
                 }
@@ -439,8 +457,9 @@ namespace HPCsharp
                     shiftRightAmount = shiftRightAmount >= Log2ofPowerOfTwoRadix ? shiftRightAmount -= Log2ofPowerOfTwoRadix : 0;
 
                     if (length >= SortRadixMsdLongThreshold)
-                        RadixSortMsdLongInner2(a, first, length, shiftRightAmount, baseCaseInPlaceSort);
+                        RadixSortMsdLongInner(a, first, length, shiftRightAmount, baseCaseInPlaceSort);
                     else if (length >= 2)
+                        //InsertionSort(a, first, length);
                         baseCaseInPlaceSort(a, first, length);
                 }
             }

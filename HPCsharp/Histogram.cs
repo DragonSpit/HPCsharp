@@ -175,7 +175,7 @@ namespace HPCsharp
             return count;
         }
 
-        public static int[] HistogramByteComponents(ulong[] inArray, Int32 l, Int32 r, int shiftRightAmount)
+        public static int[] HistogramOneByteComponent(ulong[] inArray, Int32 l, Int32 r, int shiftRightAmount)
         {
             const int numberOfBins = 256;
             //const ulong byteMask = numberOfBins - 1;
@@ -190,7 +190,7 @@ namespace HPCsharp
             return count;
         }
 
-        public static int[] HistogramByteComponents(long[] inArray, Int32 l, Int32 r, int shiftRightAmount)
+        public static int[] HistogramOneByteComponent(long[] inArray, Int32 l, Int32 r, int shiftRightAmount)
         {
             const int numberOfBins = 256;
             const ulong byteMask = numberOfBins - 1;

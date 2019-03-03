@@ -40,6 +40,10 @@
 //       This will be a huge speed-up for John's use case! Is it easy to tell if the bins are in the correct order quickly? All negative and all positive? This is extra overhead.
 // TODO: Wonder if paging the temporary/destination array into memory first would help performance. Otherwise, if C# does it lazily, then random access may make that slower? Maybe.
 // TODO: See if Wikipedia Counting Sort ideas and concepts could possibly help improve performance https://en.wikipedia.org/wiki/Counting_sort
+// TODO: Since LSD Radix Sort now does the Counting portion of the algorithm in a single pass outside of the permutation loop that processes based on digits, we could add statistics detection
+//       during that pass for very low cost, or possibly almost no cost, since that pass is memory bandwidth limited. Detection of presorted, reverse sorted and constant (which is also presorted)
+//       should be simple to detect, even in parallel.
+// TODO: Apply the Counting/Histogram optimization from my blog to Radix Sort of user defined types (actually across all of the LSD Radix Sorts).
 using System;
 using System.Collections.Generic;
 using System.Text;
