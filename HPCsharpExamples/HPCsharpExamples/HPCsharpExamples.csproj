@@ -78,6 +78,7 @@
     <Compile Include="SortMeasurePerformance.cs" />
     <Compile Include="SortingUsageExamples.cs" />
     <Compile Include="StabilityTest.cs" />
+    <Compile Include="SumExamples.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
