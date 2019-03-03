@@ -52,14 +52,6 @@ namespace HPCsharpExamples
             SortOfUserDefinedClass.SimpleNotInPlaceExample();
             #endregion
 
-            #region Standard C# .Sum() problem examples
-            SumExamples.SumProblems();
-            #endregion
-
-            #region HPCsharp improved .Sum() examples
-            SumExamples.SumHPCsharpExamples();
-            #endregion
-
             //if (!StabilityTest.SortingArrayOfUserDefinedClass(true, true))
             //    return;
 
@@ -189,6 +181,18 @@ namespace HPCsharpExamples
             MaxMeasureArraySpeedup();
             // Measure List.Max speedup
             MaxMeasureListSpeedup();
+            #endregion
+
+            #region Standard C# .Sum() problem examples
+            SumExamples.SumProblems();
+            #endregion
+
+            #region HPCsharp improved .Sum() examples
+            SumExamples.SumHPCsharpExamples();
+            #endregion
+
+            #region HPCsharp .Sum() performance speedup
+            SumMeasureArraySpeedup();
             #endregion
         }
     }

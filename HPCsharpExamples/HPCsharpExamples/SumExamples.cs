@@ -44,7 +44,8 @@ namespace HPCsharpExamples
             int sumInt;
             long sumLong;
 
-            //sumInt = arrInt.Sum();         // standard C# usage, will throw overflow exception
+            //sumInt = arrInt.Sum();                  // standard C# usage, single-core, will throw overflow exception
+            //sumInt = arrInt.AsParallel().Sum();     // standard C# usage, multi-core,  will throw overflow exception
 
             // No overflow exception thrown
             sumLong = arrInt.SumHpc();     // serial

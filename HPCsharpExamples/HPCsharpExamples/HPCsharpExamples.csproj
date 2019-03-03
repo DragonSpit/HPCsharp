@@ -53,8 +53,8 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="HPCsharp, Version=3.3.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\HPCsharp.3.3.2\lib\netstandard2.0\HPCsharp.dll</HintPath>
+    <Reference Include="HPCsharp, Version=3.3.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\HPCsharp.3.3.3\lib\netstandard2.0\HPCsharp.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -70,12 +70,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MinMaxMeasurePerformance.cs" />
+    <Compile Include="SumSpeedup.cs" />
+    <Compile Include="MinMaxSpeedup.cs" />
     <Compile Include="SortOfUserDefinedClass.cs" />
-    <Compile Include="SequenceEqualMeasurePerformance.cs" />
+    <Compile Include="SequenceEqualSpeedup.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SortMeasurePerformance.cs" />
+    <Compile Include="SortSpeedup.cs" />
     <Compile Include="SortingUsageExamples.cs" />
     <Compile Include="StabilityTest.cs" />
     <Compile Include="SumExamples.cs" />
