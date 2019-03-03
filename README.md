@@ -15,6 +15,10 @@ Updated VisualStudio 2017 examples solution, demonstrating usage through working
 
 To get the maximum performance make sure to target x64 processor architecture for the Release build in VisualStudio, increasing performance by as much as 50%.
 
+**_Version 3.3.3_** Just Released! Give it a shot.
+- Fixed a bug with .Sum() SSE and multi-core implementation for int and uint arrays
+- Fixed inner recursive function of MSD Radix Sort calling the wrong function when recursing
+
 **_Version 3.3.1_** Just Released! Give it a shot.
 - Implemented a better .Sum() than Linq provides, which does not overflow and is parallel thru SSE and multi-core for ludicrous speed! (See details below)
 - Added .Sum() implementations of Kahan and Neumaier floating-point summation algorithms for higher accuracy
@@ -27,15 +31,6 @@ To get the maximum performance make sure to target x64 processor architecture fo
 - These provide in-place interface and functional interface, which is also in-place but returns the input array that has been sorted.
 - Improved performance of MSD Radix Sort of slong arrays (thank you John once again).
 - Added LSD Radix Sort for long arrays (serial and parallel), which are not in-place, but have interfaces to support in-place usage
-
-**_Version 3.2.0_** 
-
-- Added ludicrous speed Parallel Counting Sort and Parallel Radix Sort for arrays of byte and ushort, which are in-place.
-- Added Counting Sort and Radix Sort for arrays of signed types: sbyte and short, which are in-place.
-- Added Histogram of components/bytes/digits within UInt32 and UInt64
-- Implemented parallel Histogram functions, which sped up well
-- Ported three Block Swap algorithms from C++ to C#, which swap neighboring blocks within an array of unequal size in-place.
-- Eliminate a copy at the end of LSD Radix Sort (thank you John for the suggestion)
 
 Full release history is in ReleaseNotes.txt file
 
