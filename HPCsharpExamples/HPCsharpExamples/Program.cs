@@ -41,6 +41,10 @@ namespace HPCsharpExamples
             Console.WriteLine();
             #endregion
 
+            #region More examples of sorting usage
+            SortingUsageExamples.SortingBasicExamples();
+            #endregion
+
             #region Examples of sorting of user defined classes
             Console.WriteLine("Examples of sorting of user defined classes");
 
