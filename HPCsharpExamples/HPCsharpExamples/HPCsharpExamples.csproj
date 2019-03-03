@@ -70,9 +70,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="RadixSortOfUserDefinedClass.cs" />
     <Compile Include="MinMaxMeasurePerformance.cs" />
-    <Compile Include="MergeSortOfUserDefinedClass.cs" />
+    <Compile Include="SortOfUserDefinedClass.cs" />
     <Compile Include="SequenceEqualMeasurePerformance.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

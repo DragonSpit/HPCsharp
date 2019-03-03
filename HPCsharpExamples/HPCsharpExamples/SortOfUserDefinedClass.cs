@@ -44,7 +44,7 @@ namespace HPCsharpExamples
         }
     }
 
-    class MergeSortOfUserDefinedClass
+    class SortOfUserDefinedClass
     {
         public static void SimpleInPlaceExample()
         {
@@ -64,11 +64,12 @@ namespace HPCsharpExamples
                 Console.Write(item);
             Console.WriteLine();
 
-            userArray.SortMergeInPlace(comparer);              // Serial   Merge Sort
-            //Algorithm.SortMergeInPlace(userArray, comparer); // Serial   Merge Sort. This syntax works too.
-            //userArray.SortMergeInPlacePar(comparer);           // Parallel Merge Sort
-            //userArray.SortMergeInPlaceStablePar(comparer);     // Parallel Merge Sort (stable)
-            //Array.Sort(userArray, comparer);                   // Serial   Array.Sort (C# standard sort)
+            //Array.Sort(userArray, comparer);                   // Serial   Array.Sort (serial, not stable)
+            Algorithm.SortMergeInPlace(userArray, comparer);     // Serial   Merge Sort. Direct function call syntax (serial, stable)
+
+            //userArray.SortMergeInPlace(comparer);              // Serial   Merge Sort. Extension method syntax (serial, stable)
+            //userArray.SortMergeInPlacePar(comparer);           // Parallel Merge Sort (parallel, not stable)
+            //userArray.SortMergeInPlaceStablePar(comparer);     // Parallel Merge Sort (parallel, stable)
 
             Console.Write("Sorted   array of user defined class: ");
             foreach (UserDefinedClass item in userArray)
@@ -89,16 +90,21 @@ namespace HPCsharpExamples
                 new UserDefinedClass(10, 4),
                 new UserDefinedClass( 2, 5)
             };
+            UserDefinedClass[] sortedUserArray;
+
             Console.Write("Unsorted array of user defined class: ");
             foreach (UserDefinedClass item in userArray)
                 Console.Write(item);
             Console.WriteLine();
 
-            UserDefinedClass[] sortedUserArray = Algorithm.SortMerge(userArray, comparer);                         // Serial   Merge Sort
-            //UserDefinedClass[] sortedUserArray = ParallelAlgorithm.SortMergePar(userArray, comparer);              // Parallel Merge Sort
-            //UserDefinedClass[] sortedUserArray = ParallelAlgorithm.SortMergeStablePar(userArray, comparer);        // Parallel Merge Sort (stable)
-            //UserDefinedClass[] sortedUserArray = userArray.OrderBy(element => element.Key).ToArray();              // Serial   Linq  Sort (C# standard sort, stable)
-            //UserDefinedClass[] sortedUserArray = userArray.AsParallel().OrderBy(element => element.Key).ToArray(); // Parallel Linq  Sort (C# standard sort, stable)
+            //sortedUserArray = userArray.OrderBy(element => element.Key).ToArray();              // Serial   Linq  Sort (C# standard sort, stable)
+            sortedUserArray = userArray.SortRadix(element => element.Key);                        // Serial   Radix Sort (stable)
+
+            //sortedUserArray = Algorithm.SortMerge(userArray, comparer);                         // Serial   Merge Sort (stable)
+
+            //sortedUserArray = userArray.AsParallel().OrderBy(element => element.Key).ToArray(); // Parallel Linq  Sort (C# standard sort, stable)
+            //sortedUserArray = ParallelAlgorithm.SortMergePar(userArray, comparer);              // Parallel Merge Sort
+            //sortedUserArray = ParallelAlgorithm.SortMergeStablePar(userArray, comparer);        // Parallel Merge Sort (stable)
 
             Console.Write("Sorted   array of user defined class: ");
             foreach (UserDefinedClass item in sortedUserArray)

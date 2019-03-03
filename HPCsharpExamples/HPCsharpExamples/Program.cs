@@ -48,9 +48,8 @@ namespace HPCsharpExamples
             #region Examples of sorting of user defined classes
             Console.WriteLine("Examples of sorting of user defined classes");
 
-            MergeSortOfUserDefinedClass.SimpleInPlaceExample();
-            MergeSortOfUserDefinedClass.SimpleNotInPlaceExample();
-            RadixSortOfUserDefinedClass.SimpleExample();
+            SortOfUserDefinedClass.SimpleInPlaceExample();
+            SortOfUserDefinedClass.SimpleNotInPlaceExample();
             #endregion
 
             //if (!StabilityTest.SortingArrayOfUserDefinedClass(true, true))
