@@ -98,7 +98,7 @@ namespace HPCsharp
 
                     for (int i = 0; i < PowerOfTwoRadix; i++)
                     {
-                        if (endOfBin[i] - startOfBin[i] > SortRadixMsdLongParallelThreshold)
+                        if ((endOfBin[i] - startOfBin[i]) > SortRadixMsdLongParallelThreshold)
                         {
                             //Task.Factory.StartNew(() => RadixSortMsdLongParInner(a, startOfBin[i], endOfBin[i] - startOfBin[i], shiftRightAmount, baseCaseInPlaceSort),
                             //    CancellationToken.None, TaskCreationOptions.AttachedToParent, TaskScheduler.Default);
