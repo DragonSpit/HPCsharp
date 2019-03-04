@@ -78,7 +78,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SortSpeedup.cs" />
     <Compile Include="SortingUsageExamples.cs" />
-    <Compile Include="StabilityTest.cs" />
     <Compile Include="SumExamples.cs" />
   </ItemGroup>
   <ItemGroup>
