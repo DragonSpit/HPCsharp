@@ -2,6 +2,7 @@
 //       This should be easy to parallelize and for the user to provide their own comparison method for their own custom user classes. An easy and consistent way would be to expose the 
 //       Comparer in the same way we did for Merge Sort.
 // TODO: See if converting List to array then doing the operation and then converting back to List, like we do for sorting, is faster.
+// TODO: Add SIMD/SSE acceleration for sequence comparison for additional speedup, for all built-in data types
 using System;
 using System.Collections.Generic;
 using System.Collections;

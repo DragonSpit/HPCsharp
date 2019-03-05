@@ -370,8 +370,8 @@ namespace HPCsharp
         private static void RadixSortMsdLongInner(long[] a, int first, int length, int shiftRightAmount, Action<long[], int, int> baseCaseInPlaceSort)
         {
             int last = first + length - 1;
-            const ulong bitMask = PowerOfTwoRadix - 1;
-            const ulong halfOfPowerOfTwoRadix = PowerOfTwoRadix / 2;
+            const long bitMask = PowerOfTwoRadix - 1;
+            const byte halfOfPowerOfTwoRadix = PowerOfTwoRadix / 2;
             //Stopwatch stopwatch = new Stopwatch();
             //long frequency = Stopwatch.Frequency;
             //Console.WriteLine("  Timer frequency in ticks per second = {0}", frequency);
@@ -403,11 +403,14 @@ namespace HPCsharp
                 {
                     for (int _current = first; _current <= last;)
                     {
-                        ulong digit;
-                        long current_element = a[_current];  // get the compiler to recognize that a register can be used for the loop instead of a[_current] memory location
-                        while (endOfBin[digit = ((ulong)current_element >> shiftRightAmount) ^ halfOfPowerOfTwoRadix] != _current)
-                            Swap(ref current_element, a, endOfBin[digit]++);
-                        a[_current] = current_element;                          // place the current_element in the a[_current] location, since we hit the end of the current loop, and advance its current bin end
+                        byte digit;
+                        byte halfptr = halfOfPowerOfTwoRadix;
+                        while (endOfBin[digit = (byte)((byte)(a[_current] >> shiftRightAmount) ^ halfptr)] != _current)
+                        {
+                            long temp = a[_current];            // inlining Swap() increased performance about 5-10%
+                            a[_current] = a[endOfBin[digit]];
+                            a[endOfBin[digit]++] = temp;
+                        }
                         endOfBin[digit]++;
 
                         while (endOfBin[nextBin - 1] == startOfBin[nextBin]) nextBin++;   // skip over empty and full bins, when the end of the current bin reaches the start of the next bin
@@ -418,16 +421,17 @@ namespace HPCsharp
                 {
                     for (int _current = first; _current <= last;)
                     {
-                        ulong digit;
-                        long current_element = a[_current];  // get the compiler to recognize that a register can be used for the loop instead of a[_current] memory location
-                        while (endOfBin[digit = ((ulong)current_element >> shiftRightAmount) & bitMask] != _current)
-                            Swap(ref current_element, a, endOfBin[digit]++);
-                        a[_current] = current_element;
+                        byte digit;
+                        while (endOfBin[digit = (byte)(a[_current] >> shiftRightAmount)] != _current)
+                        {
+                            long temp = a[_current];            // inlining Swap() increased performance about 5-10%
+                            a[_current] = a[endOfBin[digit]];
+                            a[endOfBin[digit]++] = temp;
+                        }
                         endOfBin[digit]++;
 
                         while (endOfBin[nextBin - 1] == startOfBin[nextBin]) nextBin++;   // skip over empty and full bins, when the end of the current bin reaches the start of the next bin
                         _current = endOfBin[nextBin - 1];
-
                     }
                 }
                 //stopwatch.Stop();
@@ -464,7 +468,6 @@ namespace HPCsharp
                 }
             }
         }
-
         // Simpler implementation, which just uses the array elements to swap and never extracts the current element into a variable on the inner swap loop
         // This version is easier to reason about
         private static void RadixSortMsdLongInner1(long[] a, int first, int length, int shiftRightAmount, Action<long[], int, int> baseCaseInPlaceSort)

@@ -1,4 +1,6 @@
-﻿using System;
+﻿// TODO: Add SIMD/SSE acceleration for Max and Min
+// TODO: Implement SIMD/SSE acceleration for MinMax (bounds)
+using System;
 using System.Collections.Generic;
 
 namespace HPCsharp

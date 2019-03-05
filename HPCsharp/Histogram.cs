@@ -200,16 +200,15 @@ namespace HPCsharp
             {
                 for (int current = l; current <= r; current++)
                 {
-                    count[((ulong)inArray[current] >> shiftRightAmount) & byteMask]++;
-                    //count[(byte)(inArray[current] >> shiftRightAmount)]++;          // ?? Which way is faster. Need to look at assembly language listing too
+                    //count[((ulong)inArray[current] >> shiftRightAmount) & byteMask]++;
+                    count[(byte)(inArray[current] >> shiftRightAmount)]++;          // ?? Which way is faster. Need to look at assembly language listing too
                 }
             }
             else
             {
                 for (int current = l; current <= r; current++)
                 {
-                    //Console.WriteLine(((ulong)inArray[current] >> shiftRightAmount) ^ 128);
-                    count[((ulong)inArray[current] >> shiftRightAmount) ^ 128]++;
+                    count[(byte)(inArray[current] >> shiftRightAmount) ^ 128]++;
                 }
             }
 
