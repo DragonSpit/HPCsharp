@@ -1,3 +1,6 @@
+Version 3.3.4
+Improved performance of MSD Radix Sort for long arrays by 5-10%
+
 Version 3.3.3
 Fixed a bug with .Sum() SSE and multi-core implementation for int and uint arrays
 Fixed inner recursive function of MSD Radix Sort calling the wrong function when recursing
