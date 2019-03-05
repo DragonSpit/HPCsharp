@@ -104,19 +104,19 @@ namespace HPCsharpExamples
                 if (!parallel)
                 {
                     if (!radixSort)
-                        Console.WriteLine("C# array of size {0}: Array.Sort             {1:0.000} sec, Serial   Merge Sort {2:0.000} sec, speedup {3:0.00}", arraySize,
+                        Console.WriteLine("C# array of size {0}: Array.Sort              {1:0.000} sec, Serial   Merge Sort {2:0.000} sec, speedup {3:0.00}", arraySize,
                                    timeArraySort, timeMergeSort, timeArraySort / timeMergeSort);
                     else
-                        Console.WriteLine("C# array of size {0}: Array.Sort             {1:0.000} sec, Serial   Radix Sort {2:0.000} sec, speedup {3:0.00}", arraySize,
+                        Console.WriteLine("C# array of size {0}: Array.Sort              {1:0.000} sec, Serial   Radix Sort {2:0.000} sec, speedup {3:0.00}", arraySize,
                                             timeArraySort, timeMergeSort, timeArraySort / timeMergeSort);
                 }
                 else
                 {
                     if (!radixSort)
-                        Console.WriteLine("C# array of size {0}: Array.Sort             {1:0.000} sec, Parallel Merge Sort {2:0.000} sec, speedup {3:0.00}", arraySize,
+                        Console.WriteLine("C# array of size {0}: Array.Sort              {1:0.000} sec, Parallel Merge Sort {2:0.000} sec, speedup {3:0.00}", arraySize,
                                             timeArraySort, timeMergeSort, timeArraySort / timeMergeSort);
                     else
-                        Console.WriteLine("C# array of size {0}: Array.Sort             {1:0.000} sec, Parallel Radix Sort {2:0.000} sec, speedup {3:0.00}", arraySize,
+                        Console.WriteLine("C# array of size {0}: Array.Sort              {1:0.000} sec, Parallel Radix Sort {2:0.000} sec, speedup {3:0.00}", arraySize,
                                             timeArraySort, timeMergeSort, timeArraySort / timeMergeSort);
                 }
             }
@@ -125,19 +125,19 @@ namespace HPCsharpExamples
                 if (!parallel)
                 {
                     if (!radixSort)
-                        Console.WriteLine("C# array of size {0}: Linq.SortBy Serial     {1:0.000} sec, Serial   Merge Sort {2:0.000} sec, speedup {3:0.00}", arraySize,
+                        Console.WriteLine("C# array of size {0}: Linq.OrderBy            {1:0.000} sec, Serial   Merge Sort {2:0.000} sec, speedup {3:0.00}", arraySize,
                                             timeArraySort, timeMergeSort, timeArraySort / timeMergeSort);
                     else
-                        Console.WriteLine("C# array of size {0}: Linq.SortBy Serial     {1:0.000} sec, Serial   Radix Sort {2:0.000} sec, speedup {3:0.00}", arraySize,
+                        Console.WriteLine("C# array of size {0}: Linq.OrderBy            {1:0.000} sec, Serial   Radix Sort {2:0.000} sec, speedup {3:0.00}", arraySize,
                                             timeArraySort, timeMergeSort, timeArraySort / timeMergeSort);
                 }
                 else
                 {
                     if (!radixSort)
-                        Console.WriteLine("C# array of size {0}: Linq.SortBy.AsParallel {1:0.000} sec, Parallel Merge Sort {2:0.000} sec, speedup {3:0.00}", arraySize,
+                        Console.WriteLine("C# array of size {0}: Linq.OrderBy.AsParallel {1:0.000} sec, Parallel Merge Sort {2:0.000} sec, speedup {3:0.00}", arraySize,
                                             timeArraySort, timeMergeSort, timeArraySort / timeMergeSort);
                     else
-                        Console.WriteLine("C# array of size {0}: Linq.SortBy.AsParallel {1:0.000} sec, Parallel Radix Sort {2:0.000} sec, speedup {3:0.00}", arraySize,
+                        Console.WriteLine("C# array of size {0}: Linq.OrderBy.AsParallel {1:0.000} sec, Parallel Radix Sort {2:0.000} sec, speedup {3:0.00}", arraySize,
                                             timeArraySort, timeMergeSort, timeArraySort / timeMergeSort);
                 }
             }
@@ -291,19 +291,19 @@ namespace HPCsharpExamples
                 if (!parallel)
                 {
                     if (!radixSort)
-                        Console.WriteLine("C# array of size {0}: Array.Sort             {1:0.000} sec, Serial   Merge Sort {2:0.000} sec, speedup {3:0.00}", arraySize,
+                        Console.WriteLine("C# array of size {0}: Array.Sort              {1:0.000} sec, Serial   Merge Sort {2:0.000} sec, speedup {3:0.00}", arraySize,
                                    timeArraySort, timeMergeSort, timeArraySort / timeMergeSort);
                     else
-                        Console.WriteLine("C# array of size {0}: Array.Sort             {1:0.000} sec, Serial   Radix Sort {2:0.000} sec, speedup {3:0.00}", arraySize,
+                        Console.WriteLine("C# array of size {0}: Array.Sort              {1:0.000} sec, Serial   Radix Sort {2:0.000} sec, speedup {3:0.00}", arraySize,
                                             timeArraySort, timeMergeSort, timeArraySort / timeMergeSort);
                 }
                 else
                 {
                     if (!radixSort)
-                        Console.WriteLine("C# array of size {0}: Array.Sort             {1:0.000} sec, Parallel Merge Sort {2:0.000} sec, speedup {3:0.00}", arraySize,
+                        Console.WriteLine("C# array of size {0}: Array.Sort              {1:0.000} sec, Parallel Merge Sort {2:0.000} sec, speedup {3:0.00}", arraySize,
                                             timeArraySort, timeMergeSort, timeArraySort / timeMergeSort);
                     else
-                        Console.WriteLine("C# array of size {0}: Array.Sort             {1:0.000} sec, Serial   Radix Sort {2:0.000} sec, speedup {3:0.00}", arraySize,
+                        Console.WriteLine("C# array of size {0}: Array.Sort              {1:0.000} sec, Serial   Radix Sort {2:0.000} sec, speedup {3:0.00}", arraySize,
                                             timeArraySort, timeMergeSort, timeArraySort / timeMergeSort);
                 }
             }
@@ -312,19 +312,19 @@ namespace HPCsharpExamples
                 if (!parallel)
                 {
                     if (!radixSort)
-                        Console.WriteLine("C# array of size {0}: Linq.SortBy Serial     {1:0.000} sec, Serial   Merge Sort {2:0.000} sec, speedup {3:0.00}", arraySize,
+                        Console.WriteLine("C# array of size {0}: Linq.OrderBy            {1:0.000} sec, Serial   Merge Sort {2:0.000} sec, speedup {3:0.00}", arraySize,
                                             timeArraySort, timeMergeSort, timeArraySort / timeMergeSort);
                     else
-                        Console.WriteLine("C# array of size {0}: Linq.SortBy Serial     {1:0.000} sec, Serial   Radix Sort {2:0.000} sec, speedup {3:0.00}", arraySize,
+                        Console.WriteLine("C# array of size {0}: Linq.OrderBy            {1:0.000} sec, Serial   Radix Sort {2:0.000} sec, speedup {3:0.00}", arraySize,
                                             timeArraySort, timeMergeSort, timeArraySort / timeMergeSort);
                 }
                 else
                 {
                     if (!radixSort)
-                        Console.WriteLine("C# array of size {0}: Linq.SortBy.AsParallel {1:0.000} sec, Parallel Merge Sort {2:0.000} sec, speedup {3:0.00}", arraySize,
+                        Console.WriteLine("C# array of size {0}: Linq.OrderBy.AsParallel {1:0.000} sec, Parallel Merge Sort {2:0.000} sec, speedup {3:0.00}", arraySize,
                                             timeArraySort, timeMergeSort, timeArraySort / timeMergeSort);
                     else
-                        Console.WriteLine("C# array of size {0}: Linq.SortBy.AsParallel {1:0.000} sec, Serial   Radix Sort {2:0.000} sec, speedup {3:0.00}", arraySize,
+                        Console.WriteLine("C# array of size {0}: Linq.OrderBy.AsParallel {1:0.000} sec, Serial   Radix Sort {2:0.000} sec, speedup {3:0.00}", arraySize,
                                             timeArraySort, timeMergeSort, timeArraySort / timeMergeSort);
                 }
             }
