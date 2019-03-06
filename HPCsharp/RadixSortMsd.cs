@@ -766,15 +766,13 @@ namespace HPCsharp
             return arrayToBeSorted;
         }
 
-        private static void RadixSortDoubleInner(double[] a, int first, int length, int shiftRightAmount, Action<double[], int, int> baseCaseInPlaceSort)
+        private static void RadixSortDoubleInner(double[] a, int first, int length, int shiftRightAmount, int numberOfBitsPerDigit, Action<double[], int, int> baseCaseInPlaceSort)
         {
-            if (length < SortRadixMsdDoubleThreshold)
-            {
-                baseCaseInPlaceSort(a, first, length);
-                return;
-            }
             int last = first + length - 1;
-            const ulong bitMask = 0xfff;        // 12-bits for the exponent and process mantissa 12-bits at a time
+            const int NumBitsInDouble = sizeof(double) * 8;
+            ulong numberOfBins = 1UL << numberOfBitsPerDigit;
+            ulong bitMask = numberOfBins - 1;
+            ulong halfOfPowerOfTwoRadix = numberOfBins / 2;
 
             var count = Histogram12bitComponents(a, first, last, shiftRightAmount);
 
@@ -784,44 +782,72 @@ namespace HPCsharp
             startOfBin[0] = endOfBin[0] = first; startOfBin[PowerOfTwoRadixDouble] = -1;         // sentinal
             for (int i = 1; i < PowerOfTwoRadixDouble; i++)
                 startOfBin[i] = endOfBin[i] = startOfBin[i - 1] + count[i - 1];
+            int bucketsUsed = 0;
+            for (int i = 0; i < count.Length; i++)
+                if (count[i] > 0) bucketsUsed++;
 
-            if (shiftRightAmount == 52)     // Exponent
+            if (bucketsUsed > 1)
             {
-                for (int _current = first; _current <= last;)
+                if (shiftRightAmount == 52)     // Exponent
                 {
-                    ulong digit;
-                    double current_element = a[_current];  // get the compiler to recognize that a register can be used for the loop instead of a[_current] memory location
-                    while (endOfBin[digit = ((ulong)current_element >> shiftRightAmount) ^ 2048] != _current)
-                        Swap(ref current_element, a, endOfBin[digit]++);
-                    a[_current] = current_element;
+                    for (int _current = first; _current <= last;)
+                    {
+                        ulong digit;
+                        while (endOfBin[digit = ((ulong)a[_current] >> shiftRightAmount) ^ 2048] != _current)
+                        {
+                            double temp = a[_current];            // inlining Swap() increased performance about 5-10%
+                            a[_current] = a[endOfBin[digit]];
+                            a[endOfBin[digit]++] = temp;
+                        }
+                        endOfBin[digit]++;
 
-                    endOfBin[digit]++;
-                    while (endOfBin[nextBin - 1] == startOfBin[nextBin]) nextBin++;   // skip over empty and full bins, when the end of the current bin reaches the start of the next bin
-                    _current = endOfBin[nextBin - 1];
+                        while (endOfBin[nextBin - 1] == startOfBin[nextBin]) nextBin++;   // skip over empty and full bins, when the end of the current bin reaches the start of the next bin
+                        _current = endOfBin[nextBin - 1];
+                    }
+                }
+                else     // Mantissa
+                {
+                    for (int _current = first; _current <= last;)
+                    {
+                        ulong digit;
+                        while (endOfBin[digit = ((ulong)a[_current] >> shiftRightAmount) & bitMask] != _current)
+                        {
+                            double temp = a[_current];            // inlining Swap() increased performance about 5-10%
+                            a[_current] = a[endOfBin[digit]];
+                            a[endOfBin[digit]++] = temp;
+                        }
+                        endOfBin[digit]++;
+
+                        while (endOfBin[nextBin - 1] == startOfBin[nextBin]) nextBin++;   // skip over empty and full bins, when the end of the current bin reaches the start of the next bin
+                        _current = endOfBin[nextBin - 1];
+                    }
+                }
+                if (shiftRightAmount > 0)    // end recursion when all the bits have been processes
+                {
+                    shiftRightAmount = shiftRightAmount >= numberOfBitsPerDigit ? shiftRightAmount -= numberOfBitsPerDigit : 0;
+
+                    for (int i = 0; i < (int)numberOfBins; i++)
+                    {
+                        int numElements = endOfBin[i] - startOfBin[i];
+
+                        if (numElements >= SortRadixMsdDoubleThreshold)
+                            RadixSortDoubleInner(a, startOfBin[i], endOfBin[i] - startOfBin[i], shiftRightAmount, numberOfBitsPerDigit, baseCaseInPlaceSort);
+                        else if (numElements >= 2)
+                            baseCaseInPlaceSort(a, startOfBin[i], numElements);
+                    }
                 }
             }
-            else     // Mantissa
+            else
             {
-                for (int _current = first; _current <= last;)
+                if (shiftRightAmount > 0)    // end recursion when all the bits have been processes
                 {
-                    ulong digit;
-                    double current_element = a[_current];  // get the compiler to recognize that a register can be used for the loop instead of a[_current] memory location
-                    while (endOfBin[digit = ((ulong)current_element >> shiftRightAmount) & bitMask] != _current)
-                        Swap(ref current_element, a, endOfBin[digit]++);
-                    a[_current] = current_element;
+                    shiftRightAmount = shiftRightAmount >= numberOfBitsPerDigit ? shiftRightAmount -= numberOfBitsPerDigit : 0;
 
-                    endOfBin[digit]++;
-                    while (endOfBin[nextBin - 1] == startOfBin[nextBin]) nextBin++;   // skip over empty and full bins, when the end of the current bin reaches the start of the next bin
-                    _current = endOfBin[nextBin - 1];
+                    if (length >= SortRadixMsdDoubleThreshold)
+                        RadixSortDoubleInner(a, first, length, shiftRightAmount, numberOfBitsPerDigit, baseCaseInPlaceSort);
+                    else if (length >= 2)
+                        baseCaseInPlaceSort(a, first, length);
                 }
-            }
-            if (shiftRightAmount > 0)    // end recursion when all the bits have been processes
-            {
-                if (shiftRightAmount >= Log2ofPowerOfTwoRadixDouble) shiftRightAmount -= Log2ofPowerOfTwoRadixDouble;
-                else shiftRightAmount = 0;
-
-                for (int i = 0; i < PowerOfTwoRadixDouble; i++)
-                    RadixSortDoubleInner(a, startOfBin[i], endOfBin[i] - startOfBin[i], shiftRightAmount, baseCaseInPlaceSort);
             }
         }
         /// <summary>
@@ -832,7 +858,7 @@ namespace HPCsharp
         {
             int shiftRightAmount = sizeof(double) * 8 - Log2ofPowerOfTwoRadixDouble;
             // InsertionSort could be passed in as another base case since it's in-place
-            RadixSortDoubleInner(arrayToBeSorted, 0, arrayToBeSorted.Length, shiftRightAmount, Array.Sort);
+            RadixSortDoubleInner(arrayToBeSorted, 0, arrayToBeSorted.Length, shiftRightAmount, 12,  Array.Sort);
         }
 
         /// <summary>
