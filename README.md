@@ -15,8 +15,8 @@ Updated VisualStudio 2017 examples solution, demonstrating usage through working
 
 To get the maximum performance make sure to target x64 processor architecture for the Release build in VisualStudio, increasing performance by as much as 50%.
 
-**_Version 3.3.4_** Just Released! Give it a shot.
-- Improved performance of MSD Radix Sort for long arrays by 5-10%
+**_Version 3.3.5_** Just Released! Give it a shot.
+- Improved performance of MSD Radix Sort for long arrays by 5-10%, and double arrays > 10%
 - Fixed a bug with .Sum() SSE and multi-core implementation for int and uint arrays
 - Fixed inner recursive function of MSD Radix Sort calling the wrong function when recursing
 
