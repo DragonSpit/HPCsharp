@@ -11,6 +11,8 @@ and Array.Fill for full and partial arrays. Better .Sum() for arrays that doesn'
 
 Familiar interfaces, which are similar to standard C# Sort. Free and open source HPCsharp package on https://www.nuget.org
 
+Recent presentation at the Indianapolis .NET Consortium, March 2019 on https://youtu.be/IRNW4VGevvQ
+
 Updated VisualStudio 2017 examples solution, demonstrating usage through working examples. Build and run it to see performance gains on your machine.
 
 To get the maximum performance make sure to target x64 processor architecture for the Release build in VisualStudio, increasing performance by as much as 50%.
