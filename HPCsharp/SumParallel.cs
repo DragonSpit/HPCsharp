@@ -180,8 +180,7 @@ namespace HPCsharp
                 () => { sumRight = SumSseParInner(arrayToSum, m + 1, r); }
             );
             // Combine left and right results
-            sumLeft += sumRight;
-            return sumLeft;
+            return sumLeft + sumRight;
         }
 
         private static ulong SumSseParInner(this uint[] arrayToSum, int l, int r)
@@ -202,8 +201,7 @@ namespace HPCsharp
                 () => { sumRight = SumSseParInner(arrayToSum, m + 1, r); }
             );
             // Combine left and right results
-            sumLeft += sumRight;
-            return sumLeft;
+            return sumLeft + sumRight;
         }
 
         private static double SumSseParInner(this float[] arrayToSum, int l, int r)
@@ -224,8 +222,7 @@ namespace HPCsharp
                 () => { sumRight = SumSseParInner(arrayToSum, m + 1, r); }
             );
             // Combine left and right results
-            sumLeft += sumRight;
-            return sumLeft;
+            return sumLeft + sumRight;
         }
 
         public static long SumSsePar(this int[] arrayToSum)

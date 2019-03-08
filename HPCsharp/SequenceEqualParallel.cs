@@ -7,13 +7,14 @@ using System;
 using System.Collections.Generic;
 using System.Collections;
 using System.Threading.Tasks;
+using System.Numerics;
 
 namespace HPCsharp
 {
     /// <summary>
     /// Container class for parallel extension methods
     /// </summary>
-    static public partial class ParallelAlgorithms
+    static public partial class ParallelAlgorithm
     {
         static Int32 ThresholdSequenceEqual { get; set; } = 1024;
 
@@ -359,6 +360,44 @@ namespace HPCsharp
             if (first.Count != second.Count)
                 return false;
             return SequenceEqualInner<T>(first, second, 0, first.Count - 1, equalityComparer);
+        }
+
+        public static bool EqualSse(this int[] first, int[] second)
+        {
+            if (first == null || second == null)
+                throw new System.ArgumentNullException("Equality cannot be determined when one or both arrays are null");
+            if (first.Length == 0 || second.Length == 0)
+                throw new ArgumentException("Equality cannot be determined when one or both arrays are empty");
+            return first.EqualSseInner(second, 0, first.Length - 1);
+        }
+
+        public static bool EqualSse(this int[] first, int[] second, int start, int length)
+        {
+            if (first == null || second == null)
+                throw new System.ArgumentNullException("Equality cannot be determined when one or both arrays are null");
+            if (first.Length == 0 || second.Length == 0 || length == 0)
+                throw new ArgumentException("Equality cannot be determined when one or both arrays are empty, or length is zero");
+            return first.EqualSseInner(second, start, start + length - 1);
+        }
+
+        // Assumes that at least one element in an array to be processed and l <= r to also ensure that at least one element is being processed, to ensure a Min result is always possible
+        private static bool EqualSseInner(this int[] first, int[] second, int l, int r)
+        {
+            int sseIndexEnd = l + ((r - l + 1) / Vector<int>.Count) * Vector<int>.Count;
+            int i;
+            for (i = l; i < sseIndexEnd; i += Vector<int>.Count)
+            {
+                var inVectorFirst  = new Vector<int>(first,  i);
+                var inVectorSecond = new Vector<int>(second, i);
+                if (!Vector.EqualsAll(inVectorFirst, inVectorSecond))
+                    return false;
+            }
+            for (; i <= r; i++)
+            {
+                if (first[i] != second[i])
+                    return false;
+            }
+            return true;
         }
     }
 }

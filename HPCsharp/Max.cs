@@ -1,5 +1,8 @@
-﻿// TODO: Add SIMD/SSE acceleration for Max and Min
-// TODO: Implement SIMD/SSE acceleration for MinMax (bounds)
+﻿// TODO: Add SIMD/SSE acceleration for Max and Min for built-in types
+// TODO: Implement SIMD/SSE acceleration for MinMax (bounds) for built-in types
+// TODO: Add multi-core versions of these
+// TODO: Add the ability for the user to pass in their own comparer function
+// TODO: Add SIMD/SSE accelerated version where the user passes in a function to extract a key from their user defined class to perform a Max operation. Multi-core will still be possible, but not SSE.
 using System;
 using System.Collections.Generic;
 
