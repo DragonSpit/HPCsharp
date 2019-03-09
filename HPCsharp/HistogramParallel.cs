@@ -100,7 +100,7 @@ namespace HPCsharp
             return HistogramInnerPar(inArray, 0, inArray.Length - 1);
         }
 
-        public static Int32 ThresholdByteCount { get; set; } = 64 * 1024;
+        public static Int32 ThresholdByteCount { get; set; } = 16 * 1024;
 
         public static uint[][] HistogramByteComponentsPar(uint[] inArray, Int32 l, Int32 r)
         {
