@@ -44,6 +44,9 @@
 //       during that pass for very low cost, or possibly almost no cost, since that pass is memory bandwidth limited. Detection of presorted, reverse sorted and constant (which is also presorted)
 //       should be simple to detect, even in parallel.
 // TODO: Apply the Counting/Histogram optimization from my blog to Radix Sort of user defined types (actually across all of the LSD Radix Sorts).
+// TODO: Consistently switch to int[] for StartOfBin everywhere, since that improves performance for index operations, since in C# int is the native index type (or is it, something to double-check!)
+//       It seems that C# supports several data types for indexes (int, uint, long and ulong). Need to experiment which data type C# prefers (guessing uint, but not sure) to generate the least IL instructions.
+//       Post the best type to use on https://stackoverflow.com/questions/16486533/type-of-array-index-in-c once I figure out what that is, whichever generates the least amount of IL
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -567,9 +570,9 @@ namespace HPCsharp
             int d = 0;
             var outputArray = new long[inputArray.Length];
 
-            uint[][] startOfBin = new uint[numberOfDigits][];
+            int[][] startOfBin = new int[numberOfDigits][];
             for (int i = 0; i < numberOfDigits; i++)
-                startOfBin[i] = new uint[numberOfBins];
+                startOfBin[i] = new int[numberOfBins];
             bool outputArrayHasResult = false;
 
             const ulong bitMask = numberOfBins - 1;
@@ -582,17 +585,109 @@ namespace HPCsharp
             {
                 startOfBin[d][0] = 0;
                 for (uint i = 1; i < numberOfBins; i++)
-                    startOfBin[d][i] = startOfBin[d][i - 1] + count[d][i - 1];
+                    startOfBin[d][i] = startOfBin[d][i - 1] + (int)count[d][i - 1];
             }
 
             d = 0;
             while (d < numberOfDigits)
             {
-                uint[] startOfBinLoc = startOfBin[d];
+                int[] startOfBinLoc = startOfBin[d];
 
                 if (d != 7)
                     for (uint current = 0; current < inputArray.Length; current++)
                         outputArray[startOfBinLoc[((ulong)inputArray[current] >> shiftRightAmount) & bitMask]++] = inputArray[current];
+                else
+                    for (uint current = 0; current < inputArray.Length; current++)
+                        outputArray[startOfBinLoc[((ulong)inputArray[current] >> shiftRightAmount) ^ halfOfPowerOfTwoRadix]++] = inputArray[current];
+
+                shiftRightAmount += bitsPerDigit;
+                outputArrayHasResult = !outputArrayHasResult;
+                d++;
+
+                long[] tmp = inputArray;       // swap input and output arrays
+                inputArray = outputArray;
+                outputArray = tmp;
+            }
+            return outputArrayHasResult ? outputArray : inputArray;
+        }
+        /// <summary>
+        /// Sort an array of signed long integers using Radix Sorting algorithm (least significant digit variation - LSD)
+        /// This algorithm is not in-place. This algorithm is stable.
+        /// </summary>
+        /// <param name="inputArray">array of signed long integers to be sorted</param>
+        /// <returns>sorted array of signed long integers</returns>
+        public static long[] SortRadix3(this long[] inputArray)
+        {
+            const int bitsPerDigit = 8;
+            const int numberOfBins = 1 << bitsPerDigit;
+            uint numberOfDigits = (sizeof(ulong) * 8 + bitsPerDigit - 1) / bitsPerDigit;
+            int d = 0;
+            var outputArray = new long[inputArray.Length];
+
+            int[][] startOfBin = new int[numberOfDigits][];
+            for (int i = 0; i < numberOfDigits; i++)
+                startOfBin[i] = new int[numberOfBins];
+            bool outputArrayHasResult = false;
+
+            const ulong bitMask = numberOfBins - 1;
+            const ulong halfOfPowerOfTwoRadix = PowerOfTwoRadix / 2;
+            int shiftRightAmount = 0;
+
+            uint[][] count = HistogramByteComponents(inputArray, 0, inputArray.Length - 1);
+
+            for (d = 0; d < numberOfDigits; d++)
+            {
+                startOfBin[d][0] = 0;
+                for (uint i = 1; i < numberOfBins; i++)
+                    startOfBin[d][i] = startOfBin[d][i - 1] + (int)count[d][i - 1];
+            }
+            // Write-thru-sequencialization buffer
+            const int NumberOfLongsPerWTHS = 64;
+            long[] wthsBuffer = new long[numberOfBins * NumberOfLongsPerWTHS];
+            int[] currIndexes = new int[numberOfBins];
+            for (int i = 0; i < numberOfBins; i++)
+                currIndexes[i] =  i      * NumberOfLongsPerWTHS;
+
+            d = 0;
+            while (d < numberOfDigits)
+            {
+                int[] startOfBinLoc = startOfBin[d];
+
+                if (d != 7)
+                {
+                    for (uint current = 0; current < inputArray.Length; current++)
+                    {
+                        byte digit = (byte)(inputArray[current] >> shiftRightAmount);
+                        if (currIndexes[digit] < ((int)digit + 1) * NumberOfLongsPerWTHS)
+                        {
+                            wthsBuffer[currIndexes[digit]++] = inputArray[current];
+                        }
+                        else
+                        {
+                            int outIndex = startOfBinLoc[digit];
+                            int buffIndex = digit * NumberOfLongsPerWTHS;
+                            int endBuffIndex = buffIndex + NumberOfLongsPerWTHS;
+                            while (buffIndex < endBuffIndex)
+                                outputArray[outIndex++] = wthsBuffer[buffIndex++];
+                            startOfBinLoc[digit] += NumberOfLongsPerWTHS;
+                            currIndexes[digit] = digit * NumberOfLongsPerWTHS;
+                            wthsBuffer[currIndexes[digit]++] = inputArray[current];
+                        }
+                    }
+                    for (int i = 0; i < numberOfBins; i++)
+                    {
+                        byte digit = (byte)i;
+                        int outIndex = startOfBinLoc[digit];
+                        int buffIndex = digit * NumberOfLongsPerWTHS;
+                        int endBuffIndex = currIndexes[digit];
+                        while (buffIndex < endBuffIndex)
+                        {
+                            outputArray[outIndex++] = wthsBuffer[buffIndex++];
+                            startOfBinLoc[digit]++;
+                        }
+                        currIndexes[digit] = digit * NumberOfLongsPerWTHS;
+                    }
+                }
                 else
                     for (uint current = 0; current < inputArray.Length; current++)
                         outputArray[startOfBinLoc[((ulong)inputArray[current] >> shiftRightAmount) ^ halfOfPowerOfTwoRadix]++] = inputArray[current];
