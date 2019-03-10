@@ -1,3 +1,7 @@
+Version 3.3.6
+Added John's copy avoidance suggestion for the functional interface LSD Radix Sort
+Added SIMD/SSE and multi-core .Min() for int[]
+
 Version 3.3.5
 Improved performance of MSD Radix Sort for double arrays by > 10%
 

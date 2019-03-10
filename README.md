@@ -17,7 +17,12 @@ Updated VisualStudio 2017 examples solution, demonstrating usage through working
 
 To get the maximum performance make sure to target x64 processor architecture for the Release build in VisualStudio, increasing performance by as much as 50%.
 
-**_Version 3.3.5_** Just Released! Give it a shot.
+**_Version 3.3.6_** Just Released! Give it a shot.
+- Added John's copy avoidance suggestion for the functional interface LSD Radix Sort
+- Added SIMD/SSE and multi-core .Min() for int[], which is over 20X faster than Linq.Min() and 6X faster than Linq.AsParallel.Min()
+- Benchmarked parallel LSD Radix Sort, which is 30% faster than the serial LSD Radix Sort
+
+**_Version 3.3.5_**
 - Improved performance of MSD Radix Sort for long arrays by 5-10%, and double arrays > 10%
 - Fixed a bug with .Sum() SSE and multi-core implementation for int and uint arrays
 - Fixed inner recursive function of MSD Radix Sort calling the wrong function when recursing
@@ -27,27 +32,19 @@ To get the maximum performance make sure to target x64 processor architecture fo
 - Added .Sum() implementations of Kahan and Neumaier floating-point summation algorithms for higher accuracy
 - Slight performance improvements to LSD Radix Sort
 
-**_Version 3.2.5_**
-
-- Added in-place MSD Radix Sort implementations: byte, sbyte, short, ushort, ulong, long, and double arrays.
-- These use Counting Sort for byte, sbyte, short and ushort, for ludicrous speed!
-- These provide in-place interface and functional interface, which is also in-place but returns the input array that has been sorted.
-- Improved performance of MSD Radix Sort of slong arrays (thank you John once again).
-- Added LSD Radix Sort for long arrays (serial and parallel), which are not in-place, but have interfaces to support in-place usage
-
 Full release history is in ReleaseNotes.txt file
 
 ## Better .Sum() ##
-Linq .Sum() for arrays and lists adds up all of the elements to produce a sum. This .Sum() returns the same data type as the elements of the array itself.
-For instance, when the array is of integers, then the result is also an integer. This can cause an overflow condition and exception, even when summing
-just two elements - e.g. when one of the elements is Int32.MaxValue and the other is a positive value greater than zero.
+Linq .Sum() adds up all of the array elements to produce a sum. This .Sum() returns the same data type as the elements of the array itself.
+For instance, when the array is of bytes, then the result is also a byte. This can cause an overflow exception, even when summing
+just two elements - e.g. when one of the elements is 255 and the other is a one.
 
-HPCsharp version of .Sum() returns an slong for all signed integer types (int, short, sbyte) and will not overflow or throw an overflow exception.
-Also, unsigned types are supported by HPCsharp .Sum(), such as uint, ushort, and byte. For .Sum() of float arrays, double is returned producing
-a more accurate summation result. Also, for float and double arrays, to produce even more accurate summation, Kahan and Neumaier algorithms have been
+HPCsharp version of .Sum() returns a 64-bit long for all signed integer types (int, short, sbyte) and will not throw an overflow exception.
+Unsigned types are supported by HPCsharp .Sum(), such as uint, ushort, and byte, returning a ulong result. For .Sum() of float arrays, double is returned producing
+a more accurate summation result. To produce even more accurate summation for float and double, Kahan and Neumaier algorithms have been
 implemented - serial only to start with. For manny data types .Sum() supports data parallel and multi-core accelerated versions -
 .SumSse() and .SumSsePar(). These provide substantial speedup and run many times faster than the standard C# versions, even faster than .AsParallel.Sum(),
-plus no worries about overflow. HPCsharp versions run in GigaElements/second speeds for these parallel .Sum() implementations.
+plus no worries about overflow. HPCsharp versions run at GigaElements/second speeds for these parallel .Sum() implementations.
 
 ## Sorting ##
 
@@ -59,8 +56,8 @@ Counting Sort|Array|Random|27-56X|156-343X|39-70X|846|byte
 Counting Sort|Array|Presorted|26-56X|168-344X|38-66X|864|byte
 Counting Sort|Array|Constant|30-56X|165-321X|34-70X|847|byte
 
-Counting Sort is linear time O(N) and sorts either an array of byte or ushort. In-place and not-in-place version have been implementated.
-This algorithm runs at GPU speeds!
+Counting Sort above is linear time O(N) and sorts an array of byte, sbyte, short or ushort. In-place and not-in-place version have been implementated.
+The above benchmark is on a single core! Multi-core sorts at GigaElements/second.
 
 *Algorithm*|*Collection*|*Distribution*|*vs .Sort*|*vs Linq*|*vs Linq.AsParallel*|*MegaInts/sec*|*Data Type*
 --- | --- | --- | --- | --- | --- | --- | ---
@@ -102,7 +99,7 @@ Other algorithms provided:
 - Insertion Sort which is O(N<sup>2</sup>), and useful for fast in-place sorting of very small collections.
 - Binary Search algorithm
 - Parallel Merge algorithm, which merges two presorted collections using multiple cores. Used by Parallel Merge Sort.
-- A few parallel Linq-style methods for Min, Max, Average, etc.
+- Parallel Linq-style methods for Min, Max, Average, etc.
 
 Radix Sort has been extended to sort user defined classes based on a UInt32 or UInt64 key within the class. Radix Sort is currently using only a single core.
 
@@ -121,8 +118,10 @@ Faster than Linq.OrderBy and Linq.OrderBy.AsParallel
 *Algorithm*|*Collection*|*vs Linq*|*Parallel vs Linq*
 --- | --- | --- | ---
 SequenceEqual|Array, List|4X faster|up to 11X faster
-Min|Array, List|1.5-3X faster
-Max|Array, List|1.5X faster
+Min|Array|14-26X faster|4-7X faster
+Max|Array|1.5X faster
+
+.Min() is implemented using SIMD/SSE instructions to run at 4 GigaInts/sec on a single core, and over 5 GigaInts/sec on quad-core.
 
 Parallel Copying:
 
