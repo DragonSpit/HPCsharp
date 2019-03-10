@@ -47,6 +47,7 @@
 // TODO: Consistently switch to int[] for StartOfBin everywhere, since that improves performance for index operations, since in C# int is the native index type (or is it, something to double-check!)
 //       It seems that C# supports several data types for indexes (int, uint, long and ulong). Need to experiment which data type C# prefers (guessing uint, but not sure) to generate the least IL instructions.
 //       Post the best type to use on https://stackoverflow.com/questions/16486533/type-of-array-index-in-c once I figure out what that is, whichever generates the least amount of IL
+// TODO: figure out why for long[] trick of checking for a single bucket, we still have to sort using the last digit, otherwise incrementing test case fails for some sizes of input array.
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -607,6 +608,68 @@ namespace HPCsharp
                 long[] tmp = inputArray;       // swap input and output arrays
                 inputArray = outputArray;
                 outputArray = tmp;
+            }
+            return outputArrayHasResult ? outputArray : inputArray;
+        }
+        /// <summary>
+        /// Sort an array of signed long integers using Radix Sorting algorithm (least significant digit variation - LSD)
+        /// This algorithm is not in-place. This algorithm is stable.
+        /// </summary>
+        /// <param name="inputArray">array of signed long integers to be sorted</param>
+        /// <returns>sorted array of signed long integers</returns>
+        public static long[] SortRadix4(this long[] inputArray)
+        {
+            const int bitsPerDigit = 8;
+            const uint numberOfBins = 1 << bitsPerDigit;
+            uint numberOfDigits = (sizeof(ulong) * 8 + bitsPerDigit - 1) / bitsPerDigit;
+            int d = 0;
+            var outputArray = new long[inputArray.Length];
+
+            int[][] startOfBin = new int[numberOfDigits][];
+            for (int i = 0; i < numberOfDigits; i++)
+                startOfBin[i] = new int[numberOfBins];
+            bool outputArrayHasResult = false;
+
+            const ulong bitMask = numberOfBins - 1;
+            const ulong halfOfPowerOfTwoRadix = PowerOfTwoRadix / 2;
+            int shiftRightAmount = 0;
+
+            uint[][] count = HistogramByteComponents(inputArray, 0, inputArray.Length - 1);
+
+            for (d = 0; d < numberOfDigits; d++)
+            {
+                startOfBin[d][0] = 0;
+                for (uint i = 1; i < numberOfBins; i++)
+                    startOfBin[d][i] = startOfBin[d][i - 1] + (int)count[d][i - 1];
+            }
+
+            int[] bucketsUsed = new int[numberOfDigits];
+            for (d = 0; d < numberOfDigits; d++)
+                for (int i = 0; i < numberOfBins; i++)
+                    if (count[d][i] > 0) bucketsUsed[d]++;
+
+            d = 0;
+            while (d < numberOfDigits)
+            {
+                if (bucketsUsed[d] > 1 || d == 7)   // TODO: Figure out why processing the last digit is necessary for incrementing array input test case. Yes, the most signficant digit is special, but why
+                {
+                    int[] startOfBinLoc = startOfBin[d];
+
+                    if (d != 7)
+                        for (uint current = 0; current < inputArray.Length; current++)
+                            outputArray[startOfBinLoc[((ulong)inputArray[current] >> shiftRightAmount) & bitMask]++] = inputArray[current];
+                    else
+                        for (uint current = 0; current < inputArray.Length; current++)
+                            outputArray[startOfBinLoc[((ulong)inputArray[current] >> shiftRightAmount) ^ halfOfPowerOfTwoRadix]++] = inputArray[current];
+
+                    outputArrayHasResult = !outputArrayHasResult;
+
+                    long[] tmp = inputArray;       // swap input and output arrays
+                    inputArray = outputArray;
+                    outputArray = tmp;
+                }
+                shiftRightAmount += bitsPerDigit;
+                d++;
             }
             return outputArrayHasResult ? outputArray : inputArray;
         }

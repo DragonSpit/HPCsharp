@@ -31,6 +31,7 @@
 // TODO: To optimize performance of MSB Radix Sort apply optimizations discussed in https://www.youtube.com/watch?v=zqs87a_7zxw, which may bring performance closer
 //       to the not-in-place version
 // TODO: Consider implementing an unsafe version of MSD Radix Sort to see if performance increases because of fewer checks done C#.
+// TODO: Part of the problem is random access of memory, since it's data dependent, but another part is branch prediction (possibly), especially in the case of two bins or few bins. Is it possible to minimize this affect?
 using System;
 using System.Collections.Generic;
 using System.Text;
