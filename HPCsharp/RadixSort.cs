@@ -774,7 +774,8 @@ namespace HPCsharp
         public static void SortRadixInPlaceInterface(this long[] inputArray)
         {
             var sortedArray = SortRadix(inputArray);
-            Array.Copy(sortedArray, inputArray, inputArray.Length);
+            if (sortedArray != inputArray)
+                Array.Copy(sortedArray, inputArray, inputArray.Length);
         }
 
         private static uint[] SortRadixExperimental(this uint[] inputArray)
