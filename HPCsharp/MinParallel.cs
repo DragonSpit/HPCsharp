@@ -27,26 +27,26 @@ namespace HPCsharp
         }
 
         // Assumes that at least one element in an array to be processed and l <= r to also ensure that at least one element is being processed, to ensure a Min result is always possible
-        private static int MinSseInner(this int[] arrayToSum, int l, int r)
+        private static int MinSseInner(this int[] arrayToMin, int l, int r)
         {
             var minVector = new Vector<int>();
             int sseIndexEnd = l + ((r - l + 1) / Vector<int>.Count) * Vector<int>.Count;
             int i = l;
             if (i < sseIndexEnd)
             {
-                minVector = new Vector<int>(arrayToSum, i);
+                minVector = new Vector<int>(arrayToMin, i);
                 i += Vector<int>.Count;
             }
             for (; i < sseIndexEnd; i += Vector<int>.Count)
             {
-                var inVector = new Vector<int>(arrayToSum, i);
+                var inVector = new Vector<int>(arrayToMin, i);
                 minVector = Vector.Min(minVector, inVector);
             }
             int overallMin = minVector[0];
-            for (int j = 1; j < Vector<long>.Count; j++)
-                overallMin += minVector[j];
+            for (int j = 1; j < Vector<int>.Count; j++)
+                overallMin = Math.Min(overallMin, minVector[j]);
             for (; i <= r; i++)
-                overallMin += arrayToSum[i];
+                overallMin = Math.Min(overallMin, arrayToMin[i]);
             return overallMin;
         }
 
