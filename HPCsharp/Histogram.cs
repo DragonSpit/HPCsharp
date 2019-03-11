@@ -175,6 +175,51 @@ namespace HPCsharp
             return count;
         }
 
+        public static Tuple<uint[][], int> HistogramByteComponentsAndStatistics(long[] inArray, Int32 l, Int32 r)
+        {
+            const int numberOfBins = 256;
+            const int numberOfDigits = sizeof(ulong);
+            uint[][] count = new uint[numberOfDigits][];
+            for (int i = 0; i < numberOfDigits; i++)
+                count[i] = new uint[numberOfBins];
+            int numElementsPreSorted = 0;
+
+            var union = new Int64ByteUnion();
+
+            int current = l;
+            if (current <= r)
+            {
+                union.integer = inArray[current];
+                count[0][union.byte0]++;
+                count[1][union.byte1]++;
+                count[2][union.byte2]++;
+                count[3][union.byte3]++;
+                count[4][union.byte4]++;
+                count[5][union.byte5]++;
+                count[6][union.byte6]++;
+                count[7][((ulong)inArray[current] >> 56) ^ 128]++;
+                current++;
+
+                numElementsPreSorted++;     // initial single array element is considered sorted, since there is only a single element
+            }
+
+            for (; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
+            {
+                union.integer = inArray[current];
+                count[0][union.byte0]++;
+                count[1][union.byte1]++;
+                count[2][union.byte2]++;
+                count[3][union.byte3]++;
+                count[4][union.byte4]++;
+                count[5][union.byte5]++;
+                count[6][union.byte6]++;
+                count[7][((ulong)inArray[current] >> 56) ^ 128]++;
+
+                numElementsPreSorted += inArray[current] >= inArray[current - 1] ? 1 : 0;
+            }
+            return new Tuple<uint[][], int>(count, numElementsPreSorted);
+        }
+
         public static int[] HistogramOneByteComponent(ulong[] inArray, Int32 l, Int32 r, int shiftRightAmount)
         {
             const int numberOfBins = 256;

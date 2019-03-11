@@ -43,6 +43,7 @@
 // TODO: Since LSD Radix Sort now does the Counting portion of the algorithm in a single pass outside of the permutation loop that processes based on digits, we could add statistics detection
 //       during that pass for very low cost, or possibly almost no cost, since that pass is memory bandwidth limited. Detection of presorted, reverse sorted and constant (which is also presorted)
 //       should be simple to detect, even in parallel.
+// TODO: If the input array is completely pre-sorted then just output it, otherwise if a certain percentage is pre-sorted (i.e. close to pre-sorted) then use Array.Sort, otherwise use LSD Radix Sort.
 // TODO: Apply the Counting/Histogram optimization from my blog to Radix Sort of user defined types (actually across all of the LSD Radix Sorts).
 // TODO: Consistently switch to int[] for StartOfBin everywhere, since that improves performance for index operations, since in C# int is the native index type (or is it, something to double-check!)
 //       It seems that C# supports several data types for indexes (int, uint, long and ulong). Need to experiment which data type C# prefers (guessing uint, but not sure) to generate the least IL instructions.
@@ -634,7 +635,12 @@ namespace HPCsharp
             const ulong halfOfPowerOfTwoRadix = PowerOfTwoRadix / 2;
             int shiftRightAmount = 0;
 
-            uint[][] count = HistogramByteComponents(inputArray, 0, inputArray.Length - 1);
+            var countsAndPresorted = HistogramByteComponentsAndStatistics(inputArray, 0, inputArray.Length - 1);
+
+            uint[][] count = countsAndPresorted.Item1;
+
+            if (countsAndPresorted.Item2 == inputArray.Length)  // the input array is pre-sorted
+                return inputArray;
 
             for (d = 0; d < numberOfDigits; d++)
             {
@@ -651,7 +657,7 @@ namespace HPCsharp
             d = 0;
             while (d < numberOfDigits)
             {
-                if (bucketsUsed[d] > 1 || d == 7)   // TODO: Figure out why processing the last digit is necessary for incrementing array input test case. Yes, the most signficant digit is special, but why
+                if (bucketsUsed[d] > 1 || d == 7)   // TODO: Figure out why processing the last digit is necessary for incrementing array input test case. Yes, the most signficant digit is special, but why, even for positive only values
                 {
                     int[] startOfBinLoc = startOfBin[d];
 
