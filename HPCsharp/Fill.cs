@@ -13,10 +13,6 @@
 // TODO: Something strange is going on with performance of BlockCopy for ushort when the offset is not zero. I'm guessing that Microsoft messed up the implementation and
 //       if they use SSE instructions, then forgot to align these on 32-byte/256-bit boundary, and when SSE is not aligned then performance is abysmal.
 using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Numerics;
-using System.Threading.Tasks;
 
 namespace HPCsharp
 {
@@ -30,7 +26,6 @@ namespace HPCsharp
 
         public static void Fill<T>(this T[] arrayToFill, T value, int startIndex, int length)
         {
-            int index    = startIndex;
             int endIndex = startIndex + length;
             for (int i = startIndex; i < endIndex; i++)
                 arrayToFill[i] = value;
@@ -39,18 +34,8 @@ namespace HPCsharp
         // From StackOverflow fast fill question https://stackoverflow.com/questions/1897555/what-is-the-equivalent-of-memset-in-c
         public static void FillUsingBlockCopy<T>(this T[] array, T value) where T : struct
         {
-            int numBytesInItem = 0;
-            if (typeof(T) == typeof(byte) || typeof(T) == typeof(sbyte))
-                numBytesInItem = 1;
-            else if (typeof(T) == typeof(ushort) || typeof(T) != typeof(short))
-                numBytesInItem = 2;
-            else if (typeof(T) == typeof(uint) || typeof(T) != typeof(int))
-                numBytesInItem = 4;
-            else if (typeof(T) == typeof(ulong) || typeof(T) != typeof(long))
-                numBytesInItem = 8;
-            else
-                throw new ArgumentException(string.Format("Type '{0}' is unsupported.", typeof(T).ToString()));
-            
+            int numBytesInItem = ValidateTypeIsIntegralAndGetByteSize<T>();
+
             int block = 32, index = 0;
             int endIndex = Math.Min(block, array.Length);
 
@@ -67,17 +52,7 @@ namespace HPCsharp
 
         public static void FillUsingBlockCopy<T>(this T[] array, T value, int startIndex, int count) where T : struct
         {
-            int numBytesInItem = 0;
-            if (typeof(T) == typeof(byte) || typeof(T) == typeof(sbyte))
-                numBytesInItem = 1;
-            else if (typeof(T) == typeof(ushort) || typeof(T) == typeof(short))
-                numBytesInItem = 2;
-            else if (typeof(T) == typeof(uint) || typeof(T) == typeof(int))
-                numBytesInItem = 4;
-            else if (typeof(T) == typeof(ulong) || typeof(T) == typeof(long))
-                numBytesInItem = 8;
-            else
-                throw new ArgumentException(string.Format("Type '{0}' is unsupported.", typeof(T).ToString()));
+            int numBytesInItem = ValidateTypeIsIntegralAndGetByteSize<T>();
 
             int block = 32, index = startIndex;
             int endIndex = startIndex + Math.Min(block, count);
@@ -91,6 +66,20 @@ namespace HPCsharp
                 int actualBlockSize = Math.Min(block, endIndex - index);
                 Buffer.BlockCopy(array, startIndex * numBytesInItem, array, index * numBytesInItem, actualBlockSize * numBytesInItem);
             }
+        }
+
+        private static int ValidateTypeIsIntegralAndGetByteSize<T>()
+        {
+            if (typeof(T) == typeof(byte) || typeof(T) == typeof(sbyte))
+                return 1;
+            if (typeof(T) == typeof(ushort) || typeof(T) == typeof(short))
+                return 2;
+            if (typeof(T) == typeof(uint) || typeof(T) == typeof(int))
+                return 4;
+            if (typeof(T) == typeof(ulong) || typeof(T) == typeof(long))
+                return 8;
+
+            throw new ArgumentException($"Type '{typeof(T)}' is unsupported.");
         }
     }
 }
