@@ -55,7 +55,7 @@ namespace HPCsharp
         private static int MinSseParInner(this int[] arrayToMin, int l, int r)
         {
             if ((r - l + 1) <= ThresholdParallelMin || (r - l + 1) <= 2)    // protect against either half of divide-and-conquer from having zero elements
-                return MinSse(arrayToMin, l, r - l + 1);
+                return MinSseInner(arrayToMin, l, r - l + 1);
 
             int m = (r + l) / 2;
 
