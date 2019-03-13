@@ -13,6 +13,14 @@ namespace HPCsharp
 {
     static public partial class Algorithm
     {
+        public static long SumHpc(this long[] arrayToSum)
+        {
+            long overallSum = 0;
+            for (int i = 0; i < arrayToSum.Length; i++)
+                overallSum += arrayToSum[i];
+            return overallSum;
+        }
+
         public static long SumHpc(this int[] arrayToSum)
         {
             long overallSum = 0;

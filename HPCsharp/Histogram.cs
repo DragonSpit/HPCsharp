@@ -215,7 +215,10 @@ namespace HPCsharp
                 count[6][union.byte6]++;
                 count[7][((ulong)inArray[current] >> 56) ^ 128]++;
 
-                numElementsPreSorted += inArray[current] >= inArray[current - 1] ? 1 : 0;
+                // TODO: It should be possible to take the if/branch out, possibly by using SIMD/SSE or by separating the > from the ==, where ? can be done with a subtraction
+                //       and equal with XOR followed by a subtraction from all 1's
+                if (inArray[current] >= inArray[current - 1])
+                    numElementsPreSorted++;
             }
             return new Tuple<uint[][], int>(count, numElementsPreSorted);
         }
@@ -245,8 +248,7 @@ namespace HPCsharp
             {
                 for (int current = l; current <= r; current++)
                 {
-                    //count[((ulong)inArray[current] >> shiftRightAmount) & byteMask]++;
-                    count[(byte)(inArray[current] >> shiftRightAmount)]++;          // ?? Which way is faster. Need to look at assembly language listing too
+                    count[(byte)(inArray[current] >> shiftRightAmount)]++;
                 }
             }
             else

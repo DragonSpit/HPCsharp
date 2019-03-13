@@ -91,6 +91,34 @@ namespace HPCsharp
             return overallSum;
         }
 
+        public static long SumSse(this long[] arrayToSum)
+        {
+            return arrayToSum.SumSseInner(0, arrayToSum.Length - 1);
+        }
+
+        public static long SumSse(this long[] arrayToSum, int start, int length)
+        {
+            return arrayToSum.SumSseInner(start, start + length - 1);
+        }
+
+        private static long SumSseInner(this long[] arrayToSum, int l, int r)
+        {
+            var sumVector = new Vector<long>();
+            int sseIndexEnd = l + ((r - l + 1) / Vector<long>.Count) * Vector<long>.Count;
+            int i;
+            for (i = l; i < sseIndexEnd; i += Vector<long>.Count)
+            {
+                var inVector = new Vector<long>(arrayToSum, i);
+                sumVector += inVector;
+            }
+            long overallSum = 0;
+            for (; i <= r; i++)
+                overallSum += arrayToSum[i];
+            for (i = 0; i < Vector<long>.Count; i++)
+                overallSum += sumVector[i];
+            return overallSum;
+        }
+
         public static double SumSse(this float[] arrayToSum)
         {
             return arrayToSum.SumSseInner(0, arrayToSum.Length - 1);
@@ -183,6 +211,27 @@ namespace HPCsharp
             return sumLeft + sumRight;
         }
 
+        private static long SumSseParInner(this long[] arrayToSum, int l, int r)
+        {
+            long sumLeft = 0;
+
+            if (l > r)
+                return sumLeft;
+            if ((r - l + 1) <= ThresholdParallelSum)
+                return SumSse(arrayToSum, l, r - l + 1);
+
+            int m = (r + l) / 2;
+
+            long sumRight = 0;
+
+            Parallel.Invoke(
+                () => { sumLeft  = SumSseParInner(arrayToSum, l, m); },
+                () => { sumRight = SumSseParInner(arrayToSum, m + 1, r); }
+            );
+            // Combine left and right results
+            return sumLeft + sumRight;
+        }
+
         private static ulong SumSseParInner(this uint[] arrayToSum, int l, int r)
         {
             ulong sumLeft = 0;
@@ -231,6 +280,16 @@ namespace HPCsharp
         }
 
         public static long SumSsePar(this int[] arrayToSum, int start, int length)
+        {
+            return arrayToSum.SumSseParInner(start, start + length - 1);
+        }
+
+        public static long SumSsePar(this long[] arrayToSum)
+        {
+            return SumSseParInner(arrayToSum, 0, arrayToSum.Length - 1);
+        }
+
+        public static long SumSsePar(this long[] arrayToSum, int start, int length)
         {
             return arrayToSum.SumSseParInner(start, start + length - 1);
         }

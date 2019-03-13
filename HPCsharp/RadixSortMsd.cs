@@ -32,6 +32,9 @@
 //       to the not-in-place version
 // TODO: Consider implementing an unsafe version of MSD Radix Sort to see if performance increases because of fewer checks done C#.
 // TODO: Part of the problem is random access of memory, since it's data dependent, but another part is branch prediction (possibly), especially in the case of two bins or few bins. Is it possible to minimize this affect?
+// TODO: During the initial recursion level, during the count phase, we could do pre-sorted analysis (or maybe during each level of recursion) and then do nothing if fully pre-sorted, or run Array.Sort instead
+//       when the array is nearly presorted.
+// TODO: When we know memory accesses will most likely be random, such as for MSD Radix Sort or LSD (maybe, since for this one the writes are random, but reads are not), then disable CPU memory prefecting (if possible).
 using System;
 using System.Collections.Generic;
 using System.Text;

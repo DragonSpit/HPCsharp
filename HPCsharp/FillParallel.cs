@@ -1,6 +1,5 @@
 ﻿// TODO: Use some suggestions from https://stackoverflow.com/questions/1897555/what-is-the-equivalent-of-memset-in-c and also parallelize if bandwidth is not used up by
 //       a single core. Hope this works for ushort too.
-// TODO: Can we allocate the count array on the stack to make sorting small arrays faster?
 // TODO: Benchmark Fill() for different data types from byte (8-bits) to ulong (64-bits) to see if all of memory bandwidth can be used up. If not then go parallel.
 // TODO: If Fill() benchmarks well for larger data types, then reading the array 64-bits at a time will most likely pay off as well. Yes it does! Great direction to go in.
 // TODO: Consider using SIMD instructions to read and write even more bits per iteration - e.g. 256-bits is 32 bytes and 512-bits is an entire cache line.
@@ -9,6 +8,8 @@
 // TODO: Benchmark my Fill version on a quad-memory channel system to see how much bandwidth it provides - the fill rate! ;-) kinda like graphics.
 // TODO: Create generic versions and data type specific version, since data specific versions seem to be significantly faster than generic.
 // TODO: Implement FillSse for ushort
+// TODO: For parallel versions reduce false sharing by either splitting the array on cache-line boundaries (this type of a split function would be useful for many algorithms), or
+//       create a parallel for loop functionality, where we make an array/list of tasks (I already do this in spots), each one on cache-line boundary and then hand that array to TPL to execute in parallel.
 
 using System;
 using System.Collections.Generic;

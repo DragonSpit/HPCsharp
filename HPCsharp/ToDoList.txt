@@ -25,3 +25,9 @@
 //       acceleration, but at least will provide some and will beat LINQ, since that's the only current option for C# developers.
 // TODO: List all available algorithms in the Readme, right up front to allow new users to see what's available to them
 // TODO: Figure out what the deprecated warning during the building of the NuGet package is all about
+// TODO: Figure out a way to eliminate if statements (branches) in many common cases for higher performance. This would make a good blog or technical paper.
+//       Compare performance gains for modern highly pipelined CPUs. This is something compilers should be doing whenever they can.
+// TODO: Change all benchmark results to up to and quote only the maximum performance of one algorithm versus the maximum performance of another we are comparing
+//       to. This is more fair and simpler to understand and according to Andrei Alexandrescu it's the right way to measure performance of an algorithm - what
+//       is its best possible performance, as all other factors will only add to the time and slow it down as we measure multiple times with variety of interference
+//       factors.

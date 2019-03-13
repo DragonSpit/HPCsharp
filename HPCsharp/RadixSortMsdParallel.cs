@@ -36,6 +36,108 @@ namespace HPCsharp
 
         private static void RadixSortMsdLongParInner(long[] a, int first, int length, int shiftRightAmount, Action<long[], int, int> baseCaseInPlaceSort)
         {
+            int last = first + length - 1;
+            const long bitMask = PowerOfTwoRadix - 1;
+            const byte halfOfPowerOfTwoRadix = PowerOfTwoRadix / 2;
+            //Stopwatch stopwatch = new Stopwatch();
+            //long frequency = Stopwatch.Frequency;
+            //Console.WriteLine("  Timer frequency in ticks per second = {0}", frequency);
+            //long nanosecPerTick = (1000L * 1000L * 1000L) / frequency;
+
+            //stopwatch.Restart();
+
+            var count = ParallelAlgorithm.HistogramOneByteComponentPar(a, first, last, shiftRightAmount);
+
+            //stopwatch.Stop();
+            //double timeForCounting = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
+            //Console.WriteLine("Time for counting: {0}", timeForCounting);
+
+            var startOfBin = new int[PowerOfTwoRadix + 1];
+            var endOfBin = new int[PowerOfTwoRadix];
+            int nextBin = 1;
+            startOfBin[0] = endOfBin[0] = first; startOfBin[PowerOfTwoRadix] = -1;         // sentinal
+            for (int i = 1; i < PowerOfTwoRadix; i++)
+                startOfBin[i] = endOfBin[i] = startOfBin[i - 1] + count[i - 1];
+            int bucketsUsed = 0;
+            for (int i = 0; i < count.Length; i++)
+                if (count[i] > 0) bucketsUsed++;
+
+            //stopwatch.Restart();
+
+            if (bucketsUsed > 1)
+            {
+                if (shiftRightAmount == 56)     // Most significant digit
+                {
+                    for (int _current = first; _current <= last;)
+                    {
+                        byte digit;
+                        byte halfptr = halfOfPowerOfTwoRadix;
+                        while (endOfBin[digit = (byte)((byte)(a[_current] >> shiftRightAmount) ^ halfptr)] != _current)
+                        {
+                            long temp = a[_current];            // inlining Swap() increased performance about 5-10%
+                            a[_current] = a[endOfBin[digit]];
+                            a[endOfBin[digit]++] = temp;
+                        }
+                        endOfBin[digit]++;
+
+                        while (endOfBin[nextBin - 1] == startOfBin[nextBin]) nextBin++;   // skip over empty and full bins, when the end of the current bin reaches the start of the next bin
+                        _current = endOfBin[nextBin - 1];
+                    }
+                }
+                else
+                {
+                    for (int _current = first; _current <= last;)
+                    {
+                        byte digit;
+                        while (endOfBin[digit = (byte)(a[_current] >> shiftRightAmount)] != _current)
+                        {
+                            long temp = a[_current];            // inlining Swap() increased performance about 5-10%
+                            a[_current] = a[endOfBin[digit]];
+                            a[endOfBin[digit]++] = temp;
+                        }
+                        endOfBin[digit]++;
+
+                        while (endOfBin[nextBin - 1] == startOfBin[nextBin]) nextBin++;   // skip over empty and full bins, when the end of the current bin reaches the start of the next bin
+                        _current = endOfBin[nextBin - 1];
+                    }
+                }
+                //stopwatch.Stop();
+                //double timeForPermuting = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
+                //Console.WriteLine("Size = {0}, Time for counting: {1}, Time for permuting: {2}, Ratio = {3:0.00}", length, timeForCounting, timeForPermuting, timeForCounting/timeForPermuting);
+
+                if (shiftRightAmount > 0)    // end recursion when all the bits have been processes
+                {
+                    shiftRightAmount = shiftRightAmount >= Log2ofPowerOfTwoRadix ? shiftRightAmount -= Log2ofPowerOfTwoRadix : 0;
+
+                    for (int i = 0; i < PowerOfTwoRadix; i++)
+                    {
+                        int numElements = endOfBin[i] - startOfBin[i];
+
+                        if (numElements >= SortRadixMsdLongThreshold)
+                            RadixSortMsdLongParInner(a, startOfBin[i], numElements, shiftRightAmount, baseCaseInPlaceSort);
+                        else if (numElements >= 2)
+                            //InsertionSort(a, startOfBin[i], numElements);
+                            baseCaseInPlaceSort(a, startOfBin[i], numElements);
+                    }
+                }
+            }
+            else
+            {
+                if (shiftRightAmount > 0)    // end recursion when all the bits have been processes
+                {
+                    shiftRightAmount = shiftRightAmount >= Log2ofPowerOfTwoRadix ? shiftRightAmount -= Log2ofPowerOfTwoRadix : 0;
+
+                    if (length >= SortRadixMsdLongThreshold)
+                        RadixSortMsdLongParInner(a, first, length, shiftRightAmount, baseCaseInPlaceSort);
+                    else if (length >= 2)
+                        //InsertionSort(a, first, length);
+                        baseCaseInPlaceSort(a, first, length);
+                }
+            }
+        }
+
+        private static void RadixSortMsdLongFullyParInner(long[] a, int first, int length, int shiftRightAmount, Action<long[], int, int> baseCaseInPlaceSort)
+        {
             if (length < SortRadixMsdLongThreshold)
             {
                 baseCaseInPlaceSort(a, first, length);
@@ -44,12 +146,12 @@ namespace HPCsharp
             }
             int last = first + length - 1;
             const ulong bitMask = PowerOfTwoRadix - 1;
-            const ulong halfOfPowerOfTwoRadix = PowerOfTwoRadix / 2;
+            const byte halfOfPowerOfTwoRadix = PowerOfTwoRadix / 2;
 
             var count = HistogramOneByteComponentPar(a, first, last, shiftRightAmount);
 
             var startOfBin = new int[PowerOfTwoRadix + 1];
-            var endOfBin = new int[PowerOfTwoRadix];
+            var endOfBin   = new int[PowerOfTwoRadix];
             int nextBin = 1;
             startOfBin[0] = endOfBin[0] = first; startOfBin[PowerOfTwoRadix] = -1;         // sentinal
             for (int i = 1; i < PowerOfTwoRadix; i++)
@@ -64,13 +166,16 @@ namespace HPCsharp
                 {
                     for (int _current = first; _current <= last;)
                     {
-                        ulong digit;
-                        long current_element = a[_current];  // get the compiler to recognize that a register can be used for the loop instead of a[_current] memory location
-                        while (endOfBin[digit = ((ulong)current_element >> shiftRightAmount) ^ halfOfPowerOfTwoRadix] != _current)
-                            Algorithm.Swap(ref current_element, a, endOfBin[digit]++);
-                        a[_current] = current_element;
-
+                        byte digit;
+                        byte halfptr = halfOfPowerOfTwoRadix;
+                        while (endOfBin[digit = (byte)((byte)(a[_current] >> shiftRightAmount) ^ halfptr)] != _current)
+                        {
+                            long temp = a[_current];            // inlining Swap() increased performance about 5-10%
+                            a[_current] = a[endOfBin[digit]];
+                            a[endOfBin[digit]++] = temp;
+                        }
                         endOfBin[digit]++;
+
                         while (endOfBin[nextBin - 1] == startOfBin[nextBin]) nextBin++;   // skip over empty and full bins, when the end of the current bin reaches the start of the next bin
                         _current = endOfBin[nextBin - 1];
                     }
@@ -79,13 +184,15 @@ namespace HPCsharp
                 {
                     for (int _current = first; _current <= last;)
                     {
-                        ulong digit;
-                        long current_element = a[_current];  // get the compiler to recognize that a register can be used for the loop instead of a[_current] memory location
-                        while (endOfBin[digit = ((ulong)current_element >> shiftRightAmount) & bitMask] != _current)
-                            Algorithm.Swap(ref current_element, a, endOfBin[digit]++);
-                        a[_current] = current_element;
-
+                        byte digit;
+                        while (endOfBin[digit = (byte)(a[_current] >> shiftRightAmount)] != _current)
+                        {
+                            long temp = a[_current];            // inlining Swap() increased performance about 5-10%
+                            a[_current] = a[endOfBin[digit]];
+                            a[endOfBin[digit]++] = temp;
+                        }
                         endOfBin[digit]++;
+
                         while (endOfBin[nextBin - 1] == startOfBin[nextBin]) nextBin++;   // skip over empty and full bins, when the end of the current bin reaches the start of the next bin
                         _current = endOfBin[nextBin - 1];
                     }
@@ -102,10 +209,10 @@ namespace HPCsharp
                         {
                             //Task.Factory.StartNew(() => RadixSortMsdLongParInner(a, startOfBin[i], endOfBin[i] - startOfBin[i], shiftRightAmount, baseCaseInPlaceSort),
                             //    CancellationToken.None, TaskCreationOptions.AttachedToParent, TaskScheduler.Default);
-                            actions.Add(() => RadixSortMsdLongParInner(a, startOfBin[i], endOfBin[i] - startOfBin[i], shiftRightAmount, baseCaseInPlaceSort));
+                            actions.Add(() => RadixSortMsdLongFullyParInner(a, startOfBin[i], endOfBin[i] - startOfBin[i], shiftRightAmount, baseCaseInPlaceSort));
                         }
                         else
-                            RadixSortMsdLongParInner(a, startOfBin[i], endOfBin[i] - startOfBin[i], shiftRightAmount, baseCaseInPlaceSort);
+                            RadixSortMsdLongFullyParInner(a, startOfBin[i], endOfBin[i] - startOfBin[i], shiftRightAmount, baseCaseInPlaceSort);
                     }
                     Parallel.Invoke(actions.ToArray());
                 }
@@ -115,7 +222,7 @@ namespace HPCsharp
                 if (shiftRightAmount > 0)    // end recursion when all the bits have been processes
                 {
                     shiftRightAmount = shiftRightAmount >= Log2ofPowerOfTwoRadix ? shiftRightAmount -= Log2ofPowerOfTwoRadix : 0;
-                    RadixSortMsdLongParInner(a, first, length, shiftRightAmount, baseCaseInPlaceSort);
+                    RadixSortMsdLongFullyParInner(a, first, length, shiftRightAmount, baseCaseInPlaceSort);
                 }
             }
         }

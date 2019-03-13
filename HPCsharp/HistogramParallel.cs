@@ -30,6 +30,48 @@ namespace HPCsharp
             return counts;
         }
 
+        // Does not seem to be faster than the scaler version, probably because it's not limited by memory bandwidth
+        public static int[] HistogramOneByteComponentSse(long[] inArray, Int32 l, Int32 r, int shiftRightAmount)
+        {
+            const int numberOfBins = 256;
+            const ulong byteMask = numberOfBins - 1;
+            int[] count = new int[numberOfBins];
+            int[] byteIndex = new int[Vector<long>.Count];
+            int sseIndexEnd = l + ((r - l + 1) / Vector<long>.Count) * Vector<long>.Count;
+            int byteOffset = shiftRightAmount / sizeof(long);
+            int i;
+
+            for (int j = 0; j < Vector<long>.Count; j++)
+                byteIndex[j] = j * sizeof(long) + byteOffset;
+
+            if (shiftRightAmount != 56)
+            {
+                for (i = l; i < sseIndexEnd; i += Vector<long>.Count)
+                {
+                    var inVector   = new Vector<long>(inArray, i);
+                    var byteVector = Vector.AsVectorByte(inVector);
+                    for (int j = 0; j < Vector<long>.Count; j++)
+                        count[byteVector[byteIndex[j]]]++;
+                }
+                for (; i <= r; i++)
+                    count[(byte)(inArray[i] >> shiftRightAmount)]++;
+            }
+            else
+            {
+                for (i = l; i < sseIndexEnd; i += Vector<long>.Count)
+                {
+                    var inVector = new Vector<long>(inArray, i);
+                    var byteVector = Vector.AsVectorByte(inVector);
+                    for (int j = 0; j < Vector<long>.Count; j++)
+                        count[byteVector[byteIndex[j]] ^ 128]++;
+                }
+                for (; i <= r; i++)
+                    count[(byte)(inArray[i] >> shiftRightAmount) ^ 128]++;
+            }
+
+            return count;
+        }
+
         public static int[] HistogramInnerPar(byte[] inArray, Int32 l, Int32 r)
         {
             int numberOfBins = 256;
@@ -254,8 +296,7 @@ namespace HPCsharp
                 () => { countRight = HistogramOneByteComponentPar(inArray, m + 1, r, shiftRightAmount); }
             );
             // Combine left and right results
-            for (int i = 0; i < numberOfBins; i++)
-                countLeft[i] += countRight[i];
+            countLeft = AddSse(countLeft, countRight);
 
             return countLeft;
         }

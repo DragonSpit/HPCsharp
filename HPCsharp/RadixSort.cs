@@ -615,10 +615,12 @@ namespace HPCsharp
         /// <summary>
         /// Sort an array of signed long integers using Radix Sorting algorithm (least significant digit variation - LSD)
         /// This algorithm is not in-place. This algorithm is stable.
+        /// Pre-sorted array is detected and sorting is avoided. Mostly pre-sorted is also detected and Array.Sort is used in that case.
+        /// Threshold for what is "mostly sorted" is provided and can be set by the developer.
         /// </summary>
         /// <param name="inputArray">array of signed long integers to be sorted</param>
         /// <returns>sorted array of signed long integers</returns>
-        public static long[] SortRadix4(this long[] inputArray)
+        public static long[] SortRadixWithPresortedDetection(this long[] inputArray, double fractionPresorted)
         {
             const int bitsPerDigit = 8;
             const uint numberOfBins = 1 << bitsPerDigit;
@@ -641,6 +643,11 @@ namespace HPCsharp
 
             if (countsAndPresorted.Item2 == inputArray.Length)  // the input array is pre-sorted
                 return inputArray;
+            if ((double)countsAndPresorted.Item2 / inputArray.Length >= fractionPresorted || fractionPresorted == 1.0)
+            {
+                Array.Sort(inputArray);
+                return inputArray;
+            }
 
             for (d = 0; d < numberOfDigits; d++)
             {
