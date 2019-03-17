@@ -17,7 +17,14 @@ Updated VisualStudio 2017 examples solution, demonstrating usage through working
 
 To get the maximum performance make sure to target x64 processor architecture for the Release build in VisualStudio, increasing performance by as much as 50%.
 
-**_Version 3.3.6_** Just Released! Give it a shot.
+**_Version 3.3.7_** Just Released! Give it a shot.
+- Fixed a bug with .Fill() - thanks David
+- Added a version of LSD Radix Sort that detects pre-sorted and mostly pre-sorted, and improves performance for constant filled arrays
+- Improved parallel MSD Radix Sort, but no performance gain yet
+- Added .Sum() for long[]: serial, SSE and multi-core
+- Added .Add() for int[]: SSE
+
+**_Version 3.3.6_**
 - Added John's copy avoidance suggestion for the functional interface LSD Radix Sort
 - Added SIMD/SSE and multi-core .Min() for int[], which is over 20X faster than Linq.Min() and 6X faster than Linq.AsParallel.Min()
 - Benchmarked parallel LSD Radix Sort, which is 30% faster than the serial LSD Radix Sort
@@ -26,11 +33,6 @@ To get the maximum performance make sure to target x64 processor architecture fo
 - Improved performance of MSD Radix Sort for long arrays by 5-10%, and double arrays > 10%
 - Fixed a bug with .Sum() SSE and multi-core implementation for int and uint arrays
 - Fixed inner recursive function of MSD Radix Sort calling the wrong function when recursing
-
-**_Version 3.3.1_**
-- Implemented a better .Sum() than Linq provides, which does not overflow and is parallel thru SSE and multi-core for ludicrous speed! (See details below)
-- Added .Sum() implementations of Kahan and Neumaier floating-point summation algorithms for higher accuracy
-- Slight performance improvements to LSD Radix Sort
 
 Full release history is in ReleaseNotes.txt file
 

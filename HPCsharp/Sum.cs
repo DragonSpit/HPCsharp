@@ -1,8 +1,10 @@
 ﻿// TODO: Implement nullable versions of Sum, only faster than the standard C# ones. One idea is to turn all null values into zeroes.
 // TODO: Once improved Sum for floating-point are available, update https://stackoverflow.com/questions/2419343/how-to-sum-up-an-array-of-integers-in-c-sharp/54794753#54794753
-// TODO: Consider improved .Sum for decimals using the same idea
+// TODO: Consider improved .Sum for decimals using the same idea: serial and multi-core. Can't do SSE, since there is no decimal support.
 // TODO: Add the ability to handle de-normal floating-point numbers and flush them to zero to get higher performance when accuracy of small numbers is not as important
 //       From what I read online, using SSE may be a better way, since it supports flush to zero for denormals and we may have control then.
+// TODO: Try measuring performance of .Sum() that is scalar and SSE when the array fits into cache (L1 or L2) since in these cases performance will not be limited by system
+//       memory bandwidth, but will be limited by the cache memory bandwidth which is much higher. Run over the same array using .Sum() many times to measure average and min time.
 using System.Collections.Generic;
 using System.Text;
 using System.Numerics;
