@@ -35,6 +35,12 @@
 // TODO: During the initial recursion level, during the count phase, we could do pre-sorted analysis (or maybe during each level of recursion) and then do nothing if fully pre-sorted, or run Array.Sort instead
 //       when the array is nearly presorted.
 // TODO: When we know memory accesses will most likely be random, such as for MSD Radix Sort or LSD (maybe, since for this one the writes are random, but reads are not), then disable CPU memory prefecting (if possible).
+// TODO: Is it possible to implement a similar de-randomization/sequencialization of memory accesses technique to help performance of MSD Radix Sort? Would some fixed amount of buffering help, as temporary storage?
+//       Just in the opposite direction, where we pull all of the heads of all the bins into a buffer that is spaced perfectly well in memory and that's what we read/write thru, only reading/writing large
+//       and contiguous chunks of memory to turn random accesses into sequencial accesses.
+// Failed Experiments: Implemented reduction of memory allocations for the Histogram array - allocate it once and pass it around (need to clear it every time before using). Take this optimization ide further
+//       by reducing other memory allocations, such as reduce Start/EndOfBin into a single array (like Sedgewick does). Allocating startOfBin and endOfBin on the stack didn't help performance for random, pre-sorted and
+//       slowed constant arrays by 20%. Count array was also allocated only once at the top-level wrapper.
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -472,79 +478,6 @@ namespace HPCsharp
                 }
             }
         }
-        // Simpler implementation, which just uses the array elements to swap and never extracts the current element into a variable on the inner swap loop
-        // This version is easier to reason about
-        private static void RadixSortMsdLongInner1(long[] a, int first, int length, int shiftRightAmount, Action<long[], int, int> baseCaseInPlaceSort)
-        {
-            if (length < SortRadixMsdLongThreshold)
-            {
-                baseCaseInPlaceSort(a, first, length);
-                //InsertionSort(a, first, length);
-                return;
-            }
-            int last = first + length - 1;
-            const ulong bitMask = PowerOfTwoRadix - 1;
-            const ulong halfOfPowerOfTwoRadix = PowerOfTwoRadix / 2;
-
-            var count = HistogramByteComponentsUsingUnion(a, first, last, shiftRightAmount);
-
-            var startOfBin = new int[PowerOfTwoRadix + 1];
-            var endOfBin = new int[PowerOfTwoRadix];
-            int nextBin = 1;
-            startOfBin[0] = endOfBin[0] = first; startOfBin[PowerOfTwoRadix] = -1;         // sentinal
-            for (int i = 1; i < PowerOfTwoRadix; i++)
-                startOfBin[i] = endOfBin[i] = startOfBin[i - 1] + count[i - 1];
-            int bucketsUsed = 0;
-            for (int i = 0; i < count.Length; i++)
-                if (count[i] > 0) bucketsUsed++;
-
-            if (bucketsUsed > 1)
-            {
-                if (shiftRightAmount == 56)     // Most significant digit
-                {
-                    for (int _current = first; _current <= last;)
-                    {
-                        ulong digit;
-                        while (endOfBin[digit = ((ulong)a[_current] >> shiftRightAmount) ^ halfOfPowerOfTwoRadix] != _current)
-                            Swap(a, _current, endOfBin[digit]++);
-                        endOfBin[digit]++;
-
-                        while (endOfBin[nextBin - 1] == startOfBin[nextBin]) nextBin++;   // skip over empty and full bins, when the end of the current bin reaches the start of the next bin
-                        _current = endOfBin[nextBin - 1];
-                    }
-                }
-                else
-                {
-                    for (int _current = first; _current <= last;)
-                    {
-                        ulong digit;
-                        while (endOfBin[digit = ((ulong)a[_current] >> shiftRightAmount) & bitMask] != _current)
-                            Swap(a, _current, endOfBin[digit]++);
-                        endOfBin[digit]++;
-
-                        while (endOfBin[nextBin - 1] == startOfBin[nextBin]) nextBin++;   // skip over empty and full bins, when the end of the current bin reaches the start of the next bin
-                        _current = endOfBin[nextBin - 1];
-
-                    }
-                }
-                if (shiftRightAmount > 0)    // end recursion when all the bits have been processes
-                {
-                    shiftRightAmount = shiftRightAmount >= Log2ofPowerOfTwoRadix ? shiftRightAmount -= Log2ofPowerOfTwoRadix : 0;
-
-                    for (int i = 0; i < PowerOfTwoRadix; i++)
-                        RadixSortMsdLongInner1(a, startOfBin[i], endOfBin[i] - startOfBin[i], shiftRightAmount, baseCaseInPlaceSort);
-                }
-            }
-            else
-            {
-                if (shiftRightAmount > 0)    // end recursion when all the bits have been processes
-                {
-                    shiftRightAmount = shiftRightAmount >= Log2ofPowerOfTwoRadix ? shiftRightAmount -= Log2ofPowerOfTwoRadix : 0;
-                    RadixSortMsdLongInner1(a, first, length, shiftRightAmount, baseCaseInPlaceSort);
-                }
-            }
-        }
-
         // This implementation unrolls swapping to process several array elements in the swap cascade/chain
         private static void RadixSortMsdLongInner2(long[] a, int first, int length, int shiftRightAmount, Action<long[], int, int> baseCaseInPlaceSort)
         {

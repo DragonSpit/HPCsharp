@@ -49,6 +49,10 @@
 //       It seems that C# supports several data types for indexes (int, uint, long and ulong). Need to experiment which data type C# prefers (guessing uint, but not sure) to generate the least IL instructions.
 //       Post the best type to use on https://stackoverflow.com/questions/16486533/type-of-array-index-in-c once I figure out what that is, whichever generates the least amount of IL
 // TODO: figure out why for long[] trick of checking for a single bucket, we still have to sort using the last digit, otherwise incrementing test case fails for some sizes of input array.
+// TODO: Improve the interface of LSD Radix Sort function that pass in a key array and a user type array and sort both simultaneously, to return a tuple instead of using a reference, since we want to return
+//       two arrays.
+// TODO: Consider LSD Radix Sort version that returns sorted array (e.g. array of bytes that was passed in to be sorted) and also creates and returns an array of indexes. In this case, the developer doesn't
+//       even have to provide the second input array.
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -1562,6 +1566,36 @@ namespace HPCsharp
             var sortedArray = srcCopy.SortRadix2(getKey);
             var sortedList = new List<T>(sortedArray);
             return sortedList;
+        }
+        /// <summary>
+        /// Sort an array of unsigned bytes, returning only sorted indexes. Input array is unaltered. Linear time sort algorithm.
+        /// </summary>
+        /// <param name="inputArray">input array of unsigned bytes</param>
+        /// <returns>indexes of sorted input array</returns>
+        public static Int32[] SortRadixReturnIndex(this byte[] inputArray)
+        {
+            int numberOfBins = 256;
+            var outputIndexArray = new Int32[inputArray.Length];
+            int[] count          = new int[numberOfBins];
+            int[] startOfBin     = new int[numberOfBins];
+
+            for (int i = 0; i < numberOfBins; i++)
+                count[i] = 0;
+            for (int current = 0; current < inputArray.Length; current++)    // Scan Key array and count the number of times each digit value appears - i.e. size of each bin
+                count[inputArray[current]]++;
+
+            startOfBin[0] = 0;
+            for (uint i = 1; i < numberOfBins; i++)
+                startOfBin[i] = startOfBin[i - 1] + count[i - 1];
+
+            for (int current = 0; current < inputArray.Length; current++)
+            {
+                byte digit = inputArray[current];
+                int index  = startOfBin[digit]++;
+                outputIndexArray[index] = current;          // current location is the current index within the input array
+            }
+
+            return outputIndexArray;
         }
     }
 }
