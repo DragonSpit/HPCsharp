@@ -1571,8 +1571,8 @@ namespace HPCsharp
         /// Sort an array of unsigned bytes, returning only sorted indexes. Input array is unaltered. Linear time sort algorithm.
         /// </summary>
         /// <param name="inputArray">input array of unsigned bytes</param>
-        /// <returns>indexes of sorted input array</returns>
-        public static Int32[] SortRadixReturnIndex(this byte[] inputArray)
+        /// <returns>array of sorted indexes</returns>
+        public static Int32[] SortRadixReturnIndexes(this byte[] inputArray)
         {
             int numberOfBins = 256;
             var outputIndexArray = new Int32[inputArray.Length];
