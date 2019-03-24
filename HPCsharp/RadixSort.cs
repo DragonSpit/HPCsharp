@@ -1567,12 +1567,18 @@ namespace HPCsharp
             var sortedList = new List<T>(sortedArray);
             return sortedList;
         }
+
+        public enum SortOrder
+        {
+            Ascending,
+            Descending
+        }
         /// <summary>
         /// Sort an array of unsigned bytes, returning only sorted indexes. Input array is unaltered. Linear time sort algorithm.
         /// </summary>
         /// <param name="inputArray">input array of unsigned bytes</param>
         /// <returns>array of sorted indexes</returns>
-        public static Int32[] SortRadixReturnIndexes(this byte[] inputArray)
+        public static Int32[] SortRadixReturnIndexes(this byte[] inputArray, SortOrder sortOrder = SortOrder.Ascending)
         {
             int numberOfBins = 256;
             var outputIndexArray = new Int32[inputArray.Length];
@@ -1584,9 +1590,18 @@ namespace HPCsharp
             for (int current = 0; current < inputArray.Length; current++)    // Scan Key array and count the number of times each digit value appears - i.e. size of each bin
                 count[inputArray[current]]++;
 
-            startOfBin[0] = 0;
-            for (uint i = 1; i < numberOfBins; i++)
+            if (sortOrder == SortOrder.Ascending)
+            {
+                startOfBin[0] = 0;
+                for (int i = 1; i < numberOfBins; i++)
                 startOfBin[i] = startOfBin[i - 1] + count[i - 1];
+            }
+            else
+            {
+                startOfBin[numberOfBins - 1] = 0;
+                for (int i = numberOfBins - 2; i >= 0; i--)
+                    startOfBin[i] = startOfBin[i + 1] + count[i + 1];
+            }
 
             for (int current = 0; current < inputArray.Length; current++)
             {
