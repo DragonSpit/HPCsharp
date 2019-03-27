@@ -5,11 +5,10 @@
     <Authors>Victor J. Duvanenko</Authors>
     <Company>FooState</Company>
     <Product>HPCsharp</Product>
-    <Description>High performance C#/.NET generic algorithms. Community driven to raise C# performance.
-Includes parallel stable Merge Sort, parallel Merge, O(N) stable Radix Sort algorithm, of arrays and lists, Priority Queue and more... Parallel Sorting is several times faster, capable of sorting user defined classes, providing familiar interfaces to C# Array.Sort and Linq.</Description>
+    <Description>High performance C#/.NET algorithms. Cross-platform. Sort algorithms: parallel, serial, in-place, stable, O(N) Radix LSD/MSD, Merge. Improved Array.Sum(), Histogram, Priority Queue, Merge, Fill, Min/Max, more... Familiar interfaces.</Description>
     <Copyright>© 2018 FooState</Copyright>
     <PackageLicenseUrl>https://github.com/DragonSpit/HPCsharp/blob/master/LICENSE</PackageLicenseUrl>
-    <PackageReleaseNotes>Added an improved .Sum() for arrays of all data types that will not overflow, with some parallel implementations that are ludicrous speed. Sum() for float array has more precision. Added byte array sort which outputs sorted indexes.</PackageReleaseNotes>
+    <PackageReleaseNotes>Added MSD Radix Sort for int[] and float[]. Added byte array sort which outputs sorted indexes.</PackageReleaseNotes>
     <PackageId>HPCsharp</PackageId>
     <PackageTags>high perfromance algorithms, C#, high performance, high performance computing, HPC, algorithm, algorithms, Linq, parallel, parallel algorithm</PackageTags>
     <PackageIconUrl>https://foostate.com/images/default_lib_icon_64.png</PackageIconUrl>
