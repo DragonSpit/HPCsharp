@@ -379,7 +379,6 @@ namespace HPCsharp
         private static void RadixSortMsdIntInner(int[] a, int first, int length, int shiftRightAmount, Action<int[], int, int> baseCaseInPlaceSort)
         {
             int last = first + length - 1;
-            const long bitMask = PowerOfTwoRadix - 1;
             const byte halfOfPowerOfTwoRadix = PowerOfTwoRadix / 2;
             //Stopwatch stopwatch = new Stopwatch();
             //long frequency = Stopwatch.Frequency;
@@ -827,17 +826,17 @@ namespace HPCsharp
         {
             int last = first + length - 1;
             const int NumBitsInFloat = sizeof(float) * 8;
-            ulong numberOfBins = 1UL << numberOfBitsPerDigit;
-            ulong bitMask = numberOfBins - 1;
-            ulong halfOfPowerOfTwoRadix = numberOfBins / 2;
+            uint numberOfBins = 1U << numberOfBitsPerDigit;
+            uint bitMask = numberOfBins - 1;
+            uint halfOfPowerOfTwoRadix = numberOfBins / 2;
 
             var count = Histogram9bitComponents(a, first, last, shiftRightAmount);
 
             var startOfBin = new int[PowerOfTwoRadixFloat + 1];
             var endOfBin   = new int[PowerOfTwoRadixFloat];
             int nextBin = 1;
-            startOfBin[0] = endOfBin[0] = first; startOfBin[PowerOfTwoRadixDouble] = -1;         // sentinal
-            for (int i = 1; i < PowerOfTwoRadixDouble; i++)
+            startOfBin[0] = endOfBin[0] = first; startOfBin[PowerOfTwoRadixFloat] = -1;         // sentinal
+            for (int i = 1; i < PowerOfTwoRadixFloat; i++)
                 startOfBin[i] = endOfBin[i] = startOfBin[i - 1] + count[i - 1];
             int bucketsUsed = 0;
             for (int i = 0; i < count.Length; i++)
@@ -849,8 +848,8 @@ namespace HPCsharp
                 {
                     for (int _current = first; _current <= last;)
                     {
-                        ulong digit;
-                        while (endOfBin[digit = ((ulong)a[_current] >> shiftRightAmount) ^ 2048] != _current)
+                        uint digit;
+                        while (endOfBin[digit = ((uint)a[_current] >> shiftRightAmount) ^ halfOfPowerOfTwoRadix] != _current)
                         {
                             float temp = a[_current];            // inlining Swap() increased performance about 5-10%
                             a[_current] = a[endOfBin[digit]];
@@ -866,8 +865,8 @@ namespace HPCsharp
                 {
                     for (int _current = first; _current <= last;)
                     {
-                        ulong digit;
-                        while (endOfBin[digit = ((ulong)a[_current] >> shiftRightAmount) & bitMask] != _current)
+                        uint digit;
+                        while (endOfBin[digit = ((uint)a[_current] >> shiftRightAmount) & bitMask] != _current)
                         {
                             float temp = a[_current];            // inlining Swap() increased performance about 5-10%
                             a[_current] = a[endOfBin[digit]];
