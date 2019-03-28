@@ -623,7 +623,6 @@ namespace HPCsharp
             return count;
         }
 
-
         public static uint[][] HistogramNBitsPerComponents(uint[] inArray, Int32 l, Int32 r, int bitsPerComponent)
         {
             int numberOfBins = 1 << bitsPerComponent;

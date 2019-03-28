@@ -55,6 +55,8 @@
 //       two arrays.
 // TODO: Consider LSD Radix Sort version that returns sorted array (e.g. array of bytes that was passed in to be sorted) and also creates and returns an array of indexes. In this case, the developer doesn't
 //       even have to provide the second input array.
+// TODO: JavaScript original version of LSD Radix Sort for UDT's is way faster when the array fits in cache (10X). This is a good behavior
+//       to test and document in JavaScript and C#
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -1055,14 +1057,12 @@ namespace HPCsharp
             int shiftRightAmount = 0;
             int d = 0;
 
-            var startOfBin = new uint[numberOfDigits][];
-            for (int i = 0; i < numberOfDigits; i++)
-                startOfBin[i] = new uint[numberOfBins];
-
             uint[][] count = HistogramByteComponents(inputArray, 0, inputArray.Length - 1, getKey);
 
+            var startOfBin = new uint[numberOfDigits][];
             for (d = 0; d < numberOfDigits; d++)
             {
+                startOfBin[d] = new uint[numberOfBins];
                 startOfBin[d][0] = 0;
                 for (uint i = 1; i < numberOfBins; i++)
                     startOfBin[d][i] = startOfBin[d][i - 1] + count[d][i - 1];
@@ -1191,7 +1191,7 @@ namespace HPCsharp
         public static T[] SortRadixFaster<T>(this T[] inputArray, Func<T, UInt32> getKey)
         {
             int numberOfBins = 256;
-            int Log2ofPowerOfTwoRadix = 8;
+            int NumberOfBitsPerDigit = 8;
             var outputArray = new T[inputArray.Length];
             var inKeys = new UInt32[inputArray.Length];
             var outSortedKeys = new UInt32[inputArray.Length];
@@ -1230,11 +1230,11 @@ namespace HPCsharp
                     startOfBin[endOfBinIndex]++;
                 }
 
-                bitMask <<= Log2ofPowerOfTwoRadix;
-                shiftRightAmount += Log2ofPowerOfTwoRadix;
+                bitMask <<= NumberOfBitsPerDigit;
+                shiftRightAmount += NumberOfBitsPerDigit;
                 outputArrayHasResult = !outputArrayHasResult;
 
-                T[] tmp = inputArray; inputArray = outputArray; outputArray = tmp;     // swap input and output arrays
+                T[] tmp = inputArray; inputArray = outputArray; outputArray = tmp;          // swap input and output arrays
                 UInt32[] tmpKeys = inKeys; inKeys = outSortedKeys; outSortedKeys = tmpKeys; // swap input and output key arrays
             }
 
@@ -1242,28 +1242,26 @@ namespace HPCsharp
         }
         public static T[] SortRadixFasterNew<T>(this T[] inputArray, Func<T, UInt32> getKey)
         {
-            int numberOfBins = 256;
-            int Log2ofPowerOfTwoRadix = 8;
-            int numberOfDigits = 4;
+            const int NumberOfBitsPerDigit = 8;
+            const int NumberOfBins = 1 << NumberOfBitsPerDigit;
+            const int NumberOfDigits = sizeof(UInt32) * 8 / NumberOfBitsPerDigit;
             var outputArray = new T[inputArray.Length];
             var outSortedKeys = new UInt32[inputArray.Length];
             bool outputArrayHasResult = false;
-            uint bitMask = 255;
+            uint bitMask = NumberOfBins - 1;
             int shiftRightAmount = 0;
             int d;
-
-            var startOfBin = new uint[numberOfDigits][];
-            for (int i = 0; i < numberOfDigits; i++)
-                startOfBin[i] = new uint[numberOfBins];
 
             var countAndKeyArray = HistogramByteComponentsAndKeyArray(inputArray, 0, inputArray.Length - 1, getKey);
             uint[][] count  = countAndKeyArray.Item1;
             UInt32[] inKeys = countAndKeyArray.Item2;
 
-            for (d = 0; d < numberOfDigits; d++)
+            var startOfBin = new uint[NumberOfDigits][];
+            for (d = 0; d < NumberOfDigits; d++)
             {
+                startOfBin[d] = new uint[NumberOfBins];
                 startOfBin[d][0] = 0;
-                for (uint i = 1; i < numberOfBins; i++)
+                for (uint i = 1; i < NumberOfBins; i++)
                     startOfBin[d][i] = startOfBin[d][i - 1] + count[d][i - 1];
             }
 
@@ -1281,8 +1279,8 @@ namespace HPCsharp
                     startOfBinLoc[endOfBinIndex]++;
                 }
 
-                bitMask <<= Log2ofPowerOfTwoRadix;
-                shiftRightAmount += Log2ofPowerOfTwoRadix;
+                bitMask <<= NumberOfBitsPerDigit;
+                shiftRightAmount += NumberOfBitsPerDigit;
                 outputArrayHasResult = !outputArrayHasResult;
                 d++;
 
