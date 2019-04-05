@@ -840,6 +840,8 @@ namespace HPCsharp
             for (int i = 0; i < count.Length; i++)
                 if (count[i] > 0) bucketsUsed++;
 
+            var f2i = default(FloatUInt32Union);
+
             if (bucketsUsed > 1)
             {
                 if (shiftRightAmount == 24)     // Exponent
@@ -847,11 +849,18 @@ namespace HPCsharp
                     for (int _current = first; _current <= last;)
                     {
                         uint digit;
-                        while (endOfBin[digit = (BitConverter.ToUInt32(BitConverter.GetBytes(a[_current]), 0) >> shiftRightAmount) ^ halfOfPowerOfTwoRadix] != _current)
+                        //while (endOfBin[digit = (BitConverter.ToUInt32(BitConverter.GetBytes(a[_current]), 0) >> shiftRightAmount) ^ halfOfPowerOfTwoRadix] != _current)
+                        while (true)
                         {
-                            float temp = a[_current];            // inlining Swap() increased performance about 5-10%
-                            a[_current] = a[endOfBin[digit]];
-                            a[endOfBin[digit]++] = temp;
+                            f2i.floatValue = a[_current];
+                            digit = (f2i.uinteger >> shiftRightAmount) ^ halfOfPowerOfTwoRadix;
+                            if (endOfBin[digit] != _current)
+                            {
+                                float temp = a[_current];            // inlining Swap() increased performance about 5-10%
+                                a[_current] = a[endOfBin[digit]];
+                                a[endOfBin[digit]++] = temp;
+                            }
+                            else  break;
                         }
                         endOfBin[digit]++;
 
@@ -864,11 +873,18 @@ namespace HPCsharp
                     for (int _current = first; _current <= last;)
                     {
                         uint digit;
-                        while (endOfBin[digit = (BitConverter.ToUInt32(BitConverter.GetBytes(a[_current]), 0) & bitMask ) >> shiftRightAmount] != _current)
+                        //while (endOfBin[digit = (BitConverter.ToUInt32(BitConverter.GetBytes(a[_current]), 0) & bitMask ) >> shiftRightAmount] != _current)
+                        while (true)
                         {
-                            float temp = a[_current];            // inlining Swap() increased performance about 5-10%
-                            a[_current] = a[endOfBin[digit]];
-                            a[endOfBin[digit]++] = temp;
+                            f2i.floatValue = a[_current];
+                            digit = (f2i.uinteger & bitMask) >> shiftRightAmount;
+                            if (endOfBin[digit] != _current)
+                            {
+                                float temp = a[_current];            // inlining Swap() increased performance about 5-10%
+                                a[_current] = a[endOfBin[digit]];
+                                a[endOfBin[digit]++] = temp;
+                            }
+                            else   break;
                         }
                         endOfBin[digit]++;
 

@@ -314,6 +314,15 @@ namespace HPCsharp
             [FieldOffset(0)]
             public UInt64 integer;
         }
+        [StructLayout(LayoutKind.Explicit)]
+        public struct FloatUInt32Union
+        {
+            [FieldOffset(0)]
+            public uint uinteger;
+            [FieldOffset(0)]
+            public float floatValue;
+        }
+
         /// <summary>
         /// Sort an array of unsigned integers using Radix Sorting algorithm (least significant digit variation - LSD)
         /// This algorithm is not in-place. This algorithm is stable.
