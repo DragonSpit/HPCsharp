@@ -167,8 +167,8 @@ namespace HPCsharp
         // Plain function In-place MSD Radix Sort implementation (simplified).
         private const int PowerOfTwoRadix       = 256;
         private const int Log2ofPowerOfTwoRadix =   8;
-        private const int PowerOfTwoRadixFloat       =  512;
-        private const int Log2ofPowerOfTwoRadixFloat =    9;
+        private const int PowerOfTwoRadixFloat       =  256;
+        private const int Log2ofPowerOfTwoRadixFloat =    8;
         private const int PowerOfTwoRadixDouble       = 4096;
         private const int Log2ofPowerOfTwoRadixDouble =   12;
 
@@ -822,15 +822,13 @@ namespace HPCsharp
             return arrayToBeSorted;
         }
 
-        private static void RadixSortFloatInner(float[] a, int first, int length, int shiftRightAmount, int numberOfBitsPerDigit, Action<float[], int, int> baseCaseInPlaceSort)
+        private static void RadixSortFloatInner(float[] a, int first, int length, uint bitMask, int shiftRightAmount, int numberOfBitsPerDigit, Action<float[], int, int> baseCaseInPlaceSort)
         {
             int last = first + length - 1;
-            const int NumBitsInFloat = sizeof(float) * 8;
             uint numberOfBins = 1U << numberOfBitsPerDigit;
-            uint bitMask = numberOfBins - 1;
             uint halfOfPowerOfTwoRadix = numberOfBins / 2;
 
-            var count = Histogram9bitComponents(a, first, last, shiftRightAmount);
+            var count = HistogramOneByteComponent(a, first, last, shiftRightAmount);
 
             var startOfBin = new int[PowerOfTwoRadixFloat + 1];
             var endOfBin   = new int[PowerOfTwoRadixFloat];
@@ -844,12 +842,12 @@ namespace HPCsharp
 
             if (bucketsUsed > 1)
             {
-                if (shiftRightAmount == 23)     // Exponent
+                if (shiftRightAmount == 24)     // Exponent
                 {
                     for (int _current = first; _current <= last;)
                     {
                         uint digit;
-                        while (endOfBin[digit = ((uint)a[_current] >> shiftRightAmount) ^ halfOfPowerOfTwoRadix] != _current)
+                        while (endOfBin[digit = (BitConverter.ToUInt32(BitConverter.GetBytes(a[_current]), 0) >> shiftRightAmount) ^ halfOfPowerOfTwoRadix] != _current)
                         {
                             float temp = a[_current];            // inlining Swap() increased performance about 5-10%
                             a[_current] = a[endOfBin[digit]];
@@ -866,7 +864,7 @@ namespace HPCsharp
                     for (int _current = first; _current <= last;)
                     {
                         uint digit;
-                        while (endOfBin[digit = ((uint)a[_current] >> shiftRightAmount) & bitMask] != _current)
+                        while (endOfBin[digit = (BitConverter.ToUInt32(BitConverter.GetBytes(a[_current]), 0) & bitMask ) >> shiftRightAmount] != _current)
                         {
                             float temp = a[_current];            // inlining Swap() increased performance about 5-10%
                             a[_current] = a[endOfBin[digit]];
@@ -881,13 +879,14 @@ namespace HPCsharp
                 if (shiftRightAmount > 0)    // end recursion when all the bits have been processes
                 {
                     shiftRightAmount = shiftRightAmount >= numberOfBitsPerDigit ? shiftRightAmount -= numberOfBitsPerDigit : 0;
+                    bitMask >>= Log2ofPowerOfTwoRadixFloat;
 
                     for (int i = 0; i < (int)numberOfBins; i++)
                     {
                         int numElements = endOfBin[i] - startOfBin[i];
 
                         if (numElements >= SortRadixMsdFloatThreshold)
-                            RadixSortFloatInner(a, startOfBin[i], endOfBin[i] - startOfBin[i], shiftRightAmount, numberOfBitsPerDigit, baseCaseInPlaceSort);
+                            RadixSortFloatInner(a, startOfBin[i], endOfBin[i] - startOfBin[i], bitMask, shiftRightAmount, numberOfBitsPerDigit, baseCaseInPlaceSort);
                         else if (numElements >= 2)
                             baseCaseInPlaceSort(a, startOfBin[i], numElements);
                     }
@@ -898,21 +897,21 @@ namespace HPCsharp
                 if (shiftRightAmount > 0)    // end recursion when all the bits have been processes
                 {
                     shiftRightAmount = shiftRightAmount >= numberOfBitsPerDigit ? shiftRightAmount -= numberOfBitsPerDigit : 0;
+                    bitMask >>= Log2ofPowerOfTwoRadixFloat;
 
                     if (length >= SortRadixMsdFloatThreshold)
-                        RadixSortFloatInner(a, first, length, shiftRightAmount, numberOfBitsPerDigit, baseCaseInPlaceSort);
+                        RadixSortFloatInner(a, first, length, bitMask, shiftRightAmount, numberOfBitsPerDigit, baseCaseInPlaceSort);
                     else if (length >= 2)
                         baseCaseInPlaceSort(a, first, length);
                 }
             }
         }
 
-        private static void RadixSortDoubleInner(double[] a, int first, int length, int shiftRightAmount, int numberOfBitsPerDigit, Action<double[], int, int> baseCaseInPlaceSort)
+        private static void RadixSortDoubleInner(double[] a, int first, int length, ulong bitMask, int shiftRightAmount, int numberOfBitsPerDigit, Action<double[], int, int> baseCaseInPlaceSort)
         {
             int last = first + length - 1;
-            const int NumBitsInDouble = sizeof(double) * 8;
             ulong numberOfBins = 1UL << numberOfBitsPerDigit;
-            ulong bitMask = numberOfBins - 1;
+            //ulong bitMask = numberOfBins - 1;
             ulong halfOfPowerOfTwoRadix = numberOfBins / 2;
 
             var count = Histogram12bitComponents(a, first, last, shiftRightAmount);
@@ -934,7 +933,7 @@ namespace HPCsharp
                     for (int _current = first; _current <= last;)
                     {
                         ulong digit;
-                        while (endOfBin[digit = ((ulong)a[_current] >> shiftRightAmount) ^ 2048] != _current)
+                        while (endOfBin[digit = (BitConverter.ToUInt64(BitConverter.GetBytes(a[_current]), 0) >> shiftRightAmount) ^ 2048] != _current)
                         {
                             double temp = a[_current];            // inlining Swap() increased performance about 5-10%
                             a[_current] = a[endOfBin[digit]];
@@ -951,7 +950,7 @@ namespace HPCsharp
                     for (int _current = first; _current <= last;)
                     {
                         ulong digit;
-                        while (endOfBin[digit = ((ulong)a[_current] >> shiftRightAmount) & bitMask] != _current)
+                        while (endOfBin[digit = (BitConverter.ToUInt64(BitConverter.GetBytes(a[_current]), 0) >> shiftRightAmount) & bitMask] != _current)
                         {
                             double temp = a[_current];            // inlining Swap() increased performance about 5-10%
                             a[_current] = a[endOfBin[digit]];
@@ -966,13 +965,14 @@ namespace HPCsharp
                 if (shiftRightAmount > 0)    // end recursion when all the bits have been processes
                 {
                     shiftRightAmount = shiftRightAmount >= numberOfBitsPerDigit ? shiftRightAmount -= numberOfBitsPerDigit : 0;
+                    bitMask >>= Log2ofPowerOfTwoRadixDouble;
 
                     for (int i = 0; i < (int)numberOfBins; i++)
                     {
                         int numElements = endOfBin[i] - startOfBin[i];
 
                         if (numElements >= SortRadixMsdDoubleThreshold)
-                            RadixSortDoubleInner(a, startOfBin[i], endOfBin[i] - startOfBin[i], shiftRightAmount, numberOfBitsPerDigit, baseCaseInPlaceSort);
+                            RadixSortDoubleInner(a, startOfBin[i], endOfBin[i] - startOfBin[i], bitMask, shiftRightAmount, numberOfBitsPerDigit, baseCaseInPlaceSort);
                         else if (numElements >= 2)
                             baseCaseInPlaceSort(a, startOfBin[i], numElements);
                     }
@@ -983,9 +983,10 @@ namespace HPCsharp
                 if (shiftRightAmount > 0)    // end recursion when all the bits have been processes
                 {
                     shiftRightAmount = shiftRightAmount >= numberOfBitsPerDigit ? shiftRightAmount -= numberOfBitsPerDigit : 0;
+                    bitMask >>= Log2ofPowerOfTwoRadixDouble;
 
                     if (length >= SortRadixMsdDoubleThreshold)
-                        RadixSortDoubleInner(a, first, length, shiftRightAmount, numberOfBitsPerDigit, baseCaseInPlaceSort);
+                        RadixSortDoubleInner(a, first, length, bitMask, shiftRightAmount, numberOfBitsPerDigit, baseCaseInPlaceSort);
                     else if (length >= 2)
                         baseCaseInPlaceSort(a, first, length);
                 }
@@ -998,8 +999,9 @@ namespace HPCsharp
         public static void SortRadixMsd(this float[] arrayToBeSorted)
         {
             int shiftRightAmount = sizeof(float) * 8 - Log2ofPowerOfTwoRadixFloat;
+            uint bitMask = ((uint)(PowerOfTwoRadixFloat - 1)) << shiftRightAmount;  // bitMask controls/selects how many and which bits we process at a time - a digit consists of this many bits
             // InsertionSort could be passed in as another base case since it's in-place
-            RadixSortFloatInner(arrayToBeSorted, 0, arrayToBeSorted.Length, shiftRightAmount, 9, Array.Sort);
+            RadixSortFloatInner(arrayToBeSorted, 0, arrayToBeSorted.Length, bitMask, shiftRightAmount, 8, Array.Sort);
         }
 
         /// <summary>
@@ -1019,8 +1021,9 @@ namespace HPCsharp
         public static void SortRadixMsd(this double[] arrayToBeSorted)
         {
             int shiftRightAmount = sizeof(double) * 8 - Log2ofPowerOfTwoRadixDouble;
+            ulong bitMask = ((uint)(PowerOfTwoRadixDouble - 1)) << shiftRightAmount;
             // InsertionSort could be passed in as another base case since it's in-place
-            RadixSortDoubleInner(arrayToBeSorted, 0, arrayToBeSorted.Length, shiftRightAmount, 12,  Array.Sort);
+            RadixSortDoubleInner(arrayToBeSorted, 0, arrayToBeSorted.Length, bitMask, shiftRightAmount, 12,  Array.Sort);
         }
 
         /// <summary>

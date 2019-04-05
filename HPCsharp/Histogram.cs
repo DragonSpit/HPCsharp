@@ -416,6 +416,28 @@ namespace HPCsharp
 
             return count;
         }
+        public static int[] HistogramOneByteComponent(float[] inArray, Int32 l, Int32 r, int shiftRightAmount)
+        {
+            const int numberOfBins = 256;
+            int[] count = new int[numberOfBins];
+
+            if (shiftRightAmount != 24)
+            {
+                for (int current = l; current <= r; current++)
+                {
+                    count[(byte)(BitConverter.ToUInt32(BitConverter.GetBytes(inArray[current]), 0) >> shiftRightAmount)]++;
+                }
+            }
+            else
+            {
+                for (int current = l; current <= r; current++)
+                {
+                    count[(byte)(BitConverter.ToUInt32(BitConverter.GetBytes(inArray[current]), 0) >> shiftRightAmount) ^ 128]++;
+                }
+            }
+
+            return count;
+        }
 
         public static int[] HistogramNbitComponents(long[] inArray, Int32 l, Int32 r, int shiftRightAmount, int numberOfBitPerComponent)
         {
@@ -583,16 +605,16 @@ namespace HPCsharp
             return count;
         }
 
-        public static int[] Histogram9bitComponents(float[] inArray, Int32 l, Int32 r, int shiftRightAmount)
+        public static int[] Histogram9bitComponents(float[] inArray, Int32 l, Int32 r, uint bitMask, int shiftRightAmount)
         {
             const int numberOfBins = 512;
-            const uint bitMask = numberOfBins - 1;
+            //const uint bitMask = numberOfBins - 1;
             int[] count = new int[numberOfBins];
 
             if (shiftRightAmount != 23)
             {
                 for (int current = l; current <= r; current++)
-                    count[((uint)inArray[current] >> shiftRightAmount) & bitMask]++;
+                    count[((uint)inArray[current] & bitMask) >> shiftRightAmount]++;
             }
             else
             {
@@ -612,12 +634,18 @@ namespace HPCsharp
             if (shiftRightAmount != 52)
             {
                 for (int current = l; current <= r; current++)
-                    count[((ulong)inArray[current] >> shiftRightAmount) & bitMask]++;
+                {
+                    var currValue = BitConverter.ToUInt64(BitConverter.GetBytes(inArray[current]), 0);
+                    count[(currValue >> shiftRightAmount) & bitMask]++;
+                }
             }
             else
             {
                 for (int current = l; current <= r; current++)
-                    count[((ulong)inArray[current] >> shiftRightAmount) ^ 2048]++;
+                {
+                    var currValue = BitConverter.ToUInt64(BitConverter.GetBytes(inArray[current]), 0);
+                    count[(currValue >> shiftRightAmount) ^ 2048]++;
+                }
             }
 
             return count;
