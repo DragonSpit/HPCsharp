@@ -1,3 +1,9 @@
+Version 3.3.8
+Warning! SortRadixMsd() of Double[] has a bug, producing incorrectly sorted results. Working on a fix.
+Added in-place Radix Sort of Int32[] and Float[]
+Added byte array sort which outputs sorted indexes: ascending or descending.
+Improved performance of LSD Radix Sort of User Defined Type Arrays
+
 Version 3.3.7
 Fixed a bug with .Fill() - thanks David
 Added a version of LSD Radix Sort that detects pre-sorted and mostly pre-sorted, and improves performance for constant filled arrays
