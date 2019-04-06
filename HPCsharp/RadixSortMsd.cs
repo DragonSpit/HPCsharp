@@ -844,16 +844,18 @@ namespace HPCsharp
 
             if (bucketsUsed > 1)
             {
-                if (shiftRightAmount == 24)     // Exponent
+                if (shiftRightAmount == 24)
                 {
                     for (int _current = first; _current <= last;)
                     {
                         uint digit;
-                        //while (endOfBin[digit = (BitConverter.ToUInt32(BitConverter.GetBytes(a[_current]), 0) >> shiftRightAmount) ^ halfOfPowerOfTwoRadix] != _current)
                         while (true)
                         {
                             f2i.floatValue = a[_current];
-                            digit = (f2i.uinteger >> shiftRightAmount) ^ halfOfPowerOfTwoRadix;
+                            if ((f2i.uinteger & 0x80000000U) == 0)
+                                digit = (f2i.uinteger >> shiftRightAmount) ^ halfOfPowerOfTwoRadix;     // positive values => flip just the sign bit
+                            else
+                                digit = (f2i.uinteger ^ 0xFFFFFFFFU) >> shiftRightAmount;                // negative values => flip the whole value including the sign bit
                             if (endOfBin[digit] != _current)
                             {
                                 float temp = a[_current];            // inlining Swap() increased performance about 5-10%
@@ -868,16 +870,18 @@ namespace HPCsharp
                         _current = endOfBin[nextBin - 1];
                     }
                 }
-                else     // Mantissa
+                else
                 {
                     for (int _current = first; _current <= last;)
                     {
                         uint digit;
-                        //while (endOfBin[digit = (BitConverter.ToUInt32(BitConverter.GetBytes(a[_current]), 0) & bitMask ) >> shiftRightAmount] != _current)
                         while (true)
                         {
                             f2i.floatValue = a[_current];
-                            digit = (f2i.uinteger & bitMask) >> shiftRightAmount;
+                            if ((f2i.uinteger & 0x80000000U) == 0)
+                                digit = (f2i.uinteger & bitMask) >> shiftRightAmount;                   // positive values => don't flip anything
+                            else
+                                digit = ((f2i.uinteger ^ 0xFFFFFFFFU) & bitMask ) >> shiftRightAmount;   // negative values => flip the whole value
                             if (endOfBin[digit] != _current)
                             {
                                 float temp = a[_current];            // inlining Swap() increased performance about 5-10%

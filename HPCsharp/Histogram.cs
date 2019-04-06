@@ -420,19 +420,34 @@ namespace HPCsharp
         {
             const int numberOfBins = 256;
             int[] count = new int[numberOfBins];
+            var f2i = default(FloatUInt32Union);
 
             if (shiftRightAmount != 24)
             {
                 for (int current = l; current <= r; current++)
                 {
-                    count[(byte)(BitConverter.ToUInt32(BitConverter.GetBytes(inArray[current]), 0) >> shiftRightAmount)]++;
+                    uint digit;
+                    f2i.floatValue = inArray[current];
+                    if ((f2i.uinteger & 0x80000000U) == 0)
+                        digit = f2i.uinteger >> shiftRightAmount;                   // positive values => don't flip anything
+                    else
+                        digit = (f2i.uinteger ^ 0xFFFFFFFFU) >> shiftRightAmount;   // negative values => flip the whole value
+
+                    count[(byte)digit]++;
                 }
             }
             else
             {
                 for (int current = l; current <= r; current++)
                 {
-                    count[(byte)(BitConverter.ToUInt32(BitConverter.GetBytes(inArray[current]), 0) >> shiftRightAmount) ^ 128]++;
+                    uint digit;
+                    f2i.floatValue = inArray[current];
+                    if ((f2i.uinteger & 0x80000000U) == 0)
+                        digit = (f2i.uinteger >> shiftRightAmount) ^ 128;               // positive values => flip just the sign bit
+                    else
+                        digit = (f2i.uinteger ^ 0xFFFFFFFFU) >> shiftRightAmount;       // negative values => flip the whole value including the sign bit
+
+                    count[(byte)digit]++;
                 }
             }
 
