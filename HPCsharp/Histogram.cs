@@ -454,6 +454,44 @@ namespace HPCsharp
             return count;
         }
 
+        public static int[] HistogramOneByteComponent(double[] inArray, Int32 l, Int32 r, int shiftRightAmount)
+        {
+            const int numberOfBins = 256;
+            int[] count = new int[numberOfBins];
+            var d2i = default(DoubleUInt64Union);
+
+            if (shiftRightAmount != 56)
+            {
+                for (int current = l; current <= r; current++)
+                {
+                    ulong digit;
+                    d2i.doubleValue = inArray[current];
+                    if ((d2i.ulongInteger & 0x8000000000000000) == 0)
+                        digit = d2i.ulongInteger >> shiftRightAmount;                           // positive values => don't flip anything
+                    else
+                        digit = (d2i.ulongInteger ^ 0xFFFFFFFFFFFFFFFF) >> shiftRightAmount;    // negative values => flip the whole value
+
+                    count[(byte)digit]++;
+                }
+            }
+            else
+            {
+                for (int current = l; current <= r; current++)
+                {
+                    ulong digit;
+                    d2i.doubleValue = inArray[current];
+                    if ((d2i.ulongInteger & 0x8000000000000000) == 0)
+                        digit = (d2i.ulongInteger >> shiftRightAmount) ^ 128;                       // positive values => flip just the sign bit
+                    else
+                        digit = (d2i.ulongInteger ^ 0xFFFFFFFFFFFFFFFF) >> shiftRightAmount;        // negative values => flip the whole value including the sign bit
+
+                    count[(byte)digit]++;
+                }
+            }
+
+            return count;
+        }
+
         public static int[] HistogramNbitComponents(long[] inArray, Int32 l, Int32 r, int shiftRightAmount, int numberOfBitPerComponent)
         {
             const int NumBitsInLong = sizeof(long) * 8;
@@ -640,10 +678,9 @@ namespace HPCsharp
             return count;
         }
 
-        public static int[] Histogram12bitComponents(double[] inArray, Int32 l, Int32 r, int shiftRightAmount)
+        public static int[] Histogram12bitComponents(double[] inArray, Int32 l, Int32 r, ulong bitMask, int shiftRightAmount)
         {
             const int numberOfBins = 4096;
-            const ulong bitMask = numberOfBins - 1;
             int[] count = new int[numberOfBins];
 
             if (shiftRightAmount != 52)
@@ -651,7 +688,7 @@ namespace HPCsharp
                 for (int current = l; current <= r; current++)
                 {
                     var currValue = BitConverter.ToUInt64(BitConverter.GetBytes(inArray[current]), 0);
-                    count[(currValue >> shiftRightAmount) & bitMask]++;
+                    count[(currValue & bitMask) >> shiftRightAmount]++;
                 }
             }
             else

@@ -169,8 +169,8 @@ namespace HPCsharp
         private const int Log2ofPowerOfTwoRadix =   8;
         private const int PowerOfTwoRadixFloat       =  256;
         private const int Log2ofPowerOfTwoRadixFloat =    8;
-        private const int PowerOfTwoRadixDouble       = 4096;
-        private const int Log2ofPowerOfTwoRadixDouble =   12;
+        private const int PowerOfTwoRadixDouble       = 256;
+        private const int Log2ofPowerOfTwoRadixDouble =   8;
 
         private static void RadixSortMsdULongInner(ulong[] a, int first, int length, int shiftRightAmount, Action<ulong[], int, int> baseCaseInPlaceSort)
         {
@@ -931,10 +931,9 @@ namespace HPCsharp
         {
             int last = first + length - 1;
             ulong numberOfBins = 1UL << numberOfBitsPerDigit;
-            //ulong bitMask = numberOfBins - 1;
             ulong halfOfPowerOfTwoRadix = numberOfBins / 2;
 
-            var count = Histogram12bitComponents(a, first, last, shiftRightAmount);
+            var count = HistogramOneByteComponent(a, first, last, shiftRightAmount);
 
             var startOfBin = new int[PowerOfTwoRadixDouble + 1];
             var endOfBin   = new int[PowerOfTwoRadixDouble];
@@ -946,18 +945,29 @@ namespace HPCsharp
             for (int i = 0; i < count.Length; i++)
                 if (count[i] > 0) bucketsUsed++;
 
+            var d2i = default(DoubleUInt64Union);
+
             if (bucketsUsed > 1)
             {
-                if (shiftRightAmount == 52)     // Exponent
+                if (shiftRightAmount == 56)
                 {
                     for (int _current = first; _current <= last;)
                     {
-                        ulong digit;
-                        while (endOfBin[digit = (BitConverter.ToUInt64(BitConverter.GetBytes(a[_current]), 0) >> shiftRightAmount) ^ 2048] != _current)
+                        byte digit;
+                        while (true)
                         {
-                            double temp = a[_current];            // inlining Swap() increased performance about 5-10%
-                            a[_current] = a[endOfBin[digit]];
-                            a[endOfBin[digit]++] = temp;
+                            d2i.doubleValue = a[_current];
+                            if ((d2i.ulongInteger & 0x8000000000000000) == 0)
+                                digit = (byte)((d2i.ulongInteger >> shiftRightAmount) ^ halfOfPowerOfTwoRadix);     // positive values => flip just the sign bit
+                            else
+                                digit = (byte)((d2i.ulongInteger ^ 0xFFFFFFFFFFFFFFFF) >> shiftRightAmount);        // negative values => flip the whole value including the sign bit
+                            if (endOfBin[digit] != _current)
+                            {
+                                double temp = a[_current];            // inlining Swap() increased performance about 5-10%
+                                a[_current] = a[endOfBin[digit]];
+                                a[endOfBin[digit]++] = temp;
+                            }
+                            else break;
                         }
                         endOfBin[digit]++;
 
@@ -965,16 +975,25 @@ namespace HPCsharp
                         _current = endOfBin[nextBin - 1];
                     }
                 }
-                else     // Mantissa
+                else
                 {
                     for (int _current = first; _current <= last;)
                     {
-                        ulong digit;
-                        while (endOfBin[digit = (BitConverter.ToUInt64(BitConverter.GetBytes(a[_current]), 0) >> shiftRightAmount) & bitMask] != _current)
+                        byte digit;
+                        while (true)
                         {
-                            double temp = a[_current];            // inlining Swap() increased performance about 5-10%
-                            a[_current] = a[endOfBin[digit]];
-                            a[endOfBin[digit]++] = temp;
+                            d2i.doubleValue = a[_current];
+                            if ((d2i.ulongInteger & 0x8000000000000000) == 0)
+                                digit = (byte)((d2i.ulongInteger & bitMask) >> shiftRightAmount);                           // positive values => don't flip anything
+                            else
+                                digit = (byte)(((d2i.ulongInteger ^ 0xFFFFFFFFFFFFFFFF) & bitMask) >> shiftRightAmount);    // negative values => flip the whole value
+                            if (endOfBin[digit] != _current)
+                            {
+                                double temp = a[_current];            // inlining Swap() increased performance about 5-10%
+                                a[_current] = a[endOfBin[digit]];
+                                a[endOfBin[digit]++] = temp;
+                            }
+                            else break;
                         }
                         endOfBin[digit]++;
 
@@ -1041,9 +1060,9 @@ namespace HPCsharp
         public static void SortRadixMsd(this double[] arrayToBeSorted)
         {
             int shiftRightAmount = sizeof(double) * 8 - Log2ofPowerOfTwoRadixDouble;
-            ulong bitMask = ((uint)(PowerOfTwoRadixDouble - 1)) << shiftRightAmount;
+            ulong bitMask = ((ulong)(PowerOfTwoRadixDouble - 1)) << shiftRightAmount;
             // InsertionSort could be passed in as another base case since it's in-place
-            RadixSortDoubleInner(arrayToBeSorted, 0, arrayToBeSorted.Length, bitMask, shiftRightAmount, 12,  Array.Sort);
+            RadixSortDoubleInner(arrayToBeSorted, 0, arrayToBeSorted.Length, bitMask, shiftRightAmount, 8,  Array.Sort);
         }
 
         /// <summary>
