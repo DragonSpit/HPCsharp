@@ -1,3 +1,6 @@
+Version 3.3.9
+Fixed SortRadixMsd() of Double[]
+
 Version 3.3.8
 Warning! SortRadixMsd() of Double[] has a bug, producing incorrectly sorted results. Working on a fix.
 Added in-place Radix Sort of Int32[] and Float[]

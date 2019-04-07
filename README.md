@@ -17,8 +17,8 @@ Updated VisualStudio 2017 examples solution, demonstrating usage through working
 
 To get the maximum performance make sure to target x64 processor architecture for the Release build in VisualStudio, increasing performance by as much as 50%.
 
-**_Version 3.3.8_** Just Released! Give it a shot.
-- Warning! SortRadixMsd() of Double[] has a bug, producing incorrectly sorted results. Working on a fix.
+**_Version 3.3.9_** Just Released! Give it a shot.
+- Fixed a bug in SortRadixMsd() of Double[]
 - Added in-place Radix Sort of Int32[] and Float[]
 - Added Byte[] sort which outputs sorted indexes: ascending or descending.
 - Improved performance of LSD Radix Sort of User Defined Type Arrays
