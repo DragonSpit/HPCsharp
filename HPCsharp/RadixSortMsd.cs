@@ -38,6 +38,9 @@
 // TODO: Is it possible to implement a similar de-randomization/sequencialization of memory accesses technique to help performance of MSD Radix Sort? Would some fixed amount of buffering help, as temporary storage?
 //       Just in the opposite direction, where we pull all of the heads of all the bins into a buffer that is spaced perfectly well in memory and that's what we read/write thru, only reading/writing large
 //       and contiguous chunks of memory to turn random accesses into sequencial accesses.
+// TODO: Implement the idea of flipping float/double once during the first pass/recursionLevel and flip it back during the last pass/recursionLevel. This should pay off especially for double.
+// TODO: Implement using more bits per digit for float (11-bits) and 9-bit or more for double to reduce the number of passes. This should help LSD quite a bit, but may not help uniform distribution MSD, since after 3 passes
+//       the bins end up pretty small, but should help other distributions.
 // Failed Experiments: Implemented reduction of memory allocations for the Histogram array - allocate it once and pass it around (need to clear it every time before using). Take this optimization ide further
 //       by reducing other memory allocations, such as reduce Start/EndOfBin into a single array (like Sedgewick does). Allocating startOfBin and endOfBin on the stack didn't help performance for random, pre-sorted and
 //       slowed constant arrays by 20%. Count array was also allocated only once at the top-level wrapper.

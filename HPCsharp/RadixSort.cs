@@ -55,8 +55,9 @@
 //       two arrays.
 // TODO: Consider LSD Radix Sort version that returns sorted array (e.g. array of bytes that was passed in to be sorted) and also creates and returns an array of indexes. In this case, the developer doesn't
 //       even have to provide the second input array.
-// TODO: JavaScript original version of LSD Radix Sort for UDT's is way faster when the array fits in cache (10X). This is a good behavior
-//       to test and document in JavaScript and C#
+// TODO: JavaScript original version of LSD Radix Sort for UDT's is way faster when the array fits in cache (10X). This is a good behavior to test and document in JavaScript and C#
+// TODO: Use the same optimization as done for MSD Radix Sort, which detects if all values fell in a single bin and then doesn't do any work. This helps not only the constant array case, but also
+//       the case of indexes being only as large as the array size. This optimization is worthwhile since it helps more than one special case.
 using System;
 using System.Collections.Generic;
 using System.Text;
