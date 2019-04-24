@@ -47,6 +47,14 @@ namespace HPCsharp
             return overallSum;
         }
 
+        public static ulong SumHpc(this ulong[] arrayToSum)
+        {
+            ulong overallSum = 0;
+            for (int i = 0; i < arrayToSum.Length; i++)
+                overallSum += arrayToSum[i];
+            return overallSum;
+        }
+
         public static ulong SumHpc(this uint[] arrayToSum)
         {
             ulong overallSum = 0;
