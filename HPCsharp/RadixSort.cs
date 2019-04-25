@@ -1,6 +1,8 @@
-﻿// TODO: Write a technical paper on RadixSort2, with it's new method to improve memory access pattern of Radix Sort, which is especially affective when sorting
+﻿// TODO: Write a technical paper on RadixSortFaster, with it's new method to improve memory access pattern of Radix Sort, which is especially affective when sorting
 //       arrays or user defined classes, which use references and thus can be scattered all over the heap. Measurements are showing 10X performance improvement.
-// TODO: Try Radix Sort by processing 4-bits at a time to reduce random memory access pattern.
+// TODO: To potentially improve performance of LSD Radix Sort of User Defined Types, create an array of structs that contain a reference to each UDT and key to be sorted on. This way only a single
+//       array is being read/written instead of two, which may perform better than two arrays being read/written currently.
+// TODO: Try Radix Sort by processing 4-bits at a time to reduce random memory access pattern. Characterize memory access patterns that that CPU can support. When does the performance fall off? 8 buffers?
 // TODO: To reduce random memory access pattern develop a multi-buffer class (maybe) that you write thru, which has multiple buffers that you write to, and then automatically
 //       flushes them to memory when the individual buffer size reaches its limit. This turns random memory accesses into sequential memory accesses. It also allows
 //       to flush all of the buffers at any time. This is a similar strategy to what Intel used to speed up Radix Sort. Then play with the buffer size - i.e. is it cache
@@ -49,6 +51,13 @@
 //       It seems that C# supports several data types for indexes (int, uint, long and ulong). Need to experiment which data type C# prefers (guessing uint, but not sure) to generate the least IL instructions.
 //       Post the best type to use on https://stackoverflow.com/questions/16486533/type-of-array-index-in-c once I figure out what that is, whichever generates the least amount of IL
 // TODO: figure out why for long[] trick of checking for a single bucket, we still have to sort using the last digit, otherwise incrementing test case fails for some sizes of input array.
+// TODO: Improve the interface of LSD Radix Sort function that pass in a key array and a user type array and sort both simultaneously, to return a tuple instead of using a reference, since we want to return
+//       two arrays.
+// TODO: Consider LSD Radix Sort version that returns sorted array (e.g. array of bytes that was passed in to be sorted) and also creates and returns an array of indexes. In this case, the developer doesn't
+//       even have to provide the second input array.
+// TODO: JavaScript original version of LSD Radix Sort for UDT's is way faster when the array fits in cache (10X). This is a good behavior to test and document in JavaScript and C#
+// TODO: Use the same optimization as done for MSD Radix Sort, which detects if all values fell in a single bin and then doesn't do any work. This helps not only the constant array case, but also
+//       the case of indexes being only as large as the array size. This optimization is worthwhile since it helps more than one special case.
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -306,6 +315,23 @@ namespace HPCsharp
             [FieldOffset(0)]
             public UInt64 integer;
         }
+        [StructLayout(LayoutKind.Explicit)]
+        public struct FloatUInt32Union
+        {
+            [FieldOffset(0)]
+            public uint uinteger;
+            [FieldOffset(0)]
+            public float floatValue;
+        }
+        [StructLayout(LayoutKind.Explicit)]
+        public struct DoubleUInt64Union
+        {
+            [FieldOffset(0)]
+            public UInt64 ulongInteger;
+            [FieldOffset(0)]
+            public double doubleValue;
+        }
+
         /// <summary>
         /// Sort an array of unsigned integers using Radix Sorting algorithm (least significant digit variation - LSD)
         /// This algorithm is not in-place. This algorithm is stable.
@@ -995,7 +1021,7 @@ namespace HPCsharp
         }
         /// <summary>
         /// Sort an array of user defined class containing an unsigned integer Key, using Radix Sorting algorithm. Linear time sort algorithm.
-        /// Slower algorithm that allocates only 3K bytes of extra memory.
+        /// Slower algorithm that allocates only 3K bytes of extra memory. This algorithm is not in-place, creating a new sorted output array.
         /// </summary>
         /// <param name="inputArray"></param>
         /// <param name="getKey">user provided function to extract the unsigned 32-bit key sorted on, from the user defined class</param>
@@ -1004,15 +1030,14 @@ namespace HPCsharp
         {
             int numberOfBins = 256;
             int Log2ofPowerOfTwoRadix = 8;
-            T[] outputArray = new T[inputArray.Length];
-            uint[] count = new uint[numberOfBins];
+            var outputArray = new T[inputArray.Length];
+            var count = new uint[numberOfBins];
             bool outputArrayHasResult = false;
 
             uint bitMask = 255;
             int shiftRightAmount = 0;
 
-            uint[] startOfBin = new uint[numberOfBins];
-            uint[] endOfBin = new uint[numberOfBins];
+            var startOfBin = new uint[numberOfBins];
 
             while (bitMask != 0)    // end processing digits when all the mask bits have been processed and shifted out, leaving no bits set in the bitMask
             {
@@ -1021,12 +1046,12 @@ namespace HPCsharp
                 for (uint current = 0; current < inputArray.Length; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
                     count[ExtractDigit(getKey(inputArray[current]), bitMask, shiftRightAmount)]++;
 
-                startOfBin[0] = endOfBin[0] = 0;
+                startOfBin[0] = 0;
                 for (uint i = 1; i < numberOfBins; i++)
-                    startOfBin[i] = endOfBin[i] = (uint)(startOfBin[i - 1] + count[i - 1]);
+                    startOfBin[i] = startOfBin[i - 1] + count[i - 1];
 
                 for (uint current = 0; current < inputArray.Length; current++)
-                    outputArray[endOfBin[ExtractDigit(getKey(inputArray[current]), bitMask, shiftRightAmount)]++] = inputArray[current];
+                    outputArray[startOfBin[ExtractDigit(getKey(inputArray[current]), bitMask, shiftRightAmount)]++] = inputArray[current];
 
                 bitMask <<= Log2ofPowerOfTwoRadix;
                 shiftRightAmount += Log2ofPowerOfTwoRadix;
@@ -1036,15 +1061,52 @@ namespace HPCsharp
                 inputArray = outputArray;
                 outputArray = tmp;
             }
-            if (outputArrayHasResult)
-                for (uint current = 0; current < inputArray.Length; current++)    // copy from output array into the input array
-                    inputArray[current] = outputArray[current];
 
-            return inputArray;
+            return outputArrayHasResult ? outputArray : inputArray;
+        }
+        public static T[] SortRadixNew<T>(this T[] inputArray, Func<T, UInt32> getKey)
+        {
+            uint numberOfBins = 256;
+            int Log2ofPowerOfTwoRadix = 8;
+            int numberOfDigits = sizeof(UInt32) * 8 / Log2ofPowerOfTwoRadix;
+            var outputArray = new T[inputArray.Length];
+            bool outputArrayHasResult = false;
+            uint bitMask = numberOfBins - 1;
+            int shiftRightAmount = 0;
+            int d = 0;
+
+            uint[][] count = HistogramByteComponents(inputArray, 0, inputArray.Length - 1, getKey);
+
+            var startOfBin = new uint[numberOfDigits][];
+            for (d = 0; d < numberOfDigits; d++)
+            {
+                startOfBin[d] = new uint[numberOfBins];
+                startOfBin[d][0] = 0;
+                for (uint i = 1; i < numberOfBins; i++)
+                    startOfBin[d][i] = startOfBin[d][i - 1] + count[d][i - 1];
+            }
+
+            d = 0;
+            while (bitMask != 0)    // end processing digits when all the mask bits have been processed and shifted out, leaving no bits set in the bitMask
+            {
+                uint[] startOfBinLoc = startOfBin[d];
+
+                for (uint current = 0; current < inputArray.Length; current++)
+                    outputArray[startOfBinLoc[(byte)(getKey(inputArray[current]) >> shiftRightAmount)]++] = inputArray[current];
+
+                bitMask <<= Log2ofPowerOfTwoRadix;
+                shiftRightAmount += Log2ofPowerOfTwoRadix;
+                outputArrayHasResult = !outputArrayHasResult;
+                d++;
+
+                T[] tmp = inputArray;  inputArray = outputArray;  outputArray = tmp;  // swap input and output arrays
+            }
+
+            return outputArrayHasResult ? outputArray : inputArray;
         }
         /// <summary>
         /// Sort an array of user defined class containing an unsigned 64-bit integer Key, using Radix Sorting algorithm. Linear time sort algorithm.
-        /// Slower algorithm that allocates only 3K bytes of extra memory.
+        /// Slower algorithm that allocates only 3K bytes of extra memory. This algorithm is not in-place, creating a new sorted output array.
         /// </summary>
         /// <param name="inputArray"></param>
         /// <param name="getKey">user provided function to extract the unsigned 64-bit key sorted on, from the user defined class</param>
@@ -1053,15 +1115,14 @@ namespace HPCsharp
         {
             int numberOfBins = 256;
             int Log2ofPowerOfTwoRadix = 8;
-            T[] outputArray = new T[inputArray.Length];
-            uint[] count = new uint[numberOfBins];
+            var outputArray = new T[inputArray.Length];
+            var count = new uint[numberOfBins];
             bool outputArrayHasResult = false;
 
             uint bitMask = 255;
             int shiftRightAmount = 0;
 
-            uint[] startOfBin = new uint[numberOfBins];
-            uint[] endOfBin = new uint[numberOfBins];
+            var startOfBin = new uint[numberOfBins];
 
             while (bitMask != 0)    // end processing digits when all the mask bits have been processed and shifted out, leaving no bits set in the bitMask
             {
@@ -1070,12 +1131,12 @@ namespace HPCsharp
                 for (uint current = 0; current < inputArray.Length; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
                     count[ExtractDigit(getKey(inputArray[current]), bitMask, shiftRightAmount)]++;
 
-                startOfBin[0] = endOfBin[0] = 0;
+                startOfBin[0] = 0;
                 for (uint i = 1; i < numberOfBins; i++)
-                    startOfBin[i] = endOfBin[i] = (uint)(startOfBin[i - 1] + count[i - 1]);
+                    startOfBin[i] = startOfBin[i - 1] + count[i - 1];
 
                 for (uint current = 0; current < inputArray.Length; current++)
-                    outputArray[endOfBin[ExtractDigit(getKey(inputArray[current]), bitMask, shiftRightAmount)]++] = inputArray[current];
+                    outputArray[startOfBin[ExtractDigit(getKey(inputArray[current]), bitMask, shiftRightAmount)]++] = inputArray[current];
 
                 bitMask <<= Log2ofPowerOfTwoRadix;
                 shiftRightAmount += Log2ofPowerOfTwoRadix;
@@ -1085,11 +1146,307 @@ namespace HPCsharp
                 inputArray = outputArray;
                 outputArray = tmp;
             }
-            if (outputArrayHasResult)
-                for (uint current = 0; current < inputArray.Length; current++)    // copy from output array into the input array
-                    inputArray[current] = outputArray[current];
 
-            return inputArray;
+            return outputArrayHasResult ? outputArray : inputArray;
+        }
+        public static T[] SortRadixNew<T>(this T[] inputArray, Func<T, UInt64> getKey)
+        {
+            int numberOfBins = 256;
+            int Log2ofPowerOfTwoRadix = 8;
+            int numberOfDigits = sizeof(UInt64) * 8 / Log2ofPowerOfTwoRadix;
+            var outputArray = new T[inputArray.Length];
+            bool outputArrayHasResult = false;
+            UInt64 bitMask = 255;
+            int shiftRightAmount = 0;
+
+            int d = 0;
+
+            var startOfBin = new uint[numberOfDigits][];
+            for (int i = 0; i < numberOfDigits; i++)
+                startOfBin[i] = new uint[numberOfBins];
+
+            uint[][] count = HistogramByteComponents(inputArray, 0, inputArray.Length - 1, getKey);
+
+            for (d = 0; d < numberOfDigits; d++)
+            {
+                startOfBin[d][0] = 0;
+                for (uint i = 1; i < numberOfBins; i++)
+                    startOfBin[d][i] = startOfBin[d][i - 1] + count[d][i - 1];
+            }
+
+            d = 0;
+            while (bitMask != 0)    // end processing digits when all the mask bits have been processed and shifted out, leaving no bits set in the bitMask
+            {
+                uint[] startOfBinLoc = startOfBin[d];
+
+                for (uint current = 0; current < inputArray.Length; current++)
+                    outputArray[startOfBinLoc[(byte)(getKey(inputArray[current]) >> shiftRightAmount)]++] = inputArray[current];
+
+                bitMask <<= Log2ofPowerOfTwoRadix;
+                shiftRightAmount += Log2ofPowerOfTwoRadix;
+                outputArrayHasResult = !outputArrayHasResult;
+                d++;
+
+                T[] tmp = inputArray; inputArray = outputArray; outputArray = tmp;  // swap input and output arrays
+            }
+
+            return outputArrayHasResult ? outputArray : inputArray;
+        }
+        // The following algorithms use a method where we extract an array of keys and have a source and destination array of keys to go along with
+        // array of references so that accesses to keys are more cache friendly, and accesses to references go along with they keys!
+        // The keys are in a linear array. The references to objects are in a linear array. Each object is never touched, since objects are scattered
+        // in memory, making access to objects slow.
+        // This method should be much better for arrays of objects/classes for JavaScript, Java, C#, C++ and Python.
+
+        /// <summary>
+        /// Sort an array of user defined class containing an unsigned integer Key, using Radix Sorting algorithm. Linear time sort algorithm.
+        /// Faster algorithm that uses 8N bytes more temporary memory than SortRadix, where N is the size of the input array.
+        /// This algorithm is not in-place, creating a new sorted output array.
+        /// </summary>
+        /// <param name="inputArray">input array of type T</param>
+        /// <param name="getKey">user provided function to extract the unsigned 32-bit key sorted on, from the user defined class</param>
+        /// <returns>sorted array of user defined class</returns>
+        public static T[] SortRadixFaster<T>(this T[] inputArray, Func<T, UInt32> getKey)
+        {
+            int numberOfBins = 256;
+            int NumberOfBitsPerDigit = 8;
+            var outputArray = new T[inputArray.Length];
+            var inKeys = new UInt32[inputArray.Length];
+            var outSortedKeys = new UInt32[inputArray.Length];
+            var count = new uint[numberOfBins];
+            bool outputArrayHasResult = false;
+
+            uint bitMask = 255;
+            int shiftRightAmount = 0;
+
+            var startOfBin = new uint[numberOfBins];
+
+            while (bitMask != 0)    // end processing digits when all the mask bits have been processed and shifted out, leaving no bits set in the bitMask
+            {
+                for (uint i = 0; i < numberOfBins; i++)
+                    count[i] = 0;
+                if (bitMask == 255)     // first pass
+                    for (uint current = 0; current < inputArray.Length; current++)    // Scan Key array and count the number of times each digit value appears - i.e. size of each bin
+                    {
+                        inKeys[current] = getKey(inputArray[current]);
+                        count[ExtractDigit(inKeys[current], bitMask, shiftRightAmount)]++;
+                    }
+                else
+                    for (uint current = 0; current < inputArray.Length; current++)    // Scan Key array and count the number of times each digit value appears - i.e. size of each bin
+                        count[ExtractDigit(inKeys[current], bitMask, shiftRightAmount)]++;
+
+                startOfBin[0] = 0;
+                for (uint i = 1; i < numberOfBins; i++)
+                    startOfBin[i] = startOfBin[i - 1] + count[i - 1];
+
+                for (uint current = 0; current < inputArray.Length; current++)
+                {
+                    uint endOfBinIndex = ExtractDigit(inKeys[current], bitMask, shiftRightAmount);
+                    uint index = startOfBin[endOfBinIndex];
+                    outputArray[index] = inputArray[current];
+                    outSortedKeys[index] = inKeys[current];
+                    startOfBin[endOfBinIndex]++;
+                }
+
+                bitMask <<= NumberOfBitsPerDigit;
+                shiftRightAmount += NumberOfBitsPerDigit;
+                outputArrayHasResult = !outputArrayHasResult;
+
+                T[] tmp = inputArray; inputArray = outputArray; outputArray = tmp;          // swap input and output arrays
+                UInt32[] tmpKeys = inKeys; inKeys = outSortedKeys; outSortedKeys = tmpKeys; // swap input and output key arrays
+            }
+
+            return outputArrayHasResult ? outputArray : inputArray;
+        }
+        public static T[] SortRadixFasterNew<T>(this T[] inputArray, Func<T, UInt32> getKey)
+        {
+            const int NumberOfBitsPerDigit = 8;
+            const int NumberOfBins = 1 << NumberOfBitsPerDigit;
+            const int NumberOfDigits = sizeof(UInt32) * 8 / NumberOfBitsPerDigit;
+            var outputArray = new T[inputArray.Length];
+            var outSortedKeys = new UInt32[inputArray.Length];
+            bool outputArrayHasResult = false;
+            uint bitMask = NumberOfBins - 1;
+            int shiftRightAmount = 0;
+            int d;
+
+            var countAndKeyArray = HistogramByteComponentsAndKeyArray(inputArray, 0, inputArray.Length - 1, getKey);
+            uint[][] count  = countAndKeyArray.Item1;
+            UInt32[] inKeys = countAndKeyArray.Item2;
+
+            var startOfBin = new uint[NumberOfDigits][];
+            for (d = 0; d < NumberOfDigits; d++)
+            {
+                startOfBin[d] = new uint[NumberOfBins];
+                startOfBin[d][0] = 0;
+                for (uint i = 1; i < NumberOfBins; i++)
+                    startOfBin[d][i] = startOfBin[d][i - 1] + count[d][i - 1];
+            }
+
+            d = 0;
+            while (bitMask != 0)    // end processing digits when all the mask bits have been processed and shifted out, leaving no bits set in the bitMask
+            {
+                uint[] startOfBinLoc = startOfBin[d];
+
+                for (uint current = 0; current < inputArray.Length; current++)
+                {
+                    byte endOfBinIndex = (byte)(inKeys[current] >> shiftRightAmount);
+                    uint index = startOfBinLoc[endOfBinIndex];
+                    outputArray[  index] = inputArray[current];
+                    outSortedKeys[index] = inKeys[    current];
+                    startOfBinLoc[endOfBinIndex]++;
+                }
+
+                bitMask <<= NumberOfBitsPerDigit;
+                shiftRightAmount += NumberOfBitsPerDigit;
+                outputArrayHasResult = !outputArrayHasResult;
+                d++;
+
+                T[] tmp = inputArray; inputArray = outputArray; outputArray = tmp;     // swap input and output arrays
+                UInt32[] tmpKeys = inKeys; inKeys = outSortedKeys; outSortedKeys = tmpKeys; // swap input and output key arrays
+            }
+
+            return outputArrayHasResult ? outputArray : inputArray;
+        }
+        /// <summary>
+        /// Sort an array of user defined class containing an unsigned integer Key, using Radix Sorting algorithm. Linear time sort algorithm.
+        /// Faster algorithm that uses 16N bytes more temporary memory than SortRadix, where N is the size of the input array.
+        /// </summary>
+        /// <param name="inputArray">input array of type T</param>
+        /// <param name="getKey">user provided function to extract the unsigned 64-bit key sorted on, from the user defined class</param>
+        /// <returns>sorted array of user defined class</returns>
+        public static T[] SortRadixFaster<T>(this T[] inputArray, Func<T, UInt64> getKey)
+        {
+            int numberOfBins = 256;
+            int Log2ofPowerOfTwoRadix = 8;
+            var outputArray = new T[inputArray.Length];
+            var inKeys = new UInt64[inputArray.Length];
+            var outSortedKeys = new UInt64[inputArray.Length];
+            var count = new uint[numberOfBins];
+            bool outputArrayHasResult = false;
+
+            uint bitMask = 255;
+            int shiftRightAmount = 0;
+
+            var startOfBin = new uint[numberOfBins];
+
+            while (bitMask != 0)    // end processing digits when all the mask bits have been processed and shifted out, leaving no bits set in the bitMask
+            {
+                for (uint i = 0; i < numberOfBins; i++)
+                    count[i] = 0;
+                if (bitMask == 255)
+                    for (uint current = 0; current < inputArray.Length; current++)    // Scan Key array and count the number of times each digit value appears - i.e. size of each bin
+                    {
+                        inKeys[current] = getKey(inputArray[current]);
+                        count[ExtractDigit(inKeys[current], bitMask, shiftRightAmount)]++;
+                    }
+                else
+                    for (uint current = 0; current < inputArray.Length; current++)    // Scan Key array and count the number of times each digit value appears - i.e. size of each bin
+                        count[ExtractDigit(inKeys[current], bitMask, shiftRightAmount)]++;
+
+                startOfBin[0] = 0;
+                for (uint i = 1; i < numberOfBins; i++)
+                    startOfBin[i] = startOfBin[i - 1] + count[i - 1];
+
+                for (uint current = 0; current < inputArray.Length; current++)
+                {
+                    uint endOfBinIndex = ExtractDigit(inKeys[current], bitMask, shiftRightAmount);
+                    uint index = startOfBin[endOfBinIndex];
+                    outputArray[index] = inputArray[current];
+                    outSortedKeys[index] = inKeys[current];
+                    startOfBin[endOfBinIndex]++;
+                }
+
+                bitMask <<= Log2ofPowerOfTwoRadix;
+                shiftRightAmount += Log2ofPowerOfTwoRadix;
+                outputArrayHasResult = !outputArrayHasResult;
+
+                T[] tmp = inputArray; inputArray = outputArray; outputArray = tmp;     // swap input and output arrays
+                UInt64[] tmpKeys = inKeys; inKeys = outSortedKeys; outSortedKeys = tmpKeys; // swap input and output key arrays
+            }
+
+            return outputArrayHasResult ? outputArray : inputArray;
+        }
+
+        public static T[] SortRadixFasterNew<T>(this T[] inputArray, Func<T, UInt64> getKey)
+        {
+            int numberOfBins = 256;
+            int Log2ofPowerOfTwoRadix = 8;
+            int numberOfDigits = 4;
+            var outputArray = new T[inputArray.Length];
+            var outSortedKeys = new UInt64[inputArray.Length];
+            bool outputArrayHasResult = false;
+            uint bitMask = 255;
+            int shiftRightAmount = 0;
+            int d;
+
+            var startOfBin = new uint[numberOfDigits][];
+            for (int i = 0; i < numberOfDigits; i++)
+                startOfBin[i] = new uint[numberOfBins];
+
+            var countAndKeyArray = HistogramByteComponentsAndKeyArray(inputArray, 0, inputArray.Length - 1, getKey);
+            uint[][] count  = countAndKeyArray.Item1;
+            UInt64[] inKeys = countAndKeyArray.Item2;
+
+            for (d = 0; d < numberOfDigits; d++)
+            {
+                startOfBin[d][0] = 0;
+                for (uint i = 1; i < numberOfBins; i++)
+                    startOfBin[d][i] = startOfBin[d][i - 1] + count[d][i - 1];
+            }
+
+            d = 0;
+            while (bitMask != 0)    // end processing digits when all the mask bits have been processed and shifted out, leaving no bits set in the bitMask
+            {
+                uint[] startOfBinLoc = startOfBin[d];
+
+                for (uint current = 0; current < inputArray.Length; current++)
+                {
+                    uint endOfBinIndex = (byte)(inKeys[current] >> shiftRightAmount);
+                    uint index = startOfBinLoc[endOfBinIndex];
+                    outputArray[index] = inputArray[current];
+                    outSortedKeys[index] = inKeys[current];
+                    startOfBinLoc[endOfBinIndex]++;
+                }
+
+                bitMask <<= Log2ofPowerOfTwoRadix;
+                shiftRightAmount += Log2ofPowerOfTwoRadix;
+                outputArrayHasResult = !outputArrayHasResult;
+                d++;
+
+                T[] tmp = inputArray; inputArray = outputArray; outputArray = tmp;     // swap input and output arrays
+                UInt64[] tmpKeys = inKeys; inKeys = outSortedKeys; outSortedKeys = tmpKeys; // swap input and output key arrays
+            }
+
+            return outputArrayHasResult ? outputArray : inputArray;
+        }
+        /// <summary>
+        /// Sort a List of user defined class containing an unsigned integer Key, using Radix Sorting algorithm. Linear time sort algorithm.
+        /// Faster algorithm that uses 8N bytes more temporary memory than SortRadix, where N is the size of the input array.
+        /// </summary>
+        /// <param name="inputList">input List of type T</param>
+        /// <param name="getKey">user provided function to extract the unsigned 32-bit key sorted on, from the user defined class</param>
+        /// <returns>sorted List of user defined class</returns>
+        public static List<T> SortRadixFaster<T>(this List<T> inputList, Func<T, UInt32> getKey)
+        {
+            var srcCopy = inputList.ToArray();
+            var sortedArray = srcCopy.SortRadixFaster(getKey);
+            var sortedList = new List<T>(sortedArray);
+            return sortedList;
+        }
+        /// <summary>
+        /// Sort a List of user defined class containing an unsigned integer Key, using Radix Sorting algorithm. Linear time sort algorithm.
+        /// Faster algorithm that uses 16N bytes more temporary memory than SortRadix, where N is the size of the input array.
+        /// </summary>
+        /// <param name="inputList">input List of type T</param>
+        /// <param name="getKey">user provided function to extract the unsigned 64-bit key sorted on, from the user defined class</param>
+        /// <returns>sorted List of user defined class</returns>
+        public static List<T> SortRadixFaster<T>(this List<T> inputList, Func<T, UInt64> getKey)
+        {
+            var srcCopy = inputList.ToArray();
+            var sortedArray = srcCopy.SortRadixFaster(getKey);
+            var sortedList = new List<T>(sortedArray);
+            return sortedList;
         }
         /// <summary>
         /// Sort an array of user defined class containing an unsigned 64-bit integer Key, using Radix Sorting algorithm. Linear time sort algorithm.
@@ -1109,26 +1466,22 @@ namespace HPCsharp
             int shiftRightAmount = 0;
 
             uint[] startOfBin = new uint[numberOfBins];
-            uint[] endOfBin = new uint[numberOfBins];
 
             while (bitMask != 0)    // end processing digits when all the mask bits have been processed and shifted out, leaving no bits set in the bitMask
             {
                 for (uint i = 0; i < numberOfBins; i++)
                     count[i] = 0;
-                for (uint current = 0; current < inputArray.Length; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
+                for (int current = start; current < (start + length); current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
                     count[ExtractDigit(getKey(inputArray[current]), bitMask, shiftRightAmount)]++;
 
-                startOfBin[0] = endOfBin[0] = 0;
+                startOfBin[0] = 0;
                 for (uint i = 1; i < numberOfBins; i++)
-                    startOfBin[i] = endOfBin[i] = (uint)(startOfBin[i - 1] + count[i - 1]);
+                    startOfBin[i] = startOfBin[i - 1] + count[i - 1];
                 for (uint i = 1; i < numberOfBins; i++)
-                {
                     startOfBin[i] += (uint)start;
-                    endOfBin[  i] += (uint)start;
-                }
 
-                for (uint current = 0; current < inputArray.Length; current++)
-                    outputArray[endOfBin[ExtractDigit(getKey(inputArray[current]), bitMask, shiftRightAmount)]++] = inputArray[current];
+                for (int current = start; current < (start + length); current++)
+                    outputArray[startOfBin[ExtractDigit(getKey(inputArray[current]), bitMask, shiftRightAmount)]++] = inputArray[current];
 
                 bitMask <<= Log2ofPowerOfTwoRadix;
                 shiftRightAmount += Log2ofPowerOfTwoRadix;
@@ -1385,183 +1738,49 @@ namespace HPCsharp
             var sortedList = new List<T>(sortedArray);
             return sortedList;
         }
-        // The following algorithms use a method where we extract an array of keys and have a source and destination array of keys to go along with
-        // array of references so that accesses to keys are more cache friendly, and accesses to references go along with they keys!
-        // The keys are in a linear array. The references to objects are in a linear array. Each object is never touched, since objects are scattered
-        // in memory, making access to objects slow.
-        // This method should be much better for arrays of objects/classes for JavaScript, Java, C#, C++ and Python.
-
+        public enum SortOrder
+        {
+            Ascending,
+            Descending
+        }
         /// <summary>
-        /// Sort an array of user defined class containing an unsigned integer Key, using Radix Sorting algorithm. Linear time sort algorithm.
-        /// Faster algorithm that uses 8N bytes more temporary memory than SortRadix, where N is the size of the input array.
+        /// Sort an array of unsigned bytes, returning only sorted indexes. Input array is unaltered. Linear time sort algorithm.
         /// </summary>
-        /// <param name="inputArray">input array of type T</param>
-        /// <param name="getKey">user provided function to extract the unsigned 32-bit key sorted on, from the user defined class</param>
-        /// <returns>sorted array of user defined class</returns>
-        public static T[] SortRadix2<T>(this T[] inputArray, Func<T, UInt32> getKey)
+        /// <param name="inputArray">input array of unsigned bytes</param>
+        /// <returns>array of sorted indexes</returns>
+        public static Int32[] SortRadixReturnIndexes(this byte[] inputArray, SortOrder sortOrder = SortOrder.Ascending)
         {
             int numberOfBins = 256;
-            int Log2ofPowerOfTwoRadix = 8;
-            T[]      outputArray   = new      T[inputArray.Length];
-            UInt32[] inKeys        = new UInt32[inputArray.Length];
-            UInt32[] outSortedKeys = new UInt32[inputArray.Length];
-            uint[] count = new uint[numberOfBins];
-            bool outputArrayHasResult = false;
+            var outputIndexArray = new Int32[inputArray.Length];
+            int[] count          = new int[numberOfBins];
+            int[] startOfBin     = new int[numberOfBins];
 
-            uint bitMask = 255;
-            int shiftRightAmount = 0;
+            for (int i = 0; i < numberOfBins; i++)
+                count[i] = 0;
+            for (int current = 0; current < inputArray.Length; current++)    // Scan Key array and count the number of times each digit value appears - i.e. size of each bin
+                count[inputArray[current]]++;
 
-            uint[] startOfBin = new uint[numberOfBins];
-            uint[] endOfBin   = new uint[numberOfBins];
-
-            while (bitMask != 0)    // end processing digits when all the mask bits have been processed and shifted out, leaving no bits set in the bitMask
+            if (sortOrder == SortOrder.Ascending)
             {
-                for (uint i = 0; i < numberOfBins; i++)
-                    count[i] = 0;
-                if (bitMask == 255)     // first pass
-                    for (uint current = 0; current < inputArray.Length; current++)    // Scan Key array and count the number of times each digit value appears - i.e. size of each bin
-                    {
-                        inKeys[current] = getKey(inputArray[current]);
-                        count[ExtractDigit(inKeys[current], bitMask, shiftRightAmount)]++;
-                    }
-                else
-                    for (uint current = 0; current < inputArray.Length; current++)    // Scan Key array and count the number of times each digit value appears - i.e. size of each bin
-                        count[ExtractDigit(inKeys[current], bitMask, shiftRightAmount)]++;
-
-
-                startOfBin[0] = endOfBin[0] = 0;
-                for (uint i = 1; i < numberOfBins; i++)
-                    startOfBin[i] = endOfBin[i] = (uint)(startOfBin[i - 1] + count[i - 1]);
-
-                for (uint current = 0; current < inputArray.Length; current++)
-                {
-                    uint endOfBinIndex = ExtractDigit(inKeys[current], bitMask, shiftRightAmount);
-                    uint index = endOfBin[endOfBinIndex];
-                    outputArray[index] = inputArray[current];
-                    outSortedKeys[index] = inKeys[current];
-                    endOfBin[endOfBinIndex]++;
-                }
-
-                bitMask <<= Log2ofPowerOfTwoRadix;
-                shiftRightAmount += Log2ofPowerOfTwoRadix;
-                outputArrayHasResult = !outputArrayHasResult;
-
-                T[] tmp = inputArray;        // swap input and output arrays
-                inputArray = outputArray;
-                outputArray = tmp;
-                UInt32[] tmpKeys = inKeys;   // swap input and output key arrays
-                inKeys = outSortedKeys;
-                outSortedKeys = tmpKeys;
-
+                startOfBin[0] = 0;
+                for (int i = 1; i < numberOfBins; i++)
+                startOfBin[i] = startOfBin[i - 1] + count[i - 1];
             }
-            if (outputArrayHasResult)
-                for (uint current = 0; current < inputArray.Length; current++)    // copy from output array into the input array
-                {
-                    inputArray[current] = outputArray[current];
-                    inKeys[current] = outSortedKeys[current];
-                }
-
-            return inputArray;
-        }
-        /// <summary>
-        /// Sort an array of user defined class containing an unsigned integer Key, using Radix Sorting algorithm. Linear time sort algorithm.
-        /// Faster algorithm that uses 16N bytes more temporary memory than SortRadix, where N is the size of the input array.
-        /// </summary>
-        /// <param name="inputArray">input array of type T</param>
-        /// <param name="getKey">user provided function to extract the unsigned 64-bit key sorted on, from the user defined class</param>
-        /// <returns>sorted array of user defined class</returns>
-        public static T[] SortRadix2<T>(this T[] inputArray, Func<T, UInt64> getKey)
-        {
-            int numberOfBins = 256;
-            int Log2ofPowerOfTwoRadix = 8;
-            T[] outputArray = new T[inputArray.Length];
-            UInt64[] inKeys = new UInt64[inputArray.Length];
-            UInt64[] outSortedKeys = new UInt64[inputArray.Length];
-            uint[] count = new uint[numberOfBins];
-            bool outputArrayHasResult = false;
-
-            uint bitMask = 255;
-            int shiftRightAmount = 0;
-
-            uint[] startOfBin = new uint[numberOfBins];
-            uint[] endOfBin = new uint[numberOfBins];
-
-            while (bitMask != 0)    // end processing digits when all the mask bits have been processed and shifted out, leaving no bits set in the bitMask
+            else
             {
-                for (uint i = 0; i < numberOfBins; i++)
-                    count[i] = 0;
-                if (bitMask == 255)
-                    for (uint current = 0; current < inputArray.Length; current++)    // Scan Key array and count the number of times each digit value appears - i.e. size of each bin
-                    {
-                        inKeys[current] = getKey(inputArray[current]);
-                        count[ExtractDigit(inKeys[current], bitMask, shiftRightAmount)]++;
-                    }
-                else
-                    for (uint current = 0; current < inputArray.Length; current++)    // Scan Key array and count the number of times each digit value appears - i.e. size of each bin
-                        count[ExtractDigit(inKeys[current], bitMask, shiftRightAmount)]++;
-
-
-                startOfBin[0] = endOfBin[0] = 0;
-                for (uint i = 1; i < numberOfBins; i++)
-                    startOfBin[i] = endOfBin[i] = (uint)(startOfBin[i - 1] + count[i - 1]);
-
-                for (uint current = 0; current < inputArray.Length; current++)
-                {
-                    uint endOfBinIndex = ExtractDigit(inKeys[current], bitMask, shiftRightAmount);
-                    uint index = endOfBin[endOfBinIndex];
-                    outputArray[index] = inputArray[current];
-                    outSortedKeys[index] = inKeys[current];
-                    endOfBin[endOfBinIndex]++;
-                }
-
-                bitMask <<= Log2ofPowerOfTwoRadix;
-                shiftRightAmount += Log2ofPowerOfTwoRadix;
-                outputArrayHasResult = !outputArrayHasResult;
-
-                T[] tmp = inputArray;        // swap input and output arrays
-                inputArray = outputArray;
-                outputArray = tmp;
-                UInt64[] tmpKeys = inKeys;   // swap input and output key arrays
-                inKeys = outSortedKeys;
-                outSortedKeys = tmpKeys;
-
+                startOfBin[numberOfBins - 1] = 0;
+                for (int i = numberOfBins - 2; i >= 0; i--)
+                    startOfBin[i] = startOfBin[i + 1] + count[i + 1];
             }
-            if (outputArrayHasResult)
-                for (uint current = 0; current < inputArray.Length; current++)    // copy from output array into the input array
-                {
-                    inputArray[current] = outputArray[current];
-                    inKeys[current] = outSortedKeys[current];
-                }
 
-            return inputArray;
-        }
-        /// <summary>
-        /// Sort a List of user defined class containing an unsigned integer Key, using Radix Sorting algorithm. Linear time sort algorithm.
-        /// Faster algorithm that uses 8N bytes more temporary memory than SortRadix, where N is the size of the input array.
-        /// </summary>
-        /// <param name="inputList">input List of type T</param>
-        /// <param name="getKey">user provided function to extract the unsigned 32-bit key sorted on, from the user defined class</param>
-        /// <returns>sorted List of user defined class</returns>
-        public static List<T> SortRadix2<T>(this List<T> inputList, Func<T, UInt32> getKey)
-        {
-            var srcCopy = inputList.ToArray();
-            var sortedArray = srcCopy.SortRadix2(getKey);
-            var sortedList = new List<T>(sortedArray);
-            return sortedList;
-        }
-        /// <summary>
-        /// Sort a List of user defined class containing an unsigned integer Key, using Radix Sorting algorithm. Linear time sort algorithm.
-        /// Faster algorithm that uses 16N bytes more temporary memory than SortRadix, where N is the size of the input array.
-        /// </summary>
-        /// <param name="inputList">input List of type T</param>
-        /// <param name="getKey">user provided function to extract the unsigned 64-bit key sorted on, from the user defined class</param>
-        /// <returns>sorted List of user defined class</returns>
-        public static List<T> SortRadix2<T>(this List<T> inputList, Func<T, UInt64> getKey)
-        {
-            var srcCopy = inputList.ToArray();
-            var sortedArray = srcCopy.SortRadix2(getKey);
-            var sortedList = new List<T>(sortedArray);
-            return sortedList;
+            for (int current = 0; current < inputArray.Length; current++)
+            {
+                byte digit = inputArray[current];
+                int index  = startOfBin[digit]++;
+                outputIndexArray[index] = current;          // current location is the current index within the input array
+            }
+
+            return outputIndexArray;
         }
     }
 }

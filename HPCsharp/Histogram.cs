@@ -8,6 +8,8 @@
 //       really functions, but are extension methods. How do you pass those in
 // TODO: Consider for 64-bit Histogram and 9-bits/component implementing 9/10-bit components, where most are 9-bit, but the last one is 10-bit, to save one pass.
 // TODO: Figure out which way is faster for byte component Histogram (one byte version): // ?? Which way is faster. Need to look at assembly language listing too
+// TODO: Switch from mask-shift to shift-mask which makes the mask be the same for all bytes, which may make it faster than union. Try also casting to a byte instead of masking. Look at assembly to see
+//       which is better. Time to see which is faster.
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -107,6 +109,137 @@ namespace HPCsharp
             return count;
         }
 
+        public static uint[][] HistogramByteComponents<T>(T[] inArray, Int32 l, Int32 r, Func<T, UInt32> getKey)
+        {
+            const int numberOfBins = 256;
+            const int numberOfDigits = sizeof(UInt32);
+            uint[][] count = new uint[numberOfDigits][];
+            for (int i = 0; i < numberOfDigits; i++)
+                count[i] = new uint[numberOfBins];
+#if true
+            var union = new UInt32ByteUnion();
+            for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
+            {
+                union.integer = getKey(inArray[current]);
+                count[0][union.byte0]++;
+                count[1][union.byte1]++;
+                count[2][union.byte2]++;
+                count[3][union.byte3]++;
+            }
+#else
+            for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
+            {
+                uint value = getKey(inArray[current]);
+                count[0][(byte)value        ]++;
+                count[1][(byte)(value >>  8)]++;
+                count[2][(byte)(value >> 16)]++;
+                count[3][(byte)(value >> 24)]++;
+            }
+#endif
+            return count;
+        }
+
+        public static uint[][] HistogramByteComponents<T>(T[] inArray, Int32 l, Int32 r, Func<T, UInt64> getKey)
+        {
+            const int numberOfBins = 256;
+            const int numberOfDigits = sizeof(UInt64);
+            uint[][] count = new uint[numberOfDigits][];
+            for (int i = 0; i < numberOfDigits; i++)
+                count[i] = new uint[numberOfBins];
+#if true
+            var union = new UInt64ByteUnion();
+            for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
+            {
+                union.integer = getKey(inArray[current]);
+                count[0][union.byte0]++;
+                count[1][union.byte1]++;
+                count[2][union.byte2]++;
+                count[3][union.byte3]++;
+                count[4][union.byte4]++;
+                count[5][union.byte5]++;
+                count[6][union.byte6]++;
+                count[7][union.byte7]++;
+            }
+#else
+            for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
+            {
+                uint value = inArray[current];
+                count[0][ value &       0xff       ]++;
+                count[1][(value &     0xff00) >>  8]++;
+                count[2][(value &   0xff0000) >> 16]++;
+                count[3][(value & 0xff000000) >> 24]++;
+            }
+#endif
+            return count;
+        }
+
+        public static Tuple<uint[][], UInt32[]> HistogramByteComponentsAndKeyArray<T>(T[] inArray, Int32 l, Int32 r, Func<T, UInt32> getKey)
+        {
+            const int numberOfBins = 256;
+            const int numberOfDigits = sizeof(UInt32);
+            var inKeys = new UInt32[inArray.Length];
+            var count  = new uint[numberOfDigits][];
+            for (int i = 0; i < numberOfDigits; i++)
+                count[i] = new uint[numberOfBins];
+#if true
+            var union = new UInt32ByteUnion();
+            for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
+            {
+                union.integer = getKey(inArray[current]);
+                inKeys[current] = union.integer;
+                count[0][union.byte0]++;
+                count[1][union.byte1]++;
+                count[2][union.byte2]++;
+                count[3][union.byte3]++;
+            }
+#else
+            for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
+            {
+                uint value = inArray[current];
+                count[0][ value &       0xff       ]++;
+                count[1][(value &     0xff00) >>  8]++;
+                count[2][(value &   0xff0000) >> 16]++;
+                count[3][(value & 0xff000000) >> 24]++;
+            }
+#endif
+            return new Tuple<uint[][], UInt32[]>(count, inKeys);
+        }
+
+        public static Tuple<uint[][], UInt64[]> HistogramByteComponentsAndKeyArray<T>(T[] inArray, Int32 l, Int32 r, Func<T, UInt64> getKey)
+        {
+            const int numberOfBins = 256;
+            const int numberOfDigits = sizeof(UInt32);
+            var inKeys = new UInt64[inArray.Length];
+            var count  = new uint[numberOfDigits][];
+            for (int i = 0; i < numberOfDigits; i++)
+                count[i] = new uint[numberOfBins];
+#if true
+            var union = new UInt64ByteUnion();
+            for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
+            {
+                union.integer = getKey(inArray[current]);
+                inKeys[current] = union.integer;
+                count[0][union.byte0]++;
+                count[1][union.byte1]++;
+                count[2][union.byte2]++;
+                count[3][union.byte3]++;
+                count[4][union.byte4]++;
+                count[5][union.byte5]++;
+                count[6][union.byte6]++;
+                count[7][union.byte7]++;
+            }
+#else
+            for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
+            {
+                uint value = inArray[current];
+                count[0][ value &       0xff       ]++;
+                count[1][(value &     0xff00) >>  8]++;
+                count[2][(value &   0xff0000) >> 16]++;
+                count[3][(value & 0xff000000) >> 24]++;
+            }
+#endif
+            return new Tuple<uint[][], UInt64[]>(count, inKeys);
+        }
         // The idea of 1-D array is that the individual digit counts (256 per digit in case of 8-bit digits) don't interfere with each other in L1 cache
         // whereas with jagged array they may depending on how each row happens to be allocated on the heap
         public static uint[] HistogramByteComponents1D(uint[] inArray, Int32 l, Int32 r)
@@ -241,7 +374,6 @@ namespace HPCsharp
         public static int[] HistogramOneByteComponent(long[] inArray, Int32 l, Int32 r, int shiftRightAmount)
         {
             const int numberOfBins = 256;
-            const ulong byteMask = numberOfBins - 1;
             int[] count = new int[numberOfBins];
 
             if (shiftRightAmount != 56)
@@ -256,6 +388,104 @@ namespace HPCsharp
                 for (int current = l; current <= r; current++)
                 {
                     count[(byte)(inArray[current] >> shiftRightAmount) ^ 128]++;
+                }
+            }
+
+            return count;
+        }
+
+        public static int[] HistogramOneByteComponent(int[] inArray, Int32 l, Int32 r, int shiftRightAmount)
+        {
+            const int numberOfBins = 256;
+            int[] count = new int[numberOfBins];
+
+            if (shiftRightAmount != 24)
+            {
+                for (int current = l; current <= r; current++)
+                {
+                    count[(byte)(inArray[current] >> shiftRightAmount)]++;
+                }
+            }
+            else
+            {
+                for (int current = l; current <= r; current++)
+                {
+                    count[(byte)(inArray[current] >> shiftRightAmount) ^ 128]++;
+                }
+            }
+
+            return count;
+        }
+        public static int[] HistogramOneByteComponent(float[] inArray, Int32 l, Int32 r, int shiftRightAmount)
+        {
+            const int numberOfBins = 256;
+            int[] count = new int[numberOfBins];
+            var f2i = default(FloatUInt32Union);
+
+            if (shiftRightAmount != 24)
+            {
+                for (int current = l; current <= r; current++)
+                {
+                    uint digit;
+                    f2i.floatValue = inArray[current];
+                    if ((f2i.uinteger & 0x80000000U) == 0)
+                        digit = f2i.uinteger >> shiftRightAmount;                   // positive values => don't flip anything
+                    else
+                        digit = (f2i.uinteger ^ 0xFFFFFFFFU) >> shiftRightAmount;   // negative values => flip the whole value
+
+                    count[(byte)digit]++;
+                }
+            }
+            else
+            {
+                for (int current = l; current <= r; current++)
+                {
+                    uint digit;
+                    f2i.floatValue = inArray[current];
+                    if ((f2i.uinteger & 0x80000000U) == 0)
+                        digit = (f2i.uinteger >> shiftRightAmount) ^ 128;               // positive values => flip just the sign bit
+                    else
+                        digit = (f2i.uinteger ^ 0xFFFFFFFFU) >> shiftRightAmount;       // negative values => flip the whole value including the sign bit
+
+                    count[(byte)digit]++;
+                }
+            }
+
+            return count;
+        }
+
+        public static int[] HistogramOneByteComponent(double[] inArray, Int32 l, Int32 r, int shiftRightAmount)
+        {
+            const int numberOfBins = 256;
+            int[] count = new int[numberOfBins];
+            var d2i = default(DoubleUInt64Union);
+
+            if (shiftRightAmount != 56)
+            {
+                for (int current = l; current <= r; current++)
+                {
+                    ulong digit;
+                    d2i.doubleValue = inArray[current];
+                    if ((d2i.ulongInteger & 0x8000000000000000) == 0)
+                        digit = d2i.ulongInteger >> shiftRightAmount;                           // positive values => don't flip anything
+                    else
+                        digit = (d2i.ulongInteger ^ 0xFFFFFFFFFFFFFFFF) >> shiftRightAmount;    // negative values => flip the whole value
+
+                    count[(byte)digit]++;
+                }
+            }
+            else
+            {
+                for (int current = l; current <= r; current++)
+                {
+                    ulong digit;
+                    d2i.doubleValue = inArray[current];
+                    if ((d2i.ulongInteger & 0x8000000000000000) == 0)
+                        digit = (d2i.ulongInteger >> shiftRightAmount) ^ 128;                       // positive values => flip just the sign bit
+                    else
+                        digit = (d2i.ulongInteger ^ 0xFFFFFFFFFFFFFFFF) >> shiftRightAmount;        // negative values => flip the whole value including the sign bit
+
+                    count[(byte)digit]++;
                 }
             }
 
@@ -428,26 +658,50 @@ namespace HPCsharp
             return count;
         }
 
-        public static int[] Histogram12bitComponents(double[] inArray, Int32 l, Int32 r, int shiftRightAmount)
+        public static int[] Histogram9bitComponents(float[] inArray, Int32 l, Int32 r, uint bitMask, int shiftRightAmount)
         {
-            const int numberOfBins = 4096;
-            const ulong bitMask = numberOfBins - 1;
+            const int numberOfBins = 512;
+            //const uint bitMask = numberOfBins - 1;
             int[] count = new int[numberOfBins];
 
-            if (shiftRightAmount != 52)
+            if (shiftRightAmount != 23)
             {
                 for (int current = l; current <= r; current++)
-                    count[((ulong)inArray[current] >> shiftRightAmount) & bitMask]++;
+                    count[((uint)inArray[current] & bitMask) >> shiftRightAmount]++;
             }
             else
             {
                 for (int current = l; current <= r; current++)
-                    count[((ulong)inArray[current] >> shiftRightAmount) ^ 2048]++;
+                    count[((uint)inArray[current] >> shiftRightAmount) ^ 256]++;
             }
 
             return count;
         }
 
+        public static int[] Histogram12bitComponents(double[] inArray, Int32 l, Int32 r, ulong bitMask, int shiftRightAmount)
+        {
+            const int numberOfBins = 4096;
+            int[] count = new int[numberOfBins];
+
+            if (shiftRightAmount != 52)
+            {
+                for (int current = l; current <= r; current++)
+                {
+                    var currValue = BitConverter.ToUInt64(BitConverter.GetBytes(inArray[current]), 0);
+                    count[(currValue & bitMask) >> shiftRightAmount]++;
+                }
+            }
+            else
+            {
+                for (int current = l; current <= r; current++)
+                {
+                    var currValue = BitConverter.ToUInt64(BitConverter.GetBytes(inArray[current]), 0);
+                    count[(currValue >> shiftRightAmount) ^ 2048]++;
+                }
+            }
+
+            return count;
+        }
 
         public static uint[][] HistogramNBitsPerComponents(uint[] inArray, Int32 l, Int32 r, int bitsPerComponent)
         {
