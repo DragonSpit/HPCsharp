@@ -20,7 +20,7 @@ namespace HPCsharpExamples
             // Not In-Place Sorting
             sortedArrayOne = ArrayOne.OrderBy(i => i).ToArray();     // Linq Sort
             sortedArrayOne = ArrayOne.SortMerge();                   // HPCsharp Merge Sort (serial)
-            sortedArrayOne = HPCsharp.Algorithm.SortMerge(ArrayOne); // HPCsharp Merge Sort (serial). Direct function call usage
+            sortedArrayOne = Algorithm.SortMerge(ArrayOne);          // HPCsharp Merge Sort (serial). Direct function call usage
             sortedArrayOne = ArrayOne.SortRadix();                   // HPCsharp Radix Sort (serial)
 
             // In-Place Sorting (Parallel)
