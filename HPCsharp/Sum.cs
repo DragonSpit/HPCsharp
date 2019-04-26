@@ -5,6 +5,7 @@
 //       From what I read online, using SSE may be a better way, since it supports flush to zero for denormals and we may have control then.
 // TODO: Try measuring performance of .Sum() that is scalar and SSE when the array fits into cache (L1 or L2) since in these cases performance will not be limited by system
 //       memory bandwidth, but will be limited by the cache memory bandwidth which is much higher. Run over the same array using .Sum() many times to measure average and min time.
+// TODO: Provide a function to sum a field within a user defined type
 using System.Collections.Generic;
 using System.Text;
 using System.Numerics;
@@ -15,6 +16,14 @@ namespace HPCsharp
 {
     static public partial class Algorithm
     {
+        public static decimal SumHpcDecimal(this long[] arrayToSum)
+        {
+            decimal overallSum = 0;
+            for (int i = 0; i < arrayToSum.Length; i++)
+                overallSum += arrayToSum[i];
+            return overallSum;
+        }
+
         public static long SumHpc(this long[] arrayToSum)
         {
             long overallSum = 0;
@@ -42,6 +51,14 @@ namespace HPCsharp
         public static long SumHpc(this sbyte[] arrayToSum)
         {
             long overallSum = 0;
+            for (int i = 0; i < arrayToSum.Length; i++)
+                overallSum += arrayToSum[i];
+            return overallSum;
+        }
+
+        public static decimal SumHpcDecimal(this ulong[] arrayToSum)
+        {
+            decimal overallSum = 0;
             for (int i = 0; i < arrayToSum.Length; i++)
                 overallSum += arrayToSum[i];
             return overallSum;
