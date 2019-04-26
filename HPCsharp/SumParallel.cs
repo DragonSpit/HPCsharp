@@ -25,6 +25,52 @@ namespace HPCsharp
 {
     static public partial class ParallelAlgorithm
     {
+        public static long SumSse(this short[] arrayToSum)
+        {
+            return arrayToSum.SumSseInner(0, arrayToSum.Length - 1);
+        }
+
+        public static long SumSse(this short[] arrayToSum, int start, int length)
+        {
+            return arrayToSum.SumSseInner(start, start + length - 1);
+        }
+
+        private static long SumSseInner(this short[] arrayToSum, int l, int r)
+        {
+            var sumVector00 = new Vector<long>();
+            var sumVector01 = new Vector<long>();
+            var sumVector10 = new Vector<long>();
+            var sumVector11 = new Vector<long>();
+            var intLow    = new Vector<int>();
+            var intHigh   = new Vector<int>();
+            var long00 = new Vector<long>();
+            var long01 = new Vector<long>();
+            var long10 = new Vector<long>();
+            var long11 = new Vector<long>();
+            int sseIndexEnd = l + ((r - l + 1) / Vector<short>.Count) * Vector<short>.Count;
+            int i;
+            for (i = l; i < sseIndexEnd; i += Vector<short>.Count)
+            {
+                var inVector = new Vector<short>(arrayToSum, i);
+                Vector.Widen(inVector, out intLow, out intHigh);
+                Vector.Widen(intLow,   out long00, out long01);
+                Vector.Widen(intHigh,  out long10, out long11);
+                sumVector00 += long00;
+                sumVector01 += long01;
+                sumVector10 += long10;
+                sumVector11 += long11;
+            }
+            long overallSum = 0;
+            for (; i <= r; i++)
+                overallSum += arrayToSum[i];
+            sumVector00 += sumVector01;
+            sumVector10 += sumVector11;
+            sumVector00 += sumVector10;
+            for (i = 0; i < Vector<long>.Count; i++)
+                overallSum += sumVector00[i];
+            return overallSum;
+        }
+
         public static long SumSse(this int[] arrayToSum)
         {
             return arrayToSum.SumSseInner(0, arrayToSum.Length - 1);
