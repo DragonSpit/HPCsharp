@@ -55,9 +55,9 @@ namespace HPCsharp
             var long101 = new Vector<long>();
             var long110 = new Vector<long>();
             var long111 = new Vector<long>();
-            int sseIndexEnd = l + ((r - l + 1) / Vector<short>.Count) * Vector<short>.Count;
+            int sseIndexEnd = l + ((r - l + 1) / Vector<sbyte>.Count) * Vector<sbyte>.Count;
             int i;
-            for (i = l; i < sseIndexEnd; i += Vector<short>.Count)
+            for (i = l; i < sseIndexEnd; i += Vector<sbyte>.Count)
             {
                 var inVector = new Vector<sbyte>(arrayToSum, i);
                 Vector.Widen(inVector, out shortLow, out shortHigh);
@@ -125,9 +125,9 @@ namespace HPCsharp
             var long101 = new Vector<ulong>();
             var long110 = new Vector<ulong>();
             var long111 = new Vector<ulong>();
-            int sseIndexEnd = l + ((r - l + 1) / Vector<short>.Count) * Vector<short>.Count;
+            int sseIndexEnd = l + ((r - l + 1) / Vector<byte>.Count) * Vector<byte>.Count;
             int i;
-            for (i = l; i < sseIndexEnd; i += Vector<short>.Count)
+            for (i = l; i < sseIndexEnd; i += Vector<byte>.Count)
             {
                 var inVector = new Vector<byte>(arrayToSum, i);
                 Vector.Widen(inVector, out shortLow, out shortHigh);
