@@ -868,12 +868,12 @@ namespace HPCsharp
             return arrayToSum.SumSseParInner(start, start + length - 1);
         }
 
-        public static decimal SumSsePar(this decimal[] arrayToSum)
+        public static decimal SumPar(this decimal[] arrayToSum)
         {
             return SumParInner(arrayToSum, 0, arrayToSum.Length - 1);
         }
 
-        public static decimal SumSsePar(this decimal[] arrayToSum, int start, int length)
+        public static decimal SumPar(this decimal[] arrayToSum, int start, int length)
         {
             return arrayToSum.SumParInner(start, start + length - 1);
         }
