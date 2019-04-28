@@ -1,3 +1,7 @@
+Version 3.3.10
+Added .Sum() SSE and multi-core implementations for all numeric data types (ludicrous speed!)
+Added .Sum() for long[] and ulong[] which use and return a decimal accumulator to avoid throwing an overflow exception
+
 Version 3.3.9
 Fixed SortRadixMsd() of Double[]
 
