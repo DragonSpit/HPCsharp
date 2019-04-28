@@ -11,6 +11,7 @@
 //       will be much slower than non-nullable
 // TODO: See if SSEandScalar version is faster when the array is entirely inside the cache, to make sure that it's not just being memory bandwidth limited and hiding ILP speedup. Port it to C++ and see
 //       if it speeds up. Run many times over the same array using .Sum() and provide the average and minimum timing.
+// TODO: Figure out the issue with parallel decimal .Sum(), as it seems decimal data type itself has a multi-threading issue
 using System.Collections.Generic;
 using System.Text;
 using System.Numerics;
@@ -21,6 +22,7 @@ namespace HPCsharp
 {
     static public partial class ParallelAlgorithm
     {
+        private static readonly object decimalLock = new object();
         public static long SumSse(this sbyte[] arrayToSum)
         {
             return arrayToSum.SumSseInner(0, arrayToSum.Length - 1);
@@ -704,7 +706,11 @@ namespace HPCsharp
                 () => { sumRight = SumParInner(arrayToSum, m + 1, r); }
             );
             // Combine left and right results
-            return sumLeft + sumRight;
+            lock(decimalLock)
+            {
+                sumLeft += sumRight;
+            }
+            return sumLeft;
         }
 
         private static decimal SumParInner(this long[] arrayToSum, int l, int r)
@@ -714,7 +720,7 @@ namespace HPCsharp
             if (l > r)
                 return sumLeft;
             if ((r - l + 1) <= ThresholdParallelSum)
-                return HPCsharp.Algorithm.SumHpcDecimal(arrayToSum, l, r - l + 1);
+                return HPCsharp.Algorithm.SumDecimalHpc(arrayToSum, l, r - l + 1);
 
             int m = (r + l) / 2;
 
@@ -735,7 +741,7 @@ namespace HPCsharp
             if (l > r)
                 return sumLeft;
             if ((r - l + 1) <= ThresholdParallelSum)
-                return HPCsharp.Algorithm.SumHpcDecimal(arrayToSum, l, r - l + 1);
+                return HPCsharp.Algorithm.SumDecimalHpc(arrayToSum, l, r - l + 1);
 
             int m = (r + l) / 2;
 
@@ -819,12 +825,21 @@ namespace HPCsharp
             return arrayToSum.SumSseParInner(start, start + length - 1);
         }
 
-        public static decimal SumDecimalPar(this long[] arrayToSum)
+        private static decimal SumDecimalPar(this long[] arrayToSum)
         {
             return SumParInner(arrayToSum, 0, arrayToSum.Length - 1);
         }
 
-        public static decimal SumDecimalPar(this long[] arrayToSum, int start, int length)
+        private static decimal SumDecimalPar(this long[] arrayToSum, int start, int length)
+        {
+            return arrayToSum.SumParInner(start, start + length - 1);
+        }
+
+        private static decimal SumDecimalPar(this ulong[] arrayToSum)
+        {
+            return SumParInner(arrayToSum, 0, arrayToSum.Length - 1);
+        }
+        private static decimal SumDecimalPar(this ulong[] arrayToSum, int start, int length)
         {
             return arrayToSum.SumParInner(start, start + length - 1);
         }
@@ -832,15 +847,6 @@ namespace HPCsharp
         public static ulong SumSsePar(this ulong[] arrayToSum)
         {
             return SumSseParInner(arrayToSum, 0, arrayToSum.Length - 1);
-        }
-
-        public static decimal SumPar(this ulong[] arrayToSum, int start, int length)
-        {
-            return arrayToSum.SumParInner(start, start + length - 1);
-        }
-        public static decimal SumPar(this ulong[] arrayToSum)
-        {
-            return SumParInner(arrayToSum, 0, arrayToSum.Length - 1);
         }
 
         public static ulong SumSsePar(this ulong[] arrayToSum, int start, int length)
@@ -868,12 +874,12 @@ namespace HPCsharp
             return arrayToSum.SumSseParInner(start, start + length - 1);
         }
 
-        public static decimal SumPar(this decimal[] arrayToSum)
+        private static decimal SumPar(this decimal[] arrayToSum)
         {
             return SumParInner(arrayToSum, 0, arrayToSum.Length - 1);
         }
 
-        public static decimal SumPar(this decimal[] arrayToSum, int start, int length)
+        private static decimal SumPar(this decimal[] arrayToSum, int start, int length)
         {
             return arrayToSum.SumParInner(start, start + length - 1);
         }
