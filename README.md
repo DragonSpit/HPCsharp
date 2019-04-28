@@ -30,6 +30,12 @@ To get the maximum performance make sure to target x64 processor architecture fo
 Full release history is in ReleaseNotes.txt file
 
 ## Better .Sum() ##
+
+*Library*|*sbyte*|*byte*|*short*|*ushort*|*int*|*uint*|*long*|*ulong*|*float*|*double*|*decimal*
+--- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ---
+Linq | no | no | no | no |918|885|877|878|903|875|27
+HPCsharp |7600|8000|8000|8200|5000|5300|2900|2800|5100|2900|32
+ 
 Linq .Sum() adds up all of the array elements to produce a sum. This .Sum() returns the same data type as the elements of the array itself.
 For instance, when the array is of bytes, then the result is also a byte. This can cause an overflow exception, even when summing
 just two elements - e.g. when one of the elements is 255 and the other is a one.
