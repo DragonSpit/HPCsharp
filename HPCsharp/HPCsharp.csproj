@@ -8,7 +8,7 @@
     <Description>High performance C#/.NET algorithms. Cross-platform. Sort algorithms: parallel, serial, in-place, stable, O(N) Radix LSD/MSD, Merge. Improved Array.Sum(), Histogram, Priority Queue, Merge, Fill, Min/Max, more... Familiar interfaces.</Description>
     <Copyright>© 2018 FooState</Copyright>
     <PackageLicenseUrl>https://github.com/DragonSpit/HPCsharp/blob/master/LICENSE</PackageLicenseUrl>
-    <PackageReleaseNotes>Added MSD Radix Sort for int[] and float[]. Fixed MSD Radix Sort for double[]. Added byte array sort which outputs sorted indexes.</PackageReleaseNotes>
+    <PackageReleaseNotes>Added .Sum() SSE and multi-core implementations for all numeric data types. Added .Sum() for long[] and ulong[] which use and return a decimal accumulator to avoid throwing an overflow exception.</PackageReleaseNotes>
     <PackageId>HPCsharp</PackageId>
     <PackageTags>high perfromance algorithms, C#, high performance, high performance computing, HPC, algorithm, algorithms, Linq, parallel, parallel algorithm</PackageTags>
     <PackageIconUrl>https://foostate.com/images/default_lib_icon_64.png</PackageIconUrl>
@@ -17,9 +17,9 @@
     <PackageProjectUrl>https://github.com/DragonSpit/HPCsharp</PackageProjectUrl>
     <RepositoryUrl>https://github.com/DragonSpit/HPCsharp</RepositoryUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <AssemblyVersion>3.3.9.0</AssemblyVersion>
-    <FileVersion>3.3.9.0</FileVersion>
-    <Version>3.3.9</Version>
+    <AssemblyVersion>3.3.10.0</AssemblyVersion>
+    <FileVersion>3.3.10.0</FileVersion>
+    <Version>3.3.10</Version>
     <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
