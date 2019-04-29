@@ -2,8 +2,6 @@
 //       a while accumulate to decimal instead of always accumulating to decimal (offer this version as an alternate)
 // TODO: Implement aligned SIMD sum, since memory alignment is critical for SIMD instructions. So, do scalar first until we are SIMD aligned and then do SIMD, followed by more scarlar to finish all
 //       left over elements that are not SIMD size divisible. First simple step is to check alignment of SIMD portion of the sum.
-// TODO: Contribute to Sum C# stackoverflow page, since nobody considered overflow condition and using a larger range values for sum. Also, to https://stackoverflow.com/questions/9987560/comparing-sum-methods-in-c-sharp which
-//       asks for a faster implementation, so we can point to SSE and multi-core implemenations. Also, contribute to https://stackoverflow.com/questions/26548756/looking-for-a-faster-way-to-sum-arrays-in-c-sharp
 // TODO: Develop a method to split an array on a cache line (64 byte) boundary. Make it public, since it will be useful in many cases.
 // TODO: Implement a for loop instead of divide-and-conquer, since they really accomplish the same thing, and the for loop will be more efficient and easier to make cache line boundary divisible.
 //       Combining will be slightly harder, but we could create an array of sums, where each task has its own array element to fill in, then we combine all of the sums at the end serially.
