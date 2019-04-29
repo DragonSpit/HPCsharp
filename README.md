@@ -46,10 +46,12 @@ The above table also shows Linq and HPCsharp .Sum() performance in MegaElements/
 at 918 MegaInt's/second, whereas HPCsharp runs at 5000 MegaInt's/second, with both running on all of the processor cores.
 
 HPCsharp version of .Sum() eliminated the possibility of overflow exception by using and returning a 64-bit long
-for all signed integer types (int, short, sbyte).
-Support for unsigned types by .Sum() has been added to HPCsharp, such as uint, ushort, and byte, returning a ulong result.
+for all signed integer types (int, short, sbyte). Support for unsigned types by .Sum() has been added to HPCsharp,
+such as uint, ushort, and byte, returning a ulong result. To avoid overflow for long and ulong arrays, the option
+of using a decimal is provided.
+
 For .Sum() of float arrays, double is returned producing a more accurate summation result. To produce an even more accurate
-summation for float and double, Kahan and Neumaier algorithms have been implemented - serial only to start with.
+summation for float and double, Kahan and Neumaier algorithms have been implemented.
 
 HPCsharp implements SIMD/SSE and multi-core versions of .Sum() for all built-in numeric data types, except decimal. Producing
 over 5X gain versus Linq .AsParallel() implementation. For more details, see blog https://duvanenko.tech.blog/2019/04/23/better-sum-in-c/
