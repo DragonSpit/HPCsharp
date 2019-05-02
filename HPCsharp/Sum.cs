@@ -25,10 +25,11 @@ namespace HPCsharp
             return overallSum;
         }
 
-        internal static decimal SumDecimalHpc(this long[] arrayToSum, int l, int r)
+        internal static decimal SumDecimalHpc(this long[] arrayToSum, int startIndex, int length)
         {
+            int endIndex = startIndex + length;
             decimal overallSum = 0;
-            for (int i = l; i <= r; i++)
+            for (int i = startIndex; i < endIndex; i++)
                 overallSum += arrayToSum[i];
             return overallSum;
         }
@@ -73,10 +74,11 @@ namespace HPCsharp
             return overallSum;
         }
 
-        internal static decimal SumDecimalHpc(this ulong[] arrayToSum, int l, int r)
+        internal static decimal SumDecimalHpc(this ulong[] arrayToSum, int startIndex, int length)
         {
+            int endIndex = startIndex + length;
             decimal overallSum = 0;
-            for (int i = l; i <= r; i++)
+            for (int i = startIndex; i < endIndex; i++)
                 overallSum += arrayToSum[i];
             return overallSum;
         }
