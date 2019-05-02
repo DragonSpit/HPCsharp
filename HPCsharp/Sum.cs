@@ -137,10 +137,11 @@ namespace HPCsharp
             return overallSum;
         }
 
-        internal static decimal SumHpc(this decimal[] arrayToSum, int l, int r)
+        internal static decimal SumHpc(this decimal[] arrayToSum, int startIndex, int length)
         {
+            int endIndex = startIndex + length;
             decimal overallSum = 0;
-            for (int i = l; i <= r; i++)
+            for (int i = startIndex; i < endIndex; i++)
                 overallSum += arrayToSum[i];
             return overallSum;
         }

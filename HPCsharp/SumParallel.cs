@@ -19,7 +19,6 @@ namespace HPCsharp
 {
     static public partial class ParallelAlgorithm
     {
-        private static readonly object decimalLock = new object();
         public static long SumSse(this sbyte[] arrayToSum)
         {
             return arrayToSum.SumSseInner(0, arrayToSum.Length - 1);
@@ -703,11 +702,7 @@ namespace HPCsharp
                 () => { sumRight = SumParInner(arrayToSum, m + 1, r); }
             );
             // Combine left and right results
-            lock(decimalLock)
-            {
-                sumLeft += sumRight;
-            }
-            return sumLeft;
+            return sumLeft + sumRight;
         }
 
         private static decimal SumParInner(this long[] arrayToSum, int l, int r)
@@ -871,12 +866,12 @@ namespace HPCsharp
             return arrayToSum.SumSseParInner(start, start + length - 1);
         }
 
-        private static decimal SumPar(this decimal[] arrayToSum)
+        public static decimal SumPar(this decimal[] arrayToSum)
         {
             return SumParInner(arrayToSum, 0, arrayToSum.Length - 1);
         }
 
-        private static decimal SumPar(this decimal[] arrayToSum, int start, int length)
+        public static decimal SumPar(this decimal[] arrayToSum, int start, int length)
         {
             return arrayToSum.SumParInner(start, start + length - 1);
         }
