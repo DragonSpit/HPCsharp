@@ -9,7 +9,6 @@
 //       will be much slower than non-nullable
 // TODO: See if SSEandScalar version is faster when the array is entirely inside the cache, to make sure that it's not just being memory bandwidth limited and hiding ILP speedup. Port it to C++ and see
 //       if it speeds up. Run many times over the same array using .Sum() and provide the average and minimum timing.
-// TODO: Figure out the issue with parallel decimal .Sum(), as it seems decimal data type itself has a multi-threading issue
 using System.Collections.Generic;
 using System.Text;
 using System.Numerics;
@@ -823,21 +822,21 @@ namespace HPCsharp
             return arrayToSum.SumSseParInner(start, start + length - 1);
         }
 
-        private static decimal SumDecimalPar(this long[] arrayToSum)
+        public static decimal SumDecimalPar(this long[] arrayToSum)
         {
             return SumParInner(arrayToSum, 0, arrayToSum.Length - 1);
         }
 
-        private static decimal SumDecimalPar(this long[] arrayToSum, int start, int length)
+        public static decimal SumDecimalPar(this long[] arrayToSum, int start, int length)
         {
             return arrayToSum.SumParInner(start, start + length - 1);
         }
 
-        private static decimal SumDecimalPar(this ulong[] arrayToSum)
+        public static decimal SumDecimalPar(this ulong[] arrayToSum)
         {
             return SumParInner(arrayToSum, 0, arrayToSum.Length - 1);
         }
-        private static decimal SumDecimalPar(this ulong[] arrayToSum, int start, int length)
+        public static decimal SumDecimalPar(this ulong[] arrayToSum, int start, int length)
         {
             return arrayToSum.SumParInner(start, start + length - 1);
         }
