@@ -30,6 +30,8 @@ To get the maximum performance make sure to target x64 processor architecture fo
 Full release history is in ReleaseNotes.txt file
 
 ## Better .Sum() ##
+HPCsharp provides higher performance and more capable .Sum(), supporting all numeric data types, including decimal.
+The table below compares performance (in Mega/second) of Linq.AsParallel().Sum() and HPCsharp.Sum().
 
 *Library*|*sbyte*|*byte*|*short*|*ushort*|*int*|*uint*|*long*|*ulong*|*float*|*double*|*decimal*
 --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ---
@@ -37,13 +39,9 @@ Linq | n/a | n/a | n/a | n/a |918*|n/a|877*|n/a|903|875|27
 HPCsharp |7600|8000|8000|8200|5000|5300|2900*|2800*|5100|2900|32
 * overflow exception is possible
 
-The above table shows C# data types supported by Linq .Sum(), which adds up all of the array elements to produce a sum.
-These data types are int, long, float, double and decimal.
-Linq .Sum() returns the same data type as the data type of array elements. For integer types this can result in an
-overflow exception.
-
-The above table also shows Linq and HPCsharp .Sum() performance in MegaElements/second. For example, Linq .Sum() runs
-at 918 MegaInt's/second, whereas HPCsharp runs at 5000 MegaInt's/second, with both running on all of the processor cores.
+Linq does not support unsigned integer data types. HPCsharp adds support for them. Linq can throw an
+overflow exception for .Sum() of array of int's, whereas HPCsharp version returns perfectly accurate result
+by using a long and will not throw an overflow exception.
 
 HPCsharp version of .Sum() eliminated the possibility of overflow exception by using and returning a 64-bit long
 for all signed integer types (int, short, sbyte). Support for unsigned types by .Sum() has been added to HPCsharp,
@@ -53,7 +51,7 @@ of using a decimal is provided.
 For .Sum() of float arrays, double is returned producing a more accurate summation result. To produce an even more accurate
 summation for float and double, Kahan and Neumaier algorithms have been implemented.
 
-HPCsharp implements SIMD/SSE and multi-core versions of .Sum() for all built-in numeric data types, except decimal. Producing
+HPCsharp implements SIMD/SSE and multi-core versions of .Sum() for all built-in numeric data types, except decimal, producing
 over 5X gain versus Linq .AsParallel() implementation. For more details, see blog https://duvanenko.tech.blog/2019/04/23/better-sum-in-c/
 
 ## Sorting ##
