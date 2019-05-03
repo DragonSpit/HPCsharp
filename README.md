@@ -34,7 +34,7 @@ Full release history is in ReleaseNotes.txt file
 *Library*|*sbyte*|*byte*|*short*|*ushort*|*int*|*uint*|*long*|*ulong*|*float*|*double*|*decimal*
 --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ---
 Linq | n/a | n/a | n/a | n/a |918*|n/a|877*|n/a|903|875|27
-HPCsharp |7600|8000|8000|8200|5000|5300|2900|2800|5100|2900|32
+HPCsharp |7600|8000|8000|8200|5000|5300|2900*|2800*|5100|2900|32
 * overflow exception is possible
 
 The above table shows C# data types supported by Linq .Sum(), which adds up all of the array elements to produce a sum.
