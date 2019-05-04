@@ -21,7 +21,7 @@ To get the maximum performance make sure to target x64 processor architecture fo
 - Added multi-core .Sum() for long[] and ulong[] which use and return a decimal accumulator to avoid throwing an overflow exception
 This saves 2X space over decimal[], and is 25% faster.
 
-**_Version 3.3.10_** Just Released! Give it a shot.
+**_Version 3.3.10_**
 - Added .Sum() SSE and multi-core implementations for all numeric data types (ludicrous speed!)
 - Added .Sum() for long[] and ulong[] which use and return a decimal accumulator to avoid throwing an overflow exception
 
