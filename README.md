@@ -33,8 +33,8 @@ The table below compares performance (in Mega/second) of Linq.AsParallel().Sum()
 
 *Library*|*sbyte*|*byte*|*short*|*ushort*|*int*|*uint*|*long*|*ulong*|*float*|*double*|*decimal*
 --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ---
-Linq | n/a | n/a | n/a | n/a |918*|n/a|877*|n/a|903|875|27
-HPCsharp |7600|8000|8000|8200|5000|5300|2900*|2800*|5100|2900|32
+Linq | n/a | n/a | n/a | n/a |918*|n/a|877*|n/a|903|875|115
+HPCsharp |7600|8000|8000|8200|5000|5300|2900*|2800*|5100|2900|140
 * overflow exception is possible
 
 Linq does not support unsigned integer data types, or 8-bit and 16-bit signed integers. HPCsharp adds support for these missing
