@@ -17,15 +17,13 @@ Updated VisualStudio 2017 examples solution, demonstrating usage through working
 
 To get the maximum performance make sure to target x64 processor architecture for the Release build in VisualStudio, increasing performance by as much as 50%.
 
+**_Version 3.3.11_** Just Released! Give it a shot.
+- Added multi-core .Sum() for long[] and ulong[] which use and return a decimal accumulator to avoid throwing an overflow exception
+This saves 2X space over decimal[], and is 25% faster.
+
 **_Version 3.3.10_** Just Released! Give it a shot.
 - Added .Sum() SSE and multi-core implementations for all numeric data types (ludicrous speed!)
 - Added .Sum() for long[] and ulong[] which use and return a decimal accumulator to avoid throwing an overflow exception
-
-**_Version 3.3.9_**
-- Fixed a bug in SortRadixMsd() of Double[]
-- Added in-place Radix Sort of Int32[] and Float[]
-- Added Byte[] sort which outputs sorted indexes: ascending or descending.
-- Improved performance of LSD Radix Sort of User Defined Type Arrays
 
 Full release history is in ReleaseNotes.txt file
 
