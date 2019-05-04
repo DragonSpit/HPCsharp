@@ -39,17 +39,24 @@ Linq | n/a | n/a | n/a | n/a |918*|n/a|877*|n/a|903|875|27
 HPCsharp |7600|8000|8000|8200|5000|5300|2900*|2800*|5100|2900|32
 * overflow exception is possible
 
-Linq does not support unsigned integer data types. HPCsharp adds support for them. Linq can throw an
-overflow exception for .Sum() of array of int's, whereas HPCsharp version returns perfectly accurate result
-by using a long and will not throw an overflow exception.
+Linq does not support unsigned integer data types, or 8-bit and 16-bit signed integers. HPCsharp adds support for these missing
+integer sizes. Linq can throw an overflow exception for .Sum() of array of int's, whereas HPCsharp version returns perfectly accurate
+result by using a long integer and will not throw an overflow exception. A long integer is returned for all signed integer
+.Sum() functions. An unsigned long is returned for all unsigned integer .Sum(). No overflow will be throws for 8, 16, or
+32-bit signed or unsigned array .Sum().
 
-HPCsharp version of .Sum() eliminated the possibility of overflow exception by using and returning a 64-bit long
-for all signed integer types (int, short, sbyte). Support for unsigned types by .Sum() has been added to HPCsharp,
-such as uint, ushort, and byte, returning a ulong result. To avoid overflow for long and ulong arrays, the option
-of using a decimal is provided.
+HPCsharp also provides a .Sum() version, which avoids overflow for long and ulong arrays, by returning a decimal result. Serial and
+multi-core functions are provided, with a 25% performance benefit over using decimal arrays, plus 2X array memory size savings.
 
 For .Sum() of float arrays, double is returned producing a more accurate summation result. To produce an even more accurate
-summation for float and double, Kahan and Neumaier algorithms have been implemented.
+summation for float and double, Kahan and Neumaier algorithms have been implemented. These advanced algorithms produce correct results for
+extreme cases such as,
+
+```
+double[] arrDouble = new double[] { 1, 10.0e100, 1, -10e100 };
+```
+
+whereas the current C# .Sum() produces an incorrect result.
 
 HPCsharp implements SIMD/SSE and multi-core versions of .Sum() for all built-in numeric data types, except decimal, producing
 over 5X gain versus Linq .AsParallel() implementation. For more details, see blog https://duvanenko.tech.blog/2019/04/23/better-sum-in-c/
