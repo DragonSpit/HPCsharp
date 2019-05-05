@@ -9,6 +9,7 @@
 //       will be much slower than non-nullable
 // TODO: See if SSEandScalar version is faster when the array is entirely inside the cache, to make sure that it's not just being memory bandwidth limited and hiding ILP speedup. Port it to C++ and see
 //       if it speeds up. Run many times over the same array using .Sum() and provide the average and minimum timing.
+// TODO: Implement Neumaier .Sum() using SIMD/SSE including handling of the if/conditional, as it is possible.
 using System.Collections.Generic;
 using System.Text;
 using System.Numerics;
@@ -663,6 +664,27 @@ namespace HPCsharp
             return sumLeft + sumRight;
         }
 
+        private static double SumNeumaierParInner(this float[] arrayToSum, int l, int r)
+        {
+            double sumLeft = 0;
+
+            if (l > r)
+                return sumLeft;
+            if ((r - l + 1) <= ThresholdParallelSum)
+                return HPCsharp.Algorithm.SumNeumaier(arrayToSum, l, r - l + 1);
+
+            int m = (r + l) / 2;
+
+            double sumRight = 0;
+
+            Parallel.Invoke(
+                () => { sumLeft  = SumNeumaierParInner(arrayToSum, l,     m); },
+                () => { sumRight = SumNeumaierParInner(arrayToSum, m + 1, r); }
+            );
+            // Combine left and right results
+            return HPCsharp.Algorithm.SumNeumaier(sumLeft, sumRight);
+        }
+
         private static double SumSseParInner(this double[] arrayToSum, int l, int r)
         {
             double sumLeft = 0;
@@ -682,6 +704,27 @@ namespace HPCsharp
             );
             // Combine left and right results
             return sumLeft + sumRight;
+        }
+
+        private static double SumNeumaierParInner(this double[] arrayToSum, int l, int r)
+        {
+            double sumLeft = 0;
+
+            if (l > r)
+                return sumLeft;
+            if ((r - l + 1) <= ThresholdParallelSum)
+                return HPCsharp.Algorithm.SumNeumaier(arrayToSum, l, r - l + 1);
+
+            int m = (r + l) / 2;
+
+            double sumRight = 0;
+
+            Parallel.Invoke(
+                () => { sumLeft  = SumNeumaierParInner(arrayToSum, l,     m); },
+                () => { sumRight = SumNeumaierParInner(arrayToSum, m + 1, r); }
+            );
+            // Combine left and right results
+            return HPCsharp.Algorithm.SumNeumaier(sumLeft, sumRight);
         }
 
         private static decimal SumParInner(this decimal[] arrayToSum, int l, int r)
@@ -850,10 +893,19 @@ namespace HPCsharp
         {
             return SumSseParInner(arrayToSum, 0, arrayToSum.Length - 1);
         }
-
+        
         public static double SumSsePar(this float[] arrayToSum, int start, int length)
         {
             return arrayToSum.SumSseParInner(start, start + length - 1);
+        }
+        public static double SumNeumaierPar(this float[] arrayToSum)
+        {
+            return SumNeumaierParInner(arrayToSum, 0, arrayToSum.Length - 1);
+        }
+
+        public static double SumNeumaierPar(this float[] arrayToSum, int start, int length)
+        {
+            return arrayToSum.SumNeumaierParInner(start, start + length - 1);
         }
 
         public static double SumSsePar(this double[] arrayToSum)
@@ -864,6 +916,16 @@ namespace HPCsharp
         public static double SumSsePar(this double[] arrayToSum, int start, int length)
         {
             return arrayToSum.SumSseParInner(start, start + length - 1);
+        }
+
+        public static double SumNeumaierPar(this double[] arrayToSum)
+        {
+            return SumNeumaierParInner(arrayToSum, 0, arrayToSum.Length - 1);
+        }
+
+        public static double SumNeumaierPar(this double[] arrayToSum, int start, int length)
+        {
+            return arrayToSum.SumNeumaierParInner(start, start + length - 1);
         }
 
         public static decimal SumPar(this decimal[] arrayToSum)

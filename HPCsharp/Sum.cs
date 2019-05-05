@@ -165,6 +165,44 @@ namespace HPCsharp
         }
 
         // Implementation https://en.wikipedia.org/wiki/Kahan_summation_algorithm
+        public static double SumKahan(this double[] arrayToSum)
+        {
+            double sum = 0.0;
+            double c = 0.0;                                 // A running compensation for lost low-order bits    
+            for (int i = 0; i < arrayToSum.Length; i++)
+            {
+                double y = arrayToSum[i] - c;               // So far, so good: c is zero
+                double t = sum + y;                         // Alas, sum is big, y small, so low-order bits of y are lost
+                c = (t - sum) - y;                          // (t - sum) cancels the high-order par of y; subtracting y recovers negativ (low part of y)
+                sum = t;                                    // Algebraically, c should always be zero. Beware overly-aggressive optimizing compilers!
+                                                            // Next time around, the lost low part will be added to y in a fresh attempt.
+            }
+            return sum;
+        }
+
+        public static double SumNeumaier(this float firstValue, float secondValue)
+        {
+            double sum = 0.0;
+            double c = 0.0;                                 // A running compensation for lost low-order bits  
+
+            double t = sum + firstValue;
+            if (Math.Abs(sum) >= Math.Abs(firstValue))
+                c += (sum - t) + firstValue;                // If sum is bigger, low-order digits of input[i] are lost.
+            else
+                c += (firstValue - t) + sum;                // Else low-order digits of sum are lost
+            sum = t;
+
+            t = sum + secondValue;
+            if (Math.Abs(sum) >= Math.Abs(secondValue))
+                c += (sum - t) + secondValue;                // If sum is bigger, low-order digits of input[i] are lost.
+            else
+                c += (secondValue - t) + sum;               // Else low-order digits of sum are lost
+            sum = t;
+
+            return sum + c;                                 // Correction only applied once in the very end
+        }
+
+        // Implementation https://en.wikipedia.org/wiki/Kahan_summation_algorithm
         public static double SumNeumaier(this float[] arrayToSum)
         {
             double sum = 0.0;
@@ -181,20 +219,44 @@ namespace HPCsharp
             return sum + c;                                 // Correction only applied once in the very end
         }
 
-        // Implementation https://en.wikipedia.org/wiki/Kahan_summation_algorithm
-        public static double SumKahan(this double[] arrayToSum)
+        public static double SumNeumaier(this float[] arrayToSum, int startIndex, int length)
         {
             double sum = 0.0;
-            double c = 0.0;                                 // A running compensation for lost low-order bits    
-            for (int i = 0; i < arrayToSum.Length; i++)
+            double c = 0.0;                                 // A running compensation for lost low-order bits  
+            int endIndex = startIndex + length;
+
+            for (int i = startIndex; i < endIndex; i++)
             {
-                double y = arrayToSum[i] - c;               // So far, so good: c is zero
-                double t = sum + y;                         // Alas, sum is big, y small, so low-order bits of y are lost
-                c = (t - sum) - y;                          // (t - sum) cancels the high-order par of y; subtracting y recovers negativ (low part of y)
-                sum = t;                                    // Algebraically, c should always be zero. Beware overly-aggressive optimizing compilers!
-                                                            // Next time around, the lost low part will be added to y in a fresh attempt.
+                double t = sum + arrayToSum[i];
+                if (Math.Abs(sum) >= Math.Abs(arrayToSum[i]))
+                    c += (sum - t) + arrayToSum[i];         // If sum is bigger, low-order digits of input[i] are lost.
+                else
+                    c += (arrayToSum[i] - t) + sum;         // Else low-order digits of sum are lost
+                sum = t;
             }
-            return sum;
+            return sum + c;                                 // Correction only applied once in the very end
+        }
+
+        public static double SumNeumaier(this double firstValue, double secondValue)
+        {
+            double sum = 0.0;
+            double c = 0.0;                                 // A running compensation for lost low-order bits  
+            
+            double t = sum + firstValue;
+            if (Math.Abs(sum) >= Math.Abs(firstValue))
+                c += (sum - t) + firstValue;                // If sum is bigger, low-order digits of input[i] are lost.
+            else
+                c += (firstValue - t) + sum;                // Else low-order digits of sum are lost
+            sum = t;
+
+            t = sum + secondValue;
+            if (Math.Abs(sum) >= Math.Abs(secondValue))
+                c += (sum - t) + secondValue;                // If sum is bigger, low-order digits of input[i] are lost.
+            else
+                c += (secondValue - t) + sum;               // Else low-order digits of sum are lost
+            sum = t;
+
+            return sum + c;                                 // Correction only applied once in the very end
         }
 
         // Implementation https://en.wikipedia.org/wiki/Kahan_summation_algorithm
@@ -203,6 +265,24 @@ namespace HPCsharp
             double sum = 0.0;
             double c = 0.0;                                 // A running compensation for lost low-order bits    
             for (int i = 0; i < arrayToSum.Length; i++)
+            {
+                double t = sum + arrayToSum[i];
+                if (Math.Abs(sum) >= Math.Abs(arrayToSum[i]))
+                    c += (sum - t) + arrayToSum[i];         // If sum is bigger, low-order digits of input[i] are lost.
+                else
+                    c += (arrayToSum[i] - t) + sum;         // Else low-order digits of sum are lost
+                sum = t;
+            }
+            return sum + c;                                 // Correction only applied once in the very end
+        }
+
+        public static double SumNeumaier(this double[] arrayToSum, int startIndex, int length)
+        {
+            double sum = 0.0;
+            double c = 0.0;                                 // A running compensation for lost low-order bits  
+            int endIndex = startIndex + length;
+
+            for (int i = startIndex; i < endIndex; i++)
             {
                 double t = sum + arrayToSum[i];
                 if (Math.Abs(sum) >= Math.Abs(arrayToSum[i]))
