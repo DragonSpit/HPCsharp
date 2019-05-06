@@ -10,6 +10,7 @@
 // TODO: See if SSEandScalar version is faster when the array is entirely inside the cache, to make sure that it's not just being memory bandwidth limited and hiding ILP speedup. Port it to C++ and see
 //       if it speeds up. Run many times over the same array using .Sum() and provide the average and minimum timing.
 // TODO: Implement Neumaier .Sum() using SIMD/SSE including handling of the if/conditional, as it is possible.
+// TODO: Return a tupple from each parallel Neumaier result and figure out how to combine these results for a more accurate and possibly perfect overall result that will match serial array processing result.
 using System.Collections.Generic;
 using System.Text;
 using System.Numerics;

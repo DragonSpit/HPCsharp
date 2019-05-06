@@ -251,7 +251,7 @@ namespace HPCsharp
 
             t = sum + secondValue;
             if (Math.Abs(sum) >= Math.Abs(secondValue))
-                c += (sum - t) + secondValue;                // If sum is bigger, low-order digits of input[i] are lost.
+                c += (sum - t) + secondValue;               // If sum is bigger, low-order digits of input[i] are lost.
             else
                 c += (secondValue - t) + sum;               // Else low-order digits of sum are lost
             sum = t;
