@@ -11,6 +11,12 @@
 //       if it speeds up. Run many times over the same array using .Sum() and provide the average and minimum timing.
 // TODO: Implement Neumaier .Sum() using SIMD/SSE including handling of the if/conditional, as it is possible.
 // TODO: Return a tupple from each parallel Neumaier result and figure out how to combine these results for a more accurate and possibly perfect overall result that will match serial array processing result.
+// TODO: It may be simpler to do a parallelFor style parallelism for parallel Neumaier, where we process chunks in parallel but in order and then combine the results from these chunks in the same order, as
+//       if it was done serially in a serial for loop.
+// TODO: Implement the divide-and-conquer method for simple floating-point additions, since that increases accuracy O(longN) error, and lower additional performance overhead (potentially). If it doesn't turn
+//       out then make an argument on Wikipedia and blog about it.
+// TODO: Since C# has support for large numbers, then provide accurate .Sum() all the way to these for decimal[], float[] and double[]. Basically, provide a consistent story for .Sum() where every type can be
+//       summed with perfect accuracy when needed. Make sure naming of functions is consistent for all of this and across all data types.
 using System.Collections.Generic;
 using System.Text;
 using System.Numerics;
