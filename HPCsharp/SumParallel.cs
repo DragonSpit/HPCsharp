@@ -1,7 +1,10 @@
 ﻿// TODO: To speedup summing up of long to decimal accumulation, Josh suggested using a long accumulator and catching the overflow exception and then adding to decimal - i.e. most of the time accumulate to long and once in
 //       a while accumulate to decimal instead of always accumulating to decimal (offer this version as an alternate)
 // TODO: Implement aligned SIMD sum, since memory alignment is critical for SIMD instructions. So, do scalar first until we are SIMD aligned and then do SIMD, followed by more scarlar to finish all
-//       left over elements that are not SIMD size divisible. First simple step is to check alignment of SIMD portion of the sum.
+//       left over elements that are not SIMD size divisible. First simple step is to check alignment of SIMD portion of the sum. See cache-aligned entry below, which may solve this problem.
+// TODO: Implement a cache-aligned divide-and-conquer split. This is very useful for more consitent performance for SIMD/SSE .Sum() and other operations, and is fundamental to improve consistency of performance - i.e.
+//       reduce veriability in performance, since SIME/SSE performs better when each SSE instruction is aligned in memory on the size of the instruction boundary (e.g. 512-bit instruction performs better when it's aligned
+//       on 512-bit/64-byte boundary, which is a cache-line boundary).
 // TODO: Develop a method to split an array on a cache line (64 byte) boundary. Make it public, since it will be useful in many cases.
 // TODO: Implement a for loop instead of divide-and-conquer, since they really accomplish the same thing, and the for loop will be more efficient and easier to make cache line boundary divisible.
 //       Combining will be slightly harder, but we could create an array of sums, where each task has its own array element to fill in, then we combine all of the sums at the end serially.
@@ -15,8 +18,10 @@
 //       if it was done serially in a serial for loop.
 // TODO: Implement the divide-and-conquer method for simple floating-point additions, since that increases accuracy O(longN) error, and lower additional performance overhead (potentially). If it doesn't turn
 //       out then make an argument on Wikipedia and blog about it.
-// TODO: Since C# has support for large numbers, then provide accurate .Sum() all the way to these for decimal[], float[] and double[]. Basically, provide a consistent story for .Sum() where every type can be
-//       summed with perfect accuracy when needed. Make sure naming of functions is consistent for all of this and across all data types.
+// TODO: Since C# has support for BigInteger data type in System.Numerics, then provide accurate .Sum() all the way to these for decimal[], float[] and double[]. Basically, provide a consistent story for .Sum() where every type can be
+//       summed with perfect accuracy when needed. Make sure naming of functions is consistent for all of this and across all data types, multi-core and SSE implementations, to make it simple, logical and consistent to use.
+// TODO: Implement .Sum() for summing a field of Objects/UserDefinedTypes, if it's possible to add value by possibly aggregating elements into a local array of Vector size and doing an SSE sum. Is it possible to abstract it well and to
+//       perform well to support extracting all numeric data types, so that performance and abstraction are competitive and as simple or simpler than Linq?
 using System.Collections.Generic;
 using System.Text;
 using System.Numerics;
@@ -436,6 +441,43 @@ namespace HPCsharp
             {
                 var inVector = new Vector<double>(arrayToSum, i);
                 sumVector += inVector;
+            }
+            double overallSum = 0;
+            for (; i <= r; i++)
+                overallSum += arrayToSum[i];
+            for (i = 0; i < Vector<double>.Count; i++)
+                overallSum += sumVector[i];
+            return overallSum;
+        }
+
+        private static double SumSseNeumaierInner(this double[] arrayToSum, int l, int r)
+        {
+            var sumVector = new Vector<double>();
+            var cVector   = new Vector<double>();
+            int sseIndexEnd = l + ((r - l + 1) / Vector<double>.Count) * Vector<double>.Count;
+            int i;
+            for (i = l; i < sseIndexEnd; i += Vector<double>.Count)
+            {
+                var inVector = new Vector<double>(arrayToSum, i);
+                var tVector = sumVector + inVector;
+                Vector<long> gteMask = Vector.GreaterThanOrEqual(Vector.Abs(sumVector), Vector.Abs(inVector));  // if true then 0xFFFFFFFFFFFFFFFFL else 0L at each element of the Vector<long> 
+                Vector<long> ltMask  = Vector.LessThan(          Vector.Abs(sumVector), Vector.Abs(inVector));
+                // Several ways to implement:
+                // 1. to select which arguments are chosen for the first +, which requires selection for two arguments
+                // 2. to select which arguments are chosen for the last  +, which requires two computational paths, followed by selection of one argument
+                // Should implement both ways, since there are only two and choose the highest performing method.
+#if true
+                var ifThenResult = sumVector - tVector + inVector;
+                var ifElseResult = inVector  - tVector + sumVector;
+                cVector += Vector.AsVectorDouble((Vector.AsVectorInt64(ifThenResult) & gteMask) | (Vector.AsVectorInt64(ifElseResult) & ltMask));
+#else
+#endif
+                //if (Math.Abs(sum) >= Math.Abs(arrayToSum[i]))
+                //    c += (sum - t) + arrayToSum[i];         // If sum is bigger, low-order digits of input[i] are lost.
+                //else
+                //    c += (arrayToSum[i] - t) + sum;         // Else low-order digits of sum are lost
+
+                sumVector = tVector;
             }
             double overallSum = 0;
             for (; i <= r; i++)
