@@ -17,11 +17,12 @@ Updated VisualStudio 2017 examples solution, demonstrating usage through working
 
 To get the maximum performance make sure to target x64 processor architecture for the Release build in VisualStudio, increasing performance by as much as 50%.
 
-**_Version 3.3.11_** Just Released! Give it a shot.
+**_Version 3.3.12_** Just Released! Give it a shot.
+Added multi-core .Sum() Neumaier more accurate summation algorithm for float[] and double[]
+
+**_Version 3.3.11_**
 - Added multi-core .Sum() for long[] and ulong[] which use and return a decimal accumulator to avoid throwing an overflow exception
 This saves 2X space over decimal[], and is 25% faster.
-
-**_Version 3.3.10_**
 - Added .Sum() SSE and multi-core implementations for all numeric data types (ludicrous speed!)
 - Added .Sum() for long[] and ulong[] which use and return a decimal accumulator to avoid throwing an overflow exception
 
@@ -54,7 +55,7 @@ extreme cases such as,
 double[] arrDouble = new double[] { 1, 10.0e100, 1, -10e100 };
 ```
 
-whereas the current C# .Sum() produces an incorrect result.
+whereas the current C# .Sum() produces an incorrect result of 0.0. Multi-core Neumair for double[] runs at 1.8 GigaDoubles/sec on quad-core.
 
 HPCsharp implements SIMD/SSE and multi-core versions of .Sum() for all built-in numeric data types, except decimal, producing
 over 5X gain versus Linq .AsParallel() implementation. For more details, see blog https://duvanenko.tech.blog/2019/04/23/better-sum-in-c/
