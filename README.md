@@ -18,7 +18,7 @@ Updated VisualStudio 2017 examples solution, demonstrating usage through working
 To get the maximum performance make sure to target x64 processor architecture for the Release build in VisualStudio, increasing performance by as much as 50%.
 
 **_Version 3.3.12_** Just Released! Give it a shot.
-Added multi-core .Sum() Neumaier more accurate summation algorithm for float[] and double[]
+- Added multi-core .Sum() Neumaier more accurate summation algorithm for float[] and double[]
 
 **_Version 3.3.11_**
 - Added multi-core .Sum() for long[] and ulong[] which use and return a decimal accumulator to avoid throwing an overflow exception
