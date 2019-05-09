@@ -461,16 +461,16 @@ namespace HPCsharp
                 var inVector = new Vector<double>(arrayToSum, i);
                 var tVector = sumVector + inVector;
                 Vector<long> gteMask = Vector.GreaterThanOrEqual(Vector.Abs(sumVector), Vector.Abs(inVector));  // if true then 0xFFFFFFFFFFFFFFFFL else 0L at each element of the Vector<long> 
-                Vector<long> ltMask  = Vector.LessThan(          Vector.Abs(sumVector), Vector.Abs(inVector));
                 // Several ways to implement:
                 // 1. to select which arguments are chosen for the first +, which requires selection for two arguments
                 // 2. to select which arguments are chosen for the last  +, which requires two computational paths, followed by selection of one argument
                 // Should implement both ways, since there are only two and choose the highest performing method.
-#if true
+#if false
                 var ifThenResult = sumVector - tVector + inVector;
                 var ifElseResult = inVector  - tVector + sumVector;
-                cVector += Vector.AsVectorDouble((Vector.AsVectorInt64(ifThenResult) & gteMask) | (Vector.AsVectorInt64(ifElseResult) & ltMask));
+                cVector += Vector.ConditionalSelect(gteMask, ifThenResult, ifElseResult);
 #else
+                cVector += Vector.ConditionalSelect(gteMask, sumVector, inVector) - tVector + Vector.ConditionalSelect(gteMask, inVector, sumVector);
 #endif
                 //if (Math.Abs(sum) >= Math.Abs(arrayToSum[i]))
                 //    c += (sum - t) + arrayToSum[i];         // If sum is bigger, low-order digits of input[i] are lost.
@@ -479,6 +479,7 @@ namespace HPCsharp
 
                 sumVector = tVector;
             }
+// TODO: This portion needs to be Neumaier algorithm too, all the way down
             double overallSum = 0;
             for (; i <= r; i++)
                 overallSum += arrayToSum[i];
