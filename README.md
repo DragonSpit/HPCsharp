@@ -45,9 +45,9 @@ result by using a long integer and will not throw an overflow exception. A long 
 32-bit signed or unsigned array .Sum().
 
 HPCsharp also provides a .Sum() version, which avoids overflow for long and ulong arrays, by returning a decimal result. Serial and
-multi-core functions are provided, with a 25% performance benefit over using decimal arrays, plus 2X array memory size savings.
+multi-core versions are provided, with a 25% performance benefit over using decimal arrays, along with using half the memory space.
 
-For .Sum() of float arrays, double is returned producing a more accurate summation result. To produce an even more accurate
+For .Sum() of float arrays, a double result is returned producing a more accurate summation result. To produce an even more accurate
 summation for float and double, Kahan and Neumaier algorithms have been implemented. These advanced algorithms produce correct results for
 extreme cases such as,
 
