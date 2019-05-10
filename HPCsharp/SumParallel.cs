@@ -472,20 +472,33 @@ namespace HPCsharp
 #else
                 cVector += Vector.ConditionalSelect(gteMask, sumVector, inVector) - tVector + Vector.ConditionalSelect(gteMask, inVector, sumVector);
 #endif
-                //if (Math.Abs(sum) >= Math.Abs(arrayToSum[i]))
-                //    c += (sum - t) + arrayToSum[i];         // If sum is bigger, low-order digits of input[i] are lost.
-                //else
-                //    c += (arrayToSum[i] - t) + sum;         // Else low-order digits of sum are lost
-
                 sumVector = tVector;
             }
-// TODO: This portion needs to be Neumaier algorithm too, all the way down
-            double overallSum = 0;
-            for (; i <= r; i++)
-                overallSum += arrayToSum[i];
+            int iLast = i;
+            // At this point we have sumVector and cVector, which have Vector<double>.Count number of sum's and c's
+            // Reduce these Vector's to a single sum and a single c
+            double sum = 0.0;
+            double c   = 0.0;
             for (i = 0; i < Vector<double>.Count; i++)
-                overallSum += sumVector[i];
-            return overallSum;
+            {
+                double t = sum + sumVector[i];
+                if (Math.Abs(sum) >= Math.Abs(sumVector[i]))
+                    c += (sum - t) + sumVector[i];         // If sum is bigger, low-order digits of input[i] are lost.
+                else
+                    c += (sumVector[i] - t) + sum;         // Else low-order digits of sum are lost
+                sum = t;
+                c += cVector[i];
+            }
+            for (i = iLast; i <= r; i++)
+            {
+                double t = sum + arrayToSum[i];
+                if (Math.Abs(sum) >= Math.Abs(arrayToSum[i]))
+                    c += (sum - t) + arrayToSum[i];         // If sum is bigger, low-order digits of input[i] are lost.
+                else
+                    c += (arrayToSum[i] - t) + sum;         // Else low-order digits of sum are lost
+                sum = t;
+            }
+            return sum + c;
         }
 
         private static long SumSseAndScalar(this int[] arrayToSum, int l, int r)
@@ -777,6 +790,27 @@ namespace HPCsharp
             return HPCsharp.Algorithm.SumNeumaier(sumLeft, sumRight);
         }
 
+        private static double SumSseNeumaierParInner(this double[] arrayToSum, int l, int r)
+        {
+            double sumLeft = 0;
+
+            if (l > r)
+                return sumLeft;
+            if ((r - l + 1) <= ThresholdParallelSum)
+                return SumSseNeumaierInner(arrayToSum, l, r - l + 1);
+
+            int m = (r + l) / 2;
+
+            double sumRight = 0;
+
+            Parallel.Invoke(
+                () => { sumLeft  = SumSseNeumaierParInner(arrayToSum, l,     m); },
+                () => { sumRight = SumSseNeumaierParInner(arrayToSum, m + 1, r); }
+            );
+            // Combine left and right results
+            return HPCsharp.Algorithm.SumNeumaier(sumLeft, sumRight);
+        }
+
         private static decimal SumParInner(this decimal[] arrayToSum, int l, int r)
         {
             decimal sumLeft = 0;
@@ -978,6 +1012,15 @@ namespace HPCsharp
             return arrayToSum.SumNeumaierParInner(start, start + length - 1);
         }
 
+        public static double SumSseNeumaierPar(this double[] arrayToSum)
+        {
+            return SumSseNeumaierParInner(arrayToSum, 0, arrayToSum.Length - 1);
+        }
+
+        public static double SumSseNeumaierPar(this double[] arrayToSum, int start, int length)
+        {
+            return arrayToSum.SumSseNeumaierParInner(start, start + length - 1);
+        }
         public static decimal SumPar(this decimal[] arrayToSum)
         {
             return SumParInner(arrayToSum, 0, arrayToSum.Length - 1);

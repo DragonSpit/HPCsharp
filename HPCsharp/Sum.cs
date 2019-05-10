@@ -7,6 +7,9 @@
 // TODO: Provide a function to sum a field within a user defined type
 // TODO: Add support for List
 // TODO: Add support for User Defined Types (Objects), where the user would define a Lambda function to pull out a field within that object.
+// TODO: Implement one pass sweeping tree sum for Neumaier .Sum() algorithm, which sweeps once from left to right and sums pairs, then sum of pairs and sum of pair-pairs and so on, creating/growing
+//       a List (or preallocate array big enough logN size), or maybe sweep from left and right of a full binary tree size and then do the rest. It would be cool to do it all in one pass, instead of
+//       log passes. This will produce a more accurate .Sum() without needi9ng Neumaier algorithm overhead.
 using System.Collections.Generic;
 using System.Text;
 using System.Numerics;
@@ -222,7 +225,7 @@ namespace HPCsharp
         public static double SumNeumaier(this float[] arrayToSum, int startIndex, int length)
         {
             double sum = 0.0;
-            double c = 0.0;                                 // A running compensation for lost low-order bits  
+            double c   = 0.0;                               // A running compensation for lost low-order bits  
             int endIndex = startIndex + length;
 
             for (int i = startIndex; i < endIndex; i++)
@@ -240,7 +243,7 @@ namespace HPCsharp
         public static double SumNeumaier(this double firstValue, double secondValue)
         {
             double sum = 0.0;
-            double c = 0.0;                                 // A running compensation for lost low-order bits  
+            double c   = 0.0;                               // A running compensation for lost low-order bits  
             
             double t = sum + firstValue;
             if (Math.Abs(sum) >= Math.Abs(firstValue))
