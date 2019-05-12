@@ -13,7 +13,7 @@
 // TODO: See if SSEandScalar version is faster when the array is entirely inside the cache, to make sure that it's not just being memory bandwidth limited and hiding ILP speedup. Port it to C++ and see
 //       if it speeds up. Run many times over the same array using .Sum() and provide the average and minimum timing.
 // TODO: Implement Neumaier .Sum() using SIMD/SSE including handling of the if/conditional, as it is possible.
-// TODO: Return a tupple from each parallel Neumaier result and figure out how to combine these results for a more accurate and possibly perfect overall result that will match serial array processing result.
+// TODO: Return a tupple (sum and c) from each parallel Neumaier result and figure out how to combine these results for a more accurate and possibly perfect overall result that will match serial array processing result.
 // TODO: It may be simpler to do a parallelFor style parallelism for parallel Neumaier, where we process chunks in parallel but in order and then combine the results from these chunks in the same order, as
 //       if it was done serially in a serial for loop.
 // TODO: Implement the divide-and-conquer method for simple floating-point additions, since that increases accuracy O(longN) error, and lower additional performance overhead (potentially). If it doesn't turn
@@ -23,7 +23,7 @@
 //       Sadly, this idea won't work, since we need a BigDecimal or BigFloatingPoint to capture perfect accumulation for both of these non-integer types.
 // TODO: Implement .Sum() for summing a field of Objects/UserDefinedTypes, if it's possible to add value by possibly aggregating elements into a local array of Vector size and doing an SSE sum. Is it possible to abstract it well and to
 //       perform well to support extracting all numeric data types, so that performance and abstraction are competitive and as simple or simpler than Linq?
-// TODO: Implement float[] SSE Neumaier .Sum() where float sum is used (for performance) and where double sum is used for higher accuracy
+// TODO: Implement float[] SSE Neumaier .Sum() where float sum is used (for performance) and where double sum is used for higher accuracy, for scaler, sse and parallel versions
 using System.Collections.Generic;
 using System.Text;
 using System.Numerics;
@@ -452,6 +452,117 @@ namespace HPCsharp
             return overallSum;
         }
 
+        public static float SumSseNeumaier(this float[] arrayToSum)
+        {
+            return arrayToSum.SumSseNeumaierInner(0, arrayToSum.Length - 1);
+        }
+
+        public static float SumSseNeumaier(this float[] arrayToSum, int start, int length)
+        {
+            return arrayToSum.SumSseNeumaierInner(start, start + length - 1);
+        }
+
+        private static float SumSseNeumaierInner(this float[] arrayToSum, int l, int r)
+        {
+            var sumVector = new Vector<float>();
+            var cVector   = new Vector<float>();
+            int sseIndexEnd = l + ((r - l + 1) / Vector<float>.Count) * Vector<float>.Count;
+            int i;
+            for (i = l; i < sseIndexEnd; i += Vector<float>.Count)
+            {
+                var inVector = new Vector<float>(arrayToSum, i);
+                var tVector = sumVector + inVector;
+                Vector<int> gteMask = Vector.GreaterThanOrEqual(Vector.Abs(sumVector), Vector.Abs(inVector));                                           // if true then 0xFFFFFFFFL else 0L at each element of the Vector<int> 
+                cVector += Vector.ConditionalSelect(gteMask, sumVector, inVector) - tVector + Vector.ConditionalSelect(gteMask, inVector, sumVector);   // ConditionalSelect selects left for 0xFFFFFFFFL and right for 0x0L
+                sumVector = tVector;
+            }
+            int iLast = i;
+            // At this point we have sumVector and cVector, which have Vector<float>.Count number of sum's and c's
+            // Reduce these Vector's to a single sum and a single c
+            float sum = 0.0f;
+            float c   = 0.0f;
+            for (i = 0; i < Vector<float>.Count; i++)
+            {
+                float t = sum + sumVector[i];
+                if (Math.Abs(sum) >= Math.Abs(sumVector[i]))
+                    c += (sum - t) + sumVector[i];         // If sum is bigger, low-order digits of input[i] are lost.
+                else
+                    c += (sumVector[i] - t) + sum;         // Else low-order digits of sum are lost
+                sum = t;
+                c += cVector[i];
+            }
+            for (i = iLast; i <= r; i++)
+            {
+                float t = sum + arrayToSum[i];
+                if (Math.Abs(sum) >= Math.Abs(arrayToSum[i]))
+                    c += (sum - t) + arrayToSum[i];         // If sum is bigger, low-order digits of input[i] are lost.
+                else
+                    c += (arrayToSum[i] - t) + sum;         // Else low-order digits of sum are lost
+                sum = t;
+            }
+            return sum + c;
+        }
+
+        public static double SumSseNeumaierMorePrecise(this float[] arrayToSum)
+        {
+            return arrayToSum.SumSseNeumaierMorePreciseInner(0, arrayToSum.Length - 1);
+        }
+
+        public static double SumSseNeumaierMorePrecise(this float[] arrayToSum, int start, int length)
+        {
+            return arrayToSum.SumSseNeumaierMorePreciseInner(start, start + length - 1);
+        }
+
+        private static double SumSseNeumaierMorePreciseInner(this float[] arrayToSum, int l, int r)
+        {
+            var sumVector = new Vector<double>();
+            var cVector   = new Vector<double>();
+            var longLower = new Vector<double>();
+            var longUpper = new Vector<double>();
+            int sseIndexEnd = l + ((r - l + 1) / Vector<float>.Count) * Vector<float>.Count;
+            int i;
+            for (i = l; i < sseIndexEnd; i += Vector<float>.Count)
+            {
+                var inVector = new Vector<float>(arrayToSum, i);
+                Vector.Widen(inVector, out longLower, out longUpper);
+
+                var tVector = sumVector + longLower;
+                Vector<long> gteMask = Vector.GreaterThanOrEqual(Vector.Abs(sumVector), Vector.Abs(longLower));         // if true then 0xFFFFFFFFFFFFFFFFL else 0L at each element of the Vector<long> 
+                cVector += Vector.ConditionalSelect(gteMask, sumVector, longLower) - tVector + Vector.ConditionalSelect(gteMask, longLower, sumVector);
+                sumVector = tVector;
+
+                tVector = sumVector + longUpper;
+                gteMask = Vector.GreaterThanOrEqual(Vector.Abs(sumVector), Vector.Abs(longUpper));                      // if true then 0xFFFFFFFFFFFFFFFFL else 0L at each element of the Vector<long> 
+                cVector += Vector.ConditionalSelect(gteMask, sumVector, longUpper) - tVector + Vector.ConditionalSelect(gteMask, longUpper, sumVector);
+                sumVector = tVector;
+            }
+            int iLast = i;
+            // At this point we have sumVector and cVector, which have Vector<double>.Count number of sum's and c's
+            // Reduce these Vector's to a single sum and a single c
+            double sum = 0.0;
+            double c   = 0.0;
+            for (i = 0; i < Vector<double>.Count; i++)
+            {
+                double t = sum + sumVector[i];
+                if (Math.Abs(sum) >= Math.Abs(sumVector[i]))
+                    c += (sum - t) + sumVector[i];         // If sum is bigger, low-order digits of input[i] are lost.
+                else
+                    c += (sumVector[i] - t) + sum;         // Else low-order digits of sum are lost
+                sum = t;
+                c += cVector[i];
+            }
+            for (i = iLast; i <= r; i++)
+            {
+                double t = sum + arrayToSum[i];
+                if (Math.Abs(sum) >= Math.Abs(arrayToSum[i]))
+                    c += (sum - t) + arrayToSum[i];         // If sum is bigger, low-order digits of input[i] are lost.
+                else
+                    c += (arrayToSum[i] - t) + sum;         // Else low-order digits of sum are lost
+                sum = t;
+            }
+            return sum + c;
+        }
+
         public static double SumSseNeumaier(this double[] arrayToSum)
         {
             return arrayToSum.SumSseNeumaierInner(0, arrayToSum.Length - 1);
@@ -461,10 +572,11 @@ namespace HPCsharp
         {
             return arrayToSum.SumSseNeumaierInner(start, start + length - 1);
         }
+
         private static double SumSseNeumaierInner(this double[] arrayToSum, int l, int r)
         {
             var sumVector = new Vector<double>();
-            var cVector   = new Vector<double>();
+            var cVector = new Vector<double>();
             int sseIndexEnd = l + ((r - l + 1) / Vector<double>.Count) * Vector<double>.Count;
             int i;
             for (i = l; i < sseIndexEnd; i += Vector<double>.Count)
@@ -472,24 +584,14 @@ namespace HPCsharp
                 var inVector = new Vector<double>(arrayToSum, i);
                 var tVector = sumVector + inVector;
                 Vector<long> gteMask = Vector.GreaterThanOrEqual(Vector.Abs(sumVector), Vector.Abs(inVector));  // if true then 0xFFFFFFFFFFFFFFFFL else 0L at each element of the Vector<long> 
-                // Several ways to implement:
-                // 1. to select which arguments are chosen for the first +, which requires selection for two arguments
-                // 2. to select which arguments are chosen for the last  +, which requires two computational paths, followed by selection of one argument
-                // Should implement both ways, since there are only two and choose the highest performing method.
-#if false
-                var ifThenResult = sumVector - tVector + inVector;
-                var ifElseResult = inVector  - tVector + sumVector;
-                cVector += Vector.ConditionalSelect(gteMask, ifThenResult, ifElseResult);
-#else
                 cVector += Vector.ConditionalSelect(gteMask, sumVector, inVector) - tVector + Vector.ConditionalSelect(gteMask, inVector, sumVector);
-#endif
                 sumVector = tVector;
             }
             int iLast = i;
             // At this point we have sumVector and cVector, which have Vector<double>.Count number of sum's and c's
             // Reduce these Vector's to a single sum and a single c
             double sum = 0.0;
-            double c   = 0.0;
+            double c = 0.0;
             for (i = 0; i < Vector<double>.Count; i++)
             {
                 double t = sum + sumVector[i];
