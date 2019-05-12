@@ -20,8 +20,10 @@
 //       out then make an argument on Wikipedia and blog about it.
 // TODO: Since C# has support for BigInteger data type in System.Numerics, then provide accurate .Sum() all the way to these for decimal[], float[] and double[]. Basically, provide a consistent story for .Sum() where every type can be
 //       summed with perfect accuracy when needed. Make sure naming of functions is consistent for all of this and across all data types, multi-core and SSE implementations, to make it simple, logical and consistent to use.
+//       Sadly, this idea won't work, since we need a BigDecimal or BigFloatingPoint to capture perfect accumulation for both of these non-integer types.
 // TODO: Implement .Sum() for summing a field of Objects/UserDefinedTypes, if it's possible to add value by possibly aggregating elements into a local array of Vector size and doing an SSE sum. Is it possible to abstract it well and to
 //       perform well to support extracting all numeric data types, so that performance and abstraction are competitive and as simple or simpler than Linq?
+// TODO: Implement float[] SSE Neumaier .Sum() where float sum is used (for performance) and where double sum is used for higher accuracy
 using System.Collections.Generic;
 using System.Text;
 using System.Numerics;
