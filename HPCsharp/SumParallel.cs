@@ -450,6 +450,15 @@ namespace HPCsharp
             return overallSum;
         }
 
+        public static double SumSseNeumaier(this double[] arrayToSum)
+        {
+            return arrayToSum.SumSseNeumaierInner(0, arrayToSum.Length - 1);
+        }
+
+        public static double SumSseNeumaier(this double[] arrayToSum, int start, int length)
+        {
+            return arrayToSum.SumSseNeumaierInner(start, start + length - 1);
+        }
         private static double SumSseNeumaierInner(this double[] arrayToSum, int l, int r)
         {
             var sumVector = new Vector<double>();
@@ -797,7 +806,7 @@ namespace HPCsharp
             if (l > r)
                 return sumLeft;
             if ((r - l + 1) <= ThresholdParallelSum)
-                return SumSseNeumaierInner(arrayToSum, l, r - l + 1);
+                return SumSseNeumaier(arrayToSum, l, r - l + 1);
 
             int m = (r + l) / 2;
 
