@@ -186,7 +186,29 @@ namespace HPCsharp
             return sum;
         }
 
-        public static double SumNeumaier(this float firstValue, float secondValue)
+        public static float SumNeumaier(this float firstValue, float secondValue)
+        {
+            float sum = 0.0f;
+            float c   = 0.0f;                                 // A running compensation for lost low-order bits  
+
+            float t = sum + firstValue;
+            if (Math.Abs(sum) >= Math.Abs(firstValue))
+                c += (sum - t) + firstValue;                // If sum is bigger, low-order digits of input[i] are lost.
+            else
+                c += (firstValue - t) + sum;                // Else low-order digits of sum are lost
+            sum = t;
+
+            t = sum + secondValue;
+            if (Math.Abs(sum) >= Math.Abs(secondValue))
+                c += (sum - t) + secondValue;                // If sum is bigger, low-order digits of input[i] are lost.
+            else
+                c += (secondValue - t) + sum;               // Else low-order digits of sum are lost
+            sum = t;
+
+            return sum + c;                                 // Correction only applied once in the very end
+        }
+
+        public static double SumNeumaierDouble(this float firstValue, float secondValue)
         {
             double sum = 0.0;
             double c = 0.0;                                 // A running compensation for lost low-order bits  

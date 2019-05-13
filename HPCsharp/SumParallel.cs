@@ -23,7 +23,8 @@
 //       Sadly, this idea won't work, since we need a BigDecimal or BigFloatingPoint to capture perfect accumulation for both of these non-integer types.
 // TODO: Implement .Sum() for summing a field of Objects/UserDefinedTypes, if it's possible to add value by possibly aggregating elements into a local array of Vector size and doing an SSE sum. Is it possible to abstract it well and to
 //       perform well to support extracting all numeric data types, so that performance and abstraction are competitive and as simple or simpler than Linq?
-// TODO: Implement float[] SSE Neumaier .Sum() where float sum is used (for performance) and where double sum is used for higher accuracy, for scaler, sse and parallel versions
+// TODO: Implement float[] SSE Neumaier .Sum() where float sum is used (for performance) and where double sum is used for higher accuracy, for scaler, sse and parallel versions/
+// TODO: Write a blog on floating-point .Sum() and all of it's capabilities, options and trade-offs
 using System.Collections.Generic;
 using System.Text;
 using System.Numerics;
@@ -390,17 +391,45 @@ namespace HPCsharp
             return overallSum;
         }
 
-        public static double SumSse(this float[] arrayToSum)
+        public static float SumSse(this float[] arrayToSum)
         {
             return arrayToSum.SumSseInner(0, arrayToSum.Length - 1);
         }
 
-        public static double SumSse(this float[] arrayToSum, int start, int length)
+        public static float SumSse(this float[] arrayToSum, int start, int length)
         {
             return arrayToSum.SumSseInner(start, start + length - 1);
         }
 
-        private static double SumSseInner(this float[] arrayToSum, int l, int r)
+        private static float SumSseInner(this float[] arrayToSum, int l, int r)
+        {
+            var sumVector = new Vector<float>();
+            int sseIndexEnd = l + ((r - l + 1) / Vector<float>.Count) * Vector<float>.Count;
+            int i;
+            for (i = l; i < sseIndexEnd; i += Vector<float>.Count)
+            {
+                var inVector = new Vector<float>(arrayToSum, i);
+                sumVector += inVector;
+            }
+            float overallSum = 0;
+            for (; i <= r; i++)
+                overallSum += arrayToSum[i];
+            for (i = 0; i < Vector<float>.Count; i++)
+                overallSum += sumVector[i];
+            return overallSum;
+        }
+
+        public static double SumSseDouble(this float[] arrayToSum)
+        {
+            return arrayToSum.SumSseDoubleInner(0, arrayToSum.Length - 1);
+        }
+
+        public static double SumSseDouble(this float[] arrayToSum, int start, int length)
+        {
+            return arrayToSum.SumSseDoubleInner(start, start + length - 1);
+        }
+
+        private static double SumSseDoubleInner(this float[] arrayToSum, int l, int r)
         {
             var sumVectorLower = new Vector<double>();
             var sumVectorUpper = new Vector<double>();
@@ -503,17 +532,17 @@ namespace HPCsharp
             return sum + c;
         }
 
-        public static double SumSseNeumaierMorePrecise(this float[] arrayToSum)
+        public static double SumSseNeumaierDouble(this float[] arrayToSum)
         {
-            return arrayToSum.SumSseNeumaierMorePreciseInner(0, arrayToSum.Length - 1);
+            return arrayToSum.SumSseNeumaierDoubleInner(0, arrayToSum.Length - 1);
         }
 
-        public static double SumSseNeumaierMorePrecise(this float[] arrayToSum, int start, int length)
+        public static double SumSseNeumaierDouble(this float[] arrayToSum, int start, int length)
         {
-            return arrayToSum.SumSseNeumaierMorePreciseInner(start, start + length - 1);
+            return arrayToSum.SumSseNeumaierDoubleInner(start, start + length - 1);
         }
 
-        private static double SumSseNeumaierMorePreciseInner(this float[] arrayToSum, int l, int r)
+        private static double SumSseNeumaierDoubleInner(this float[] arrayToSum, int l, int r)
         {
             var sumVector = new Vector<double>();
             var cVector   = new Vector<double>();
@@ -686,7 +715,7 @@ namespace HPCsharp
             ulong sumRight = 0;
 
             Parallel.Invoke(
-                () => { sumLeft = SumSseParInner(arrayToSum, l, m); },
+                () => { sumLeft  = SumSseParInner(arrayToSum, l,     m); },
                 () => { sumRight = SumSseParInner(arrayToSum, m + 1, r); }
             );
             // Combine left and right results
@@ -707,7 +736,7 @@ namespace HPCsharp
             long sumRight = 0;
 
             Parallel.Invoke(
-                () => { sumLeft = SumSseParInner(arrayToSum, l, m); },
+                () => { sumLeft  = SumSseParInner(arrayToSum, l,     m); },
                 () => { sumRight = SumSseParInner(arrayToSum, m + 1, r); }
             );
             // Combine left and right results
@@ -728,7 +757,7 @@ namespace HPCsharp
             ulong sumRight = 0;
 
             Parallel.Invoke(
-                () => { sumLeft = SumSseParInner(arrayToSum, l, m); },
+                () => { sumLeft  = SumSseParInner(arrayToSum, l,     m); },
                 () => { sumRight = SumSseParInner(arrayToSum, m + 1, r); }
             );
             // Combine left and right results
@@ -770,7 +799,7 @@ namespace HPCsharp
             ulong sumRight = 0;
 
             Parallel.Invoke(
-                () => { sumLeft = SumSseParInner(arrayToSum, l, m); },
+                () => { sumLeft  = SumSseParInner(arrayToSum, l,     m); },
                 () => { sumRight = SumSseParInner(arrayToSum, m + 1, r); }
             );
             // Combine left and right results
@@ -791,7 +820,7 @@ namespace HPCsharp
             long sumRight = 0;
 
             Parallel.Invoke(
-                () => { sumLeft  = SumSseParInner(arrayToSum, l, m); },
+                () => { sumLeft  = SumSseParInner(arrayToSum, l,     m); },
                 () => { sumRight = SumSseParInner(arrayToSum, m + 1, r); }
             );
             // Combine left and right results
@@ -856,6 +885,48 @@ namespace HPCsharp
             Parallel.Invoke(
                 () => { sumLeft  = SumNeumaierParInner(arrayToSum, l,     m); },
                 () => { sumRight = SumNeumaierParInner(arrayToSum, m + 1, r); }
+            );
+            // Combine left and right results
+            return HPCsharp.Algorithm.SumNeumaier(sumLeft, sumRight);
+        }
+
+        private static float SumSseNeumaierParInner(this float[] arrayToSum, int l, int r)
+        {
+            float sumLeft = 0;
+
+            if (l > r)
+                return sumLeft;
+            if ((r - l + 1) <= ThresholdParallelSum)
+                return HPCsharp.ParallelAlgorithm.SumSseNeumaier(arrayToSum, l, r - l + 1);
+
+            int m = (r + l) / 2;
+
+            float sumRight = 0;
+
+            Parallel.Invoke(
+                () => { sumLeft  = SumSseNeumaierParInner(arrayToSum, l,     m); },
+                () => { sumRight = SumSseNeumaierParInner(arrayToSum, m + 1, r); }
+            );
+            // Combine left and right results
+            return HPCsharp.Algorithm.SumNeumaier(sumLeft, sumRight);
+        }
+
+        private static double SumSseNeumaierDoubleParInner(this float[] arrayToSum, int l, int r)
+        {
+            double sumLeft = 0;
+
+            if (l > r)
+                return sumLeft;
+            if ((r - l + 1) <= ThresholdParallelSum)
+                return HPCsharp.ParallelAlgorithm.SumSseNeumaierDouble(arrayToSum, l, r - l + 1);
+
+            int m = (r + l) / 2;
+
+            double sumRight = 0;
+
+            Parallel.Invoke(
+                () => { sumLeft  = SumSseNeumaierDoubleParInner(arrayToSum, l,     m); },
+                () => { sumRight = SumSseNeumaierDoubleParInner(arrayToSum, m + 1, r); }
             );
             // Combine left and right results
             return HPCsharp.Algorithm.SumNeumaier(sumLeft, sumRight);
