@@ -186,7 +186,7 @@ namespace HPCsharp
             return sum;
         }
 
-        public static float SumNeumaier(this float firstValue, float secondValue)
+        public static float SumNeumaier(float firstValue, float secondValue)
         {
             float sum = 0.0f;
             float c   = 0.0f;                                 // A running compensation for lost low-order bits  
@@ -208,7 +208,7 @@ namespace HPCsharp
             return sum + c;                                 // Correction only applied once in the very end
         }
 
-        public static double SumNeumaierDouble(this float firstValue, float secondValue)
+        public static double SumNeumaierDouble(float firstValue, float secondValue)
         {
             double sum = 0.0;
             double c = 0.0;                                 // A running compensation for lost low-order bits  
@@ -231,7 +231,23 @@ namespace HPCsharp
         }
 
         // Implementation https://en.wikipedia.org/wiki/Kahan_summation_algorithm
-        public static double SumNeumaier(this float[] arrayToSum)
+        public static float SumNeumaier(this float[] arrayToSum)
+        {
+            float sum = 0.0f;
+            float c   = 0.0f;                                 // A running compensation for lost low-order bits    
+            for (int i = 0; i < arrayToSum.Length; i++)
+            {
+                float t = sum + arrayToSum[i];
+                if (Math.Abs(sum) >= Math.Abs(arrayToSum[i]))
+                    c += (sum - t) + arrayToSum[i];         // If sum is bigger, low-order digits of input[i] are lost.
+                else
+                    c += (arrayToSum[i] - t) + sum;         // Else low-order digits of sum are lost
+                sum = t;
+            }
+            return sum + c;                                 // Correction only applied once in the very end
+        }
+
+        public static double SumNeumaierDouble(this float[] arrayToSum)
         {
             double sum = 0.0;
             double c = 0.0;                                 // A running compensation for lost low-order bits    
@@ -247,7 +263,25 @@ namespace HPCsharp
             return sum + c;                                 // Correction only applied once in the very end
         }
 
-        public static double SumNeumaier(this float[] arrayToSum, int startIndex, int length)
+        public static float SumNeumaier(this float[] arrayToSum, int startIndex, int length)
+        {
+            float sum = 0.0f;
+            float c   = 0.0f;                               // A running compensation for lost low-order bits  
+            int endIndex = startIndex + length;
+
+            for (int i = startIndex; i < endIndex; i++)
+            {
+                float t = sum + arrayToSum[i];
+                if (Math.Abs(sum) >= Math.Abs(arrayToSum[i]))
+                    c += (sum - t) + arrayToSum[i];         // If sum is bigger, low-order digits of input[i] are lost.
+                else
+                    c += (arrayToSum[i] - t) + sum;         // Else low-order digits of sum are lost
+                sum = t;
+            }
+            return sum + c;                                 // Correction only applied once in the very end
+        }
+
+        public static double SumNeumaierDouble(this float[] arrayToSum, int startIndex, int length)
         {
             double sum = 0.0;
             double c   = 0.0;                               // A running compensation for lost low-order bits  
@@ -265,7 +299,7 @@ namespace HPCsharp
             return sum + c;                                 // Correction only applied once in the very end
         }
 
-        public static double SumNeumaier(this double firstValue, double secondValue)
+        public static double SumNeumaier(double firstValue, double secondValue)
         {
             double sum = 0.0;
             double c   = 0.0;                               // A running compensation for lost low-order bits  
