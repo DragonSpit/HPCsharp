@@ -420,12 +420,12 @@ namespace HPCsharp
             return overallSum;
         }
 
-        public static double SumSseDouble(this float[] arrayToSum)
+        public static double SumSseDble(this float[] arrayToSum)
         {
             return arrayToSum.SumSseDoubleInner(0, arrayToSum.Length - 1);
         }
 
-        public static double SumSseDouble(this float[] arrayToSum, int start, int length)
+        public static double SumSseDble(this float[] arrayToSum, int start, int length)
         {
             return arrayToSum.SumSseDoubleInner(start, start + length - 1);
         }
@@ -533,12 +533,12 @@ namespace HPCsharp
             return sum + c;
         }
 
-        public static double SumSseNeumaierDouble(this float[] arrayToSum)
+        public static double SumSseNeumaierDble(this float[] arrayToSum)
         {
             return arrayToSum.SumSseNeumaierDoubleInner(0, arrayToSum.Length - 1);
         }
 
-        public static double SumSseNeumaierDouble(this float[] arrayToSum, int start, int length)
+        public static double SumSseNeumaierDble(this float[] arrayToSum, int start, int length)
         {
             return arrayToSum.SumSseNeumaierDoubleInner(start, start + length - 1);
         }
@@ -898,7 +898,7 @@ namespace HPCsharp
             if (l > r)
                 return sumLeft;
             if ((r - l + 1) <= ThresholdParallelSum)
-                return HPCsharp.Algorithm.SumNeumaierDouble(arrayToSum, l, r - l + 1);
+                return HPCsharp.Algorithm.SumNeumaierDble(arrayToSum, l, r - l + 1);
 
             int m = (r + l) / 2;
 
@@ -940,7 +940,7 @@ namespace HPCsharp
             if (l > r)
                 return sumLeft;
             if ((r - l + 1) <= ThresholdParallelSum)
-                return HPCsharp.ParallelAlgorithm.SumSseNeumaierDouble(arrayToSum, l, r - l + 1);
+                return HPCsharp.ParallelAlgorithm.SumSseNeumaierDble(arrayToSum, l, r - l + 1);
 
             int m = (r + l) / 2;
 
@@ -1197,12 +1197,12 @@ namespace HPCsharp
         {
             return arrayToSum.SumNeumaierParInner(start, start + length - 1);
         }
-        public static double SumNeumaierDoublePar(this float[] arrayToSum)
+        public static double SumNeumaierDblePar(this float[] arrayToSum)
         {
             return SumNeumaierDoubleParInner(arrayToSum, 0, arrayToSum.Length - 1);
         }
 
-        public static double SumNeumaierDoublePar(this float[] arrayToSum, int start, int length)
+        public static double SumNeumaierDblePar(this float[] arrayToSum, int start, int length)
         {
             return arrayToSum.SumNeumaierDoubleParInner(start, start + length - 1);
         }
@@ -1217,12 +1217,12 @@ namespace HPCsharp
             return arrayToSum.SumSseNeumaierParInner(start, start + length - 1);
         }
 
-        public static double SumSseNeumaierDoublePar(this float[] arrayToSum)
+        public static double SumSseNeumaierDblePar(this float[] arrayToSum)
         {
             return SumSseNeumaierDoubleParInner(arrayToSum, 0, arrayToSum.Length - 1);
         }
 
-        public static double SumSseNeumaierDoublePar(this float[] arrayToSum, int start, int length)
+        public static double SumSseNeumaierDblePar(this float[] arrayToSum, int start, int length)
         {
             return arrayToSum.SumSseNeumaierDoubleParInner(start, start + length - 1);
         }
