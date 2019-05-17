@@ -255,7 +255,7 @@ namespace HPCsharp
             return sum + c;                                 // Correction only applied once in the very end
         }
 
-        public static double SumNeumaierDble(this float[] arrayToSum)
+        public static double SumNeumaierDbl(this float[] arrayToSum)
         {
             double sum = 0.0;
             double c = 0.0;                                 // A running compensation for lost low-order bits    
@@ -289,7 +289,7 @@ namespace HPCsharp
             return sum + c;                                 // Correction only applied once in the very end
         }
 
-        public static double SumNeumaierDble(this float[] arrayToSum, int startIndex, int length)
+        public static double SumNeumaierDbl(this float[] arrayToSum, int startIndex, int length)
         {
             double sum = 0.0;
             double c   = 0.0;                               // A running compensation for lost low-order bits  
