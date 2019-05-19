@@ -1,3 +1,6 @@
+Version 3.4.0
+Neumaier .Sum() SIMD/SSE and multi-core for float[] and double[], with float[] providing a choice of float accumulator/result or double
+
 Version 3.3.12
 Added multi-core .Sum() Neumaier more accurate summation algorithm for float[] and double[]
 

@@ -5,10 +5,10 @@
     <Authors>Victor J. Duvanenko</Authors>
     <Company>FooState</Company>
     <Product>HPCsharp</Product>
-    <Description>High performance C#/.NET algorithms. Cross-platform. Sort algorithms: parallel, serial, in-place, stable, O(N) Radix LSD/MSD, Merge. Improved Array.Sum(), Histogram, Priority Queue, Merge, Fill, Min/Max, more... Familiar interfaces.</Description>
+    <Description>High performance C#/.NET algorithms. Cross-platform. Sort algorithms: parallel, serial, in-place, stable, O(N) Radix LSD/MSD, Merge. Much better .Sum(), Histogram, Priority Queue, Merge, Fill, Min/Max, more... Familiar interfaces.</Description>
     <Copyright>© 2018 FooState</Copyright>
     <PackageLicenseUrl>https://github.com/DragonSpit/HPCsharp/blob/master/LICENSE</PackageLicenseUrl>
-    <PackageReleaseNotes>Implemented SIMD/SSE data parallel combined with multi-core version of Neumaier more accurate .Sum() for double[] and float[] that's even faster</PackageReleaseNotes>
+    <PackageReleaseNotes>Better .Sum() in several ways: faster, more accurate, no overflow exception. Neumaier .Sum() SIMD/SSE and multi-core for float[] and double[]</PackageReleaseNotes>
     <PackageId>HPCsharp</PackageId>
     <PackageTags>high perfromance algorithms, C#, high performance, high performance computing, HPC, algorithm, algorithms, Linq, parallel, parallel algorithm</PackageTags>
     <PackageIconUrl>https://foostate.com/images/default_lib_icon_64.png</PackageIconUrl>
@@ -17,9 +17,9 @@
     <PackageProjectUrl>https://github.com/DragonSpit/HPCsharp</PackageProjectUrl>
     <RepositoryUrl>https://github.com/DragonSpit/HPCsharp</RepositoryUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <AssemblyVersion>3.3.13.0</AssemblyVersion>
-    <FileVersion>3.3.13.0</FileVersion>
-    <Version>3.3.13</Version>
+    <AssemblyVersion>3.4.0.0</AssemblyVersion>
+    <FileVersion>3.4.0.0</FileVersion>
+    <Version>3.4.0</Version>
     <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 

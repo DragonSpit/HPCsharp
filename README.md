@@ -7,7 +7,7 @@ If you like HPCsharp, then help us keep more good stuff like this coming. Let us
 High performance C# generic algorithms. Community driven to raise C# performance. Cross-platform.
 Parallel algorithms for Sum, Sort, Merge, Copy, Histogram and others. Parallel Stable Merge Sort and parallel Merge of arrays and lists.
 Linear, stable or in-place Radix Sort (LSD & MSD) algorithms for arrays and lists of user defined classes sorted by key. Crazy fast Counting Sort,
-and Array.Fill for full and partial arrays. Better .Sum() for arrays that doesn't overflow, uses SIMD/SSE and multi-core. And, much more...
+and Array.Fill for full and partial arrays. Better .Sum() in four ways. And, much more...
 
 Familiar interfaces, which are similar to standard C# Sort. Free and open source HPCsharp package on https://www.nuget.org
 
@@ -17,48 +17,28 @@ Updated VisualStudio 2017 examples solution, demonstrating usage through working
 
 To get the maximum performance make sure to target x64 processor architecture for the Release build in VisualStudio, increasing performance by as much as 50%.
 
-**_Version 3.3.12_** Just Released! Give it a shot.
-- Added multi-core .Sum() Neumaier more accurate summation algorithm for float[] and double[]
+**_Version 3.4.0_** Just Released! Give it a shot.
+Neumaier .Sum() SIMD/SSE and multi-core for float[] and double[], with float[] providing a choice of float accumulator/result or double
 
-**_Version 3.3.11_**
-- Added multi-core .Sum() for long[] and ulong[] which use and return a decimal accumulator to avoid throwing an overflow exception
-This saves 2X space over decimal[], and is 25% faster.
-- Added .Sum() SSE and multi-core implementations for all numeric data types (ludicrous speed!)
-- Added .Sum() for long[] and ulong[] which use and return a decimal accumulator to avoid throwing an overflow exception
+**_Version 3.3.12_**
+- Added multi-core .Sum() Neumaier more accurate summation algorithm for float[] and double[]
 
 Full release history is in ReleaseNotes.txt file
 
-## Better .Sum() ##
-HPCsharp provides higher performance and more capable .Sum(), supporting all numeric data types, including decimal.
-The table below compares performance (in Mega/second) of Linq.AsParallel().Sum() and HPCsharp.Sum().
+## Better .Sum() in Four Ways ##
+HPCsharp provides a higher performance, more capable .Sum(), supporting all numeric data types, using SIMD/SSE instructions, avoiding
+overflow exceptions, and more accurate algorithms for float and double arrays.
+For more details, see blog https://duvanenko.tech.blog/2019/04/23/better-sum-in-c/
+
+The table below compares performance (in Giga/second) of Linq.AsParallel().Sum() and HPCsharp.Sum().
 
 *Library*|*sbyte*|*byte*|*short*|*ushort*|*int*|*uint*|*long*|*ulong*|*float*|*double*|*decimal*
 --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ---
-Linq | n/a | n/a | n/a | n/a |918*|n/a|877*|n/a|903|875|115
-HPCsharp |7600|8000|8000|8200|5000|5300|2900*|2800*|5100|2900|140
+Linq | n/a | n/a | n/a | n/a |0.9*|n/a|0.9*|n/a|0.9|0.9|0.12
+HPCsharp |7.6|8.0|8.0|8.2|5.0|5.3|2.9*|2.8*|5.1|2.9|0.14
 * overflow exception is possible
 
-Linq does not support unsigned integer data types, or 8-bit and 16-bit signed integers. HPCsharp adds support for these missing
-integer sizes. Linq can throw an overflow exception for .Sum() of array of int's, whereas HPCsharp version returns perfectly accurate
-result by using a long integer and will not throw an overflow exception. A long integer is returned for all signed integer
-.Sum() functions. An unsigned long is returned for all unsigned integer .Sum(). No overflow will be throws for 8, 16, or
-32-bit signed or unsigned array .Sum().
-
-HPCsharp also provides a .Sum() version, which avoids overflow for long and ulong arrays, by returning a decimal result. Serial and
-multi-core versions are provided, with a 25% performance benefit over using decimal arrays, along with using half the memory space.
-
-For .Sum() of float arrays, a double result is returned producing a more accurate summation result. To produce an even more accurate
-summation for float and double, Kahan and Neumaier algorithms have been implemented. These advanced algorithms produce correct results for
-extreme cases such as,
-
-```
-double[] arrDouble = new double[] { 1, 10.0e100, 1, -10e100 };
-```
-
-whereas the current C# .Sum() produces an incorrect result of 0.0. Multi-core Neumair for double[] runs at 1.8 GigaDoubles/sec on quad-core.
-
-HPCsharp implements SIMD/SSE and multi-core versions of .Sum() for all built-in numeric data types, except decimal, producing
-over 5X gain versus Linq .AsParallel() implementation. For more details, see blog https://duvanenko.tech.blog/2019/04/23/better-sum-in-c/
+.Sum() for long[] and ulong[] which do not throw an overflow exception are also available.
 
 ## Sorting ##
 
