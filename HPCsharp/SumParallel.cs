@@ -28,6 +28,7 @@
 // TODO: Implement float[] SSE Neumaier .Sum() where float sum is used (for performance) and where double sum is used for higher accuracy, for scaler, sse and parallel versions/
 // TODO: Write a blog on floating-point .Sum() and all of it's capabilities, options and trade-offs
 // TODO: Instead of Vector<double>.Count in for loops, use the variable/array name and its length, which makes the code more maintanable.
+// TODO: Rename Neumaier .Sum() to sum_kbn as Julia language does, since the original implementation was done by Kahan-Babuska and KBN would give all three creators credit
 using System.Collections.Generic;
 using System.Text;
 using System.Numerics;
