@@ -27,7 +27,7 @@ Full release history is in ReleaseNotes.txt file
 
 ## Better .Sum() in Four Ways ##
 HPCsharp provides a higher performance, more capable .Sum(), supporting all numeric data types, using SIMD/SSE instructions, avoiding
-overflow exceptions, and more accurate algorithms for float and double arrays.
+overflow exceptions, and more accurate Kahan/Neumaier summation algorithms for float and double arrays.
 For more details, see blog https://duvanenko.tech.blog/2019/04/23/better-sum-in-c/
 
 The table below compares performance (in Giga/second) of Linq.AsParallel().Sum() and HPCsharp.Sum().
