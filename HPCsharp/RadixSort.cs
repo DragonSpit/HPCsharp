@@ -58,6 +58,7 @@
 // TODO: JavaScript original version of LSD Radix Sort for UDT's is way faster when the array fits in cache (10X). This is a good behavior to test and document in JavaScript and C#
 // TODO: Use the same optimization as done for MSD Radix Sort, which detects if all values fell in a single bin and then doesn't do any work. This helps not only the constant array case, but also
 //       the case of indexes being only as large as the array size. This optimization is worthwhile since it helps more than one special case.
+// TODO: Optimize floating-point Radix Sort by minimize flipping by doing flipping once at the beginning and at the end.
 using System;
 using System.Collections.Generic;
 using System.Text;

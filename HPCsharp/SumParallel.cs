@@ -31,6 +31,8 @@
 // TODO: Rename Neumaier .Sum() to sum_kbn as Julia language does, since the original implementation was done by Kahan-Babuska and KBN would give all three creators credit
 // TODO: It seems like we should be able to make a pattern/generic out of the divide-and-conquer implementation by passing in a function for the base case (termination serial function) and also the combining/aggregation function.
 //       This would be really cool to write and re-use, and it could even be a lambda function for some implementations (like non-Kahan-Neumaier addition). For float and double summation, we just need to pass in function of double or float.
+// TODO: Note that by default parallel .Sum() implementations are pairwise summation. This needs to be noted in the Readme or somehow be communicated to the user.
+// TODO: Turn the generic SumParInner() into generic DividAndConquerPar() and expose it to developers to use it in many other cases as a general parallel divide-and-conquer algorithm. Write a blog with examples on how to use it.
 using System.Collections.Generic;
 using System.Text;
 using System.Numerics;
@@ -1013,6 +1015,26 @@ namespace HPCsharp
             int m = (r + l) / 2;
 
             double sumRight = 0;
+
+            Parallel.Invoke(
+                () => { sumLeft  = SumParInner(arrayToSum, l,     m, baseCase, reduce); },
+                () => { sumRight = SumParInner(arrayToSum, m + 1, r, baseCase, reduce); }
+            );
+            return reduce(sumLeft, sumRight);
+        }
+
+        private static T SumParInner<T>(this T[] arrayToSum, int l, int r, Func<T[], int, int, T> baseCase, Func<T, T, T> reduce)
+        {
+            T sumLeft = default(T);
+
+            if (l > r)
+                return sumLeft;
+            if ((r - l + 1) <= ThresholdParallelSum)
+                return baseCase(arrayToSum, l, r);
+
+            int m = (r + l) / 2;
+
+            T sumRight = default(T);
 
             Parallel.Invoke(
                 () => { sumLeft  = SumParInner(arrayToSum, l,     m, baseCase, reduce); },
