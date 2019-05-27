@@ -1043,7 +1043,21 @@ namespace HPCsharp
             return reduce(sumLeft, sumRight);
         }
 
-        private static double SumSseParInner(this double[] arrayToSum, int l, int r)
+        private static ulong NumberOfBytesToNextCacheLine(float[] arrayToAlign)
+        {
+            ulong numBytesUnaligned = 0;
+            unsafe
+            {
+                fixed (float* ptrToArray = &arrayToAlign[0])
+                {
+                    byte* ptrByteToArray = (byte*)ptrToArray;
+                    numBytesUnaligned = ((ulong)ptrToArray) & 63;
+                }
+            }
+            return numBytesUnaligned;
+        }
+
+    private static double SumSseParInner(this double[] arrayToSum, int l, int r)
         {
             double sumLeft = 0;
 
