@@ -856,6 +856,48 @@ namespace HPCsharp
             return sumLeft + sumRight;
         }
 
+        private static float SumParInner(this float[] arrayToSum, int l, int r)
+        {
+            float sumLeft = 0;
+
+            if (l > r)
+                return sumLeft;
+            if ((r - l + 1) <= ThresholdParallelSum)
+                return Algorithm.SumHpc(arrayToSum, l, r - l + 1);
+
+            int m = (r + l) / 2;
+
+            float sumRight = 0;
+
+            Parallel.Invoke(
+                () => { sumLeft  = SumParInner(arrayToSum, l,     m); },
+                () => { sumRight = SumParInner(arrayToSum, m + 1, r); }
+            );
+            // Combine left and right results
+            return sumLeft + sumRight;
+        }
+
+        private static double SumDblParInner(this float[] arrayToSum, int l, int r)
+        {
+            double sumLeft = 0;
+
+            if (l > r)
+                return sumLeft;
+            if ((r - l + 1) <= ThresholdParallelSum)
+                return Algorithm.SumDblHpc(arrayToSum, l, r - l + 1);
+
+            int m = (r + l) / 2;
+
+            double sumRight = 0;
+
+            Parallel.Invoke(
+                () => { sumLeft  = SumDblParInner(arrayToSum, l, m); },
+                () => { sumRight = SumDblParInner(arrayToSum, m + 1, r); }
+            );
+            // Combine left and right results
+            return sumLeft + sumRight;
+        }
+
         // Generic enough to be used for scalar multi-core, SSE multi-core, Kahan/Neumaier multi-core, and SSE Kahan/Neumaier multi-core
         // Sadly, C# generics do not support limiting to only certain numeric types, making it impossible to implement an even further generic function for all numeric types
         private static float SumParInner(this float[] arrayToSum, int l, int r, Func<float[], int, int, float> baseCase, Func<float, float, float> reduce)
@@ -1023,13 +1065,13 @@ namespace HPCsharp
             return reduce(sumLeft, sumRight);
         }
 
-        private static T SumParInner<T>(this T[] arrayToSum, int l, int r, Func<T[], int, int, T> baseCase, Func<T, T, T> reduce)
+        private static T SumParInner<T>(this T[] arrayToSum, int l, int r, Func<T[], int, int, T> baseCase, Func<T, T, T> reduce, int thresholdParSum = 16 * 1024)
         {
             T sumLeft = default(T);
 
             if (l > r)
                 return sumLeft;
-            if ((r - l + 1) <= ThresholdParallelSum)
+            if ((r - l + 1) <= thresholdParSum)
                 return baseCase(arrayToSum, l, r);
 
             int m = (r + l) / 2;
@@ -1037,8 +1079,8 @@ namespace HPCsharp
             T sumRight = default(T);
 
             Parallel.Invoke(
-                () => { sumLeft  = SumParInner(arrayToSum, l,     m, baseCase, reduce); },
-                () => { sumRight = SumParInner(arrayToSum, m + 1, r, baseCase, reduce); }
+                () => { sumLeft  = SumParInner(arrayToSum, l,     m, baseCase, reduce, thresholdParSum); },
+                () => { sumRight = SumParInner(arrayToSum, m + 1, r, baseCase, reduce, thresholdParSum); }
             );
             return reduce(sumLeft, sumRight);
         }
@@ -1057,7 +1099,28 @@ namespace HPCsharp
             return numBytesUnaligned;
         }
 
-    private static double SumSseParInner(this double[] arrayToSum, int l, int r)
+        private static double SumParInner(this double[] arrayToSum, int l, int r)
+        {
+            double sumLeft = 0;
+
+            if (l > r)
+                return sumLeft;
+            if ((r - l + 1) <= ThresholdParallelSum)
+                return Algorithm.SumHpc(arrayToSum, l, r - l + 1);
+
+            int m = (r + l) / 2;
+
+            double sumRight = 0;
+
+            Parallel.Invoke(
+                () => { sumLeft  = SumParInner(arrayToSum, l,     m); },
+                () => { sumRight = SumParInner(arrayToSum, m + 1, r); }
+            );
+            // Combine left and right results
+            return sumLeft + sumRight;
+        }
+
+        private static double SumSseParInner(this double[] arrayToSum, int l, int r)
         {
             double sumLeft = 0;
 
@@ -1284,22 +1347,26 @@ namespace HPCsharp
 
         public static float SumPar(this float[] arrayToSum)
         {
-            return arrayToSum.SumParInner(0, arrayToSum.Length - 1, Algorithm.SumLR, (x, y) => x + y);
+            return arrayToSum.SumParInner(0, arrayToSum.Length - 1);
+            //return arrayToSum.SumParInner(0, arrayToSum.Length - 1, Algorithm.SumLR, (x, y) => x + y);
         }
 
         public static float SumPar(this float[] arrayToSum, int start, int length)
         {
-            return arrayToSum.SumParInner(start, start + length - 1, Algorithm.SumLR, (x, y) => x + y);
+            return arrayToSum.SumParInner(start, start + length - 1);
+            //return arrayToSum.SumParInner(start, start + length - 1, Algorithm.SumLR, (x, y) => x + y);
         }
 
         public static double SumDblPar(this float[] arrayToSum)
         {
-            return arrayToSum.SumDblParInner(0, arrayToSum.Length - 1, Algorithm.SumDblLR, (x, y) => x + y);
+            return arrayToSum.SumDblParInner(0, arrayToSum.Length - 1);
+            //return arrayToSum.SumDblParInner(0, arrayToSum.Length - 1, Algorithm.SumDblLR, (x, y) => x + y);
         }
 
         public static double SumDblPar(this float[] arrayToSum, int start, int length)
         {
-            return arrayToSum.SumDblParInner(start, start + length - 1, Algorithm.SumDblLR, (x, y) => x + y);
+            return arrayToSum.SumDblParInner(start, start + length - 1);
+            //return arrayToSum.SumDblParInner(start, start + length - 1, Algorithm.SumDblLR, (x, y) => x + y);
         }
 
         public static double SumSsePar(this float[] arrayToSum)
@@ -1350,6 +1417,15 @@ namespace HPCsharp
             return arrayToSum.SumSseNeumaierDoubleParInner(start, start + length - 1);
         }
 
+        public static double SumPar(this double[] arrayToSum)
+        {
+            return SumParInner(arrayToSum, 0, arrayToSum.Length - 1);
+        }
+
+        public static double SumPar(this double[] arrayToSum, int start, int length)
+        {
+            return arrayToSum.SumParInner(start, start + length - 1);
+        }
 
         public static double SumSsePar(this double[] arrayToSum)
         {
