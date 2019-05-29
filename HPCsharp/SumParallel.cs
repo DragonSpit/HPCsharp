@@ -33,6 +33,7 @@
 //       This would be really cool to write and re-use, and it could even be a lambda function for some implementations (like non-Kahan-Neumaier addition). For float and double summation, we just need to pass in function of double or float.
 // TODO: Note that by default parallel .Sum() implementations are pairwise summation. This needs to be noted in the Readme or somehow be communicated to the user.
 // TODO: Turn the generic SumParInner() into generic DividAndConquerPar() and expose it to developers to use it in many other cases as a general parallel divide-and-conquer algorithm. Write a blog with examples on how to use it.
+// TODO: Since there are so many .Sum() function implementations, move them all to their own namespace to make it simpler for the end user to understand and to manage, or possibly make it a sub-namespace of ParallelAlgorithms.Sum, and Algorithms.Sum
 using System.Collections.Generic;
 using System.Text;
 using System.Numerics;
