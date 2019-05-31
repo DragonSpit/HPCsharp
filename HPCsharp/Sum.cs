@@ -22,9 +22,9 @@ using System.Numerics;
 using System;
 using System.Threading.Tasks;
 
-namespace HPCsharp
+namespace HPCsharp.Algorithms
 {
-    static public partial class Algorithm
+    static public partial class Sum
     {
         public static decimal SumDecimalHpc(this long[] arrayToSum)
         {
@@ -270,7 +270,7 @@ namespace HPCsharp
             return sum + c;                                 // Correction only applied once in the very end
         }
 
-        public static double SumNeumaierDouble(float firstValue, float secondValue)
+        public static double SumNeumaierDbl(float firstValue, float secondValue)
         {
             double sum = 0.0;
             double c = 0.0;                                 // A running compensation for lost low-order bits  
@@ -477,32 +477,32 @@ namespace HPCsharp
 
         public static float SumPairwise(this float[] arrayToSum, int thresholdDivideAndConquerSum = 16 * 1024)
         {
-            return arrayToSum.SumPairwiseInner(0, arrayToSum.Length - 1, Algorithm.SumLR, (x, y) => x + y);
+            return arrayToSum.SumPairwiseInner(0, arrayToSum.Length - 1, Algorithms.Sum.SumLR, (x, y) => x + y);
         }
 
         public static float SumPairwise(this float[] arrayToSum, int start, int length, int thresholdDivideAndConquerSum = 16 * 1024)
         {
-            return arrayToSum.SumPairwiseInner(start, start + length - 1, Algorithm.SumLR, (x, y) => x + y);
+            return arrayToSum.SumPairwiseInner(start, start + length - 1, Algorithms.Sum.SumLR, (x, y) => x + y);
         }
 
-        public static double SumPairwiseDblPar(this float[] arrayToSum, int thresholdDivideAndConquerSum = 16 * 1024)
+        public static double SumPairwiseDbl(this float[] arrayToSum, int thresholdDivideAndConquerSum = 16 * 1024)
         {
-            return arrayToSum.SumPairwiseDblInner(0, arrayToSum.Length - 1, Algorithm.SumDblLR, (x, y) => x + y);
+            return arrayToSum.SumPairwiseDblInner(0, arrayToSum.Length - 1, Algorithms.Sum.SumDblLR, (x, y) => x + y);
         }
 
-        public static double SumPairwiseDblPar(this float[] arrayToSum, int start, int length, int thresholdDivideAndConquerSum = 16 * 1024)
+        public static double SumPairwiseDbl(this float[] arrayToSum, int start, int length, int thresholdDivideAndConquerSum = 16 * 1024)
         {
-            return arrayToSum.SumPairwiseDblInner(start, start + length - 1, Algorithm.SumDblLR, (x, y) => x + y);
+            return arrayToSum.SumPairwiseDblInner(start, start + length - 1, Algorithms.Sum.SumDblLR, (x, y) => x + y);
         }
 
         public static double SumPairwise(this double[] arrayToSum, int thresholdDivideAndConquerSum = 16 * 1024)
         {
-            return arrayToSum.SumPairwiseInner(0, arrayToSum.Length - 1, Algorithm.SumLR, (x, y) => x + y);
+            return arrayToSum.SumPairwiseInner(0, arrayToSum.Length - 1, Algorithms.Sum.SumLR, (x, y) => x + y);
         }
 
         public static double SumPairwise(this double[] arrayToSum, int start, int length, int thresholdDivideAndConquerSum = 16 * 1024)
         {
-            return arrayToSum.SumPairwiseInner(start, start + length - 1, Algorithm.SumLR, (x, y) => x + y);
+            return arrayToSum.SumPairwiseInner(start, start + length - 1, Algorithms.Sum.SumLR, (x, y) => x + y);
         }
     }
 }

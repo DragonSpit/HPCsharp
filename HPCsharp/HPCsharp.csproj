@@ -8,7 +8,7 @@
     <Description>High performance C#/.NET algorithms. Cross-platform. Sort algorithms: parallel, serial, in-place, stable, O(N) Radix LSD/MSD, Merge. Much better .Sum(), Histogram, Priority Queue, Merge, Fill, Min/Max, more... Familiar interfaces.</Description>
     <Copyright>© 2018 FooState</Copyright>
     <PackageLicenseUrl>https://github.com/DragonSpit/HPCsharp/blob/master/LICENSE</PackageLicenseUrl>
-    <PackageReleaseNotes>Better .Sum() in several ways: faster, more accurate, no overflow exception. Neumaier .Sum() SIMD/SSE and multi-core for float[] and double[]</PackageReleaseNotes>
+    <PackageReleaseNotes>Added more accurate .Sum() that performs pairwise summation to add more accuracy for floating-point summation without doing additional work. Introduced divideo-and-conquer genertic abstraction for simple high performance multi-core parallel algorithms.</PackageReleaseNotes>
     <PackageId>HPCsharp</PackageId>
     <PackageTags>high perfromance algorithms, C#, high performance, high performance computing, HPC, algorithm, algorithms, Linq, parallel, parallel algorithm</PackageTags>
     <PackageIconUrl>https://foostate.com/images/default_lib_icon_64.png</PackageIconUrl>

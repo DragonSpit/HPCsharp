@@ -40,9 +40,9 @@ using System.Numerics;
 using System.Threading.Tasks;
 using System;
 
-namespace HPCsharp
+namespace HPCsharp.ParallelAlgorithms
 {
-    static public partial class ParallelAlgorithm
+    static public partial class Sum
     {
         public static long SumSse(this sbyte[] arrayToSum)
         {
@@ -864,7 +864,7 @@ namespace HPCsharp
             if (l > r)
                 return sumLeft;
             if ((r - l + 1) <= ThresholdParallelSum)
-                return Algorithm.SumHpc(arrayToSum, l, r - l + 1);
+                return Algorithms.Sum.SumHpc(arrayToSum, l, r - l + 1);
 
             int m = (r + l) / 2;
 
@@ -885,7 +885,7 @@ namespace HPCsharp
             if (l > r)
                 return sumLeft;
             if ((r - l + 1) <= ThresholdParallelSum)
-                return Algorithm.SumDblHpc(arrayToSum, l, r - l + 1);
+                return Algorithms.Sum.SumDblHpc(arrayToSum, l, r - l + 1);
 
             int m = (r + l) / 2;
 
@@ -969,7 +969,7 @@ namespace HPCsharp
             if (l > r)
                 return sumLeft;
             if ((r - l + 1) <= ThresholdParallelSum)
-                return HPCsharp.Algorithm.SumNeumaier(arrayToSum, l, r - l + 1);
+                return Algorithms.Sum.SumNeumaier(arrayToSum, l, r - l + 1);
 
             int m = (r + l) / 2;
 
@@ -980,7 +980,7 @@ namespace HPCsharp
                 () => { sumRight = SumNeumaierParInner(arrayToSum, m + 1, r); }
             );
             // Combine left and right results
-            return HPCsharp.Algorithm.SumNeumaier(sumLeft, sumRight);
+            return Algorithms.Sum.SumNeumaier(sumLeft, sumRight);
         }
 
         private static double SumNeumaierDoubleParInner(this float[] arrayToSum, int l, int r)
@@ -990,7 +990,7 @@ namespace HPCsharp
             if (l > r)
                 return sumLeft;
             if ((r - l + 1) <= ThresholdParallelSum)
-                return HPCsharp.Algorithm.SumNeumaierDbl(arrayToSum, l, r - l + 1);
+                return Algorithms.Sum.SumNeumaierDbl(arrayToSum, l, r - l + 1);
 
             int m = (r + l) / 2;
 
@@ -1001,7 +1001,7 @@ namespace HPCsharp
                 () => { sumRight = SumNeumaierDoubleParInner(arrayToSum, m + 1, r); }
             );
             // Combine left and right results
-            return HPCsharp.Algorithm.SumNeumaier(sumLeft, sumRight);
+            return Algorithms.Sum.SumNeumaier(sumLeft, sumRight);
         }
 
         private static float SumSseNeumaierParInner(this float[] arrayToSum, int l, int r)
@@ -1011,7 +1011,7 @@ namespace HPCsharp
             if (l > r)
                 return sumLeft;
             if ((r - l + 1) <= ThresholdParallelSum)
-                return HPCsharp.ParallelAlgorithm.SumSseNeumaier(arrayToSum, l, r - l + 1);
+                return SumSseNeumaier(arrayToSum, l, r - l + 1);
 
             int m = (r + l) / 2;
 
@@ -1022,7 +1022,7 @@ namespace HPCsharp
                 () => { sumRight = SumSseNeumaierParInner(arrayToSum, m + 1, r); }
             );
             // Combine left and right results
-            return HPCsharp.Algorithm.SumNeumaier(sumLeft, sumRight);
+            return Algorithms.Sum.SumNeumaier(sumLeft, sumRight);
         }
 
         private static double SumSseNeumaierDoubleParInner(this float[] arrayToSum, int l, int r)
@@ -1032,7 +1032,7 @@ namespace HPCsharp
             if (l > r)
                 return sumLeft;
             if ((r - l + 1) <= ThresholdParallelSum)
-                return HPCsharp.ParallelAlgorithm.SumSseNeumaierDbl(arrayToSum, l, r - l + 1);
+                return SumSseNeumaierDbl(arrayToSum, l, r - l + 1);
 
             int m = (r + l) / 2;
 
@@ -1043,7 +1043,7 @@ namespace HPCsharp
                 () => { sumRight = SumSseNeumaierDoubleParInner(arrayToSum, m + 1, r); }
             );
             // Combine left and right results
-            return HPCsharp.Algorithm.SumNeumaier(sumLeft, sumRight);
+            return Algorithms.Sum.SumNeumaier(sumLeft, sumRight);
         }
 
         private static double SumParInner(this double[] arrayToSum, int l, int r, Func<double[], int, int, double> baseCase, Func<double, double, double> reduce)
@@ -1107,7 +1107,7 @@ namespace HPCsharp
             if (l > r)
                 return sumLeft;
             if ((r - l + 1) <= ThresholdParallelSum)
-                return Algorithm.SumHpc(arrayToSum, l, r - l + 1);
+                return Algorithms.Sum.SumHpc(arrayToSum, l, r - l + 1);
 
             int m = (r + l) / 2;
 
@@ -1149,7 +1149,7 @@ namespace HPCsharp
             if (l > r)
                 return sumLeft;
             if ((r - l + 1) <= ThresholdParallelSum)
-                return HPCsharp.Algorithm.SumNeumaier(arrayToSum, l, r - l + 1);
+                return Algorithms.Sum.SumNeumaier(arrayToSum, l, r - l + 1);
 
             int m = (r + l) / 2;
 
@@ -1160,7 +1160,7 @@ namespace HPCsharp
                 () => { sumRight = SumNeumaierParInner(arrayToSum, m + 1, r); }
             );
             // Combine left and right results
-            return HPCsharp.Algorithm.SumNeumaier(sumLeft, sumRight);
+            return Algorithms.Sum.SumNeumaier(sumLeft, sumRight);
         }
 
         private static double SumSseNeumaierParInner(this double[] arrayToSum, int l, int r)
@@ -1181,7 +1181,7 @@ namespace HPCsharp
                 () => { sumRight = SumSseNeumaierParInner(arrayToSum, m + 1, r); }
             );
             // Combine left and right results
-            return HPCsharp.Algorithm.SumNeumaier(sumLeft, sumRight);
+            return Algorithms.Sum.SumNeumaier(sumLeft, sumRight);
         }
 
         private static decimal SumParInner(this decimal[] arrayToSum, int l, int r)
@@ -1191,7 +1191,7 @@ namespace HPCsharp
             if (l > r)
                 return sumLeft;
             if ((r - l + 1) <= ThresholdParallelSum)
-                return HPCsharp.Algorithm.SumHpc(arrayToSum, l, r - l + 1);
+                return Algorithms.Sum.SumHpc(arrayToSum, l, r - l + 1);
 
             int m = (r + l) / 2;
 
@@ -1212,7 +1212,7 @@ namespace HPCsharp
             if (l > r)
                 return sumLeft;
             if ((r - l + 1) <= ThresholdParallelSum)
-                return HPCsharp.Algorithm.SumDecimalHpc(arrayToSum, l, r - l + 1);
+                return Algorithms.Sum.SumDecimalHpc(arrayToSum, l, r - l + 1);
 
             int m = (r + l) / 2;
 
@@ -1233,7 +1233,7 @@ namespace HPCsharp
             if (l > r)
                 return sumLeft;
             if ((r - l + 1) <= ThresholdParallelSum)
-                return HPCsharp.Algorithm.SumDecimalHpc(arrayToSum, l, r - l + 1);
+                return Algorithms.Sum.SumDecimalHpc(arrayToSum, l, r - l + 1);
 
             int m = (r + l) / 2;
 
