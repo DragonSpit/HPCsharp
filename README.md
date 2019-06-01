@@ -17,18 +17,26 @@ Updated VisualStudio 2017 examples solution, demonstrating usage through working
 
 To get the maximum performance make sure to target x64 processor architecture for the Release build in VisualStudio, increasing performance by as much as 50%.
 
-**_Version 3.4.0_** Just Released! Give it a shot.
-Neumaier .Sum() SIMD/SSE and multi-core for float[] and double[], with float[] providing a choice of float accumulator/result or double
+**_Version 3.4.1_** Just Released! Give it a shot.
+Implemented scaler version of pairwise .Sum() for float[] and double[] for more accurate summation without doing extra work.
+Implemented a generic divide-and-conquer parallel function, applicable in many cases.
 
-**_Version 3.3.12_**
-- Added multi-core .Sum() Neumaier more accurate summation algorithm for float[] and double[]
+**_Version 3.4.0_**
+Neumaier .Sum() SIMD/SSE and multi-core for float[] and double[], with float[] providing a choice of float accumulator/result or double
 
 Full release history is in ReleaseNotes.txt file
 
-## Better .Sum() in Four Ways ##
-HPCsharp provides a higher performance, more capable .Sum(), supporting all numeric data types, using SIMD/SSE instructions, avoiding
-overflow exceptions, and more accurate Kahan/Neumaier summation algorithms for float and double arrays.
-For more details, see blog https://duvanenko.tech.blog/2019/04/23/better-sum-in-c/
+## Better .Sum() in Many Ways ##
+HPCsharp improves .Sum() in the following ways:
+- No overflow exception for int[] while providing 5X higher performance
+- Supports all signed integer data types
+- Supports all unsigned integer data types
+- Supports .Sum() for long[] and ulong[] with full accuracy and no overflow
+- Supports higher precision floating-point summation, reducing error from O(eN) downto O(elgN)and O(e) without reduction in performance
+(implements pairwise and Kahan/Neumaier summation algorithms)
+- Implements all algorithms using multi-core and data parallel SIMD/SSE processor instructions
+
+For some more details, see blog https://duvanenko.tech.blog/2019/04/23/better-sum-in-c/
 
 The table below compares performance (in Giga/second) of Linq.AsParallel().Sum() and HPCsharp.Sum().
 
@@ -38,7 +46,7 @@ Linq | n/a | n/a | n/a | n/a |0.9*|n/a|0.9*|n/a|0.9|0.9|0.12
 HPCsharp |7.6|8.0|8.0|8.2|5.0|5.3|2.9*|2.8*|5.1|2.9|0.14
 * overflow exception is possible
 
-.Sum() for long[] and ulong[] which do not throw an overflow exception are also available.
+.Sum() for long[] and ulong[] which do not throw an overflow exception are also available, at reduced performance (for now).
 
 ## Sorting ##
 

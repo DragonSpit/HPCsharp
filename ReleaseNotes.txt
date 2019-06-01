@@ -1,3 +1,7 @@
+Version 3.4.1
+Implemented scaler version of pairwise .Sum() for float[] and double[] for more accurate summation without doing extra work.
+Implemented a generic divide-and-conquer parallel function, applicable in many cases.
+
 Version 3.4.0
 Neumaier .Sum() SIMD/SSE and multi-core for float[] and double[], with float[] providing a choice of float accumulator/result or double
 
