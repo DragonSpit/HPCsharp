@@ -18,22 +18,17 @@
 // TODO: Return a tupple (sum and c) from each parallel Neumaier result and figure out how to combine these results for a more accurate and possibly perfect overall result that will match serial array processing result.
 // TODO: It may be simpler to do a parallelFor style parallelism for parallel Neumaier, where we process chunks in parallel but in order and then combine the results from these chunks in the same order, as
 //       if it was done serially in a serial for loop.
-// TODO: Implement the divide-and-conquer method for simple floating-point additions, since that increases accuracy O(longN) error, and lower additional performance overhead (potentially). If it doesn't turn
-//       out then make an argument on Wikipedia and blog about it.
 // TODO: Since C# has support for BigInteger data type in System.Numerics, then provide accurate .Sum() all the way to these for decimal[], float[] and double[]. Basically, provide a consistent story for .Sum() where every type can be
 //       summed with perfect accuracy when needed. Make sure naming of functions is consistent for all of this and across all data types, multi-core and SSE implementations, to make it simple, logical and consistent to use.
 //       Sadly, this idea won't work, since we need a BigDecimal or BigFloatingPoint to capture perfect accumulation for both of these non-integer types.
 // TODO: Implement .Sum() for summing a field of Objects/UserDefinedTypes, if it's possible to add value by possibly aggregating elements into a local array of Vector size and doing an SSE sum. Is it possible to abstract it well and to
 //       perform well to support extracting all numeric data types, so that performance and abstraction are competitive and as simple or simpler than Linq?
-// TODO: Implement float[] SSE Neumaier .Sum() where float sum is used (for performance) and where double sum is used for higher accuracy, for scaler, sse and parallel versions/
-// TODO: Write a blog on floating-point .Sum() and all of it's capabilities, options and trade-offs
+// TODO: Write a blog on floating-point .Sum() and all of it's capabilities, options and trade-offs in performance and accuracy.
 // TODO: Instead of Vector<double>.Count in for loops, use the variable/array name and its length, which makes the code more maintanable.
 // TODO: Rename Neumaier .Sum() to sum_kbn as Julia language does, since the original implementation was done by Kahan-Babuska and KBN would give all three creators credit
-// TODO: It seems like we should be able to make a pattern/generic out of the divide-and-conquer implementation by passing in a function for the base case (termination serial function) and also the combining/aggregation function.
-//       This would be really cool to write and re-use, and it could even be a lambda function for some implementations (like non-Kahan-Neumaier addition). For float and double summation, we just need to pass in function of double or float.
-// TODO: Note that by default parallel .Sum() implementations are pairwise summation. This needs to be noted in the Readme or somehow be communicated to the user.
-// TODO: Turn the generic SumParInner() into generic DividAndConquerPar() and expose it to developers to use it in many other cases as a general parallel divide-and-conquer algorithm. Write a blog with examples on how to use it.
-// TODO: Since there are so many .Sum() function implementations, move them all to their own namespace to make it simpler for the end user to understand and to manage, or possibly make it a sub-namespace of ParallelAlgorithms.Sum, and Algorithms.Sum
+// TODO: Re-use the new generic divide-and-conquer function, and it could even be a lambda function for some implementations (like non-Kahan-Neumaier addition). For float and double summation, we just need to pass in function of double or float.
+// TODO: Note that by default parallel .Sum() implementations are pairwise summation, since it does divide-and-conquer. This needs to be noted in the Readme or somehow be communicated to the user, and bloged about and in the parallel section of
+//       wikipedia pairwise summation.
 using System.Collections.Generic;
 using System.Text;
 using System.Numerics;

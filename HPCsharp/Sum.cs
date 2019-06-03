@@ -4,7 +4,7 @@
 //       From what I read online, using SSE may be a better way, since it supports flush to zero for denormals and we may have control then.
 // TODO: Try measuring performance of .Sum() that is scalar and SSE when the array fits into cache (L1 or L2) since in these cases performance will not be limited by system
 //       memory bandwidth, but will be limited by the cache memory bandwidth which is much higher. Run over the same array using .Sum() many times to measure average and min time.
-// TODO: Provide a function to sum a field within a user defined type
+//       It may be enough to measure performance by a single core, since performance should not be limited by the memory bandwidth in this case.
 // TODO: Add support for List
 // TODO: Add support for User Defined Types (Objects), where the user would define a Lambda function to pull out a field within that object.
 // TODO: Implement one pass sweeping tree sum for Neumaier .Sum() algorithm, which sweeps once from left to right and sums pairs, then sum of pairs and sum of pair-pairs and so on, creating/growing
@@ -16,6 +16,7 @@
 // TODO: Improve pair-wise .Sum() with O(e*lgN) so that it works for any size array, even small ones, whereas the current implementation which is suggested on Wikipedia favors large arrays, and does a naive summation for small arrays.
 //       A possible way to do it is by using a stack structure to emulate recursion, pushing the currect "level-sum" onto this stack. This would work for SSE as well by pushing SSE-size data type onto the stack. There may be other even
 //       more efficient methods.
+// TODO: Blog/write about float .Sum() that uses double and Kahan/Nuemaier for increased accuracy, perfect for 500M array elements and then Neumaier takes it the rest of the way.
 using System.Collections.Generic;
 using System.Text;
 using System.Numerics;

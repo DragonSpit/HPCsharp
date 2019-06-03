@@ -16,8 +16,7 @@ Recent presentation at the Indianapolis .NET Consortium, March 2019 on https://y
 Usage examples are provided in the HPCsharpExamples folder, which has a VisualStudio 2017 solution. Build and run it to see performance gains on your machine.
 To get the maximum performance make sure to target x64 processor architecture for the Release build in VisualStudio, increasing performance by as much as 50%.
 
-**_Version 3.4.1_** Just Released! Give it a shot.
-
+**_Version 3.4.1_** Just Released! Give it a shot.  
 Implemented scaler version of pairwise .Sum() for float[] and double[] for more accurate summation without doing extra work.
 Implemented a generic divide-and-conquer parallel function, applicable in many cases.
 
