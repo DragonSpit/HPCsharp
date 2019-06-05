@@ -10,9 +10,12 @@
 //       Then/or SIMD/SSE methods could know or test if the start of its operation is cache line alinged (or SSE size aligned) and perform scalar operations on the front end up to the point of being SSE-aligned.
 //       Dividing on a cache line boundary is better, as it avoids false sharing of a cache line between multiple tasks, but in the case of .Sum() both tasks are just reading, which should be fine.
 // TODO: Implement a for loop instead of divide-and-conquer, since they really accomplish the same thing, and the for loop will be more efficient and easier to make cache line boundary divisible.
-//       Combining will be slightly harder, but we could create an array of sums, where each task has its own array element to fill in, then we combine all of the sums at the end serially.
+//       Combining will be slightly harder, but we could create an array of sums, where each task has its own array element to fill in, then we combine all of the sums at the end serially. Still has the issue of managed memory
+//       where the array may move and not be cache aligned any more, requiring fixing the array in memory to not move (an unsafe version).
 // TODO: Implement nullable versions of Sum, only faster than the standard C# ones. Should be able to still use SSE and multi-core, but need to check out each element for null before adding it. These
-//       will be much slower than non-nullable
+//       will be much slower than non-nullable. Hmmm.. Need to test what Linq.Sum() returns for nullable, as I bet the sum becomes null, since null is really an unknown and if one value of an array is unknown, then the Sum() becomes unknown.
+//       If that's the case for Linq.Sum() for nullable types, then SIMD acceleration is still possible, but will be much slower, since we'll need to test each Vector.Count array items for null, and only if they all are not-null then add them to the sum.
+//       From research on the web, Linq.Sum() skips null values by default - i.e. treats them as zeroes. This is inconsistent with adding a null value to a number.
 // TODO: See if SSEandScalar version is faster when the array is entirely inside the cache, to make sure that it's not just being memory bandwidth limited and hiding ILP speedup. Port it to C++ and see
 //       if it speeds up. Run many times over the same array using .Sum() and provide the average and minimum timing.
 // TODO: Return a tupple (sum and c) from each parallel Neumaier result and figure out how to combine these results for a more accurate and possibly perfect overall result that will match serial array processing result.
@@ -24,7 +27,6 @@
 // TODO: Implement .Sum() for summing a field of Objects/UserDefinedTypes, if it's possible to add value by possibly aggregating elements into a local array of Vector size and doing an SSE sum. Is it possible to abstract it well and to
 //       perform well to support extracting all numeric data types, so that performance and abstraction are competitive and as simple or simpler than Linq?
 // TODO: Write a blog on floating-point .Sum() and all of it's capabilities, options and trade-offs in performance and accuracy.
-// TODO: Instead of Vector<double>.Count in for loops, use the variable/array name and its length, which makes the code more maintanable.
 // TODO: Rename Neumaier .Sum() to sum_kbn as Julia language does, since the original implementation was done by Kahan-Babuska and KBN would give all three creators credit
 // TODO: Re-use the new generic divide-and-conquer function, and it could even be a lambda function for some implementations (like non-Kahan-Neumaier addition). For float and double summation, we just need to pass in function of double or float.
 // TODO: Note that by default parallel .Sum() implementations are pairwise summation, since it does divide-and-conquer. This needs to be noted in the Readme or somehow be communicated to the user, and bloged about and in the parallel section of

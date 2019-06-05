@@ -1,15 +1,12 @@
-﻿// TODO: Implement nullable versions of Sum, only faster than the standard C# ones. One idea is to turn all null values into zeroes.
-// TODO: Consider improved .Sum for decimals using the same idea: serial and multi-core. Can't do SSE, since there is no direct CPU decimal support.
+﻿// TODO: Implement nullable versions of Sum, only faster than the standard C# ones. One idea is to turn all null values into zeroes, or skip them.
+//       From research on the web, Linq.Sum() skips null values by default - i.e. treats them as zeroes. This is inconsistent with adding a null value to a number.
 // TODO: Add the ability to handle de-normal floating-point numbers and flush them to zero to get higher performance when accuracy of small numbers is not as important
 //       From what I read online, using SSE may be a better way, since it supports flush to zero for denormals and we may have control then.
-// TODO: Try measuring performance of .Sum() that is scalar and SSE when the array fits into cache (L1 or L2) since in these cases performance will not be limited by system
-//       memory bandwidth, but will be limited by the cache memory bandwidth which is much higher. Run over the same array using .Sum() many times to measure average and min time.
-//       It may be enough to measure performance by a single core, since performance should not be limited by the memory bandwidth in this case.
 // TODO: Add support for List
 // TODO: Add support for User Defined Types (Objects), where the user would define a Lambda function to pull out a field within that object.
 // TODO: Implement one pass sweeping tree sum for Neumaier .Sum() algorithm, which sweeps once from left to right and sums pairs, then sum of pairs and sum of pair-pairs and so on, creating/growing
 //       a List (or preallocate array big enough logN size), or maybe sweep from left and right of a full binary tree size and then do the rest. It would be cool to do it all in one pass, instead of
-//       log passes. This will produce a more accurate .Sum() without needi9ng Neumaier algorithm overhead.
+//       log passes. This will produce a more accurate .Sum() without needing Neumaier algorithm overhead.
 // TODO: Since C# has support for BigInteger data type in System.Numerics, then provide accurate .Sum() all the way to these for decimal[], float[] and double[]. Basically, provide a consistent story for .Sum() where every type can be
 //       summed with perfect accuracy when needed. Make sure naming of functions is consistent for all of this and across all data types, multi-core and SSE implementations, to make it simple, logical and consistent to use.
 //       Sadly, this idea won't work, since we need a BigDecimal or BigFloatingPoint to capture perfect accumulation for both of these non-integer types.
@@ -17,6 +14,8 @@
 //       A possible way to do it is by using a stack structure to emulate recursion, pushing the currect "level-sum" onto this stack. This would work for SSE as well by pushing SSE-size data type onto the stack. There may be other even
 //       more efficient methods.
 // TODO: Blog/write about float .Sum() that uses double and Kahan/Nuemaier for increased accuracy, perfect for 500M array elements and then Neumaier takes it the rest of the way.
+// TODO: Does Kahan algorithm also make sense for decimal?
+// TODO: To speedup summing up of long to decimal accumulation, Josh suggested using a long accumulator and catching the overflow exception and then adding to decimal - i.e. most of the time accumulate to long and once in
 using System.Collections.Generic;
 using System.Text;
 using System.Numerics;
@@ -27,6 +26,44 @@ namespace HPCsharp.Algorithms
 {
     static public partial class Sum
     {
+        public static decimal SumDecimalFast(this long[] arrayToSum)
+        {
+            decimal overallSum = 0;
+            long tempSum = 0;
+            for (int i = 0; i < arrayToSum.Length; i++)
+            {
+                try
+                {
+                    tempSum += arrayToSum[i];
+                }
+                catch (OverflowException)
+                {
+                    overallSum += tempSum;
+                    tempSum = 0;
+                }
+            }
+            return overallSum + tempSum;
+        }
+
+        public static decimal SumDecimalFast(this ulong[] arrayToSum)
+        {
+            decimal overallSum = 0;
+            ulong tempSum = 0;
+            for (int i = 0; i < arrayToSum.Length; i++)
+            {
+                try
+                {
+                    tempSum += arrayToSum[i];
+                }
+                catch (OverflowException)
+                {
+                    overallSum += tempSum;
+                    tempSum = 0;
+                }
+            }
+            return overallSum + tempSum;
+        }
+
         public static decimal SumDecimalHpc(this long[] arrayToSum)
         {
             decimal overallSum = 0;
@@ -52,11 +89,29 @@ namespace HPCsharp.Algorithms
             return overallSum;
         }
 
+        public static long? SumHpc(this long?[] arrayToSum)
+        {
+            long? overallSum = 0;
+            for (int i = 0; i < arrayToSum.Length; i++)
+                if (arrayToSum[i] != null)
+                    overallSum += arrayToSum[i];
+            return overallSum;
+        }
+
         public static long SumHpc(this int[] arrayToSum)
         {
             long overallSum = 0;
             for (int i = 0; i < arrayToSum.Length; i++)
                 overallSum += arrayToSum[i];
+            return overallSum;
+        }
+
+        public static long? SumHpc(this int?[] arrayToSum)
+        {
+            long? overallSum = 0;
+            for (int i = 0; i < arrayToSum.Length; i++)
+                if (arrayToSum[i] != null)
+                    overallSum += arrayToSum[i];
             return overallSum;
         }
 
@@ -68,11 +123,29 @@ namespace HPCsharp.Algorithms
             return overallSum;
         }
 
+        public static long? SumHpc(this short?[] arrayToSum)
+        {
+            long? overallSum = 0;
+            for (int i = 0; i < arrayToSum.Length; i++)
+                if (arrayToSum[i] != null)
+                    overallSum += arrayToSum[i];
+            return overallSum;
+        }
+
         public static long SumHpc(this sbyte[] arrayToSum)
         {
             long overallSum = 0;
             for (int i = 0; i < arrayToSum.Length; i++)
                 overallSum += arrayToSum[i];
+            return overallSum;
+        }
+
+        public static long? SumHpc(this sbyte?[] arrayToSum)
+        {
+            long? overallSum = 0;
+            for (int i = 0; i < arrayToSum.Length; i++)
+                if (arrayToSum[i] != null)
+                    overallSum += arrayToSum[i];
             return overallSum;
         }
 
