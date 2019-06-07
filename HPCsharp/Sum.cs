@@ -223,6 +223,21 @@ namespace HPCsharp.Algorithms
             return overallSum;
         }
 
+        public static decimal SumDecimalHpc(this ulong?[] arrayToSum)
+        {
+            return arrayToSum.SumDecimalHpc(0, arrayToSum.Length);
+        }
+
+        public static decimal SumDecimalHpc(this ulong?[] arrayToSum, int startIndex, int length)
+        {
+            int endIndex = startIndex + length;
+            decimal overallSum = 0;
+            for (int i = startIndex; i < endIndex; i++)
+                if (arrayToSum[i] != null)
+                    overallSum += (ulong)arrayToSum[i];
+            return overallSum;
+        }
+
         public static ulong SumHpc(this ulong[] arrayToSum)
         {
             return arrayToSum.SumHpc(0, arrayToSum.Length);
@@ -234,6 +249,21 @@ namespace HPCsharp.Algorithms
             ulong overallSum = 0;
             for (int i = startIndex; i < endIndex; i++)
                 overallSum += arrayToSum[i];
+            return overallSum;
+        }
+
+        public static ulong SumHpc(this ulong?[] arrayToSum)
+        {
+            return arrayToSum.SumHpc(0, arrayToSum.Length);
+        }
+
+        public static ulong SumHpc(this ulong?[] arrayToSum, int startIndex, int length)
+        {
+            int endIndex = startIndex + length;
+            ulong overallSum = 0;
+            for (int i = startIndex; i < endIndex; i++)
+                if (arrayToSum[i] != null)
+                    overallSum += (ulong)arrayToSum[i];
             return overallSum;
         }
 
@@ -251,6 +281,21 @@ namespace HPCsharp.Algorithms
             return overallSum;
         }
 
+        public static ulong SumHpc(this uint?[] arrayToSum)
+        {
+            return arrayToSum.SumHpc(0, arrayToSum.Length);
+        }
+
+        public static ulong SumHpc(this uint?[] arrayToSum, int startIndex, int length)
+        {
+            int endIndex = startIndex + length;
+            ulong overallSum = 0;
+            for (int i = startIndex; i < endIndex; i++)
+                if (arrayToSum[i] != null)
+                    overallSum += (uint)arrayToSum[i];
+            return overallSum;
+        }
+
         public static ulong SumHpc(this ushort[] arrayToSum)
         {
             return arrayToSum.SumHpc(0, arrayToSum.Length);
@@ -262,6 +307,21 @@ namespace HPCsharp.Algorithms
             ulong overallSum = 0;
             for (int i = startIndex; i < endIndex; i++)
                 overallSum += arrayToSum[i];
+            return overallSum;
+        }
+
+        public static ulong SumHpc(this ushort?[] arrayToSum)
+        {
+            return arrayToSum.SumHpc(0, arrayToSum.Length);
+        }
+
+        public static ulong SumHpc(this ushort?[] arrayToSum, int startIndex, int length)
+        {
+            int endIndex = startIndex + length;
+            ulong overallSum = 0;
+            for (int i = startIndex; i < endIndex; i++)
+                if (arrayToSum[i] != null)
+                    overallSum += (ushort)arrayToSum[i];
             return overallSum;
         }
 
@@ -279,6 +339,21 @@ namespace HPCsharp.Algorithms
             return overallSum;
         }
 
+        public static ulong SumHpc(this byte?[] arrayToSum)
+        {
+            return arrayToSum.SumHpc(0, arrayToSum.Length);
+        }
+
+        public static ulong SumHpc(this byte?[] arrayToSum, int startIndex, int length)
+        {
+            int endIndex = startIndex + length;
+            ulong overallSum = 0;
+            for (int i = startIndex; i < endIndex; i++)
+                if (arrayToSum[i] != null)
+                    overallSum += (byte)arrayToSum[i];
+            return overallSum;
+        }
+
         public static float SumHpc(this float[] arrayToSum)
         {
             return arrayToSum.SumHpc(0, arrayToSum.Length);
@@ -293,6 +368,21 @@ namespace HPCsharp.Algorithms
             return overallSum;
         }
 
+        public static float SumHpc(this float?[] arrayToSum)
+        {
+            return arrayToSum.SumHpc(0, arrayToSum.Length);
+        }
+
+        public static float SumHpc(this float?[] arrayToSum, int startIndex, int length)
+        {
+            int endIndex = startIndex + length;
+            float overallSum = 0;
+            for (int i = startIndex; i < endIndex; i++)
+                if (arrayToSum[i] != null)
+                    overallSum += (float)arrayToSum[i];
+            return overallSum;
+        }
+
         public static double SumDblHpc(this float[] arrayToSum)
         {
             return arrayToSum.SumDblHpc(0, arrayToSum.Length);
@@ -304,6 +394,21 @@ namespace HPCsharp.Algorithms
             double overallSum = 0;
             for (int i = startIndex; i < endIndex; i++)
                 overallSum += arrayToSum[i];
+            return overallSum;
+        }
+
+        public static double SumDblHpc(this float?[] arrayToSum)
+        {
+            return arrayToSum.SumDblHpc(0, arrayToSum.Length);
+        }
+
+        public static double SumDblHpc(this float?[] arrayToSum, int startIndex, int length)
+        {
+            int endIndex = startIndex + length;
+            double overallSum = 0;
+            for (int i = startIndex; i < endIndex; i++)
+                if (arrayToSum[i] != null)
+                    overallSum += (float)arrayToSum[i];
             return overallSum;
         }
 
@@ -337,6 +442,21 @@ namespace HPCsharp.Algorithms
             return overallSum;
         }
 
+        public static double SumHpc(this double?[] arrayToSum)
+        {
+            return arrayToSum.SumHpc(0, arrayToSum.Length);
+        }
+
+        public static double SumHpc(this double?[] arrayToSum, int startIndex, int length)
+        {
+            int endIndex = startIndex + length;
+            double overallSum = 0;
+            for (int i = startIndex; i < endIndex; i++)
+                if (arrayToSum[i] != null)
+                    overallSum += (double)arrayToSum[i];
+            return overallSum;
+        }
+
         internal static double SumLR(this double[] arrayToSum, int l, int r)
         {
             double overallSum = 0;
@@ -356,6 +476,21 @@ namespace HPCsharp.Algorithms
             decimal overallSum = 0;
             for (int i = startIndex; i < endIndex; i++)
                 overallSum += arrayToSum[i];
+            return overallSum;
+        }
+
+        public static decimal SumHpc(this decimal?[] arrayToSum)
+        {
+            return arrayToSum.SumHpc(0, arrayToSum.Length);
+        }
+
+        internal static decimal SumHpc(this decimal?[] arrayToSum, int startIndex, int length)
+        {
+            int endIndex = startIndex + length;
+            decimal overallSum = 0;
+            for (int i = startIndex; i < endIndex; i++)
+                if (arrayToSum[i] != null)
+                    overallSum += (decimal)arrayToSum[i];
             return overallSum;
         }
 
