@@ -19,8 +19,6 @@
 // TODO: See if SSEandScalar version is faster when the array is entirely inside the cache, to make sure that it's not just being memory bandwidth limited and hiding ILP speedup. Port it to C++ and see
 //       if it speeds up. Run many times over the same array using .Sum() and provide the average and minimum timing.
 // TODO: Return a tupple (sum and c) from each parallel Neumaier result and figure out how to combine these results for a more accurate and possibly perfect overall result that will match serial array processing result.
-// TODO: It may be simpler to do a parallelFor style parallelism for parallel Neumaier, where we process chunks in parallel but in order and then combine the results from these chunks in the same order, as
-//       if it was done serially in a serial for loop.
 // TODO: Since C# has support for BigInteger data type in System.Numerics, then provide accurate .Sum() all the way to these for decimal[], float[] and double[]. Basically, provide a consistent story for .Sum() where every type can be
 //       summed with perfect accuracy when needed. Make sure naming of functions is consistent for all of this and across all data types, multi-core and SSE implementations, to make it simple, logical and consistent to use.
 //       Sadly, this idea won't work, since we need a BigDecimal or BigFloatingPoint to capture perfect accumulation for both of these non-integer types.
@@ -287,8 +285,8 @@ namespace HPCsharp.ParallelAlgorithms
         {
             var sumVectorLower = new Vector<long>();
             var sumVectorUpper = new Vector<long>();
-            var longLower      = new Vector<long>();
-            var longUpper      = new Vector<long>();
+            var longLower = new Vector<long>();
+            var longUpper = new Vector<long>();
             int sseIndexEnd = l + ((r - l + 1) / Vector<int>.Count) * Vector<int>.Count;
             int i;
             for (i = l; i < sseIndexEnd; i += Vector<int>.Count)
@@ -301,6 +299,34 @@ namespace HPCsharp.ParallelAlgorithms
             long overallSum = 0;
             for (; i <= r; i++)
                 overallSum += arrayToSum[i];
+            sumVectorLower += sumVectorUpper;
+            for (i = 0; i < Vector<long>.Count; i++)
+                overallSum += sumVectorLower[i];
+            return overallSum;
+        }
+
+        private static long SumSseInner(this int?[] arrayToSum, int l, int r)
+        {
+            var sumVectorLower = new Vector<long>();
+            var sumVectorUpper = new Vector<long>();
+            var longLower      = new Vector<long>();
+            var longUpper      = new Vector<long>();
+            var intLocalVector = new int[Vector<int>.Count];
+            int sseIndexEnd = l + ((r - l + 1) / Vector<int>.Count) * Vector<int>.Count;
+            int i;
+            for (i = l; i < sseIndexEnd; i += Vector<int>.Count)
+            {
+                for (int j = 0, k = i; j < intLocalVector.Length; j++, k++)
+                    intLocalVector[j] = arrayToSum[k] ?? 0;
+                var inVector = new Vector<int>(intLocalVector, 0);
+                Vector.Widen(inVector, out longLower, out longUpper);
+                sumVectorLower += longLower;
+                sumVectorUpper += longUpper;
+            }
+            long overallSum = 0;
+            for (; i <= r; i++)
+                if (arrayToSum[i] != null)
+                    overallSum += (int)arrayToSum[i];
             sumVectorLower += sumVectorUpper;
             for (i = 0; i < Vector<long>.Count; i++)
                 overallSum += sumVectorLower[i];
@@ -658,8 +684,8 @@ namespace HPCsharp.ParallelAlgorithms
             var longUpper      = new Vector<long>();
             int lengthForVector = (r - l + 1) / (Vector<int>.Count + numScalarOps) * Vector<int>.Count;
             int numFullVectors = lengthForVector / Vector<int>.Count;
-            long partialSum0 = 0;
-            long partialSum1 = 0;
+            long partialScalarSum0 = 0;
+            long partialScalarSum1 = 0;
             int i = l;
             int numScalarAdditions = (arrayToSum.Length - numFullVectors * Vector<int>.Count) / numScalarOps;
             int numIterations = System.Math.Min(numFullVectors, numScalarAdditions);
@@ -670,18 +696,18 @@ namespace HPCsharp.ParallelAlgorithms
             {
                 var inVector = new Vector<int>(arrayToSum, i);
                 Vector.Widen(inVector, out longLower, out longUpper);
-                partialSum0      += arrayToSum[scalarIndex++];          // interleave SSE and Scalar operations
-                sumVectorLower   += longLower;
-                partialSum1      += arrayToSum[scalarIndex++];
-                sumVectorUpper   += longUpper;
+                partialScalarSum0 += arrayToSum[scalarIndex++];          // interleave SSE and Scaler operations
+                sumVectorLower    += longLower;
+                partialScalarSum1 += arrayToSum[scalarIndex++];
+                sumVectorUpper    += longUpper;
             }
             for (i = scalarIndex; i <= r; i++)
-                partialSum0 += arrayToSum[i];
-            partialSum0    += partialSum1;
+                partialScalarSum0 += arrayToSum[i];
+            partialScalarSum0 += partialScalarSum1;
             sumVectorLower += sumVectorUpper;
             for (i = 0; i < Vector<long>.Count; i++)
-                partialSum0 += sumVectorLower[i];
-            return partialSum0;
+                partialScalarSum0 += sumVectorLower[i];
+            return partialScalarSum0;
         }
 
         public static int ThresholdParallelSum { get; set; } = 16 * 1024;
