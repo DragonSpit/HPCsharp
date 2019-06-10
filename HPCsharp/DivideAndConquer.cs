@@ -1,4 +1,6 @@
-﻿using System;
+﻿// TODO: Implement a cache-aligned divide-and-conquer split. This is useful and fundamental when writing to cache lines, otherwise false sharing causes performance, and cache line boundary
+//       divide-and-conquer is needed to improve consistency of performance - i.e. reduce veriability in performance. However, for algorithms such as .Sum() which only read from memory, this is not needed.
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
