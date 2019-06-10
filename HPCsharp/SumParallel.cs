@@ -312,13 +312,23 @@ namespace HPCsharp.ParallelAlgorithms
             var longLower      = new Vector<long>();
             var longUpper      = new Vector<long>();
             var intLocalVector = new int[Vector<int>.Count];
+            var intLocalZero   = new Vector<int>();
+            intLocalZero = default(Vector<int>);
             int sseIndexEnd = l + ((r - l + 1) / Vector<int>.Count) * Vector<int>.Count;
             int i;
             for (i = l; i < sseIndexEnd; i += Vector<int>.Count)
             {
+#if true
+                intLocalZero.CopyTo(intLocalVector, 0);
+                for (int j = 0, k = i; j < intLocalVector.Length; j++, k++)
+                    if (arrayToSum[k] != null)
+                        intLocalVector[j] = (int)arrayToSum[k];
+                var inVector = new Vector<int>(intLocalVector, 0);
+#else
                 for (int j = 0, k = i; j < intLocalVector.Length; j++, k++)
                     intLocalVector[j] = arrayToSum[k] ?? 0;
                 var inVector = new Vector<int>(intLocalVector, 0);
+#endif
                 Vector.Widen(inVector, out longLower, out longUpper);
                 sumVectorLower += longLower;
                 sumVectorUpper += longUpper;
@@ -331,6 +341,61 @@ namespace HPCsharp.ParallelAlgorithms
             for (i = 0; i < Vector<long>.Count; i++)
                 overallSum += sumVectorLower[i];
             return overallSum;
+        }
+
+        public static long SumSse(this int?[] arrayToSum)
+        {
+            return arrayToSum.SumSseInner(0, arrayToSum.Length - 1);
+        }
+
+        public static long SumSse(this int?[] arrayToSum, int start, int length)
+        {
+            return arrayToSum.SumSseInner(start, start + length - 1);
+        }
+
+        private static long SumSseAndScalarInner(this int[] arrayToSum, int l, int r)
+        {
+            const int numScalarOps = 2;
+            var sumVectorLower = new Vector<long>();
+            var sumVectorUpper = new Vector<long>();
+            var longLower      = new Vector<long>();
+            var longUpper      = new Vector<long>();
+            int lengthForVector = (r - l + 1) / (Vector<int>.Count + numScalarOps) * Vector<int>.Count;
+            int numFullVectors = lengthForVector / Vector<int>.Count;
+            long partialScalarSum0 = 0;
+            long partialScalarSum1 = 0;
+            int i = l;
+            int scalarIndex = l + numFullVectors * Vector<int>.Count;
+            int sseIndexEnd = scalarIndex;
+            //System.Console.WriteLine("{0}, {1}, {2}, {3}, {4}, {5}", arrayToSum.Length, Vector<int>.Count, lengthForVector, numFullVectors, scalarIndex, sseIndexEnd);
+            for (; i < sseIndexEnd; i += Vector<int>.Count)
+            {
+                var inVector = new Vector<int>(arrayToSum, i);
+                Vector.Widen(inVector, out longLower, out longUpper);
+                partialScalarSum0 += arrayToSum[scalarIndex++];          // interleave SSE and Scaler operations
+                sumVectorLower += longLower;
+                partialScalarSum1 += arrayToSum[scalarIndex++];
+                sumVectorUpper += longUpper;
+            }
+            //System.Console.WriteLine("{0}", scalarIndex);
+            for (i = scalarIndex; i <= r; i++)
+                partialScalarSum0 += arrayToSum[i];
+            partialScalarSum0 += partialScalarSum1;
+            sumVectorLower += sumVectorUpper;
+            for (i = 0; i < Vector<long>.Count; i++)
+                partialScalarSum0 += sumVectorLower[i];
+            return partialScalarSum0;
+        }
+
+        public static long SumSseAndScalar(this int[] arrayToSum)
+        {
+            //return arrayToSum.SumSseInner(0, arrayToSum.Length - 1);
+            return arrayToSum.SumSseAndScalarInner(0, arrayToSum.Length - 1);
+        }
+
+        public static long SumSseAndScalar(this int[] arrayToSum, int start, int length)
+        {
+            return arrayToSum.SumSseAndScalarInner(start, start + length - 1);
         }
 
         public static ulong SumSse(this uint[] arrayToSum)
@@ -673,41 +738,6 @@ namespace HPCsharp.ParallelAlgorithms
                 sum = t;
             }
             return sum + c;
-        }
-
-        private static long SumSseAndScalar(this int[] arrayToSum, int l, int r)
-        {
-            const int numScalarOps = 2;
-            var sumVectorLower = new Vector<long>();
-            var sumVectorUpper = new Vector<long>();
-            var longLower      = new Vector<long>();
-            var longUpper      = new Vector<long>();
-            int lengthForVector = (r - l + 1) / (Vector<int>.Count + numScalarOps) * Vector<int>.Count;
-            int numFullVectors = lengthForVector / Vector<int>.Count;
-            long partialScalarSum0 = 0;
-            long partialScalarSum1 = 0;
-            int i = l;
-            int numScalarAdditions = (arrayToSum.Length - numFullVectors * Vector<int>.Count) / numScalarOps;
-            int numIterations = System.Math.Min(numFullVectors, numScalarAdditions);
-            int scalarIndex = l + numIterations * Vector<int>.Count;
-            int sseIndexEnd = scalarIndex;
-            //System.Console.WriteLine("{0}, {1}, {2}, {3}, {4}, {5}", arrayToSum.Length, lengthForVector, numFullVectors, numScalarAdditions, numIterations, scalarIndex);
-            for (; i < sseIndexEnd; i += Vector<int>.Count)
-            {
-                var inVector = new Vector<int>(arrayToSum, i);
-                Vector.Widen(inVector, out longLower, out longUpper);
-                partialScalarSum0 += arrayToSum[scalarIndex++];          // interleave SSE and Scaler operations
-                sumVectorLower    += longLower;
-                partialScalarSum1 += arrayToSum[scalarIndex++];
-                sumVectorUpper    += longUpper;
-            }
-            for (i = scalarIndex; i <= r; i++)
-                partialScalarSum0 += arrayToSum[i];
-            partialScalarSum0 += partialScalarSum1;
-            sumVectorLower += sumVectorUpper;
-            for (i = 0; i < Vector<long>.Count; i++)
-                partialScalarSum0 += sumVectorLower[i];
-            return partialScalarSum0;
         }
 
         public static int ThresholdParallelSum { get; set; } = 16 * 1024;
