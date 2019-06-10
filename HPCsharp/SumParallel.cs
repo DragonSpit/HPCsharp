@@ -305,6 +305,39 @@ namespace HPCsharp.ParallelAlgorithms
             return overallSum;
         }
 
+        public static long SumSseOffset(this int[] arrayToSum)
+        {
+            return arrayToSum.SumSseInner(0, arrayToSum.Length - 1);
+        }
+
+        private static long SumSseOffsetInner(this int[] arrayToSum, int l, int r)
+        {
+            var sumVectorLower = new Vector<long>();
+            var sumVectorUpper = new Vector<long>();
+            var longLower      = new Vector<long>();
+            var longUpper      = new Vector<long>();
+            int offset = 3;
+            long overallSum = 0;
+            int i;
+            for (i = l; i < (l + offset); i++)
+                overallSum += arrayToSum[i];
+            l += offset;
+            int sseIndexEnd = l + ((r - l + 1) / Vector<int>.Count) * Vector<int>.Count;
+            for (i = l; i < sseIndexEnd; i += Vector<int>.Count)
+            {
+                var inVector = new Vector<int>(arrayToSum, i);
+                Vector.Widen(inVector, out longLower, out longUpper);
+                sumVectorLower += longLower;
+                sumVectorUpper += longUpper;
+            }
+            for (; i <= r; i++)
+                overallSum += arrayToSum[i];
+            sumVectorLower += sumVectorUpper;
+            for (i = 0; i < Vector<long>.Count; i++)
+                overallSum += sumVectorLower[i];
+            return overallSum;
+        }
+
         private static long SumSseInner(this int?[] arrayToSum, int l, int r)
         {
             var sumVectorLower = new Vector<long>();
