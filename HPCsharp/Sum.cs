@@ -594,6 +594,33 @@ namespace HPCsharp.Algorithms
             return sum + c;                                 // Correction only applied once in the very end
         }
 
+        public static float SumNeumaier(this float?[] arrayToSum)
+        {
+            return arrayToSum.SumNeumaier(0, arrayToSum.Length);
+        }
+
+        public static float SumNeumaier(this float?[] arrayToSum, int startIndex, int length)
+        {
+            float sum = 0.0f;
+            float c   = 0.0f;                               // A running compensation for lost low-order bits  
+            int endIndex = startIndex + length;
+
+            for (int i = startIndex; i < endIndex; i++)
+            {
+                if (arrayToSum[i] != null)
+                {
+                    float arrayElement = (float)arrayToSum[i];
+                    float t = sum + arrayElement;
+                    if (Math.Abs(sum) >= Math.Abs(arrayElement))
+                        c += (sum - t) + arrayElement;         // If sum is bigger, low-order digits of input[i] are lost.
+                    else
+                        c += (arrayElement - t) + sum;         // Else low-order digits of sum are lost
+                    sum = t;
+                }
+            }
+            return sum + c;                                 // Correction only applied once in the very end
+        }
+
         public static double SumNeumaierDbl(this float[] arrayToSum)
         {
             return arrayToSum.SumNeumaier(0, arrayToSum.Length);
@@ -613,6 +640,33 @@ namespace HPCsharp.Algorithms
                 else
                     c += (arrayToSum[i] - t) + sum;         // Else low-order digits of sum are lost
                 sum = t;
+            }
+            return sum + c;                                 // Correction only applied once in the very end
+        }
+
+        public static double SumNeumaierDbl(this float?[] arrayToSum)
+        {
+            return arrayToSum.SumNeumaier(0, arrayToSum.Length);
+        }
+
+        public static double SumNeumaierDbl(this float?[] arrayToSum, int startIndex, int length)
+        {
+            double sum = 0.0;
+            double c   = 0.0;                               // A running compensation for lost low-order bits  
+            int endIndex = startIndex + length;
+
+            for (int i = startIndex; i < endIndex; i++)
+            {
+                if (arrayToSum[i] != null)
+                {
+                    double arrayElement = (double)arrayToSum[i];
+                    double t = sum + arrayElement;
+                    if (Math.Abs(sum) >= Math.Abs(arrayElement))
+                        c += (sum - t) + arrayElement;         // If sum is bigger, low-order digits of input[i] are lost.
+                    else
+                        c += (arrayElement - t) + sum;         // Else low-order digits of sum are lost
+                    sum = t;
+                }
             }
             return sum + c;                                 // Correction only applied once in the very end
         }
@@ -659,6 +713,33 @@ namespace HPCsharp.Algorithms
                 else
                     c += (arrayToSum[i] - t) + sum;         // Else low-order digits of sum are lost
                 sum = t;
+            }
+            return sum + c;                                 // Correction only applied once in the very end
+        }
+
+        public static double SumNeumaier(this double?[] arrayToSum)
+        {
+            return arrayToSum.SumNeumaier(0, arrayToSum.Length);
+        }
+
+        public static double SumNeumaier(this double?[] arrayToSum, int startIndex, int length)
+        {
+            double sum = 0.0;
+            double c = 0.0;                                 // A running compensation for lost low-order bits  
+            int endIndex = startIndex + length;
+
+            for (int i = startIndex; i < endIndex; i++)
+            {
+                if (arrayToSum[i] != null)
+                {
+                    double arrayElement = (double)arrayToSum[i];
+                    double t = sum + arrayElement;
+                    if (Math.Abs(sum) >= Math.Abs(arrayElement))
+                        c += (sum - t) + arrayElement;         // If sum is bigger, low-order digits of input[i] are lost.
+                    else
+                        c += (arrayElement - t) + sum;         // Else low-order digits of sum are lost
+                    sum = t;
+                }
             }
             return sum + c;                                 // Correction only applied once in the very end
         }

@@ -1,14 +1,5 @@
 ﻿// TODO: To speedup summing up of long to decimal accumulation, Josh suggested using a long accumulator and catching the overflow exception and then adding to decimal - i.e. most of the time accumulate to long and once in
 //       a while accumulate to decimal instead of always accumulating to decimal (offer this version as an alternate)
-// TODO: Implement aligned SIMD sum, since memory alignment is critical for SIMD instructions. So, do scalar first until we are SIMD aligned and then do SIMD, followed by more scarlar to finish all
-//       left over elements that are not SIMD size divisible. First simple step is to check alignment of SIMD portion of the sum. See cache-aligned entry below, which may solve this problem.
-// TODO: Implement a cache-aligned divide-and-conquer split. This is very useful for more consitent performance for SIMD/SSE .Sum() and other operations, and is fundamental to improve consistency of performance - i.e.
-//       reduce veriability in performance, since SIME/SSE performs better when each SSE instruction is aligned in memory on the size of the instruction boundary (e.g. 512-bit instruction performs better when it's aligned
-//       on 512-bit/64-byte boundary, which is a cache-line boundary).
-// TODO: Develop a method to split an array on a cache line (64 byte) boundary. Make it public, since it will be useful in many cases. There may be two ways to do this: one is to split on cache line boundaries
-//       and the other to not, but to indicate how many bytes until the next cache line boundary. Implement both. Also implement a method to query the system to the size of the cache line, and to allow the user to set it.
-//       Then/or SIMD/SSE methods could know or test if the start of its operation is cache line alinged (or SSE size aligned) and perform scalar operations on the front end up to the point of being SSE-aligned.
-//       Dividing on a cache line boundary is better, as it avoids false sharing of a cache line between multiple tasks, but in the case of .Sum() both tasks are just reading, which should be fine.
 // TODO: Implement a for loop instead of divide-and-conquer, since they really accomplish the same thing, and the for loop will be more efficient and easier to make cache line boundary divisible.
 //       Combining will be slightly harder, but we could create an array of sums, where each task has its own array element to fill in, then we combine all of the sums at the end serially. Still has the issue of managed memory
 //       where the array may move and not be cache aligned any more, requiring fixing the array in memory to not move (an unsafe version).
@@ -17,14 +8,14 @@
 //       If that's the case for Linq.Sum() for nullable types, then SIMD acceleration is still possible, but will be much slower, since we'll need to test each Vector.Count array items for null, and only if they all are not-null then add them to the sum.
 //       From research on the web, Linq.Sum() skips null values by default - i.e. treats them as zeroes. This is inconsistent with adding a null value to a number.
 // TODO: See if SSEandScalar version is faster when the array is entirely inside the cache, to make sure that it's not just being memory bandwidth limited and hiding ILP speedup. Port it to C++ and see
-//       if it speeds up. Run many times over the same array using .Sum() and provide the average and minimum timing.
+//       if it speeds up. Run many times over the same array using .Sum() and provide the average and minimum timing. Also, could test using a single core, where memory bandwidth is not the limiter.
 // TODO: Return a tupple (sum and c) from each parallel Neumaier result and figure out how to combine these results for a more accurate and possibly perfect overall result that will match serial array processing result.
 // TODO: Since C# has support for BigInteger data type in System.Numerics, then provide accurate .Sum() all the way to these for decimal[], float[] and double[]. Basically, provide a consistent story for .Sum() where every type can be
 //       summed with perfect accuracy when needed. Make sure naming of functions is consistent for all of this and across all data types, multi-core and SSE implementations, to make it simple, logical and consistent to use.
 //       Sadly, this idea won't work, since we need a BigDecimal or BigFloatingPoint to capture perfect accumulation for both of these non-integer types.
 // TODO: Implement .Sum() for summing a field of Objects/UserDefinedTypes, if it's possible to add value by possibly aggregating elements into a local array of Vector size and doing an SSE sum. Is it possible to abstract it well and to
 //       perform well to support extracting all numeric data types, so that performance and abstraction are competitive and as simple or simpler than Linq?
-// TODO: Write a blog on floating-point .Sum() and all of it's capabilities, options and trade-offs in performance and accuracy.
+// TODO: Write a blog on floating-point .Sum() and all of it's capabilities, options and trade-offs in performance and accuracy (Submitted a paper proposal to the MSDN journal. Waiting for response first.)
 // TODO: Rename Neumaier .Sum() to sum_kbn as Julia language does, since the original implementation was done by Kahan-Babuska and KBN would give all three creators credit
 // TODO: Re-use the new generic divide-and-conquer function, and it could even be a lambda function for some implementations (like non-Kahan-Neumaier addition). For float and double summation, we just need to pass in function of double or float.
 // TODO: Note that by default parallel .Sum() implementations are pairwise summation, since it does divide-and-conquer. This needs to be noted in the Readme or somehow be communicated to the user, and bloged about and in the parallel section of
@@ -310,7 +301,10 @@ namespace HPCsharp.ParallelAlgorithms
             return overallSum;
         }
 
-        public static long SumSseOffset(this int[] arrayToSum)
+        // TODO: Implement aligned SIMD sum, since memory alignment is critical for SIMD instructions. So, do scalar first until we are SIMD aligned and then do SIMD, followed by more scarlar to finish all
+        //       left over elements that are not SIMD size divisible. First simple step is to check alignment of SIMD portion of the sum. See cache-aligned entry below, which may solve this problem.
+        // Conclusion: In modern Intel CPUs this issue seems to have been resolved. It used to be an issue in earlier generations when SIMD/SSE was young.
+        private static long SumSseOffset(this int[] arrayToSum)
         {
             return arrayToSum.SumSseInner(0, arrayToSum.Length - 1);
         }
