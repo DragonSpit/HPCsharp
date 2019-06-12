@@ -29,6 +29,11 @@
 // TODO: Re-use the new generic divide-and-conquer function, and it could even be a lambda function for some implementations (like non-Kahan-Neumaier addition). For float and double summation, we just need to pass in function of double or float.
 // TODO: Note that by default parallel .Sum() implementations are pairwise summation, since it does divide-and-conquer. This needs to be noted in the Readme or somehow be communicated to the user, and bloged about and in the parallel section of
 //       wikipedia pairwise summation.
+// TODO: One of the issues with C# nullable type is that it consists of a byte for the boolean and of another type. This makes
+//       it convenient for single elements, but difficult to process in a data parallel fashion with higher performance.
+//       A better array structure would be an array for booleans and an array to another type. This helps data parallel instruction
+//       since these work only on data of the same size. Maybe that's what we could suggest and implement it to provide
+//       a higher performance alternative.
 using System.Collections.Generic;
 using System.Text;
 using System.Numerics;
