@@ -19,7 +19,7 @@ namespace HPCsharpExamples
 
             Console.WriteLine("First .Sum() = " + arr.Sum());
 
-            //arr = new int[] { Int32.MaxValue, 1 };
+            arr = new int[] { Int32.MaxValue, 1 };
 
             //sum = 0;
             //for (int i = 0; i < arr.Length; i++)
@@ -28,6 +28,7 @@ namespace HPCsharpExamples
             //}
             //Console.WriteLine("Second loop sum = " + sum);
 
+            Console.WriteLine("Second .Sum() = " + arr.Sum(x => (long)x));
             //Console.WriteLine("Second .Sum() = " + arr.Sum());
 
             //long longSum = 0;

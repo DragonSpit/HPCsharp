@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace HPCsharp
 {
-    static public partial class IsArrayZero
+    static public partial class ZeroDetect
     {
 #if false
         // https://stackoverflow.com/questions/33294580/sse-instruction-to-check-if-byte-array-is-zeroes-c-sharp
@@ -41,7 +41,7 @@ namespace HPCsharp
         }
 #endif
         // Stackoverflow post claims this version is faster than the SIMD implementation above
-        static unsafe bool ByFixedLongUnrolled(byte[] data)
+        public static unsafe bool ByFixedLongUnrolled(byte[] data)
         {
             fixed (byte* bytes = data)
             {
