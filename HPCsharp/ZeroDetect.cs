@@ -1,5 +1,6 @@
-﻿// TODO: Implement a new nullable array that does not throw an exception when you access null data, but returns the default value. This may not be a desirable behavior for all use cases, but is faster, as
-//       it allows for the boolean "HasValue" and "Value" to be separated into their own arrays to be able to process them using SIMD/SSE instructions for data parallel implementation.
+﻿// TODO: Implement not just Zero detection, but detection of any constant value, specified by the user.
+// TODO: Implement constant detection - detect whether the array is a constant or not.
+// TODO: Unroll the SIMD/SSE loop to check intermediate values to stop early if not zero.
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -40,6 +41,65 @@ namespace HPCsharp
             }
         }
 #endif
+        private static bool ZeroDetectSseInner(this byte[] arrayToOr, int l, int r)
+        {
+            var orVector   = new Vector<byte>(0);
+            var ZeroVector = new Vector<byte>(0);
+            int sseIndexEnd = l + ((r - l + 1) / Vector<byte>.Count) * Vector<byte>.Count;
+            int i;
+            for (i = l; i < sseIndexEnd; i += Vector<byte>.Count)
+            {
+                var inVector = new Vector<byte>(arrayToOr, i);
+                orVector |= inVector;
+                if (orVector != ZeroVector)
+                    return false;
+            }
+            byte overallOr = 0;
+            for (; i <= r; i++)
+                overallOr |= arrayToOr[i];
+            for (i = 0; i < Vector<byte>.Count; i++)
+                overallOr |= orVector[i];
+            return overallOr == 0;
+        }
+
+        public static bool ZeroValueDetectSse(this byte[] arrayToDetect)
+        {
+            return arrayToDetect.ZeroDetectSseInner(0, arrayToDetect.Length - 1);
+        }
+
+        private static bool ZeroDetectSseInner2(this byte[] arrayToOr, int l, int r)
+        {
+            var orVector1 = new Vector<byte>(0);
+            var orVector2 = new Vector<byte>(0);
+            var orVector3 = new Vector<byte>(0);
+            int concurrentAmount = 3;
+            int sseIndexEnd = l + ((r - l + 1) / (Vector<byte>.Count * concurrentAmount)) * (Vector<byte>.Count * concurrentAmount);
+            int i, j, k;
+            int increment = Vector<byte>.Count * concurrentAmount;
+            for (i = l, j = l + Vector<byte>.Count, k = l + Vector<byte>.Count + Vector<byte>.Count; i < sseIndexEnd; i += increment, j += increment, k += increment)
+            {
+                var inVector1 = new Vector<byte>(arrayToOr, i);
+                var inVector2 = new Vector<byte>(arrayToOr, j);
+                var inVector3 = new Vector<byte>(arrayToOr, k);
+                orVector1 |= inVector1;
+                orVector2 |= inVector2;
+                orVector3 |= inVector3;
+            }
+            byte overallOr = 0;
+            for (; i <= r; i++)
+                overallOr |= arrayToOr[i];
+            orVector1 |= orVector2;
+            orVector1 |= orVector3;
+            for (i = 0; i < Vector<byte>.Count; i++)
+                overallOr |= orVector1[i];
+            return overallOr == 0;
+        }
+
+        public static bool ZeroValueDetectSse2(this byte[] arrayToDetect)
+        {
+            return arrayToDetect.ZeroDetectSseInner2(0, arrayToDetect.Length - 1);
+        }
+
         public static bool ByFor(byte[] data)
         {
             // Local variable is accessed faster than a property, and loop multiplies the difference.
