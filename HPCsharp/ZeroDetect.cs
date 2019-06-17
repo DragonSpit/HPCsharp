@@ -1,6 +1,8 @@
 ﻿// TODO: Implement not just Zero detection, but detection of any constant value, specified by the user.
 // TODO: Implement constant detection - detect whether the array is a constant or not.
-// TODO: Unroll the SIMD/SSE loop to check intermediate values to stop early if not zero.
+// TODO: Implement multi-core zero detection using the best SSE algorithm.
+// TODO: Improve implementation of equal of byte[] and other data types using the same technique and post to https://stackoverflow.com/questions/43289/comparing-two-byte-arrays-in-net?noredirect=1&lq=1
+//       once memory bandwidth limit has been reached by the implementation.
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -51,7 +53,7 @@ namespace HPCsharp
             {
                 var inVector = new Vector<byte>(arrayToOr, i);
                 orVector |= inVector;
-                if (orVector != ZeroVector)
+                if (!Vector.EqualsAll(inVector, ZeroVector))
                     return false;
             }
             byte overallOr = 0;
@@ -69,18 +71,93 @@ namespace HPCsharp
 
         private static bool ZeroDetectSseInner2(this byte[] arrayToOr, int l, int r)
         {
+            var orVector   = new Vector<byte>(0);
+            var ZeroVector = new Vector<byte>(0);
+            int numVectorsPerInnerLoop = 128;
+            int numVectorsConcurrently = 4;
+            int offset1 = Vector<byte>.Count;
+            int offset2 = Vector<byte>.Count * 2;
+            int offset3 = Vector<byte>.Count * 3;
+            int numElementsPerInnerLoop = numVectorsPerInnerLoop * numVectorsConcurrently * Vector<byte>.Count;
+            int sseIndexEnd = l + ((r - l + 1) / numElementsPerInnerLoop) * numElementsPerInnerLoop;
+            int i;
+            for (i = l; i < sseIndexEnd; i += numElementsPerInnerLoop)
+            {
+                int currLoopEnd = i + numElementsPerInnerLoop;
+                int innerLoopIncrement = Vector<byte>.Count * numVectorsConcurrently;
+                for (int j = i; j < currLoopEnd; j += innerLoopIncrement)
+                {
+                    orVector |= new Vector<byte>(arrayToOr, j);
+                    orVector |= new Vector<byte>(arrayToOr, j + offset1);
+                    orVector |= new Vector<byte>(arrayToOr, j + offset2);
+                    orVector |= new Vector<byte>(arrayToOr, j + offset3);
+                }
+                if (orVector != ZeroVector)
+                    return false;
+            }
+            byte overallOr = 0;
+            for (; i <= r; i++)
+                overallOr |= arrayToOr[i];
+            for (i = 0; i < Vector<byte>.Count; i++)
+                overallOr |= orVector[i];
+            return overallOr == 0;
+        }
+
+        public static bool ZeroValueDetectSse2(this byte[] arrayToDetect)
+        {
+            return arrayToDetect.ZeroDetectSseInner2(0, arrayToDetect.Length - 1);
+        }
+
+        private static bool ZeroDetectSseUnrolledInner(this byte[] arrayToOr, int l, int r)
+        {
+            var zeroVector = new Vector<byte>(0);
+            int concurrentAmount = 4;
+            int sseIndexEnd = l + ((r - l + 1) / (Vector<byte>.Count * concurrentAmount)) * (Vector<byte>.Count * concurrentAmount);
+            int i;
+            int offset1 = Vector<byte>.Count;
+            int offset2 = Vector<byte>.Count * 2;
+            int offset3 = Vector<byte>.Count * 3;
+            int increment = Vector<byte>.Count * concurrentAmount;
+            for (i = l; i < sseIndexEnd; i += increment)
+            {
+                var inVector  = new Vector<byte>(arrayToOr, i          );
+                inVector     |= new Vector<byte>(arrayToOr, i + offset1);
+                inVector     |= new Vector<byte>(arrayToOr, i + offset2);
+                inVector     |= new Vector<byte>(arrayToOr, i + offset3);
+                if (!Vector.EqualsAll(inVector, zeroVector))
+                    return false;
+            }
+            byte overallOr = 0;
+            for (; i <= r; i++)
+                overallOr |= arrayToOr[i];
+            return overallOr == 0;
+        }
+
+        public static bool ZeroValueDetectSseUnrolled(this byte[] arrayToDetect)
+        {
+            return arrayToDetect.ZeroDetectSseUnrolledInner(0, arrayToDetect.Length - 1);
+        }
+
+        private static bool ZeroDetectSseUnrolledInner2(this byte[] arrayToOr, int l, int r)
+        {
+            var orVector0 = new Vector<byte>(0);
             var orVector1 = new Vector<byte>(0);
             var orVector2 = new Vector<byte>(0);
             var orVector3 = new Vector<byte>(0);
-            int concurrentAmount = 3;
+            int concurrentAmount = 4;
             int sseIndexEnd = l + ((r - l + 1) / (Vector<byte>.Count * concurrentAmount)) * (Vector<byte>.Count * concurrentAmount);
-            int i, j, k;
+            int i;
+            int offset1 = Vector<byte>.Count;
+            int offset2 = Vector<byte>.Count * 2;
+            int offset3 = Vector<byte>.Count * 3;
             int increment = Vector<byte>.Count * concurrentAmount;
-            for (i = l, j = l + Vector<byte>.Count, k = l + Vector<byte>.Count + Vector<byte>.Count; i < sseIndexEnd; i += increment, j += increment, k += increment)
+            for (i = l; i < sseIndexEnd; i += increment)
             {
-                var inVector1 = new Vector<byte>(arrayToOr, i);
-                var inVector2 = new Vector<byte>(arrayToOr, j);
-                var inVector3 = new Vector<byte>(arrayToOr, k);
+                var inVector0 = new Vector<byte>(arrayToOr, i);
+                var inVector1 = new Vector<byte>(arrayToOr, i + offset1);
+                var inVector2 = new Vector<byte>(arrayToOr, i + offset2);
+                var inVector3 = new Vector<byte>(arrayToOr, i + offset3);
+                orVector0 |= inVector0;
                 orVector1 |= inVector1;
                 orVector2 |= inVector2;
                 orVector3 |= inVector3;
@@ -88,16 +165,17 @@ namespace HPCsharp
             byte overallOr = 0;
             for (; i <= r; i++)
                 overallOr |= arrayToOr[i];
-            orVector1 |= orVector2;
-            orVector1 |= orVector3;
+            orVector0 |= orVector1;
+            orVector0 |= orVector2;
+            orVector0 |= orVector3;
             for (i = 0; i < Vector<byte>.Count; i++)
-                overallOr |= orVector1[i];
+                overallOr |= orVector0[i];
             return overallOr == 0;
         }
 
-        public static bool ZeroValueDetectSse2(this byte[] arrayToDetect)
+        public static bool ZeroValueDetectSseUnrolled2(this byte[] arrayToDetect)
         {
-            return arrayToDetect.ZeroDetectSseInner2(0, arrayToDetect.Length - 1);
+            return arrayToDetect.ZeroDetectSseUnrolledInner2(0, arrayToDetect.Length - 1);
         }
 
         public static bool ByFor(byte[] data)
