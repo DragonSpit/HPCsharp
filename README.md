@@ -8,7 +8,7 @@ High performance cross-platform C# generic algorithms. Community driven to raise
 similar to standard C# algorithms and Linq. Free, open source, on nuget.org
 
 *Algorithm*|*\#*|*SSE*|*Multi-Core*|*Array*|*List*|*Details*
---- | --- | --- | --- | --- | --- | ---
+--- | --- | --- | --- | --- | --- | :--
 Binary Search | 1 | | | Y | Y | Generic IComparer\<T\>
 Block Swap | 3 | | | Y | | Generic
 Copy |  | | |  | |
@@ -18,7 +18,14 @@ Fill | 1 | Y | Y | Y | | Array of numeric types
 Histogram | 1 | Y | Y | Y | | Byte, N-bit components of numeric arrays
 Insertion Sort | 1 | | | Y | Y | Generic IComparer\<T\>
 Max, Min | 1 | Y | Y | Y | Y | Generic IComparer\<T\>
-
+Merge | 2 | | Y | Y | Y | Generic IComparer\<T\>
+Multi-way Merge | 1 | | | Y | |
+Merge Sort | 2 | | Y | Y | Generic, stable or not, whole or partial
+Priority Queue | 2 | | | Y | | 
+Radix Sort (LSD) | 1 | Y | Y | Y | | Arrays of numeric types, user defined types
+Radix Sort (MSD) | 2 | Y | Y | Y | | Arrays of numeric types, user defined types
+Sequence Equal | 1 | Y | Y | Y | | 
+Sum | 3 | Y | Y | Y | | Arrays of numeric types. [Better in many ways](https://duvanenko.tech.blog/2019/04/23/better-sum-in-c/)
 
 Parallel algorithms for Sum, Sort, Merge, Copy, Histogram and others. Parallel Stable Merge Sort and parallel Merge of arrays and lists.
 Linear time, stable or in-place Radix Sort (LSD & MSD) algorithms for arrays and lists of user defined classes sorted by key. Crazy fast Counting Sort,
