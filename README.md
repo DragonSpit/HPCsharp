@@ -20,16 +20,14 @@ Insertion Sort | 1 | | | Y | Y | Generic IComparer\<T\>
 Max, Min | 1 | Y | Y | Y | Y | Generic IComparer\<T\>
 Merge | 2 | | Y | Y | Y | Generic IComparer\<T\>
 Multi-way Merge | 1 | | | Y | |
-Merge Sort | 2 | | Y | Y | | Generic, stable or not, whole or partial
+Merge Sort | 2 | | Y | Y | | Generic, Stable or not, whole or partial
 Priority Queue | 2 | | | Y | | 
-Radix Sort (LSD) | 1 | Y | Y | Y | | Arrays of numeric types, user defined types
-Radix Sort (MSD) | 2 | Y | Y | Y | | Arrays of numeric types, user defined types
+Radix Sort (LSD) | 1 | Y | Y | Y | | Arrays of numeric types, user defined types, Stable
+Radix Sort (MSD) | 2 | Y | Y | Y | | Arrays of numeric types, user defined types, In-place
 Sequence Equal | 1 | Y | Y | Y | | 
 Sum | 3 | Y | Y | Y | | Arrays of numeric types. [Better in many ways](https://duvanenko.tech.blog/2019/04/23/better-sum-in-c/)
 
-Parallel algorithms for Sum, Sort, Merge, Copy, Histogram and others. Parallel Stable Merge Sort and parallel Merge of arrays and lists.
-Linear time, stable or in-place Radix Sort (LSD & MSD) algorithms for arrays and lists of user defined classes sorted by key. Crazy fast Counting Sort,
-and Array.Fill for full and partial arrays. Better .Sum() in many ways. And, much more...
+More in development ...
 
 Recent presentation at the Indianapolis .NET Consortium, March 2019 on https://youtu.be/IRNW4VGevvQ
 
