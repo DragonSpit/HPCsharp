@@ -4,12 +4,17 @@ If you like HPCsharp, then help us keep more good stuff like this coming. Let us
 
 # High Performance Computing in C# (HPCsharp)
 
-High performance C# generic algorithms. Community driven to raise C# performance. Cross-platform.
+High performance cross-platform C# generic algorithms. Community driven to raise C# performance. Familiar interfaces,
+similar to standard C# algorithms and Linq. Free, open source, and on nuget.org
+
+*Algorithm*|*Number of Algorithms*|*SSE*|*Multi-Core*|*Array*|*List*|*Details*
+--- | --- | --- | --- | --- | --- | ---
+Binary Search | 1 | | | Y | Y | Generic Icomparer<T>
+Block Swap | 3 | | | Y | | Generic
+
 Parallel algorithms for Sum, Sort, Merge, Copy, Histogram and others. Parallel Stable Merge Sort and parallel Merge of arrays and lists.
 Linear time, stable or in-place Radix Sort (LSD & MSD) algorithms for arrays and lists of user defined classes sorted by key. Crazy fast Counting Sort,
 and Array.Fill for full and partial arrays. Better .Sum() in many ways. And, much more...
-
-Familiar interfaces, which are similar to standard C# algorithms and Linq. Free and open source HPCsharp package on https://www.nuget.org
 
 Recent presentation at the Indianapolis .NET Consortium, March 2019 on https://youtu.be/IRNW4VGevvQ
 
