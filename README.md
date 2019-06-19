@@ -7,10 +7,15 @@ If you like HPCsharp, then help us keep more good stuff like this coming. Let us
 High performance cross-platform C# generic algorithms. Community driven to raise C# performance. Familiar interfaces,
 similar to standard C# algorithms and Linq. Free, open source, and on nuget.org
 
-*Algorithm*|*Number of Algorithms*|*SSE*|*Multi-Core*|*Array*|*List*|*Details*
+*Algorithm*|*\#*|*SSE*|*Multi-Core*|*Array*|*List*|*Details*
 --- | --- | --- | --- | --- | --- | ---
-Binary Search | 1 | | | Y | Y | Generic Icomparer<T>
+Binary Search | 1 | | | Y | Y | Generic Icomparer\<T\>
 Block Swap | 3 | | | Y | | Generic
+Copy |  | | |  | |
+Copy List to Array |  | | |  | |
+Counting Sort | 1 | Y | Y | Y | | Array of bytes, ushort, sbyte, short. Ludicrous speed!
+
+
 
 Parallel algorithms for Sum, Sort, Merge, Copy, Histogram and others. Parallel Stable Merge Sort and parallel Merge of arrays and lists.
 Linear time, stable or in-place Radix Sort (LSD & MSD) algorithms for arrays and lists of user defined classes sorted by key. Crazy fast Counting Sort,
