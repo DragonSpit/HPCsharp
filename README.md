@@ -9,23 +9,23 @@ similar to standard C# algorithms and Linq. Free, open source, on nuget.org
 
 *Algorithm*|*\#*|*SSE*|*Multi-Core*|*Array*|*List*|*Details*
 --- | --- | --- | --- | --- | --- | :--
-Binary Search | 1 | | | Y | Y | Generic IComparer\<T\>
-Block Swap | 3 | | | Y | | Generic
+Binary Search | 1 | | | :heavy_check_mark: | :heavy_check_mark: | Generic IComparer\<T\>
+Block Swap | 3 | | | :heavy_check_mark: | | Generic
 Copy |  | | |  | |
 Copy List to Array |  | | |  | |
-Counting Sort | 1 | Y | Y | Y | | Array of bytes, ushort, sbyte, short. Ludicrous speed!
-Fill | 1 | Y | Y | Y | | Array of numeric types
-Histogram | 1 | Y | Y | Y | | Byte, N-bit components of numeric arrays
-Insertion Sort | 1 | | | Y | Y | Generic IComparer\<T\>
-Max, Min | 1 | Y | Y | Y | Y | Generic IComparer\<T\>
-Merge | 2 | | Y | Y | Y | Generic IComparer\<T\>
-Multi-way Merge | 1 | | | Y | |
-Merge Sort | 2 | | Y | Y | | Generic, Stable or not, whole or partial
-Priority Queue | 2 | | | Y | | 
-Radix Sort (LSD) | 1 | Y | Y | Y | | Arrays of numeric types, user defined types, Stable
-Radix Sort (MSD) | 2 | Y | Y | Y | | Arrays of numeric types, user defined types, In-place
-Sequence Equal | 1 | Y | Y | Y | | 
-Sum | 3 | Y | Y | Y | | Arrays of numeric types. [Better in many ways](https://duvanenko.tech.blog/2019/04/23/better-sum-in-c/)
+Counting Sort | 1 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Array of bytes, ushort, sbyte, short. Ludicrous speed!
+Fill | 1 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Array of numeric types
+Histogram | 1 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Byte, N-bit components of numeric arrays
+Insertion Sort | 1 | | | :heavy_check_mark: | :heavy_check_mark: | Generic IComparer\<T\>
+Max, Min | 1 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | Generic IComparer\<T\>
+Merge | 2 | | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | Generic IComparer\<T\>
+Multi-way Merge | 1 | | | :heavy_check_mark: | |
+Merge Sort | 2 | | :heavy_check_mark: | :heavy_check_mark: | | Generic, Stable or not, whole or partial
+Priority Queue | 2 | | | :heavy_check_mark: | | 
+Radix Sort (LSD) | 1 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Arrays of numeric types, user defined types, Stable
+Radix Sort (MSD) | 2 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Arrays of numeric types, user defined types, In-place
+Sequence Equal | 1 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | 
+Sum | 3 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Arrays of numeric types. [Better in many ways](https://duvanenko.tech.blog/2019/04/23/better-sum-in-c/)
 
 More in development ...
 
