@@ -20,7 +20,7 @@ Insertion Sort | 1 | | | Y | Y | Generic IComparer\<T\>
 Max, Min | 1 | Y | Y | Y | Y | Generic IComparer\<T\>
 Merge | 2 | | Y | Y | Y | Generic IComparer\<T\>
 Multi-way Merge | 1 | | | Y | |
-Merge Sort | 2 | | Y | Y | Generic, stable or not, whole or partial
+Merge Sort | 2 | | Y | Y | | Generic, stable or not, whole or partial
 Priority Queue | 2 | | | Y | | 
 Radix Sort (LSD) | 1 | Y | Y | Y | | Arrays of numeric types, user defined types
 Radix Sort (MSD) | 2 | Y | Y | Y | | Arrays of numeric types, user defined types
