@@ -8,7 +8,7 @@ High performance cross-platform C# generic algorithms. Community driven to raise
 similar to standard C# algorithms and Linq. Free, open source, on nuget.org
 
 *Algorithm*|*\**|*\*\**|*SSE*|*Multi-Core*|*Array*|*List*|*Details*
---- | --- | --- | --- | --- | --- | --- | :--
+--- | --- | --- | --- | --- | :---: | --- | :--
 Binary Search | 1 | 2 | | | | :heavy_check_mark: | :heavy_check_mark: | Generic IComparer\<T\>
 Block Swap | 4 | 5 | | | :heavy_check_mark: | | Generic
 Copy |  | | | |  | |
