@@ -25,6 +25,9 @@
 //       A better array structure would be an array for booleans and an array to another type. This helps data parallel instruction
 //       since these work only on data of the same size. Maybe that's what we could suggest and implement it to provide
 //       a higher performance alternative.
+// TODO: Apply the same technique of double the memory load as used for ZeroDetection by loading two per loop.
+//       Wonder if having two or more independent loop counters would also help, along with two or more memory loads.
+//       Need to see if SSE on single core is memory limited. Need to add to table single-core performance.
 using System.Collections.Generic;
 using System.Text;
 using System.Numerics;
