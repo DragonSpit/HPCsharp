@@ -14,10 +14,10 @@ Block Swap | 4 | 5 | | | :heavy_check_mark: | | Generic
 Copy |  | | | |  | |
 Copy List to Array |  | | | |  | |
 Counting Sort | 3 | 14 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | byte, ushort, sbyte, short arrays. Ludicrous speed!
-Divide-And-Conquer | 1 | 2 | | :heavy_check_mark: | :heavy_check_mark: | | Generic scalar and parallel abstraction *\*\*\
+Divide-And-Conquer | 1 | 2 | | :heavy_check_mark: | :heavy_check_mark: | | Generic scalar and parallel abstraction *\*\*
 Fill | 4 | 10 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Numeric arrays
-Histogram | 1 | | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Byte, N-bit components of numeric arrays
-Insertion Sort | 1 | | | | :heavy_check_mark: | :heavy_check_mark: | Generic IComparer\<T\>
+Histogram | 14 | 35 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Byte, N-bit components of numeric arrays
+Insertion Sort | 1 | 2 | | | :heavy_check_mark: | :heavy_check_mark: | Generic IComparer\<T\>
 Max, Min | 1 | | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | Generic IComparer\<T\>
 Merge | 2 | | | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | Generic IComparer\<T\>
 Multi-way Merge | 1 | | | | :heavy_check_mark: | |
@@ -27,6 +27,7 @@ Radix Sort (LSD) | 1 | | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_
 Radix Sort (MSD) | 2 | | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Numeric arrays, user defined types, In-place
 Sequence Equal | 1 | | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | 
 Sum | 4 | | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Numeric arrays. [Better in many ways](https://duvanenko.tech.blog/2019/04/23/better-sum-in-c/)
+Zero Array Detect | 3 | | :heavy_check_mark: | | :heavy_check_mark: | | Detect if byte array is all zeroes *\*\*
 
 \* Number of different algorithms\
 \*\* Number of functions for this algorithm\
