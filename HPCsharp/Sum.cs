@@ -26,6 +26,13 @@ namespace HPCsharp.Algorithms
 {
     static public partial class Sum
     {
+        /// <summary>
+        /// Faster, perfectly accurate summation of long[] array, which uses a decimal accumulator for perfect accuracy,
+        /// and integer summations for higher performance, handling overflow exceptions internally.
+        /// Will not throw overflow exception.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>decimal sum</returns>
         public static decimal SumDecimalFast(this long[] arrayToSum)
         {
             decimal overallSum = 0;
@@ -45,6 +52,13 @@ namespace HPCsharp.Algorithms
             return overallSum + tempSum;
         }
 
+        /// <summary>
+        /// Faster, perfectly accurate summation of ulong[] array, which uses a decimal accumulator for perfect accuracy,
+        /// and integer summations for higher performance, handling overflow exceptions internally.
+        /// Will not throw overflow exception.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>decimal sum</returns>
         public static decimal SumDecimalFast(this ulong[] arrayToSum)
         {
             decimal overallSum = 0;
@@ -64,11 +78,25 @@ namespace HPCsharp.Algorithms
             return overallSum + tempSum;
         }
 
+        /// <summary>
+        /// Slower, perfectly accurate summation of long[] array, which uses a decimal accumulator for perfect accuracy.
+        /// Will not throw overflow exception.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>decimal sum</returns>
         public static decimal SumDecimalHpc(this long[] arrayToSum)
         {
             return arrayToSum.SumDecimalHpc(0, arrayToSum.Length);
         }
 
+        /// <summary>
+        /// Slower, perfectly accurate summation of long[] array, which uses a decimal accumulator for perfect accuracy.
+        /// Will not throw overflow exception.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <param name="startIndex">index of the starting element for the summation</param>
+        /// <param name="length">number of array elements to sum up</param>
+        /// <returns>decimal sum</returns>
         public static decimal SumDecimalHpc(this long[] arrayToSum, int startIndex, int length)
         {
             int endIndex = startIndex + length;
@@ -78,6 +106,12 @@ namespace HPCsharp.Algorithms
             return overallSum;
         }
 
+        /// <summary>
+        /// Slower, perfectly accurate summation of long[] array, which uses a decimal accumulator for perfect accuracy.
+        /// Will not throw overflow exception.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>decimal summation value</returns>
         public static decimal SumDecimalHpc(this long?[] arrayToSum)
         {
             return arrayToSum.SumDecimalHpc(0, arrayToSum.Length);
@@ -93,6 +127,12 @@ namespace HPCsharp.Algorithms
             return overallSum;
         }
 
+        /// <summary>
+        /// Summation of long[] array.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>long sum</returns>
+        /// <exception>TSource:System.OverflowException: when the sum value is greater than Int32.MaxValue</exception>
         public static long SumHpc(this long[] arrayToSum)
         {
             return arrayToSum.SumHpc(0, arrayToSum.Length);

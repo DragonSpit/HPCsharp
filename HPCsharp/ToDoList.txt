@@ -1,4 +1,10 @@
 ﻿// TODO: Add SoftMax algorithm used by Machine Learning: https://stackoverflow.com/questions/42599498/numercially-stable-softmax
+// TODO: Implement a control algorithm for the number of cores that participate in the algorithm, to determine the optimal
+//       number of cores dynamically at run-time. Start out processing a chunk that is 1X of the work size, measure the execution
+//       time, then double the number of cores and the work size, measure the execution time, if faster then increase the number
+//       of cores and work size, if slower then decrease the number of cores and the work size. This method free's the developer
+//       from experimentally running the algorithm to determine the optimal numnber of cores, and especially useful when
+//       other computational resources, such as memory bandwidth or network bandwidth are limiting performance.
 // TODO: Add Array equal List and List equal Array versions, as Microsoft supports these variations, since they use IEnumerable. Plus, they can compare other collections potentially, if it makes sense or is possible at all, since they are IEnumerable, but are slower
 // TODO: Figure out what Linq.Min returns when an array is made of nullable elements and add support for this type of an array
 // TODO: Linq provides different variations of Min and Max than HPC#. Implement similar methods to Linq, without using IEnumerable
