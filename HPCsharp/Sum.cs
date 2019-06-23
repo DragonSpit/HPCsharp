@@ -10,6 +10,8 @@
 // TODO: Since C# has support for BigInteger data type in System.Numerics, then provide accurate .Sum() all the way to these for decimal[], float[] and double[]. Basically, provide a consistent story for .Sum() where every type can be
 //       summed with perfect accuracy when needed. Make sure naming of functions is consistent for all of this and across all data types, multi-core and SSE implementations, to make it simple, logical and consistent to use.
 //       Sadly, this idea won't work, since we need a BigDecimal or BigFloatingPoint to capture perfect accumulation for both of these non-integer types.
+// TODO: Using BigInteger will work for all integer data types: signed and unsigned. This may be faster and an interesting
+//       alternative to decimal, and may possibly be faster, which would be fun to verify and provide performance data for.
 // TODO: Improve pair-wise .Sum() with O(e*lgN) so that it works for any size array, even small ones, whereas the current implementation which is suggested on Wikipedia favors large arrays, and does a naive summation for small arrays.
 //       A possible way to do it is by using a stack structure to emulate recursion, pushing the currect "level-sum" onto this stack. This would work for SSE as well by pushing SSE-size data type onto the stack. There may be other even
 //       more efficient methods.
