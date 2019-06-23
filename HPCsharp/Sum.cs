@@ -12,6 +12,8 @@
 //       Sadly, this idea won't work, since we need a BigDecimal or BigFloatingPoint to capture perfect accumulation for both of these non-integer types.
 // TODO: Using BigInteger will work for all integer data types: signed and unsigned. This may be faster and an interesting
 //       alternative to decimal, and may possibly be faster, which would be fun to verify and provide performance data for.
+//       Performance can also be improved by using the same idea of using ulong/long until it overflows. Microsoft also suggested
+//       this idea on their BigInteger web page.
 // TODO: Improve pair-wise .Sum() with O(e*lgN) so that it works for any size array, even small ones, whereas the current implementation which is suggested on Wikipedia favors large arrays, and does a naive summation for small arrays.
 //       A possible way to do it is by using a stack structure to emulate recursion, pushing the currect "level-sum" onto this stack. This would work for SSE as well by pushing SSE-size data type onto the stack. There may be other even
 //       more efficient methods.
