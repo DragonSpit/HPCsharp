@@ -1,3 +1,7 @@
+Version 3.4.2
+Added zero detection of byte array: scalar and highly optimized SSE. Implemented .Sum() of a section of an array.
+Added documentation for many .Sum() functions. Added algorithm list/table to the project Readme, showing all functions implemented.
+
 Version 3.4.1
 Implemented scaler version of pairwise .Sum() for float[] and double[] for more accurate summation without doing extra work.
 Implemented a generic divide-and-conquer parallel function, applicable in many cases.
