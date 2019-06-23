@@ -1,5 +1,4 @@
-﻿// TODO: Implement not just Zero detection, but detection of any constant value, specified by the user.
-// TODO: Implement constant detection - detect whether the array is a constant or not.
+﻿// TODO: See scalar ZeroDetection.cs for idea on constant value detection to implement.
 // TODO: Implement multi-core zero detection using the best SSE algorithm.
 // TODO: Improve implementation of equal of byte[] and other data types using the same technique and post to https://stackoverflow.com/questions/43289/comparing-two-byte-arrays-in-net?noredirect=1&lq=1
 //       once memory bandwidth limit has been reached by the implementation. This is the same type of a problem, where AND condition is needed.

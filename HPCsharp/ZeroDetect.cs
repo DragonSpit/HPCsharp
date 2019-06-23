@@ -1,5 +1,6 @@
-﻿// TODO: Implement not just Zero detection, but detection of any constant value, specified by the user.
-// TODO: Implement constant detection - detect whether the array is a constant or not.
+﻿// TODO: Implement not just Zero detection, but detection of any constant value, specified by the user. The constant
+//       value needs to be flexible and be any numeric data type. For example, we should be able to specify uint 0x00ff0000
+//       as the RGB value for a constant color array.
 using System;
 using System.Collections.Generic;
 using System.Text;
