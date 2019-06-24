@@ -28,7 +28,7 @@ namespace HPCsharpExamples
             //}
             //Console.WriteLine("Second loop sum = " + sum);
 
-            Console.WriteLine("Second .Sum() = " + arr.Sum(x => (long)x));
+            //Console.WriteLine("Second .Sum() = " + arr.Sum(x => (long)x));
             //Console.WriteLine("Second .Sum() = " + arr.Sum());
 
             //long longSum = 0;

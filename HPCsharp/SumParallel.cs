@@ -28,6 +28,8 @@
 // TODO: Apply the same technique of double the memory load as used for ZeroDetection by loading two per loop.
 //       Wonder if having two or more independent loop counters would also help, along with two or more memory loads.
 //       Need to see if SSE on single core is memory limited. Need to add to table single-core performance.
+// TODO: Need to implement integer and unsigned integer .SumPar() - i.e. without SSE, but multi-core
+
 using System.Collections.Generic;
 using System.Text;
 using System.Numerics;

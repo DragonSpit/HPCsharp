@@ -9,7 +9,8 @@
 //       log passes. This will produce a more accurate .Sum() without needing Neumaier algorithm overhead.
 // TODO: Since C# has support for BigInteger data type in System.Numerics, then provide accurate .Sum() all the way to these for decimal[], float[] and double[]. Basically, provide a consistent story for .Sum() where every type can be
 //       summed with perfect accuracy when needed. Make sure naming of functions is consistent for all of this and across all data types, multi-core and SSE implementations, to make it simple, logical and consistent to use.
-//       Sadly, this idea won't work, since we need a BigDecimal or BigFloatingPoint to capture perfect accumulation for both of these non-integer types.
+//       Sadly, this idea won't work, since we need a BigDecimal or BigFloatingPoint to capture perfect accumulation for both of these non-integer types. There are some discussions on stack overflow about BigDecimal and we may be able
+//       to bring the best of these into HPCsharp, possibly as experimental at first until tested thoroughly. IEEE also has a decimal s/w implementation, as part of the floating-point standard, as a library.
 // TODO: Using BigInteger will work for all integer data types: signed and unsigned. This may be faster and an interesting
 //       alternative to decimal, and may possibly be faster, which would be fun to verify and provide performance data for.
 //       Performance can also be improved by using the same idea of using ulong/long until it overflows. Microsoft also suggested
@@ -18,6 +19,8 @@
 //       A possible way to do it is by using a stack structure to emulate recursion, pushing the currect "level-sum" onto this stack. This would work for SSE as well by pushing SSE-size data type onto the stack. There may be other even
 //       more efficient methods.
 // TODO: Blog/write about float .Sum() that uses double and Kahan/Nuemaier for increased accuracy, perfect for 500M array elements and then Neumaier takes it the rest of the way.
+// TODO: Similar to above, but implement a version of Kahan/Neumaier sum for float arrays with the same exponent, which would be divide-and-conquer split up and when the chunks are smaller than 500M those array spans would
+//       be summed up using double for possibly higher speed and perfect precision, until we needed to accumulate results of these array spans, when we would use Kahan/Neumaier.
 // TODO: Does Kahan algorithm also make sense for decimal?
 // TODO: To speedup summing up of long to decimal accumulation, Josh suggested using a long accumulator and catching the overflow exception and then adding to decimal - i.e. most of the time accumulate to long and once in
 // TODO: Answer this question on stack overflow https://stackoverflow.com/questions/53075546/array-sum-results-in-an-overflow
