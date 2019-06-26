@@ -18,7 +18,7 @@ Divide-And-Conquer | 1 | 2 | | :heavy_check_mark: | :heavy_check_mark: | | Gener
 Fill | 4 | 10 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Numeric arrays
 Histogram | 14 | 35 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Byte, N-bit components of numeric arrays
 Insertion Sort | 1 | 2 | | | :heavy_check_mark: | :heavy_check_mark: | Generic IComparer\<T\>
-[Max, Min](## Min and Max ##) | 2 | 12 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | Generic IComparer\<T\>
+[Max, Min](#Min-and-Max) | 2 | 12 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | Generic IComparer\<T\>
 Merge | 2 | 18 | | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | Generic IComparer\<T\>
 Multi-way Merge | 1 | | | | :heavy_check_mark: | |
 Merge Sort | 2 | 25 | | :heavy_check_mark: | :heavy_check_mark: | | Generic, Stable or not, whole or partial
@@ -26,7 +26,7 @@ Priority Queue | 2 | 15 | | | :heavy_check_mark: | |
 Radix Sort (LSD) | 6 | 40 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Numeric arrays, user defined types, Stable
 Radix Sort (MSD) | 4 | 24| :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Numeric arrays, user defined types, In-place
 Sequence Equal | 2 | 19 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | 
-[Sum](## Better .Sum() in Many Ways ## | 7 | 155 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Numeric arrays. [Better in many ways](https://duvanenko.tech.blog/2019/04/23/better-sum-in-c/)
+[Sum](#Better-.Sum()-in-Many-Ways | 7 | 155 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Numeric arrays. [Better in many ways](https://duvanenko.tech.blog/2019/04/23/better-sum-in-c/)
 Zero Array Detect | 3 | 13 | :heavy_check_mark: | | :heavy_check_mark: | | Detect if byte array is all zeroes *\*\*
 
 \* Number of different algorithms\
@@ -46,7 +46,7 @@ Implemented a generic divide-and-conquer parallel function, applicable in many c
 
 Full release history is in ReleaseNotes.txt file
 
-## Better .Sum() in Many Ways ##
+## Better .Sum() in Many Ways
 HPCsharp improves .Sum() of numeric arrays in the following ways:
 - No overflow exception for int[] while providing 5X higher performance
 - Support for all signed integer data types
@@ -66,7 +66,7 @@ HPCsharp |7.6|8.0|8.0|8.2|5.0|5.3|2.9*|2.8*|5.1|2.9|0.14
 
 For more details, see blog https://duvanenko.tech.blog/2019/04/23/better-sum-in-c/
 
-## Sorting ##
+## Sorting
 
 **_Version 3.1.2_** algorithm performance is shown in the following tables:
 
@@ -135,7 +135,7 @@ Radix Sort|List|Constant|2X-4X|3X-4X|1.5X-2X|User defined class
 Only slightly slower than Array.Sort and List.Sort for presorted distribution, but faster for all other distributions. Uses a single core and is stable.
 Faster than Linq.OrderBy and Linq.OrderBy.AsParallel
 
-## Min and Max ##
+## Min and Max
 *Algorithm*|*Collection*|*vs Linq*|*Parallel vs Linq*
 --- | --- | --- | ---
 SequenceEqual|Array, List|4X faster|up to 11X faster
