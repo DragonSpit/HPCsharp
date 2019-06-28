@@ -13,7 +13,7 @@ Binary Search | 1 | 2 | | | | :heavy_check_mark: | :heavy_check_mark: | Generic 
 Block Swap | 4 | 5 | | | :heavy_check_mark: | | Generic
 Copy |  | | | |  | |
 Copy List to Array |  | | | |  | |
-Counting Sort | 3 | 14 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | byte, ushort, sbyte, short arrays. Ludicrous speed!
+[Counting Sort](#Counting-Sort) | 3 | 14 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | byte, ushort, sbyte, short arrays. Ludicrous speed!
 Divide-And-Conquer | 1 | 2 | | :heavy_check_mark: | :heavy_check_mark: | | Generic scalar and parallel abstraction *\*\*
 Fill | 4 | 10 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Numeric arrays
 Histogram | 14 | 35 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Byte, N-bit components of numeric arrays
@@ -21,9 +21,9 @@ Insertion Sort | 1 | 2 | | | :heavy_check_mark: | :heavy_check_mark: | Generic I
 [Max, Min](#Min-and-Max) | 2 | 12 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | Generic IComparer\<T\>
 Merge | 2 | 18 | | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | Generic IComparer\<T\>
 Multi-way Merge | 1 | | | | :heavy_check_mark: | |
-Merge Sort | 2 | 25 | | :heavy_check_mark: | :heavy_check_mark: | | Generic, Stable or not, whole or partial
+[Merge Sort](#Merge-Sort) | 2 | 25 | | :heavy_check_mark: | :heavy_check_mark: | | Generic, Stable or not, whole or partial
 Priority Queue | 2 | 15 | | | :heavy_check_mark: | | 
-Radix Sort (LSD) | 6 | 40 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Numeric arrays, user defined types, Stable
+[Radix Sort (LSD)](#LSD-Radix-Sort) | 6 | 40 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Numeric arrays, user defined types, Stable
 Radix Sort (MSD) | 4 | 24| :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Numeric arrays, user defined types, In-place
 Sequence Equal | 2 | 19 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | 
 [Sum](#Better-Sum-in-Many-Ways) | 7 | 155 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Numeric arrays. [Better in many ways](https://duvanenko.tech.blog/2019/04/23/better-sum-in-c/)
@@ -33,16 +33,15 @@ Zero Array Detect | 3 | 13 | :heavy_check_mark: | | :heavy_check_mark: | | Detec
 \*\* Number of functions for this algorithm\
 \*\*\* Coming soon
 
-More algorithms in development ...
-
 Recent HPCsharp presentation at the Indianapolis .NET Consortium, March 2019 on https://youtu.be/IRNW4VGevvQ
 
 Usage examples are provided in the HPCsharpExamples folder, which has a VisualStudio 2017 solution. Build and run it to see performance gains on your machine.
 To get the maximum performance make sure to target x64 processor architecture for the Release build in VisualStudio, increasing performance by as much as 50%.
 
-**_Version 3.4.1_** Just Released! Give it a shot.  
-Implemented scalar version of pairwise .Sum() for float[] and double[] for more accurate summation without doing extra work.
-Implemented a generic divide-and-conquer parallel function, applicable in many cases.
+**_Version 3.4.2_** Just Released! Give it a shot.  
+Added zero detection of byte array: scalar and highly optimized SSE.\
+Implemented .Sum() of a section of an array.\
+Added documentation for many .Sum() functions.
 
 Full release history is in ReleaseNotes.txt file
 
@@ -66,9 +65,7 @@ HPCsharp |7.6|8.0|8.0|8.2|5.0|5.3|2.9*|2.8*|5.1|2.9|0.14
 
 For more details, see blog https://duvanenko.tech.blog/2019/04/23/better-sum-in-c/
 
-## Sorting
-
-**_Version 3.1.2_** algorithm performance is shown in the following tables:
+## Counting Sort
 
 *Algorithm*|*Collection*|*Distribution*|*vs .Sort*|*vs Linq*|*vs Linq.AsParallel*|*MegaBytes/sec*|*Data Type*
 --- | --- | --- | --- | --- | --- | --- | ---
@@ -77,7 +74,9 @@ Counting Sort|Array|Presorted|26-56X|168-344X|38-66X|864|byte
 Counting Sort|Array|Constant|30-56X|165-321X|34-70X|847|byte
 
 Counting Sort above is linear time O(N) and sorts an array of byte, sbyte, short or ushort. In-place and not-in-place version have been implementated.
-The above benchmark is on a single core! Multi-core sorts at GigaElements/second.
+The above benchmark is on a single core! Multi-core sorts even faster, at GigaElements/second.
+
+## LSD Radix Sort
 
 *Algorithm*|*Collection*|*Distribution*|*vs .Sort*|*vs Linq*|*vs Linq.AsParallel*|*MegaInts/sec*|*Data Type*
 --- | --- | --- | --- | --- | --- | --- | ---
@@ -85,8 +84,24 @@ Radix Sort|Array, List|Random|5X-8X|14X-35X|4X-9X|82|UInt32
 Radix Sort|Array, List|Presorted|0.3X-0.6X|3X-5X|1X-3X|48|UInt32
 Radix Sort|Array, List|Constant|1.3X-1.8X|5X-8X|2X-3X|50|UInt32
 
-Radix Sort is linear time O(N) and stable. Radix Sort runs on a single core, whereas Linq.AsParallel ran on all the cores.
+LSD Radix Sort is linear time O(N) and stable. Radix Sort runs on a single core, whereas Linq.AsParallel ran on all the cores.
 Only slower when sorting presorted Array or List, but faster in all other cases, even faster than parallel Linq.OrderBy.AsParallel.
+
+Radix Sort has been extended to sort user defined classes based on a UInt32 or UInt64 key within the class. Radix Sort is currently using only a single core.
+
+*Algorithm*|*Collection*|*Distribution*|*vs .Sort*|*vs Linq*|*vs Linq.AsParallel*|*Description*
+--- | --- | --- | --- | --- | --- | ---
+Radix Sort|Array|Random|1X-4X|3X-5X|1X-2X|User defined class
+Radix Sort|List|Random|2X-4X|3X-5X|1X-2X|User defined class
+Radix Sort|Array|Presorted|1.2X-1.7X|0.9X-2.5X|0.9X-1.4X|User defined class
+Radix Sort|List|Presorted|1.0X-1.2X|1.7X-2.1X|0.7X-1.1X|User defined class
+Radix Sort|Array|Constant|3X-4X|4X-5X|2X-3X|User defined class
+Radix Sort|List|Constant|2X-4X|3X-4X|1.5X-2X|User defined class
+
+Only slightly slower than Array.Sort and List.Sort for presorted distribution, but faster for all other distributions. Uses a single core and is stable.
+Faster than Linq.OrderBy and Linq.OrderBy.AsParallel
+
+## Merge Sort
 
 Parallel Merge Sort uses multiple CPU cores to accelerate performance. On a quad-core laptop, performance is:
 
@@ -115,25 +130,13 @@ Merge Sort (stable)|Array|Constant|0.5X|3X|2X|15
 
 Merge Sort is O(NlgN), never O(N<sup>2</sup>), generic, stable, and runs on a single CPU core. Faster than Linq.OrderBy and Linq.OrderBy.AsParallel.
 
+## Other Algorithms
+
 Other algorithms provided:
 - Insertion Sort which is O(N<sup>2</sup>), and useful for fast in-place sorting of very small collections.
 - Binary Search algorithm
 - Parallel Merge algorithm, which merges two presorted collections using multiple cores. Used by Parallel Merge Sort.
 - Parallel Linq-style methods for Min, Max, Average, etc.
-
-Radix Sort has been extended to sort user defined classes based on a UInt32 or UInt64 key within the class. Radix Sort is currently using only a single core.
-
-*Algorithm*|*Collection*|*Distribution*|*vs .Sort*|*vs Linq*|*vs Linq.AsParallel*|*Description*
---- | --- | --- | --- | --- | --- | ---
-Radix Sort|Array|Random|1X-4X|3X-5X|1X-2X|User defined class
-Radix Sort|List|Random|2X-4X|3X-5X|1X-2X|User defined class
-Radix Sort|Array|Presorted|1.2X-1.7X|0.9X-2.5X|0.9X-1.4X|User defined class
-Radix Sort|List|Presorted|1.0X-1.2X|1.7X-2.1X|0.7X-1.1X|User defined class
-Radix Sort|Array|Constant|3X-4X|4X-5X|2X-3X|User defined class
-Radix Sort|List|Constant|2X-4X|3X-4X|1.5X-2X|User defined class
-
-Only slightly slower than Array.Sort and List.Sort for presorted distribution, but faster for all other distributions. Uses a single core and is stable.
-Faster than Linq.OrderBy and Linq.OrderBy.AsParallel
 
 ## Min and Max
 *Algorithm*|*Collection*|*vs Linq*|*Parallel vs Linq*
