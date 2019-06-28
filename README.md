@@ -9,9 +9,9 @@ similar to standard C# algorithms and Linq. Free, open source, on nuget.org
 
 *Algorithm*|*\**|*\*\**|*SSE*|*Multi-Core*|*Array*|*List*|*Details*
 --- | --- | --- | --- | :---: | :---: | --- | :--
-[Binary Search](#Binary-Search) | 1 | 2 | | | | :heavy_check_mark: | :heavy_check_mark: | Generic IComparer\<T\>
-Block Swap | 4 | 5 | | | :heavy_check_mark: | | Generic
-[Parallel Copy](#Parallel Copy) |  | | | |  | |
+[Binary Search](#Binary-Search) | 1 | 2 | | | :heavy_check_mark: | :heavy_check_mark: | Generic IComparer\<T\>
+[Block Swap](#Block Swap) | 4 | 5 | | | :heavy_check_mark: | | Generic
+[Parallel Copy](#Parallel-Copy) |  | | | |  | |
 Copy List to Array |  | | | |  | |
 [Counting Sort](#Counting-Sort) | 3 | 14 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | byte, ushort, sbyte, short arrays. Ludicrous speed!
 Divide-And-Conquer\*\*\* | 1 | 2 | | :heavy_check_mark: | :heavy_check_mark: | | Generic scalar and parallel abstraction
@@ -152,6 +152,15 @@ Min|Array|14-26X faster|4-7X faster
 Max|Array|1.5X faster
 
 .Min() is implemented using SIMD/SSE instructions to run at 4 GigaInts/sec on a single core, and over 5 GigaInts/sec on quad-core.
+
+## Block Swap
+
+Three scalar algorithms for in-place swapping two neighboring sub-regions of an array, which do not have to be of equal size:
+- Reversal
+- Gries and Mills
+- Juggline Bentley
+
+Also, several generic version of two element swap.
 
 ## Parallel Copy
 
