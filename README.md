@@ -9,17 +9,17 @@ similar to standard C# algorithms and Linq. Free, open source, on nuget.org
 
 *Algorithm*|*\**|*\*\**|*SSE*|*Multi-Core*|*Array*|*List*|*Details*
 --- | --- | --- | --- | :---: | :---: | --- | :--
-Binary Search | 1 | 2 | | | | :heavy_check_mark: | :heavy_check_mark: | Generic IComparer\<T\>
+[Binary Search](#Binary-Search) | 1 | 2 | | | | :heavy_check_mark: | :heavy_check_mark: | Generic IComparer\<T\>
 Block Swap | 4 | 5 | | | :heavy_check_mark: | | Generic
-Copy |  | | | |  | |
+[Parallel Copy](#Parallel Copy) |  | | | |  | |
 Copy List to Array |  | | | |  | |
 [Counting Sort](#Counting-Sort) | 3 | 14 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | byte, ushort, sbyte, short arrays. Ludicrous speed!
-Divide-And-Conquer | 1 | 2 | | :heavy_check_mark: | :heavy_check_mark: | | Generic scalar and parallel abstraction *\*\*
+Divide-And-Conquer\*\*\* | 1 | 2 | | :heavy_check_mark: | :heavy_check_mark: | | Generic scalar and parallel abstraction
 Fill | 4 | 10 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Numeric arrays
 Histogram | 14 | 35 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Byte, N-bit components of numeric arrays
-Insertion Sort | 1 | 2 | | | :heavy_check_mark: | :heavy_check_mark: | Generic IComparer\<T\>
+[Insertion Sort](#Insertion-Sort) | 1 | 2 | | | :heavy_check_mark: | :heavy_check_mark: | Generic IComparer\<T\>
 [Max, Min](#Min-and-Max) | 2 | 12 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | Generic IComparer\<T\>
-Merge | 2 | 18 | | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | Generic IComparer\<T\>
+[Merge](#Merge) | 2 | 18 | | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | Generic IComparer\<T\>
 Multi-way Merge | 1 | | | | :heavy_check_mark: | |
 [Merge Sort](#Merge-Sort) | 2 | 25 | | :heavy_check_mark: | :heavy_check_mark: | | Generic, Stable or not, whole or partial
 Priority Queue | 2 | 15 | | | :heavy_check_mark: | | 
@@ -27,7 +27,7 @@ Priority Queue | 2 | 15 | | | :heavy_check_mark: | |
 Radix Sort (MSD) | 4 | 24| :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Numeric arrays, user defined types, In-place
 Sequence Equal | 2 | 19 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | 
 [Sum](#Better-Sum-in-Many-Ways) | 7 | 155 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Numeric arrays. [Better in many ways](https://duvanenko.tech.blog/2019/04/23/better-sum-in-c/)
-Zero Array Detect | 3 | 13 | :heavy_check_mark: | | :heavy_check_mark: | | Detect if byte array is all zeroes *\*\*
+Zero Array Detect\*\*\* | 3 | 13 | :heavy_check_mark: | | :heavy_check_mark: | | Detect if byte array is all zeroes
 
 \* Number of different algorithms\
 \*\* Number of functions for this algorithm\
@@ -130,13 +130,19 @@ Merge Sort (stable)|Array|Constant|0.5X|3X|2X|15
 
 Merge Sort is O(NlgN), never O(N<sup>2</sup>), generic, stable, and runs on a single CPU core. Faster than Linq.OrderBy and Linq.OrderBy.AsParallel.
 
-## Other Algorithms
+## Merge
 
-Other algorithms provided:
-- Insertion Sort which is O(N<sup>2</sup>), and useful for fast in-place sorting of very small collections.
-- Binary Search algorithm
-- Parallel Merge algorithm, which merges two presorted collections using multiple cores. Used by Parallel Merge Sort.
-- Parallel Linq-style methods for Min, Max, Average, etc.
+Parallel Merge algorithm, which merges two presorted collections using multiple cores.
+Used by Parallel Merge Sort.
+
+## Insertion Sort
+
+Insertion Sort which is O(N<sup>2</sup>), and useful for fast in-place sorting of very small collections.
+Generic implemenation for Array and List containers.
+
+## Binary Search
+
+Generic implementation of the binary search algorithm, for Array and List containers.
 
 ## Min and Max
 *Algorithm*|*Collection*|*vs Linq*|*Parallel vs Linq*
@@ -147,7 +153,7 @@ Max|Array|1.5X faster
 
 .Min() is implemented using SIMD/SSE instructions to run at 4 GigaInts/sec on a single core, and over 5 GigaInts/sec on quad-core.
 
-Parallel Copying:
+## Parallel Copy
 
 *Method*|*Collection*|*Parallel*
 --- | --- | ---
