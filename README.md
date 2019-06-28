@@ -10,7 +10,7 @@ similar to standard C# algorithms and Linq. Free, open source, on nuget.org
 *Algorithm*|*\**|*\*\**|*SSE*|*Multi-Core*|*Array*|*List*|*Details*
 --- | --- | --- | --- | :---: | :---: | --- | :--
 [Binary Search](#Binary-Search) | 1 | 2 | | | :heavy_check_mark: | :heavy_check_mark: | Generic IComparer\<T\>
-[Block Swap](#Block Swap) | 4 | 5 | | | :heavy_check_mark: | | Generic
+[Block Swap](#Block-Swap) | 4 | 5 | | | :heavy_check_mark: | | Generic
 [Parallel Copy](#Parallel-Copy) |  | | | |  | |
 Copy List to Array |  | | | |  | |
 [Counting Sort](#Counting-Sort) | 3 | 14 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | byte, ushort, sbyte, short arrays. Ludicrous speed!
@@ -159,6 +159,8 @@ Three scalar algorithms for in-place swapping two neighboring sub-regions of an 
 - Reversal
 - Gries and Mills
 - Juggline Bentley
+
+See an article for more details (http://www.drdobbs.com/parallel/benchmarking-block-swapping-algorithms/232900395)
 
 Also, several generic version of two element swap.
 
