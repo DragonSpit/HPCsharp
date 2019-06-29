@@ -68,14 +68,15 @@ For more details, see blog https://duvanenko.tech.blog/2019/04/23/better-sum-in-
 
 ## Counting Sort
 
-*Algorithm*|*Collection*|*Distribution*|*vs .Sort*|*vs Linq*|*vs Linq.AsParallel*|*MegaBytes/sec*|*Data Type*
---- | --- | --- | --- | --- | --- | --- | ---
-Counting Sort|Array|Random|27-56X|156-343X|39-70X|846|byte
-Counting Sort|Array|Presorted|26-56X|168-344X|38-66X|864|byte
-Counting Sort|Array|Constant|30-56X|165-321X|34-70X|847|byte
+*Algorithm*|*Distribution*|*vs .Sort*|*vs Linq*|*vs Linq.AsParallel*|*MegaBytes/sec*|*Data Type*
+--- | --- | --- | --- | --- | --- | ---
+Counting Sort|Random|27-56X|156-343X|39-70X|846|byte
+Counting Sort|Presorted|26-56X|168-344X|38-66X|864|byte
+Counting Sort|Constant|30-56X|165-321X|34-70X|847|byte
 
-Counting Sort above is linear time ***O***(N) and sorts an array of byte, sbyte, short or ushort. In-place and not-in-place version have been implementated.
-The above benchmark is on a single core! Multi-core sorts even faster, at GigaElements/second.
+Counting Sort above is a linear time ***O***(N) algorithm, sorting an array of byte, sbyte, short or ushort data types.
+In-place and not-in-place version have been implementated.
+The above benchmark is on a single core! Multi-core sorts even faster, at GigaElements/second ludicrous speed.
 
 ## LSD Radix Sort
 
