@@ -27,7 +27,7 @@ Priority Queue | 2 | 15 | | | :heavy_check_mark: | |
 Radix Sort (MSD) | 4 | 24| :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Numeric arrays, user defined types, In-place
 Sequence Equal | 2 | 19 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | 
 [Sum](#Better-Sum-in-Many-Ways) | 7 | 155 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Numeric arrays. [Better in many ways](https://duvanenko.tech.blog/2019/04/23/better-sum-in-c/)
-Zero Array Detect\*\*\* | 3 | 13 | :heavy_check_mark: | | :heavy_check_mark: | | Detect if byte array is all zeroes
+Zero Array Detect | 3 | 13 | :heavy_check_mark: | | :heavy_check_mark: | | Detect if byte array is all zeroes
 
 \* Number of different algorithms\
 \*\* Number of functions for this algorithm\
@@ -158,7 +158,7 @@ Max|Array|1.5X faster
 Three scalar algorithms for in-place swapping two neighboring sub-regions of an array, which do not have to be of equal size:
 - Reversal
 - Gries and Mills
-- Juggline Bentley
+- Juggle Bentley
 
 See an article for more details (http://www.drdobbs.com/parallel/benchmarking-block-swapping-algorithms/232900395)
 
