@@ -29,6 +29,7 @@
 //       Wonder if having two or more independent loop counters would also help, along with two or more memory loads.
 //       Need to see if SSE on single core is memory limited. Need to add to table single-core performance.
 // TODO: Need to implement integer and unsigned integer .SumPar() - i.e. without SSE, but multi-core
+// TODO: Study parallel solution presented here (parallel for), which may be better in some cases: https://stackoverflow.com/questions/2419343/how-to-sum-up-an-array-of-integers-in-c-sharp/54794753#54794753
 
 using System.Collections.Generic;
 using System.Text;
@@ -494,6 +495,82 @@ namespace HPCsharp.ParallelAlgorithms
                 overallSum += arrayToSum[i];
             for (i = 0; i < Vector<long>.Count; i++)
                 overallSum += sumVector[i];
+            return overallSum;
+        }
+
+        private static long SumSse2(this long[] arrayToSum)
+        {
+            return arrayToSum.SumSseInner2(0, arrayToSum.Length - 1);
+        }
+
+        private static long SumSse2(this long[] arrayToSum, int start, int length)
+        {
+            return arrayToSum.SumSseInner2(start, start + length - 1);
+        }
+
+        private static long SumSseInner2(this long[] arrayToSum, int l, int r)
+        {
+            var sumVector = new Vector<long>();
+            int concurrentAmount = 4;
+            int sseIndexEnd = l + ((r - l + 1) / (Vector<long>.Count * concurrentAmount)) * (Vector<long>.Count * concurrentAmount);
+            int offset1 = Vector<long>.Count;
+            int offset2 = Vector<long>.Count * 2;
+            int offset3 = Vector<long>.Count * 3;
+            int i;
+            int increment = Vector<long>.Count * concurrentAmount;
+            for (i = l; i < sseIndexEnd; i += increment)
+            {
+                sumVector += new Vector<long>(arrayToSum, i);
+                sumVector += new Vector<long>(arrayToSum, i + offset1);
+                sumVector += new Vector<long>(arrayToSum, i + offset2);
+                sumVector += new Vector<long>(arrayToSum, i + offset3);
+            }
+            long overallSum = 0;
+            for (; i <= r; i++)
+                overallSum += arrayToSum[i];
+            for (i = 0; i < Vector<long>.Count; i++)
+                overallSum += sumVector[i];
+            return overallSum;
+        }
+
+        private static long SumSse3(this long[] arrayToSum)
+        {
+            return arrayToSum.SumSseInner3(0, arrayToSum.Length - 1);
+        }
+
+        private static long SumSse3(this long[] arrayToSum, int start, int length)
+        {
+            return arrayToSum.SumSseInner3(start, start + length - 1);
+        }
+        // About 5% faster on my quad-core laptop
+        private static long SumSseInner3(this long[] arrayToSum, int l, int r)
+        {
+            var sumVector0 = new Vector<long>();
+            var sumVector1 = new Vector<long>();
+            var sumVector2 = new Vector<long>();
+            var sumVector3 = new Vector<long>();
+            int concurrentAmount = 4;
+            int sseIndexEnd = l + ((r - l + 1) / (Vector<long>.Count * concurrentAmount)) * (Vector<long>.Count * concurrentAmount);
+            int offset1 = Vector<long>.Count;
+            int offset2 = Vector<long>.Count * 2;
+            int offset3 = Vector<long>.Count * 3;
+            int i, j, k, m;
+            int increment = Vector<long>.Count * concurrentAmount;
+            for (i = l, j = l + offset1, k = l + offset2, m = l + offset3; i < sseIndexEnd; i += increment, j += increment, k += increment, m += increment)
+            {
+                sumVector0 += new Vector<long>(arrayToSum, i);
+                sumVector1 += new Vector<long>(arrayToSum, j);
+                sumVector2 += new Vector<long>(arrayToSum, k);
+                sumVector3 += new Vector<long>(arrayToSum, m);
+            }
+            long overallSum = 0;
+            for (; i <= r; i++)
+                overallSum += arrayToSum[i];
+            sumVector0 += sumVector1;
+            sumVector0 += sumVector2;
+            sumVector0 += sumVector3;
+            for (i = 0; i < Vector<long>.Count; i++)
+                overallSum += sumVector0[i];
             return overallSum;
         }
 

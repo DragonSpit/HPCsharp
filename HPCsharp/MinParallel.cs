@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿// TODO: Implement Min SSE versions as generic and use the data type run-time detection, as other algorithms do and a switch statement to route to the proper SSE implementation
+using System.Collections.Generic;
 using System.Text;
 using System.Numerics;
 using System.Threading.Tasks;
