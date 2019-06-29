@@ -132,8 +132,11 @@ Merge Sort is O(NlgN), never O(N<sup>2</sup>), generic, stable, and runs on a si
 
 ## Merge
 
-Parallel Merge algorithm, which merges two presorted collections using multiple cores.
-Used by Parallel Merge Sort.
+O(N) linear-time generic merge algorithms for arrays and list containers. Merges two pre-sorted arrays or lists,
+of any data type that defines IComparer<T>.
+Two not-in-place algorithms: comparison at the heads, and divide-and-conquer.
+Parallel Merge algorithm, using divide-and-conquer, merges two presorted collections using multiple cores.
+Used by Parallel Merge Sort. See example solution for a working code sample.
 
 ## Insertion Sort
 
