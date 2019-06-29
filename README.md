@@ -28,7 +28,7 @@ Priority Queue | 2 | 15 | | | :heavy_check_mark: | |
 Radix Sort (MSD) | 4 | 24| :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Numeric arrays, user defined types, In-place
 Sequence Equal | 2 | 19 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | 
 [Sum](#Better-Sum-in-Many-Ways) | 7 | 155 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Numeric arrays. [Better in many ways](https://duvanenko.tech.blog/2019/04/23/better-sum-in-c/)
-Zero Array Detect | 3 | 13 | :heavy_check_mark: | | :heavy_check_mark: | | Detect if byte array is all zeroes
+[Zero Array Detect](#Zero-Array-Detect) | 3 | 13 | :heavy_check_mark: | | :heavy_check_mark: | | Detect if byte array is all zeroes
 
 \* Number of different algorithms\
 \*\* Number of functions for this algorithm\
@@ -132,20 +132,17 @@ Merge Sort (stable)|Array|Constant|0.5X|3X|2X|15
 Merge Sort is ***O***(NlgN), never ***O***(N<sup>2</sup>), generic, stable, and runs on a single CPU core. Faster than Linq.OrderBy and Linq.OrderBy.AsParallel.
 
 ## Merge
-
 ***O***(N) linear-time generic merge algorithms for arrays and list containers. Merges two pre-sorted arrays or lists,
 of any data type that defines IComparer<T>.
 Two not-in-place algorithms: comparison at the heads, and divide-and-conquer.
 Parallel Merge algorithm, using divide-and-conquer, merges two presorted collections using multiple cores.
-Used by Parallel Merge Sort. See example solution for a working code sample.
+Used by Parallel Merge Sort. See example solution for working code samples.
 
 ## Insertion Sort
-
 Insertion Sort, which is ***O***(N<sup>2</sup>), and useful for fast in-place sorting of very small collections, due to its cache-friendliness.
 Generic implemenation for Array and List containers. Used by Parallel Merge Sort and MSD Radix Sort for the base case.
 
 ## Binary Search
-
 Generic implementation of the binary search algorithm, for Array and List containers. Used by the scalar and parallel divide-and-conquer
 Merge algorithms.
 
@@ -159,7 +156,6 @@ Max|Array|1.5X faster
 .Min() is implemented using SIMD/SSE instructions to run at 4 GigaInts/sec on a single core, and over 5 GigaInts/sec on quad-core.
 
 ## Block Swap
-
 Three scalar algorithms for in-place swapping two neighboring sub-regions of an array, which do not have to be of equal size:
 - Reversal
 - Gries and Mills
@@ -169,8 +165,11 @@ See an article for more details (http://www.drdobbs.com/parallel/benchmarking-bl
 
 Also, several generic version of two element swap.
 
-## Parallel Copy
+# Zero Array Detect
+Detects whether a byte array is zero in every byte. Runs at 17 GBytes/sec on a quad-core laptop, using a single core. Provides short-circuit, early exit
+when a non-zero value is detected while scanning the array.
 
+## Parallel Copy
 *Method*|*Collection*|*Parallel*
 --- | --- | ---
 Parallel CopyTo|List to Array|1.7X-2.5X faster
@@ -178,7 +177,7 @@ Parallel CopyTo|List to Array|1.7X-2.5X faster
 Discussion on when it's appropriate to use parallel copy is coming soon...
 
 # Examples of Usage
-See HPCsharpExample folder in this GitHub repository for usage examples - a complete working VisualStudio 2017 solution is provided.
+See HPCsharpExample folder in this GitHub repository for usage examples - a complete working VisualStudio 2017 solution is provided with many examples.
 
 # Related Blogs
 For details on the motivation see blog:
