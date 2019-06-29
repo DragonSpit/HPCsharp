@@ -1,4 +1,5 @@
-If you like HPCsharp, then help us keep more good stuff like this coming. Let us know what other algorithms could use acceleration
+If you like HPCsharp, then help us keep more good stuff coming.\
+Let us know other algorithms that could use acceleration.
 
 [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=LDD8L7UPAC7QL)
 
@@ -51,7 +52,7 @@ HPCsharp improves .Sum() of numeric arrays in the following ways:
 - Support for all signed integer data types
 - Support for all unsigned integer data types
 - Support of .Sum() for long[] and ulong[] with full accuracy and no overflow
-- Support for higher precision floating-point summation, reducing error from O(eN) downto O(elgN) without reduction in performance, and O(e)
+- Support for higher precision floating-point summation, reducing error from ***O***(eN) downto ***O***(elgN) without reduction in performance, and ***O***(e)
 with slight performance reduction. Implements pairwise and Kahan/Neumaier summation algorithms
 - Implements all algorithms using multi-core and data parallel SIMD/SSE processor instructions
 
@@ -73,7 +74,7 @@ Counting Sort|Array|Random|27-56X|156-343X|39-70X|846|byte
 Counting Sort|Array|Presorted|26-56X|168-344X|38-66X|864|byte
 Counting Sort|Array|Constant|30-56X|165-321X|34-70X|847|byte
 
-Counting Sort above is linear time O(N) and sorts an array of byte, sbyte, short or ushort. In-place and not-in-place version have been implementated.
+Counting Sort above is linear time ***O***(N) and sorts an array of byte, sbyte, short or ushort. In-place and not-in-place version have been implementated.
 The above benchmark is on a single core! Multi-core sorts even faster, at GigaElements/second.
 
 ## LSD Radix Sort
@@ -84,7 +85,7 @@ Radix Sort|Array, List|Random|5X-8X|14X-35X|4X-9X|82|UInt32
 Radix Sort|Array, List|Presorted|0.3X-0.6X|3X-5X|1X-3X|48|UInt32
 Radix Sort|Array, List|Constant|1.3X-1.8X|5X-8X|2X-3X|50|UInt32
 
-LSD Radix Sort is linear time O(N) and stable. Radix Sort runs on a single core, whereas Linq.AsParallel ran on all the cores.
+LSD Radix Sort is linear time ***O***(N) and stable. Radix Sort runs on a single core, whereas Linq.AsParallel ran on all the cores.
 Only slower when sorting presorted Array or List, but faster in all other cases, even faster than parallel Linq.OrderBy.AsParallel.
 
 Radix Sort has been extended to sort user defined classes based on a UInt32 or UInt64 key within the class. Radix Sort is currently using only a single core.
@@ -128,11 +129,11 @@ Merge Sort (stable)|Array|Random|0.6X|2.5X|1X|5
 Merge Sort (stable)|Array|Presorted|0.3X|3X|2X|17
 Merge Sort (stable)|Array|Constant|0.5X|3X|2X|15
 
-Merge Sort is O(NlgN), never O(N<sup>2</sup>), generic, stable, and runs on a single CPU core. Faster than Linq.OrderBy and Linq.OrderBy.AsParallel.
+Merge Sort is ***O***(NlgN), never ***O***(N<sup>2</sup>), generic, stable, and runs on a single CPU core. Faster than Linq.OrderBy and Linq.OrderBy.AsParallel.
 
 ## Merge
 
-O(N) linear-time generic merge algorithms for arrays and list containers. Merges two pre-sorted arrays or lists,
+***O***(N) linear-time generic merge algorithms for arrays and list containers. Merges two pre-sorted arrays or lists,
 of any data type that defines IComparer<T>.
 Two not-in-place algorithms: comparison at the heads, and divide-and-conquer.
 Parallel Merge algorithm, using divide-and-conquer, merges two presorted collections using multiple cores.
@@ -140,12 +141,13 @@ Used by Parallel Merge Sort. See example solution for a working code sample.
 
 ## Insertion Sort
 
-Insertion Sort which is O(N<sup>2</sup>), and useful for fast in-place sorting of very small collections.
-Generic implemenation for Array and List containers.
+Insertion Sort, which is ***O***(N<sup>2</sup>), and useful for fast in-place sorting of very small collections, due to its cache-friendliness.
+Generic implemenation for Array and List containers. Used by Parallel Merge Sort and MSD Radix Sort for the base case.
 
 ## Binary Search
 
-Generic implementation of the binary search algorithm, for Array and List containers.
+Generic implementation of the binary search algorithm, for Array and List containers. Used by the scalar and parallel divide-and-conquer
+Merge algorithms.
 
 ## Min and Max
 *Algorithm*|*Collection*|*vs Linq*|*Parallel vs Linq*
