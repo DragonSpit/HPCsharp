@@ -56,6 +56,8 @@ Linq | n/a | n/a | n/a | n/a |0.9*|n/a|0.9*|n/a|0.9|0.9|0.12
 HPCsharp |7.6|8.0|8.0|8.2|5.0|5.3|2.9*|2.8*|5.1|2.9|0.14
 * overflow exception is possible
 
+HPCsharp includes long and ulong summation which do not throw an overflow exception.
+
 For more details, see blog https://duvanenko.tech.blog/2019/04/23/better-sum-in-c/
 
 ## Counting Sort
@@ -159,8 +161,10 @@ See an article for more details (http://www.drdobbs.com/parallel/benchmarking-bl
 Also, several generic version of two element swap.
 
 ## Zero Array Detect
-Detects whether a byte array is zero in every byte. Runs at 17 GBytes/sec on a quad-core laptop, using a single core. Provides short-circuit, early exit
-when a non-zero value is detected while scanning the array.
+Detects whether a byte array is zero in every byte. Runs at 17 GBytes/sec on a quad-core laptop, with two memory channels, using a single core.
+Provides short-circuit, early exit when a non-zero value is detected while scanning the array. Provides scalar, SSE, scalar-unrolled, SSE-unrolled,
+scalar unrolled multi-core, and SSE unrolled multi-core implementations. On dual memory channel CPUs, SSE-unrolled is the fastest. For systems with
+more memory channels, SSE unrolled multi-core will most likely have the highest performance.
 
 ## Parallel Copy
 *Method*|*Collection*|*Parallel*
@@ -168,6 +172,12 @@ when a non-zero value is detected while scanning the array.
 Parallel CopyTo|List to Array|1.7X-2.5X faster
 
 Discussion on when it's appropriate to use parallel copy is coming soon...
+
+## Naming Conventions
+HPCsharp follows a few simple naming conventions:
+- SSE functions append "Sse" to the function name
+- multi-core functions append "Par" to the function name
+- if the function name clashes with C# Linq name, then "Hpc" is appended to the function name
 
 ## Blogs and Videos
 For details on the motivation see blog:
