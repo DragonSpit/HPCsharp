@@ -163,8 +163,11 @@ Also, several generic version of two element swap.
 ## Zero Array Detect
 Detects whether a byte array is zero in every byte. Runs at 17 GBytes/sec on a quad-core laptop, with two memory channels, using a single core.
 Provides short-circuit, early exit when a non-zero value is detected while scanning the array. Provides scalar, SSE, scalar-unrolled, SSE-unrolled,
-scalar unrolled multi-core, and SSE unrolled multi-core implementations. On dual memory channel CPUs, SSE-unrolled is the fastest. For systems with
-more memory channels, SSE unrolled multi-core will most likely have the highest performance.
+scalar unrolled multi-core, and SSE unrolled multi-core implementations. Unrolled refers to the loop being unrolled a few times to gain
+additional performance.
+
+On dual memory channel CPUs, SSE-unrolled is the fastest, using a single core, saturating system memory bandwidth.
+For systems with more memory channels, SSE unrolled multi-core will most likely have the highest performance.
 
 ## Parallel Copy
 *Method*|*Collection*|*Parallel*
