@@ -213,12 +213,12 @@ namespace HPCsharp.ParallelAlgorithms
 
         public static bool ZeroDetectSseUnrolledPar(this byte[] arrayToProcess, int thresholdParallel = 4096, int parallelism = 2)
         {
-            return ZeroDetectSseUnrolledParInner(arrayToProcess, 0, arrayToProcess.Length - 1, thresholdParallel);
+            return ZeroDetectSseUnrolledParInner(arrayToProcess, 0, arrayToProcess.Length - 1, thresholdParallel, parallelism);
         }
 
         public static bool ZeroDetectSseUnrolledPar(this byte[] arrayToProcess, int start, int length, int thresholdParallel = 4096, int parallelism = 2)
         {
-            return arrayToProcess.ZeroDetectSseUnrolledParInner(start, start + length - 1, thresholdParallel);
+            return arrayToProcess.ZeroDetectSseUnrolledParInner(start, start + length - 1, thresholdParallel, parallelism);
         }
 
         private static bool ZeroDetectSseParInner(this byte[] arrayToProcess, int l, int r, int thresholdParallel = 4096, int parallelism = 2)
@@ -245,12 +245,12 @@ namespace HPCsharp.ParallelAlgorithms
 
         public static bool ZeroDetectSsePar(this byte[] arrayToProcess, int thresholdParallel = 4096, int parallelism = 2)
         {
-            return ZeroDetectSseParInner(arrayToProcess, 0, arrayToProcess.Length - 1, thresholdParallel);
+            return ZeroDetectSseParInner(arrayToProcess, 0, arrayToProcess.Length - 1, thresholdParallel, parallelism);
         }
 
         public static bool ZeroDetectSsePar(this byte[] arrayToProcess, int start, int length, int thresholdParallel = 4096, int parallelism = 2)
         {
-            return arrayToProcess.ZeroDetectSseParInner(start, start + length - 1, thresholdParallel);
+            return arrayToProcess.ZeroDetectSseParInner(start, start + length - 1, thresholdParallel, parallelism);
         }
 
         private static bool ZeroDetectUnrolledParInner(this byte[] arrayToProcess, int l, int r, int thresholdParallel = 4096, int parallelism = 2)
@@ -262,7 +262,7 @@ namespace HPCsharp.ParallelAlgorithms
             if ((r - l + 1) <= thresholdParallel)
                 return HPCsharp.ZeroDetect.ByFixedLongUnrolled(arrayToProcess, l, r - l + 1);
 
-            int m = (((r + l) / 64 ) * 64) / 2;
+            int m = (r + l) / 2;
 
             bool partRight = false;
 
@@ -277,12 +277,12 @@ namespace HPCsharp.ParallelAlgorithms
 
         public static bool ZeroDetectUnrolledPar(this byte[] arrayToProcess, int thresholdParallel = 4096, int parallelism = 2)
         {
-            return ZeroDetectUnrolledParInner(arrayToProcess, 0, arrayToProcess.Length - 1, thresholdParallel);
+            return ZeroDetectUnrolledParInner(arrayToProcess, 0, arrayToProcess.Length - 1, thresholdParallel, parallelism);
         }
 
         public static bool ZeroDetectUnrolledPar(this byte[] arrayToProcess, int start, int length, int thresholdParallel = 4096, int parallelism = 2)
         {
-            return arrayToProcess.ZeroDetectUnrolledParInner(start, start + length - 1, thresholdParallel);
+            return arrayToProcess.ZeroDetectUnrolledParInner(start, start + length - 1, thresholdParallel, parallelism);
         }
 
 #if false
