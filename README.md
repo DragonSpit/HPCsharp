@@ -34,17 +34,9 @@ Sequence Equal | 2 | 19 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check
 \*\* Number of functions for this algorithm\
 \*\*\* Coming soon
 
-Recent HPCsharp presentation at the Indianapolis .NET Consortium, March 2019 on https://youtu.be/IRNW4VGevvQ
-
+## Examples
 Usage examples are provided in the HPCsharpExamples folder, which has a VisualStudio 2017 solution. Build and run it to see performance gains on your machine.
 To get the maximum performance make sure to target x64 processor architecture for the Release build in VisualStudio, increasing performance by as much as 50%.
-
-**_Version 3.4.2_** Just Released! Give it a shot.  
-Added zero detection of byte array: scalar and highly optimized SSE.\
-Implemented .Sum() of a section of an array.\
-Added documentation for many .Sum() functions.
-
-Full release history is in ReleaseNotes.txt file
 
 ## Better Sum in Many Ways
 HPCsharp improves .Sum() of numeric arrays in the following ways:
@@ -166,7 +158,7 @@ See an article for more details (http://www.drdobbs.com/parallel/benchmarking-bl
 
 Also, several generic version of two element swap.
 
-# Zero Array Detect
+## Zero Array Detect
 Detects whether a byte array is zero in every byte. Runs at 17 GBytes/sec on a quad-core laptop, using a single core. Provides short-circuit, early exit
 when a non-zero value is detected while scanning the array.
 
@@ -177,20 +169,19 @@ Parallel CopyTo|List to Array|1.7X-2.5X faster
 
 Discussion on when it's appropriate to use parallel copy is coming soon...
 
-# Examples of Usage
-See HPCsharpExample folder in this GitHub repository for usage examples - a complete working VisualStudio 2017 solution is provided with many examples.
-
-# Related Blogs
+## Blogs and Videos
 For details on the motivation see blog:
 https://duvanenko.tech.blog/2018/03/03/high-performance-c/
 
 For more performance discussion see blog:
 https://duvanenko.tech.blog/2018/05/23/faster-sorting-in-c/
 
-# Website for Feature Votes
+Recent HPCsharp presentation at the Indianapolis .NET Consortium, March 2019 on https://youtu.be/IRNW4VGevvQ
+
+## Website for Feature Votes
 Visit us at https://foostate.com/ and let us know what other high performance algorithms are important to you, and you'd like to see in this NuGet package.
 
-# Encouragement
-If you like it, then help us keep more good stuff like this coming. Let us know what other algorithms you could use.
+## Encouragement
+If you like it, then help us keep more good stuff like this coming. Let us know other algorithms that could use acceleration.
 
 [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=LDD8L7UPAC7QL)
