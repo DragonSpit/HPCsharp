@@ -221,7 +221,7 @@ namespace HPCsharp.ParallelAlgorithms
             return arrayToProcess.ZeroDetectSseUnrolledParInner(start, start + length - 1, thresholdParallel);
         }
 
-        private static bool ZeroDetectSseParInner(this byte[] arrayToProcess, int l, int r, int thresholdParallel = 4096)
+        private static bool ZeroDetectSseParInner(this byte[] arrayToProcess, int l, int r, int thresholdParallel = 4096, int parallelism = 2)
         {
             bool partLeft = false;
 
@@ -234,7 +234,8 @@ namespace HPCsharp.ParallelAlgorithms
 
             bool partRight = false;
 
-            Parallel.Invoke(
+            var options = new ParallelOptions { MaxDegreeOfParallelism = parallelism };
+            Parallel.Invoke( options,
                 () => { partLeft  = ZeroDetectSseParInner(arrayToProcess, l, m); },
                 () => { partRight = ZeroDetectSseParInner(arrayToProcess, m + 1, r); }
             );
@@ -242,17 +243,17 @@ namespace HPCsharp.ParallelAlgorithms
             return partLeft && partRight;
         }
 
-        public static bool ZeroDetectSsePar(this byte[] arrayToProcess, int thresholdParallel = 4096)
+        public static bool ZeroDetectSsePar(this byte[] arrayToProcess, int thresholdParallel = 4096, int parallelism = 2)
         {
             return ZeroDetectSseParInner(arrayToProcess, 0, arrayToProcess.Length - 1, thresholdParallel);
         }
 
-        public static bool ZeroDetectSsePar(this byte[] arrayToProcess, int start, int length, int thresholdParallel = 4096)
+        public static bool ZeroDetectSsePar(this byte[] arrayToProcess, int start, int length, int thresholdParallel = 4096, int parallelism = 2)
         {
             return arrayToProcess.ZeroDetectSseParInner(start, start + length - 1, thresholdParallel);
         }
 
-        private static bool ZeroDetectUnrolledParInner(this byte[] arrayToProcess, int l, int r, int thresholdParallel = 4096)
+        private static bool ZeroDetectUnrolledParInner(this byte[] arrayToProcess, int l, int r, int thresholdParallel = 4096, int parallelism = 2)
         {
             bool partLeft = false;
 
@@ -265,7 +266,8 @@ namespace HPCsharp.ParallelAlgorithms
 
             bool partRight = false;
 
-            Parallel.Invoke(
+            var options = new ParallelOptions { MaxDegreeOfParallelism = parallelism };
+            Parallel.Invoke( options,
                 () => { partLeft  = ZeroDetectSseUnrolledParInner(arrayToProcess, l,     m); },
                 () => { partRight = ZeroDetectSseUnrolledParInner(arrayToProcess, m + 1, r); }
             );
@@ -273,12 +275,12 @@ namespace HPCsharp.ParallelAlgorithms
             return partLeft && partRight;
         }
 
-        public static bool ZeroDetectUnrolledPar(this byte[] arrayToProcess, int thresholdParallel = 4096)
+        public static bool ZeroDetectUnrolledPar(this byte[] arrayToProcess, int thresholdParallel = 4096, int parallelism = 2)
         {
             return ZeroDetectUnrolledParInner(arrayToProcess, 0, arrayToProcess.Length - 1, thresholdParallel);
         }
 
-        public static bool ZeroDetectUnrolledPar(this byte[] arrayToProcess, int start, int length, int thresholdParallel = 4096)
+        public static bool ZeroDetectUnrolledPar(this byte[] arrayToProcess, int start, int length, int thresholdParallel = 4096, int parallelism = 2)
         {
             return arrayToProcess.ZeroDetectUnrolledParInner(start, start + length - 1, thresholdParallel);
         }
