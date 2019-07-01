@@ -24,6 +24,7 @@
 // TODO: Does Kahan algorithm also make sense for decimal?
 // TODO: To speedup summing up of long to decimal accumulation, Josh suggested using a long accumulator and catching the overflow exception and then adding to decimal - i.e. most of the time accumulate to long and once in
 // TODO: Answer this question on stack overflow https://stackoverflow.com/questions/53075546/array-sum-results-in-an-overflow
+// TODO: Implement scalar pair-wise floating-point summation for nullable arrays of floats and doubles.
 using System.Collections.Generic;
 using System.Text;
 using System.Numerics;
@@ -1113,11 +1114,27 @@ namespace HPCsharp.Algorithms
             return sum + c;                                 // Correction only applied once in the very end
         }
 
+        /// <summary>
+        /// Implementation of the Neumaier variation of Kahan floating-point summation.
+        /// Summation of float[] array, using a more accurate Kahan summation algorithm.
+        /// Input array elements are converted to double for additional accuracy for all internal computations.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>double sum</returns>
         public static double SumNeumaierDbl(this float[] arrayToSum)
         {
             return arrayToSum.SumNeumaier(0, arrayToSum.Length);
         }
 
+        /// <summary>
+        /// Implementation of the Neumaier variation of Kahan floating-point summation.
+        /// Summation of float[] array, using a more accurate Kahan summation algorithm.
+        /// Input array elements are converted to double for additional accuracy for all internal computations.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <param name="startIndex">index of the starting element for the summation</param>
+        /// <param name="length">number of array elements to sum up</param>
+        /// <returns>double sum</returns>
         public static double SumNeumaierDbl(this float[] arrayToSum, int startIndex, int length)
         {
             double sum = 0.0;
@@ -1136,11 +1153,29 @@ namespace HPCsharp.Algorithms
             return sum + c;                                 // Correction only applied once in the very end
         }
 
+        /// <summary>
+        /// Implementation of the Neumaier variation of Kahan floating-point summation.
+        /// Summation of float[] nullable array, using a more accurate Kahan summation algorithm.
+        /// Input array elements are converted to double for additional accuracy for all internal computations.
+        /// Null values are skipped.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>double sum</returns>
         public static double SumNeumaierDbl(this float?[] arrayToSum)
         {
             return arrayToSum.SumNeumaier(0, arrayToSum.Length);
         }
 
+        /// <summary>
+        /// Implementation of the Neumaier variation of Kahan floating-point summation.
+        /// Summation of float[] nullable array, using a more accurate Kahan summation algorithm.
+        /// Input array elements are converted to double for additional accuracy for all internal computations.
+        /// Null values are skipped.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <param name="startIndex">index of the starting element for the summation</param>
+        /// <param name="length">number of array elements to sum up</param>
+        /// <returns>double sum</returns>
         public static double SumNeumaierDbl(this float?[] arrayToSum, int startIndex, int length)
         {
             double sum = 0.0;
@@ -1186,11 +1221,25 @@ namespace HPCsharp.Algorithms
         }
 
         // Implementation https://en.wikipedia.org/wiki/Kahan_summation_algorithm
+        /// <summary>
+        /// Implementation of the Neumaier variation of Kahan floating-point summation.
+        /// Summation of double[] nullable array, using a more accurate Kahan summation algorithm.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>double sum</returns>
         public static double SumNeumaier(this double[] arrayToSum)
         {
             return arrayToSum.SumNeumaier(0, arrayToSum.Length);
         }
 
+        /// <summary>
+        /// Implementation of the Neumaier variation of Kahan floating-point summation.
+        /// Summation of double[] array, using a more accurate Kahan summation algorithm.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <param name="startIndex">index of the starting element for the summation</param>
+        /// <param name="length">number of array elements to sum up</param>
+        /// <returns>double sum</returns>
         public static double SumNeumaier(this double[] arrayToSum, int startIndex, int length)
         {
             double sum = 0.0;
@@ -1209,11 +1258,27 @@ namespace HPCsharp.Algorithms
             return sum + c;                                 // Correction only applied once in the very end
         }
 
+        /// <summary>
+        /// Implementation of the Neumaier variation of Kahan floating-point summation.
+        /// Summation of double[] nullable array, using a more accurate Kahan summation algorithm.
+        /// Null values are skipped.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>double sum</returns>
         public static double SumNeumaier(this double?[] arrayToSum)
         {
             return arrayToSum.SumNeumaier(0, arrayToSum.Length);
         }
 
+        /// <summary>
+        /// Implementation of the Neumaier variation of Kahan floating-point summation.
+        /// Summation of double[] nullable array, using a more accurate Kahan summation algorithm.
+        /// Null values are skipped.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <param name="startIndex">index of the starting element for the summation</param>
+        /// <param name="length">number of array elements to sum up</param>
+        /// <returns>double sum</returns>
         public static double SumNeumaier(this double?[] arrayToSum, int startIndex, int length)
         {
             double sum = 0.0;
@@ -1293,34 +1358,78 @@ namespace HPCsharp.Algorithms
             return reduce(sumLeft, sumRight);
         }
 
+        /// <summary>
+        /// Summation of float[] array, using a more accurate pair-wise summation algorithm.
+        /// Performs less work than Kahan summation, while providing more accuracy than a for loop summation.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>float sum</returns>
         public static float SumPairwise(this float[] arrayToSum, int thresholdDivideAndConquerSum = 16 * 1024)
         {
             return arrayToSum.SumPairwiseInner(0, arrayToSum.Length - 1, Algorithms.Sum.SumLR, (x, y) => x + y);
         }
 
-        public static float SumPairwise(this float[] arrayToSum, int start, int length, int thresholdDivideAndConquerSum = 16 * 1024)
+        /// <summary>
+        /// Summation of float[] array, using a more accurate pair-wise summation algorithm.
+        /// Performs less work than Kahan summation, while providing more accuracy than a for loop summation.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <param name="startIndex">index of the starting element for the summation</param>
+        /// <param name="length">number of array elements to sum up</param>
+        /// <returns>float sum</returns>
+        public static float SumPairwise(this float[] arrayToSum, int startIndex, int length, int thresholdDivideAndConquerSum = 16 * 1024)
         {
-            return arrayToSum.SumPairwiseInner(start, start + length - 1, Algorithms.Sum.SumLR, (x, y) => x + y);
+            return arrayToSum.SumPairwiseInner(startIndex, startIndex + length - 1, Algorithms.Sum.SumLR, (x, y) => x + y);
         }
 
+        /// <summary>
+        /// Summation of float[] array, using a more accurate pair-wise summation algorithm.
+        /// Performs less work than Kahan summation, while providing more accuracy than a for loop summation.
+        /// Input array elements are converted to double for additional accuracy for all internal computations.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>double sum</returns>
         public static double SumPairwiseDbl(this float[] arrayToSum, int thresholdDivideAndConquerSum = 16 * 1024)
         {
             return arrayToSum.SumPairwiseDblInner(0, arrayToSum.Length - 1, Algorithms.Sum.SumDblLR, (x, y) => x + y);
         }
 
-        public static double SumPairwiseDbl(this float[] arrayToSum, int start, int length, int thresholdDivideAndConquerSum = 16 * 1024)
+        /// <summary>
+        /// Summation of float[] array, using a more accurate pair-wise summation algorithm.
+        /// Performs less work than Kahan summation, while providing more accuracy than a for loop summation.
+        /// Input array elements are converted to double for additional accuracy for all internal computations.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <param name="startIndex">index of the starting element for the summation</param>
+        /// <param name="length">number of array elements to sum up</param>
+        /// <returns>double sum</returns>
+        public static double SumPairwiseDbl(this float[] arrayToSum, int startIndex, int length, int thresholdDivideAndConquerSum = 16 * 1024)
         {
-            return arrayToSum.SumPairwiseDblInner(start, start + length - 1, Algorithms.Sum.SumDblLR, (x, y) => x + y);
+            return arrayToSum.SumPairwiseDblInner(startIndex, startIndex + length - 1, Algorithms.Sum.SumDblLR, (x, y) => x + y);
         }
 
+        /// <summary>
+        /// Summation of double[] array, using a more accurate pair-wise summation algorithm.
+        /// Performs less work than Kahan summation, while providing more accuracy than a for loop summation.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>double sum</returns>
         public static double SumPairwise(this double[] arrayToSum, int thresholdDivideAndConquerSum = 16 * 1024)
         {
             return arrayToSum.SumPairwiseInner(0, arrayToSum.Length - 1, Algorithms.Sum.SumLR, (x, y) => x + y);
         }
 
-        public static double SumPairwise(this double[] arrayToSum, int start, int length, int thresholdDivideAndConquerSum = 16 * 1024)
+        /// <summary>
+        /// Summation of double[] array, using a more accurate pair-wise summation algorithm.
+        /// Performs less work than Kahan summation, while providing more accuracy than a for loop summation.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <param name="startIndex">index of the starting element for the summation</param>
+        /// <param name="length">number of array elements to sum up</param>
+        /// <returns>double sum</returns>
+        public static double SumPairwise(this double[] arrayToSum, int startIndex, int length, int thresholdDivideAndConquerSum = 16 * 1024)
         {
-            return arrayToSum.SumPairwiseInner(start, start + length - 1, Algorithms.Sum.SumLR, (x, y) => x + y);
+            return arrayToSum.SumPairwiseInner(startIndex, startIndex + length - 1, Algorithms.Sum.SumLR, (x, y) => x + y);
         }
     }
 }
