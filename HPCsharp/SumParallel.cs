@@ -42,7 +42,7 @@ namespace HPCsharp.ParallelAlgorithms
     static public partial class Sum
     {
         /// <summary>
-        /// Summation of sbyte[] array, which uses a long accumulator for perfect accuracy.
+        /// Summation of sbyte[] array, which uses a long accumulator for perfect accuracy, using data parallel SIMD/SSE instructions for higher performance on a single core.
         /// Will not throw overflow exception.
         /// </summary>
         /// <param name="arrayToSum">An array to sum up</param>
@@ -53,7 +53,7 @@ namespace HPCsharp.ParallelAlgorithms
         }
 
         /// <summary>
-        /// Summation of sbyte[] array, which uses a long accumulator for perfect accuracy.
+        /// Summation of sbyte[] array, which uses a long accumulator for perfect accuracy, using data parallel SIMD/SSE instructions for higher performance on a single core.
         /// Will not throw overflow exception.
         /// </summary>
         /// <param name="arrayToSum">An array to sum up</param>
@@ -126,7 +126,7 @@ namespace HPCsharp.ParallelAlgorithms
         }
 
         /// <summary>
-        /// Summation of byte[] array, which uses a ulong accumulator for perfect accuracy.
+        /// Summation of byte[] array, which uses a ulong accumulator for perfect accuracy, using data parallel SIMD/SSE instructions for higher performance on a single core.
         /// Will not throw overflow exception.
         /// </summary>
         /// <param name="arrayToSum">An array to sum up</param>
@@ -137,7 +137,7 @@ namespace HPCsharp.ParallelAlgorithms
         }
 
         /// <summary>
-        /// Summation of byte[] array, which uses a ulong accumulator for perfect accuracy.
+        /// Summation of byte[] array, which uses a ulong accumulator for perfect accuracy, using data parallel SIMD/SSE instructions for higher performance on a single core.
         /// Will not throw overflow exception.
         /// </summary>
         /// <param name="arrayToSum">An array to sum up</param>
@@ -210,7 +210,7 @@ namespace HPCsharp.ParallelAlgorithms
         }
 
         /// <summary>
-        /// Summation of short[] array, which uses a long accumulator for perfect accuracy.
+        /// Summation of short[] array, which uses a long accumulator for perfect accuracy, using data parallel SIMD/SSE instructions for higher performance on a single core.
         /// Will not throw overflow exception.
         /// </summary>
         /// <param name="arrayToSum">An array to sum up</param>
@@ -221,7 +221,7 @@ namespace HPCsharp.ParallelAlgorithms
         }
 
         /// <summary>
-        /// Summation of short[] array, which uses a long accumulator for perfect accuracy.
+        /// Summation of short[] array, which uses a long accumulator for perfect accuracy, using data parallel SIMD/SSE instructions for higher performance on a single core.
         /// Will not throw overflow exception.
         /// </summary>
         /// <param name="arrayToSum">An array to sum up</param>
@@ -270,7 +270,7 @@ namespace HPCsharp.ParallelAlgorithms
         }
 
         /// <summary>
-        /// Summation of ushort[] array, which uses a ulong accumulator for perfect accuracy.
+        /// Summation of ushort[] array, which uses a ulong accumulator for perfect accuracy, using data parallel SIMD/SSE instructions for higher performance on a single core.
         /// Will not throw overflow exception.
         /// </summary>
         /// <param name="arrayToSum">An array to sum up</param>
@@ -281,7 +281,7 @@ namespace HPCsharp.ParallelAlgorithms
         }
 
         /// <summary>
-        /// Summation of ushort[] array, which uses a ulong accumulator for perfect accuracy.
+        /// Summation of ushort[] array, which uses a ulong accumulator for perfect accuracy, using data parallel SIMD/SSE instructions for higher performance on a single core.
         /// Will not throw overflow exception.
         /// </summary>
         /// <param name="arrayToSum">An array to sum up</param>
@@ -330,7 +330,7 @@ namespace HPCsharp.ParallelAlgorithms
         }
 
         /// <summary>
-        /// Summation of int[] array, which uses a long accumulator for perfect accuracy.
+        /// Summation of int[] array, which uses a long accumulator for perfect accuracy, using data parallel SIMD/SSE instructions for higher performance on a single core.
         /// Will not throw overflow exception.
         /// </summary>
         /// <param name="arrayToSum">An array to sum up</param>
@@ -341,7 +341,7 @@ namespace HPCsharp.ParallelAlgorithms
         }
 
         /// <summary>
-        /// Summation of int[] array, which uses a long accumulator for perfect accuracy.
+        /// Summation of int[] array, which uses a long accumulator for perfect accuracy, using data parallel SIMD/SSE instructions for higher performance on a single core.
         /// Will not throw overflow exception.
         /// </summary>
         /// <param name="arrayToSum">An array to sum up</param>
@@ -495,19 +495,19 @@ namespace HPCsharp.ParallelAlgorithms
             return partialScalarSum0;
         }
 
-        public static long SumSseAndScalar(this int[] arrayToSum)
+        private static long SumSseAndScalar(this int[] arrayToSum)
         {
             //return arrayToSum.SumSseInner(0, arrayToSum.Length - 1);
             return arrayToSum.SumSseAndScalarInner(0, arrayToSum.Length - 1);
         }
 
-        public static long SumSseAndScalar(this int[] arrayToSum, int start, int length)
+        private static long SumSseAndScalar(this int[] arrayToSum, int start, int length)
         {
             return arrayToSum.SumSseAndScalarInner(start, start + length - 1);
         }
 
         /// <summary>
-        /// Summation of uint[] array, which uses a ulong accumulator for perfect accuracy.
+        /// Summation of uint[] array, which uses a ulong accumulator for perfect accuracy, using data parallel SIMD/SSE instructions for higher performance on a single core.
         /// Will not throw overflow exception.
         /// </summary>
         /// <param name="arrayToSum">An array to sum up</param>
@@ -518,7 +518,7 @@ namespace HPCsharp.ParallelAlgorithms
         }
 
         /// <summary>
-        /// Summation of uint[] array, which uses a ulong accumulator for perfect accuracy.
+        /// Summation of uint[] array, which uses a ulong accumulator for perfect accuracy, using data parallel SIMD/SSE instructions for higher performance on a single core.
         /// Will not throw overflow exception.
         /// </summary>
         /// <param name="arrayToSum">An array to sum up</param>
@@ -554,14 +554,28 @@ namespace HPCsharp.ParallelAlgorithms
             return overallSum;
         }
 
+        /// <summary>
+        /// Summation of long[] array, using data parallel SIMD/SSE instructions for higher performance on a single core.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>long sum</returns>
+        /// <exception>TSource:System.OverflowException: when the sum value is greater than Int64.MaxValue</exception>
         public static long SumSse(this long[] arrayToSum)
         {
             return arrayToSum.SumSseInner(0, arrayToSum.Length - 1);
         }
 
-        public static long SumSse(this long[] arrayToSum, int start, int length)
+        /// <summary>
+        /// Summation of long[] array, using data parallel SIMD/SSE instructions for higher performance on a single core.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <param name="startIndex">index of the starting element for the summation</param>
+        /// <param name="length">number of array elements to sum up</param>
+        /// <returns>long sum</returns>
+        /// <exception>TSource:System.OverflowException: when the sum value is greater than Int64.MaxValue</exception>
+        public static long SumSse(this long[] arrayToSum, int startIndex, int length)
         {
-            return arrayToSum.SumSseInner(start, start + length - 1);
+            return arrayToSum.SumSseInner(startIndex, startIndex + length - 1);
         }
 
         private static long SumSseInner(this long[] arrayToSum, int l, int r)
@@ -658,14 +672,28 @@ namespace HPCsharp.ParallelAlgorithms
             return overallSum;
         }
 
+        /// <summary>
+        /// Summation of ulong[] array, using data parallel SIMD/SSE instructions for higher performance on a single core.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>ulong sum</returns>
+        /// <exception>TSource:System.OverflowException: when the sum value is greater than UInt64.MaxValue</exception>
         public static ulong SumSse(this ulong[] arrayToSum)
         {
             return arrayToSum.SumSseInner(0, arrayToSum.Length - 1);
         }
 
-        public static ulong SumSse(this ulong[] arrayToSum, int start, int length)
+        /// <summary>
+        /// Summation of ulong[] array, using data parallel SIMD/SSE instructions for higher performance on a single core.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <param name="startIndex">index of the starting element for the summation</param>
+        /// <param name="length">number of array elements to sum up</param>
+        /// <returns>ulong sum</returns>
+        /// <exception>TSource:System.OverflowException: when the sum value is greater than UInt64.MaxValue</exception>
+        public static ulong SumSse(this ulong[] arrayToSum, int startIndex, int length)
         {
-            return arrayToSum.SumSseInner(start, start + length - 1);
+            return arrayToSum.SumSseInner(startIndex, startIndex + length - 1);
         }
 
         private static ulong SumSseInner(this ulong[] arrayToSum, int l, int r)

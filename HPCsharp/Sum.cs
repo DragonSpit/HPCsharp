@@ -201,7 +201,7 @@ namespace HPCsharp.Algorithms
         /// </summary>
         /// <param name="arrayToSum">An array to sum up</param>
         /// <returns>long sum</returns>
-        /// <exception>TSource:System.OverflowException: when the sum value is greater than Int32.MaxValue</exception>
+        /// <exception>TSource:System.OverflowException: when the sum value is greater than Int64.MaxValue</exception>
         public static long SumHpc(this long[] arrayToSum)
         {
             return arrayToSum.SumHpc(0, arrayToSum.Length);
