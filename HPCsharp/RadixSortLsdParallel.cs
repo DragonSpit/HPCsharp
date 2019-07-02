@@ -4,6 +4,7 @@
 // TODO: Set parallelism for Parallel Radix Sort to the number of CPU cores by default.
 // TODO: To speedup parallel Counting/Histogram, create a single dimension array instead of a jagged one, which will have an optimal layout within L1 cache with counts
 //       not interfering with each other.
+// TODO: Parallelize user-defined-type extraction of counts and input keys in the histogram and benchmark
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

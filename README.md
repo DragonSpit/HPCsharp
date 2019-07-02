@@ -56,7 +56,7 @@ Linq | n/a | n/a | n/a | n/a |0.9*|n/a|0.9*|n/a|0.9|0.9|0.12
 HPCsharp |7.6|8.0|8.0|8.2|5.0|5.3|2.9*|2.8*|5.1|2.9|0.14
 * overflow exception is possible
 
-HPCsharp includes long and ulong summation which do not throw an overflow exception.
+HPCsharp includes long and ulong summation, which do not throw an overflow exception while producing a perfectly accurate result.
 
 For more details, see blog https://duvanenko.tech.blog/2019/04/23/better-sum-in-c/
 
@@ -74,14 +74,17 @@ The above benchmark is on a single core! Multi-core sorts even faster, at GigaEl
 
 ## LSD Radix Sort
 
+LSD Radix Sort is a linear time ***O***(N), stable sorting algorithm.
+ 
 *Algorithm*|*Collection*|*Distribution*|*vs .Sort*|*vs Linq*|*vs Linq.AsParallel*|*MegaInts/sec*|*Data Type*
 --- | --- | --- | --- | --- | --- | --- | ---
 Radix Sort|Array, List|Random|5X-8X|14X-35X|4X-9X|82|UInt32
 Radix Sort|Array, List|Presorted|0.3X-0.6X|3X-5X|1X-3X|48|UInt32
 Radix Sort|Array, List|Constant|1.3X-1.8X|5X-8X|2X-3X|50|UInt32
 
-LSD Radix Sort is linear time ***O***(N) and stable. Radix Sort runs on a single core, whereas Linq.AsParallel ran on all the cores.
-Only slower when sorting presorted Array or List, but faster in all other cases, even faster than parallel Linq.OrderBy.AsParallel.
+LSD Radix Sort runs on a single core, whereas Linq.AsParallel ran on all the cores.
+Only slower when sorting presorted Array or List, but faster for random and constant distributions,
+even faster than parallel Linq.OrderBy.AsParallel.
 
 Radix Sort has been extended to sort user defined classes based on a UInt32 or UInt64 key within the class. Radix Sort is currently using only a single core.
 
