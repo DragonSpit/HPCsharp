@@ -41,14 +41,28 @@ namespace HPCsharp.ParallelAlgorithms
 {
     static public partial class Sum
     {
+        /// <summary>
+        /// Summation of sbyte[] array, which uses a long accumulator for perfect accuracy.
+        /// Will not throw overflow exception.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>long sum</returns>
         public static long SumSse(this sbyte[] arrayToSum)
         {
             return arrayToSum.SumSseInner(0, arrayToSum.Length - 1);
         }
 
-        public static long SumSse(this sbyte[] arrayToSum, int start, int length)
+        /// <summary>
+        /// Summation of sbyte[] array, which uses a long accumulator for perfect accuracy.
+        /// Will not throw overflow exception.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <param name="startIndex">index of the starting element for the summation</param>
+        /// <param name="length">number of array elements to sum up</param>
+        /// <returns>long sum</returns>
+        public static long SumSse(this sbyte[] arrayToSum, int startIndex, int length)
         {
-            return arrayToSum.SumSseInner(start, start + length - 1);
+            return arrayToSum.SumSseInner(startIndex, startIndex + length - 1);
         }
 
         private static long SumSseInner(this sbyte[] arrayToSum, int l, int r)
@@ -111,14 +125,28 @@ namespace HPCsharp.ParallelAlgorithms
             return overallSum;
         }
 
+        /// <summary>
+        /// Summation of byte[] array, which uses a ulong accumulator for perfect accuracy.
+        /// Will not throw overflow exception.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>ulong sum</returns>
         public static ulong SumSse(this byte[] arrayToSum)
         {
             return arrayToSum.SumSseInner(0, arrayToSum.Length - 1);
         }
 
-        public static ulong SumSse(this byte[] arrayToSum, int start, int length)
+        /// <summary>
+        /// Summation of byte[] array, which uses a ulong accumulator for perfect accuracy.
+        /// Will not throw overflow exception.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <param name="startIndex">index of the starting element for the summation</param>
+        /// <param name="length">number of array elements to sum up</param>
+        /// <returns>ulong sum</returns>
+        public static ulong SumSse(this byte[] arrayToSum, int startIndex, int length)
         {
-            return arrayToSum.SumSseInner(start, start + length - 1);
+            return arrayToSum.SumSseInner(startIndex, startIndex + length - 1);
         }
 
         private static ulong SumSseInner(this byte[] arrayToSum, int l, int r)
@@ -181,14 +209,28 @@ namespace HPCsharp.ParallelAlgorithms
             return overallSum;
         }
 
+        /// <summary>
+        /// Summation of short[] array, which uses a long accumulator for perfect accuracy.
+        /// Will not throw overflow exception.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>long sum</returns>
         public static long SumSse(this short[] arrayToSum)
         {
             return arrayToSum.SumSseInner(0, arrayToSum.Length - 1);
         }
 
-        public static long SumSse(this short[] arrayToSum, int start, int length)
+        /// <summary>
+        /// Summation of short[] array, which uses a long accumulator for perfect accuracy.
+        /// Will not throw overflow exception.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <param name="startIndex">index of the starting element for the summation</param>
+        /// <param name="length">number of array elements to sum up</param>
+        /// <returns>long sum</returns>
+        public static long SumSse(this short[] arrayToSum, int startIndex, int length)
         {
-            return arrayToSum.SumSseInner(start, start + length - 1);
+            return arrayToSum.SumSseInner(startIndex, startIndex + length - 1);
         }
 
         private static long SumSseInner(this short[] arrayToSum, int l, int r)
@@ -227,14 +269,28 @@ namespace HPCsharp.ParallelAlgorithms
             return overallSum;
         }
 
+        /// <summary>
+        /// Summation of ushort[] array, which uses a ulong accumulator for perfect accuracy.
+        /// Will not throw overflow exception.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>ulong sum</returns>
         public static ulong SumSse(this ushort[] arrayToSum)
         {
             return arrayToSum.SumSseInner(0, arrayToSum.Length - 1);
         }
 
-        public static ulong SumSse(this ushort[] arrayToSum, int start, int length)
+        /// <summary>
+        /// Summation of ushort[] array, which uses a ulong accumulator for perfect accuracy.
+        /// Will not throw overflow exception.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <param name="startIndex">index of the starting element for the summation</param>
+        /// <param name="length">number of array elements to sum up</param>
+        /// <returns>ulong sum</returns>
+        public static ulong SumSse(this ushort[] arrayToSum, int startIndex, int length)
         {
-            return arrayToSum.SumSseInner(start, start + length - 1);
+            return arrayToSum.SumSseInner(startIndex, startIndex + length - 1);
         }
 
         private static ulong SumSseInner(this ushort[] arrayToSum, int l, int r)
@@ -273,14 +329,28 @@ namespace HPCsharp.ParallelAlgorithms
             return overallSum;
         }
 
+        /// <summary>
+        /// Summation of int[] array, which uses a long accumulator for perfect accuracy.
+        /// Will not throw overflow exception.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>long sum</returns>
         public static long SumSse(this int[] arrayToSum)
         {
             return arrayToSum.SumSseInner(0, arrayToSum.Length - 1);
         }
 
-        public static long SumSse(this int[] arrayToSum, int start, int length)
+        /// <summary>
+        /// Summation of int[] array, which uses a long accumulator for perfect accuracy.
+        /// Will not throw overflow exception.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <param name="startIndex">index of the starting element for the summation</param>
+        /// <param name="length">number of array elements to sum up</param>
+        /// <returns>long sum</returns>
+        public static long SumSse(this int[] arrayToSum, int startIndex, int length)
         {
-            return arrayToSum.SumSseInner(start, start + length - 1);
+            return arrayToSum.SumSseInner(startIndex, startIndex + length - 1);
         }
 
         private static long SumSseInner(this int[] arrayToSum, int l, int r)
@@ -436,14 +506,28 @@ namespace HPCsharp.ParallelAlgorithms
             return arrayToSum.SumSseAndScalarInner(start, start + length - 1);
         }
 
+        /// <summary>
+        /// Summation of uint[] array, which uses a ulong accumulator for perfect accuracy.
+        /// Will not throw overflow exception.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>ulong sum</returns>
         public static ulong SumSse(this uint[] arrayToSum)
         {
             return arrayToSum.SumSseInner(0, arrayToSum.Length - 1);
         }
 
-        public static ulong SumSse(this uint[] arrayToSum, int start, int length)
+        /// <summary>
+        /// Summation of uint[] array, which uses a ulong accumulator for perfect accuracy.
+        /// Will not throw overflow exception.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <param name="startIndex">index of the starting element for the summation</param>
+        /// <param name="length">number of array elements to sum up</param>
+        /// <returns>ulong sum</returns>
+        public static ulong SumSse(this uint[] arrayToSum, int startIndex, int length)
         {
-            return arrayToSum.SumSseInner(start, start + length - 1);
+            return arrayToSum.SumSseInner(startIndex, startIndex + length - 1);
         }
 
         private static ulong SumSseInner(this uint[] arrayToSum, int l, int r)
