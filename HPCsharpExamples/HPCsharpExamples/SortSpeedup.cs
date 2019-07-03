@@ -215,7 +215,7 @@ namespace HPCsharpExamples
                         benchArrayOne.SortMergeInPlace(comparer);
                     else
                     {
-                        sortedArrayOne = benchArrayOne.SortRadix2(element => element.Key);   // faster, uses more memory
+                        sortedArrayOne = benchArrayOne.SortRadixFaster(element => element.Key);   // faster, uses more memory
                         //sortedArrayOne = benchArrayOne.SortRadix(element => element.Key);  // slower, uses less memory
                     }
                 }
@@ -230,8 +230,8 @@ namespace HPCsharpExamples
                         sortedArrayOne = benchArrayOne.SortMerge(comparer);
                     else
                     {
-                        sortedArrayOne = benchArrayOne.SortRadix2(element => element.Key);      // faster, uses more memory
-                        //sortedArrayOne = benchArrayOne.SortRadix2(element => element.Key);    // slower, user less memory
+                        sortedArrayOne = benchArrayOne.SortRadixFaster(element => element.Key);      // faster, uses more memory
+                        //sortedArrayOne = benchArrayOne.SortRadix(element => element.Key);    // slower, user less memory
                     }
                 }
                 else
@@ -242,7 +242,7 @@ namespace HPCsharpExamples
                     }
                     else
                     {
-                        sortedArrayOne = benchArrayOne.SortRadix2(element => element.Key);      // faster, uses more memory
+                        sortedArrayOne = benchArrayOne.SortRadixFaster(element => element.Key);      // faster, uses more memory
                         //sortedArrayOne = benchArrayOne.SortRadix(element => element.Key);     // slower, uses less memory
                     }
                 }

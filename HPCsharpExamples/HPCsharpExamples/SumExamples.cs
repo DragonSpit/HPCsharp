@@ -1,4 +1,5 @@
-﻿using HPCsharp;
+﻿using HPCsharp.Algorithms;
+using HPCsharp.ParallelAlgorithms;
 using System;
 using System.Linq;
 
