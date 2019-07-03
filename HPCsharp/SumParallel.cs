@@ -1453,6 +1453,27 @@ namespace HPCsharp.ParallelAlgorithms
             return numBytesUnaligned;
         }
 
+        private static float SumSseParInner(this float[] arrayToSum, int l, int r, int thresholdParallel = 16 * 1024)
+        {
+            float sumLeft = 0;
+
+            if (l > r)
+                return sumLeft;
+            if ((r - l + 1) <= thresholdParallel)
+                return SumSse(arrayToSum, l, r - l + 1);
+
+            int m = (r + l) / 2;
+
+            float sumRight = 0;
+
+            Parallel.Invoke(
+                () => { sumLeft  = SumSseParInner(arrayToSum, l,     m); },
+                () => { sumRight = SumSseParInner(arrayToSum, m + 1, r); }
+            );
+            // Combine left and right results
+            return sumLeft + sumRight;
+        }
+
         private static double SumParInner(this double[] arrayToSum, int l, int r, int thresholdParallel = 16 * 1024)
         {
             double sumLeft = 0;
@@ -1861,7 +1882,7 @@ namespace HPCsharp.ParallelAlgorithms
 
         /// <summary>
         /// Summation of float[] array, using multiple cores, and using data parallel SIMD/SSE instructions for higher performance within each core.
-        /// Uses a double accumulator for higher accuracy. Will not trow an overflow exception.
+        /// Uses a double accumulator for higher accuracy.
         /// </summary>
         /// <param name="arrayToSum">An array to sum up</param>
         /// <returns>float sum</returns>
@@ -1873,7 +1894,7 @@ namespace HPCsharp.ParallelAlgorithms
 
         /// <summary>
         /// Summation of float[] array, using multiple cores, and using data parallel SIMD/SSE instructions for higher performance within each core.
-        /// Uses a double accumulator for higher accuracy. Will not trow an overflow exception.
+        /// Uses a double accumulator for higher accuracy.
         /// </summary>
         /// <param name="arrayToSum">An array to sum up</param>
         /// <param name="startIndex">index of the starting element for the summation</param>
@@ -1887,7 +1908,29 @@ namespace HPCsharp.ParallelAlgorithms
 
         /// <summary>
         /// Summation of float[] array, using multiple cores, and using data parallel SIMD/SSE instructions for higher performance within each core.
-        /// Uses a double accumulator for higher accuracy. Will not trow an overflow exception.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>float sum</returns>
+        public static float SumSsePar(this float[] arrayToSum, int thresholdParallel = 16 * 1024)
+        {
+            return SumSseParInner(arrayToSum, 0, arrayToSum.Length - 1, thresholdParallel);
+        }
+
+        /// <summary>
+        /// Summation of float[] array, using multiple cores, and using data parallel SIMD/SSE instructions for higher performance within each core.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <param name="startIndex">index of the starting element for the summation</param>
+        /// <param name="length">number of array elements to sum up</param>
+        /// <returns>float sum</returns>
+        public static float SumSsePar(this float[] arrayToSum, int startIndex, int length, int thresholdParallel = 16 * 1024)
+        {
+            return arrayToSum.SumSseParInner(startIndex, startIndex + length - 1, thresholdParallel);
+        }
+
+        /// <summary>
+        /// Summation of float[] array, using multiple cores, and using data parallel SIMD/SSE instructions for higher performance within each core.
+        /// Uses a double accumulator for higher accuracy.
         /// </summary>
         /// <param name="arrayToSum">An array to sum up</param>
         /// <returns>double sum</returns>
@@ -1898,7 +1941,7 @@ namespace HPCsharp.ParallelAlgorithms
 
         /// <summary>
         /// Summation of float[] array, using multiple cores, and using data parallel SIMD/SSE instructions for higher performance within each core.
-        /// Uses a double accumulator for higher accuracy. Will not trow an overflow exception.
+        /// Uses a double accumulator for higher accuracy.
         /// </summary>
         /// <param name="arrayToSum">An array to sum up</param>
         /// <param name="startIndex">index of the starting element for the summation</param>
@@ -1908,92 +1951,214 @@ namespace HPCsharp.ParallelAlgorithms
         {
             return arrayToSum.SumDblSseParInner(startIndex, startIndex + length - 1, thresholdParallel);
         }
-        public static float SumNeumaierPar(this float[] arrayToSum, int thresholdParallel = 16 * 1024)
-        {
-            return SumNeumaierParInner(arrayToSum, 0, arrayToSum.Length - 1, thresholdParallel);
-        }
 
-        public static float SumNeumaierPar(this float[] arrayToSum, int start, int length, int thresholdParallel = 16 * 1024)
-        {
-            return arrayToSum.SumNeumaierParInner(start, start + length - 1, thresholdParallel);
-        }
-        public static double SumNeumaierDblPar(this float[] arrayToSum, int thresholdParallel = 16 * 1024)
-        {
-            return SumNeumaierDoubleParInner(arrayToSum, 0, arrayToSum.Length - 1, thresholdParallel);
-        }
-
-        public static double SumNeumaierDblPar(this float[] arrayToSum, int start, int length, int thresholdParallel = 16 * 1024)
-        {
-            return arrayToSum.SumNeumaierDoubleParInner(start, start + length - 1, thresholdParallel);
-        }
-
-        public static float SumSseNeumaierPar(this float[] arrayToSum, int thresholdParallel = 16 * 1024)
-        {
-            return SumSseNeumaierParInner(arrayToSum, 0, arrayToSum.Length - 1, thresholdParallel);
-        }
-
-        public static float SumSseNeumaierPar(this float[] arrayToSum, int start, int length, int thresholdParallel = 16 * 1024)
-        {
-            return arrayToSum.SumSseNeumaierParInner(start, start + length - 1, thresholdParallel);
-        }
-
-        public static double SumSseNeumaierDblPar(this float[] arrayToSum, int thresholdParallel = 16 * 1024)
-        {
-            return SumSseNeumaierDoubleParInner(arrayToSum, 0, arrayToSum.Length - 1, thresholdParallel);
-        }
-
-        public static double SumSseNeumaierDblPar(this float[] arrayToSum, int start, int length, int thresholdParallel = 16 * 1024)
-        {
-            return arrayToSum.SumSseNeumaierDoubleParInner(start, start + length - 1, thresholdParallel);
-        }
-
+        /// <summary>
+        /// Summation of double[] array, using multiple cores.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>double sum</returns>
         public static double SumPar(this double[] arrayToSum, int thresholdParallel = 16 * 1024)
         {
             return SumParInner(arrayToSum, 0, arrayToSum.Length - 1, thresholdParallel);
         }
 
-        public static double SumPar(this double[] arrayToSum, int start, int length, int thresholdParallel = 16 * 1024)
+        /// <summary>
+        /// Summation of double[] array, using multiple cores.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <param name="startIndex">index of the starting element for the summation</param>
+        /// <param name="length">number of array elements to sum up</param>
+        /// <returns>double sum</returns>
+        public static double SumPar(this double[] arrayToSum, int startIndex, int length, int thresholdParallel = 16 * 1024)
         {
-            return arrayToSum.SumParInner(start, start + length - 1, thresholdParallel);
+            return arrayToSum.SumParInner(startIndex, startIndex + length - 1, thresholdParallel);
         }
 
+        /// <summary>
+        /// Summation of double[] array, using multiple cores, and using data parallel SIMD/SSE instructions for higher performance within each core.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>double sum</returns>
         public static double SumSsePar(this double[] arrayToSum, int thresholdParallel = 16 * 1024)
         {
             return SumSseParInner(arrayToSum, 0, arrayToSum.Length - 1, thresholdParallel);
         }
 
-        public static double SumSsePar(this double[] arrayToSum, int start, int length, int thresholdParallel = 16 * 1024)
+        /// <summary>
+        /// Summation of double[] array, using multiple cores, and using data parallel SIMD/SSE instructions for higher performance within each core.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <param name="startIndex">index of the starting element for the summation</param>
+        /// <param name="length">number of array elements to sum up</param>
+        /// <returns>double sum</returns>
+        public static double SumSsePar(this double[] arrayToSum, int startIndex, int length, int thresholdParallel = 16 * 1024)
         {
-            return arrayToSum.SumSseParInner(start, start + length - 1, thresholdParallel);
+            return arrayToSum.SumSseParInner(startIndex, startIndex + length - 1, thresholdParallel);
         }
 
+        /// <summary>
+        /// Implementation of the Neumaier variation of Kahan floating-point summation: more accurate than for loop summation.
+        /// Summation of float[] array, using a more accurate Kahan summation algorithm, using multiple cores.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>float sum</returns>
+        public static float SumNeumaierPar(this float[] arrayToSum, int thresholdParallel = 16 * 1024)
+        {
+            return SumNeumaierParInner(arrayToSum, 0, arrayToSum.Length - 1, thresholdParallel);
+        }
+
+        /// <summary>
+        /// Implementation of the Neumaier variation of Kahan floating-point summation: more accurate than for loop summation.
+        /// Summation of float[] array, using a more accurate Kahan summation algorithm, using multiple cores.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <param name="startIndex">index of the starting element for the summation</param>
+        /// <param name="length">number of array elements to sum up</param>
+        /// <returns>float sum</returns>
+        public static float SumNeumaierPar(this float[] arrayToSum, int startIndex, int length, int thresholdParallel = 16 * 1024)
+        {
+            return arrayToSum.SumNeumaierParInner(startIndex, startIndex + length - 1, thresholdParallel);
+        }
+        /// <summary>
+        /// Implementation of the Neumaier variation of Kahan floating-point summation: more accurate than for loop summation.
+        /// Summation of float[] array, using a more accurate Kahan summation algorithm, using a double accumulator for higher accuracy, using multiple cores.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>double sum</returns>
+        public static double SumNeumaierDblPar(this float[] arrayToSum, int thresholdParallel = 16 * 1024)
+        {
+            return SumNeumaierDoubleParInner(arrayToSum, 0, arrayToSum.Length - 1, thresholdParallel);
+        }
+
+        /// <summary>
+        /// Implementation of the Neumaier variation of Kahan floating-point summation: more accurate than for loop summation.
+        /// Summation of float[] array, using a more accurate Kahan summation algorithm, using a double accumulator for higher accuracy, using multiple cores.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <param name="startIndex">index of the starting element for the summation</param>
+        /// <param name="length">number of array elements to sum up</param>
+        /// <returns>double sum</returns>
+        public static double SumNeumaierDblPar(this float[] arrayToSum, int startIndex, int length, int thresholdParallel = 16 * 1024)
+        {
+            return arrayToSum.SumNeumaierDoubleParInner(startIndex, startIndex + length - 1, thresholdParallel);
+        }
+
+        /// <summary>
+        /// Implementation of the Neumaier variation of Kahan floating-point summation: more accurate than for loop summation.
+        /// Summation of float[] array, using a more accurate Kahan summation algorithm, using data parallel SIMD/SSE instructions for higher performance within each core, using multiple cores.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>float sum</returns>
+        public static float SumSseNeumaierPar(this float[] arrayToSum, int thresholdParallel = 16 * 1024)
+        {
+            return SumSseNeumaierParInner(arrayToSum, 0, arrayToSum.Length - 1, thresholdParallel);
+        }
+
+        /// <summary>
+        /// Implementation of the Neumaier variation of Kahan floating-point summation: more accurate than for loop summation.
+        /// Summation of float[] array, using a more accurate Kahan summation algorithm, using data parallel SIMD/SSE instructions for higher performance within each core, using multiple cores.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <param name="startIndex">index of the starting element for the summation</param>
+        /// <param name="length">number of array elements to sum up</param>
+        /// <returns>float sum</returns>
+        public static float SumSseNeumaierPar(this float[] arrayToSum, int startIndex, int length, int thresholdParallel = 16 * 1024)
+        {
+            return arrayToSum.SumSseNeumaierParInner(startIndex, startIndex + length - 1, thresholdParallel);
+        }
+
+        /// <summary>
+        /// Implementation of the Neumaier variation of Kahan floating-point summation: more accurate than for loop summation.
+        /// Summation of float[] array, using a more accurate Kahan summation algorithm, using a double precision accumulator for higher accuracy, using data parallel SIMD/SSE instructions for higher performance within each core, using multiple cores.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>double sum</returns>
+        public static double SumSseNeumaierDblPar(this float[] arrayToSum, int thresholdParallel = 16 * 1024)
+        {
+            return SumSseNeumaierDoubleParInner(arrayToSum, 0, arrayToSum.Length - 1, thresholdParallel);
+        }
+
+        /// <summary>
+        /// Implementation of the Neumaier variation of Kahan floating-point summation: more accurate than for loop summation.
+        /// Summation of float[] array, using a more accurate Kahan summation algorithm, using a double precision accumulator for higher accuracy, using data parallel SIMD/SSE instructions for higher performance within each core, using multiple cores.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <param name="startIndex">index of the starting element for the summation</param>
+        /// <param name="length">number of array elements to sum up</param>
+        /// <returns>double sum</returns>
+        public static double SumSseNeumaierDblPar(this float[] arrayToSum, int startIndex, int length, int thresholdParallel = 16 * 1024)
+        {
+            return arrayToSum.SumSseNeumaierDoubleParInner(startIndex, startIndex + length - 1, thresholdParallel);
+        }
+
+        /// <summary>
+        /// Implementation of the Neumaier variation of Kahan floating-point summation: more accurate than for loop summation.
+        /// Summation of double[] array, using a more accurate Kahan summation algorithm, using multiple cores.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>double sum</returns>
         public static double SumNeumaierPar(this double[] arrayToSum, int thresholdParallel = 16 * 1024)
         {
             return SumNeumaierParInner(arrayToSum, 0, arrayToSum.Length - 1, thresholdParallel);
         }
 
-        public static double SumNeumaierPar(this double[] arrayToSum, int start, int length, int thresholdParallel = 16 * 1024)
+        /// <summary>
+        /// Implementation of the Neumaier variation of Kahan floating-point summation: more accurate than for loop summation.
+        /// Summation of double[] array, using a more accurate Kahan summation algorithm, using multiple cores.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <param name="startIndex">index of the starting element for the summation</param>
+        /// <param name="length">number of array elements to sum up</param>
+        /// <returns>double sum</returns>
+        public static double SumNeumaierPar(this double[] arrayToSum, int startIndex, int length, int thresholdParallel = 16 * 1024)
         {
-            return arrayToSum.SumNeumaierParInner(start, start + length - 1, thresholdParallel);
+            return arrayToSum.SumNeumaierParInner(startIndex, startIndex + length - 1, thresholdParallel);
         }
 
+        /// <summary>
+        /// Implementation of the Neumaier variation of Kahan floating-point summation: more accurate than for loop summation.
+        /// Summation of double[] array, using a more accurate Kahan summation algorithm, using data parallel SIMD/SSE instructions for higher performance within each core, using multiple cores.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>double sum</returns>
         public static double SumSseNeumaierPar(this double[] arrayToSum, int thresholdParallel = 16 * 1024)
         {
             return SumSseNeumaierParInner(arrayToSum, 0, arrayToSum.Length - 1, thresholdParallel);
         }
 
-        public static double SumSseNeumaierPar(this double[] arrayToSum, int start, int length, int thresholdParallel = 16 * 1024)
+        /// <summary>
+        /// Implementation of the Neumaier variation of Kahan floating-point summation: more accurate than for loop summation.
+        /// Summation of double[] array, using a more accurate Kahan summation algorithm, using data parallel SIMD/SSE instructions for higher performance within each core, using multiple cores.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <param name="startIndex">index of the starting element for the summation</param>
+        /// <param name="length">number of array elements to sum up</param>
+        /// <returns>double sum</returns>
+        public static double SumSseNeumaierPar(this double[] arrayToSum, int startIndex, int length, int thresholdParallel = 16 * 1024)
         {
-            return arrayToSum.SumSseNeumaierParInner(start, start + length - 1, thresholdParallel);
+            return arrayToSum.SumSseNeumaierParInner(startIndex, startIndex + length - 1, thresholdParallel);
         }
+
+        /// <summary>
+        /// Summation of decimal[] array, using multiple cores.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>decimal sum</returns>
         public static decimal SumPar(this decimal[] arrayToSum, int thresholdParallel = 16 * 1024)
         {
             return SumParInner(arrayToSum, 0, arrayToSum.Length - 1, thresholdParallel);
         }
 
-        public static decimal SumPar(this decimal[] arrayToSum, int start, int length, int thresholdParallel = 16 * 1024)
+        /// <summary>
+        /// Summation of decimal[] array, using multiple cores.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <param name="startIndex">index of the starting element for the summation</param>
+        /// <param name="length">number of array elements to sum up</param>
+        /// <returns>decimal sum</returns>
+        public static decimal SumPar(this decimal[] arrayToSum, int startIndex, int length, int thresholdParallel = 16 * 1024)
         {
-            return arrayToSum.SumParInner(start, start + length - 1, thresholdParallel);
+            return arrayToSum.SumParInner(startIndex, startIndex + length - 1, thresholdParallel);
         }
     }
 }
