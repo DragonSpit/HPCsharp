@@ -29,7 +29,10 @@
 // TODO: Apply the same technique of double the memory load as used for ZeroDetection by loading two per loop.
 //       Wonder if having two or more independent loop counters would also help, along with two or more memory loads.
 //       Need to see if SSE on single core is memory limited. Need to add to table single-core performance.
-// TODO: Need to implement integer and unsigned integer .SumPar() - i.e. without SSE, but multi-core
+// TODO: Need to implement integer and unsigned integer .SumPar() - i.e. without SSE, but multi-core.
+// TODO: Missing .SumSsePar() for float[] that uses float SSE summation for higher performance than converting it to double and using SSE.
+// TODO: Implement pair-wise floating-point summation that is multi-core and SSE, with separate SSE implementation which recursively combines an SSE-word all the way down possibly, as this eliminates the problem of base-case function being non-pair,
+//       as this most likely could be just about as fast, or we could develop one that is just as fast and keeps the pairing using SSE all the way to the bottom of recursion.
 // TODO: Study parallel solution presented here (parallel for), which may be better in some cases: https://stackoverflow.com/questions/2419343/how-to-sum-up-an-array-of-integers-in-c-sharp/54794753#54794753
 
 using System.Collections.Generic;
@@ -1291,7 +1294,7 @@ namespace HPCsharp.ParallelAlgorithms
             return reduce(sumLeft, sumRight);
         }
 
-        private static double SumSseParInner(this float[] arrayToSum, int l, int r, int thresholdParallel = 16 * 1024)
+        private static double SumDblSseParInner(this float[] arrayToSum, int l, int r, int thresholdParallel = 16 * 1024)
         {
             double sumLeft = 0;
 
@@ -1305,8 +1308,8 @@ namespace HPCsharp.ParallelAlgorithms
             double sumRight = 0;
 
             Parallel.Invoke(
-                () => { sumLeft  = SumSseParInner(arrayToSum, l,     m); },
-                () => { sumRight = SumSseParInner(arrayToSum, m + 1, r); }
+                () => { sumLeft  = SumDblSseParInner(arrayToSum, l,     m); },
+                () => { sumRight = SumDblSseParInner(arrayToSum, m + 1, r); }
             );
             // Combine left and right results
             return sumLeft + sumRight;
@@ -1597,137 +1600,313 @@ namespace HPCsharp.ParallelAlgorithms
             return sumLeft + sumRight;
         }
 
+        /// <summary>
+        /// Summation of sbyte[] array, using multiple cores, and using data parallel SIMD/SSE instructions for higher performance within each core.
+        /// Uses a long accumulator for perfect accuracy. Will not trow an overflow exception.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>long sum</returns>
         public static long SumSsePar(this sbyte[] arrayToSum, int thresholdParallel = 16 * 1024)
         {
             return SumSseParInner(arrayToSum, 0, arrayToSum.Length - 1, thresholdParallel);
         }
 
-        public static long SumSsePar(this sbyte[] arrayToSum, int start, int length, int thresholdParallel = 16 * 1024)
+        /// <summary>
+        /// Summation of sbyte[] array, using multiple cores, and using data parallel SIMD/SSE instructions for higher performance within each core.
+        /// Uses a long accumulator for perfect accuracy. Will not trow an overflow exception.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <param name="startIndex">index of the starting element for the summation</param>
+        /// <param name="length">number of array elements to sum up</param>
+        /// <returns>long sum</returns>
+        public static long SumSsePar(this sbyte[] arrayToSum, int startIndex, int length, int thresholdParallel = 16 * 1024)
         {
-            return arrayToSum.SumSseParInner(start, start + length - 1, thresholdParallel);
+            return arrayToSum.SumSseParInner(startIndex, startIndex + length - 1, thresholdParallel);
         }
 
+        /// <summary>
+        /// Summation of byte[] array, using multiple cores, and using data parallel SIMD/SSE instructions for higher performance within each core.
+        /// Uses a ulong accumulator for perfect accuracy. Will not trow an overflow exception.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>ulong sum</returns>
         public static ulong SumSsePar(this byte[] arrayToSum, int thresholdParallel = 16 * 1024)
         {
             return SumSseParInner(arrayToSum, 0, arrayToSum.Length - 1, thresholdParallel);
         }
 
-        public static ulong SumSsePar(this byte[] arrayToSum, int start, int length, int thresholdParallel = 16 * 1024)
+        /// <summary>
+        /// Summation of byte[] array, using multiple cores, and using data parallel SIMD/SSE instructions for higher performance within each core.
+        /// Uses a ulong accumulator for perfect accuracy. Will not trow an overflow exception.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <param name="startIndex">index of the starting element for the summation</param>
+        /// <param name="length">number of array elements to sum up</param>
+        /// <returns>ulong sum</returns>
+        public static ulong SumSsePar(this byte[] arrayToSum, int startIndex, int length, int thresholdParallel = 16 * 1024)
         {
-            return arrayToSum.SumSseParInner(start, start + length - 1, thresholdParallel);
+            return arrayToSum.SumSseParInner(startIndex, startIndex + length - 1, thresholdParallel);
         }
 
+        /// <summary>
+        /// Summation of short[] array, using multiple cores, and using data parallel SIMD/SSE instructions for higher performance within each core.
+        /// Uses a long accumulator for perfect accuracy. Will not trow an overflow exception.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>long sum</returns>
         public static long SumSsePar(this short[] arrayToSum, int thresholdParallel = 16 * 1024)
         {
             return SumSseParInner(arrayToSum, 0, arrayToSum.Length - 1, thresholdParallel);
         }
 
-        public static long SumSsePar(this short[] arrayToSum, int start, int length, int thresholdParallel = 16 * 1024)
+        /// <summary>
+        /// Summation of short[] array, using multiple cores, and using data parallel SIMD/SSE instructions for higher performance within each core.
+        /// Uses a long accumulator for perfect accuracy. Will not trow an overflow exception.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <param name="startIndex">index of the starting element for the summation</param>
+        /// <param name="length">number of array elements to sum up</param>
+        /// <returns>long sum</returns>
+        public static long SumSsePar(this short[] arrayToSum, int startIndex, int length, int thresholdParallel = 16 * 1024)
         {
-            return arrayToSum.SumSseParInner(start, start + length - 1, thresholdParallel);
+            return arrayToSum.SumSseParInner(startIndex, startIndex + length - 1, thresholdParallel);
         }
 
+        /// <summary>
+        /// Summation of ushort[] array, using multiple cores, and using data parallel SIMD/SSE instructions for higher performance within each core.
+        /// Uses a ulong accumulator for perfect accuracy. Will not trow an overflow exception.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>ulong sum</returns>
         public static ulong SumSsePar(this ushort[] arrayToSum, int thresholdParallel = 16 * 1024)
         {
             return SumSseParInner(arrayToSum, 0, arrayToSum.Length - 1, thresholdParallel);
         }
 
-        public static ulong SumSsePar(this ushort[] arrayToSum, int start, int length, int thresholdParallel = 16 * 1024)
+        /// <summary>
+        /// Summation of ushort[] array, using multiple cores, and using data parallel SIMD/SSE instructions for higher performance within each core.
+        /// Uses a ulong accumulator for perfect accuracy. Will not trow an overflow exception.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <param name="startIndex">index of the starting element for the summation</param>
+        /// <param name="length">number of array elements to sum up</param>
+        /// <returns>ulong sum</returns>
+        public static ulong SumSsePar(this ushort[] arrayToSum, int startIndex, int length, int thresholdParallel = 16 * 1024)
         {
-            return arrayToSum.SumSseParInner(start, start + length - 1, thresholdParallel);
+            return arrayToSum.SumSseParInner(startIndex, startIndex + length - 1, thresholdParallel);
         }
 
+        /// <summary>
+        /// Summation of int[] array, using multiple cores, and using data parallel SIMD/SSE instructions for higher performance within each core.
+        /// Uses a long accumulator for perfect accuracy. Will not trow an overflow exception.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>long sum</returns>
         public static long SumSsePar(this int[] arrayToSum, int thresholdParallel = 16 * 1024)
         {
             return SumSseParInner(arrayToSum, 0, arrayToSum.Length - 1, thresholdParallel);
         }
 
-        public static long SumSsePar(this int[] arrayToSum, int start, int length, int thresholdParallel = 16 * 1024)
+        /// <summary>
+        /// Summation of int[] array, using multiple cores, and using data parallel SIMD/SSE instructions for higher performance within each core.
+        /// Uses a long accumulator for perfect accuracy. Will not trow an overflow exception.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <param name="startIndex">index of the starting element for the summation</param>
+        /// <param name="length">number of array elements to sum up</param>
+        /// <returns>long sum</returns>
+        public static long SumSsePar(this int[] arrayToSum, int startIndex, int length, int thresholdParallel = 16 * 1024)
         {
-            return arrayToSum.SumSseParInner(start, start + length - 1, thresholdParallel);
+            return arrayToSum.SumSseParInner(startIndex, startIndex + length - 1, thresholdParallel);
         }
 
+        /// <summary>
+        /// Summation of uint[] array, using multiple cores, and using data parallel SIMD/SSE instructions for higher performance within each core.
+        /// Uses a ulong accumulator for perfect accuracy. Will not trow an overflow exception.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>ulong sum</returns>
         public static ulong SumSsePar(this uint[] arrayToSum, int thresholdParallel = 16 * 1024)
         {
             return SumSseParInner(arrayToSum, 0, arrayToSum.Length - 1, thresholdParallel);
         }
 
-        public static ulong SumSsePar(this uint[] arrayToSum, int start, int length, int thresholdParallel = 16 * 1024)
+        /// <summary>
+        /// Summation of uint[] array, using multiple cores, and using data parallel SIMD/SSE instructions for higher performance within each core.
+        /// Uses a ulong accumulator for perfect accuracy. Will not trow an overflow exception.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <param name="startIndex">index of the starting element for the summation</param>
+        /// <param name="length">number of array elements to sum up</param>
+        /// <returns>ulong sum</returns>
+        public static ulong SumSsePar(this uint[] arrayToSum, int startIndex, int length, int thresholdParallel = 16 * 1024)
         {
-            return arrayToSum.SumSseParInner(start, start + length - 1, thresholdParallel);
+            return arrayToSum.SumSseParInner(startIndex, startIndex + length - 1, thresholdParallel);
         }
 
+        /// <summary>
+        /// Summation of long[] array, using multiple cores, and using data parallel SIMD/SSE instructions for higher performance within each core.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>long sum</returns>
         public static long SumSsePar(this long[] arrayToSum, int thresholdParallel = 16 * 1024)
         {
             return SumSseParInner(arrayToSum, 0, arrayToSum.Length - 1, thresholdParallel);
         }
 
-        public static long SumSsePar(this long[] arrayToSum, int start, int length, int thresholdParallel = 16 * 1024)
+        /// <summary>
+        /// Summation of long[] array, using multiple cores, and using data parallel SIMD/SSE instructions for higher performance within each core.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <param name="startIndex">index of the starting element for the summation</param>
+        /// <param name="length">number of array elements to sum up</param>
+        /// <returns>long sum</returns>
+        public static long SumSsePar(this long[] arrayToSum, int startIndex, int length, int thresholdParallel = 16 * 1024)
         {
-            return arrayToSum.SumSseParInner(start, start + length - 1, thresholdParallel);
+            return arrayToSum.SumSseParInner(startIndex, startIndex + length - 1, thresholdParallel);
         }
 
+        /// <summary>
+        /// Summation of long[] array, using multiple cores, and using data parallel SIMD/SSE instructions for higher performance within each core.
+        /// Uses a decimal accumulator for perfect accuracy. Will not trow an overflow exception.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>decimal sum</returns>
         public static decimal SumDecimalPar(this long[] arrayToSum, int thresholdParallel = 16 * 1024)
         {
             return SumParInner(arrayToSum, 0, arrayToSum.Length - 1, thresholdParallel);
         }
 
-        public static decimal SumDecimalPar(this long[] arrayToSum, int start, int length, int thresholdParallel = 16 * 1024)
+        /// <summary>
+        /// Summation of long[] array, using multiple cores, and using data parallel SIMD/SSE instructions for higher performance within each core.
+        /// Uses a decimal accumulator for perfect accuracy. Will not trow an overflow exception.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <param name="startIndex">index of the starting element for the summation</param>
+        /// <param name="length">number of array elements to sum up</param>
+        /// <returns>decimal sum</returns>
+        public static decimal SumDecimalPar(this long[] arrayToSum, int startIndex, int length, int thresholdParallel = 16 * 1024)
         {
-            return arrayToSum.SumParInner(start, start + length - 1, thresholdParallel);
+            return arrayToSum.SumParInner(startIndex, startIndex + length - 1, thresholdParallel);
         }
 
+        /// <summary>
+        /// Summation of ulong[] array, using multiple cores, and using data parallel SIMD/SSE instructions for higher performance within each core.
+        /// Uses a decimal accumulator for perfect accuracy. Will not trow an overflow exception.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>decimal sum</returns>
         public static decimal SumDecimalPar(this ulong[] arrayToSum, int thresholdParallel = 16 * 1024)
         {
             return SumParInner(arrayToSum, 0, arrayToSum.Length - 1, thresholdParallel);
         }
-        public static decimal SumDecimalPar(this ulong[] arrayToSum, int start, int length, int thresholdParallel = 16 * 1024)
+        /// <summary>
+        /// Summation of ulong[] array, using multiple cores, and using data parallel SIMD/SSE instructions for higher performance within each core.
+        /// Uses a decimal accumulator for perfect accuracy. Will not trow an overflow exception.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <param name="startIndex">index of the starting element for the summation</param>
+        /// <param name="length">number of array elements to sum up</param>
+        /// <returns>decimal sum</returns>
+        public static decimal SumDecimalPar(this ulong[] arrayToSum, int startIndex, int length, int thresholdParallel = 16 * 1024)
         {
-            return arrayToSum.SumParInner(start, start + length - 1, thresholdParallel);
+            return arrayToSum.SumParInner(startIndex, startIndex + length - 1, thresholdParallel);
         }
 
+        /// <summary>
+        /// Summation of ulong[] array, using multiple cores, and using data parallel SIMD/SSE instructions for higher performance within each core.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>ulong sum</returns>
         public static ulong SumSsePar(this ulong[] arrayToSum, int thresholdParallel = 16 * 1024)
         {
             return SumSseParInner(arrayToSum, 0, arrayToSum.Length - 1, thresholdParallel);
         }
 
-        public static ulong SumSsePar(this ulong[] arrayToSum, int start, int length, int thresholdParallel = 16 * 1024)
+        /// <summary>
+        /// Summation of ulong[] array, using multiple cores, and using data parallel SIMD/SSE instructions for higher performance within each core.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <param name="startIndex">index of the starting element for the summation</param>
+        /// <param name="length">number of array elements to sum up</param>
+        /// <returns>ulong sum</returns>
+        public static ulong SumSsePar(this ulong[] arrayToSum, int startIndex, int length, int thresholdParallel = 16 * 1024)
         {
-            return arrayToSum.SumSseParInner(start, start + length - 1, thresholdParallel);
+            return arrayToSum.SumSseParInner(startIndex, startIndex + length - 1, thresholdParallel);
         }
 
+        /// <summary>
+        /// Summation of float[] array, using multiple cores, and using data parallel SIMD/SSE instructions for higher performance within each core.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>float sum</returns>
         public static float SumPar(this float[] arrayToSum, int thresholdParallel = 16 * 1024)
         {
             return arrayToSum.SumParInner(0, arrayToSum.Length - 1, thresholdParallel);
             //return arrayToSum.SumParInner(0, arrayToSum.Length - 1, Algorithm.SumLR, (x, y) => x + y);
         }
 
-        public static float SumPar(this float[] arrayToSum, int start, int length, int thresholdParallel = 16 * 1024)
+        /// <summary>
+        /// Summation of float[] array, using multiple cores, and using data parallel SIMD/SSE instructions for higher performance within each core.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <param name="startIndex">index of the starting element for the summation</param>
+        /// <param name="length">number of array elements to sum up</param>
+        /// <returns>float sum</returns>
+        public static float SumPar(this float[] arrayToSum, int startIndex, int length, int thresholdParallel = 16 * 1024)
         {
-            return arrayToSum.SumParInner(start, start + length - 1, thresholdParallel);
+            return arrayToSum.SumParInner(startIndex, startIndex + length - 1, thresholdParallel);
             //return arrayToSum.SumParInner(start, start + length - 1, Algorithm.SumLR, (x, y) => x + y);
         }
 
+        /// <summary>
+        /// Summation of float[] array, using multiple cores, and using data parallel SIMD/SSE instructions for higher performance within each core.
+        /// Uses a double accumulator for higher accuracy. Will not trow an overflow exception.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>float sum</returns>
         public static double SumDblPar(this float[] arrayToSum, int thresholdParallel = 16 * 1024)
         {
             return arrayToSum.SumDblParInner(0, arrayToSum.Length - 1, thresholdParallel);
             //return arrayToSum.SumDblParInner(0, arrayToSum.Length - 1, Algorithm.SumDblLR, (x, y) => x + y);
         }
 
-        public static double SumDblPar(this float[] arrayToSum, int start, int length, int thresholdParallel = 16 * 1024)
+        /// <summary>
+        /// Summation of float[] array, using multiple cores, and using data parallel SIMD/SSE instructions for higher performance within each core.
+        /// Uses a double accumulator for higher accuracy. Will not trow an overflow exception.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <param name="startIndex">index of the starting element for the summation</param>
+        /// <param name="length">number of array elements to sum up</param>
+        /// <returns>float sum</returns>
+        public static double SumDblPar(this float[] arrayToSum, int startIndex, int length, int thresholdParallel = 16 * 1024)
         {
-            return arrayToSum.SumDblParInner(start, start + length - 1, thresholdParallel);
+            return arrayToSum.SumDblParInner(startIndex, startIndex + length - 1, thresholdParallel);
             //return arrayToSum.SumDblParInner(start, start + length - 1, Algorithm.SumDblLR, (x, y) => x + y);
         }
 
-        public static double SumSsePar(this float[] arrayToSum, int thresholdParallel = 16 * 1024)
+        /// <summary>
+        /// Summation of float[] array, using multiple cores, and using data parallel SIMD/SSE instructions for higher performance within each core.
+        /// Uses a double accumulator for higher accuracy. Will not trow an overflow exception.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>double sum</returns>
+        public static double SumDblSsePar(this float[] arrayToSum, int thresholdParallel = 16 * 1024)
         {
-            return SumSseParInner(arrayToSum, 0, arrayToSum.Length - 1, thresholdParallel);
+            return SumDblSseParInner(arrayToSum, 0, arrayToSum.Length - 1, thresholdParallel);
         }
-        
-        public static double SumSsePar(this float[] arrayToSum, int start, int length, int thresholdParallel = 16 * 1024)
+
+        /// <summary>
+        /// Summation of float[] array, using multiple cores, and using data parallel SIMD/SSE instructions for higher performance within each core.
+        /// Uses a double accumulator for higher accuracy. Will not trow an overflow exception.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <param name="startIndex">index of the starting element for the summation</param>
+        /// <param name="length">number of array elements to sum up</param>
+        /// <returns>double sum</returns>
+        public static double SumDblSsePar(this float[] arrayToSum, int startIndex, int length, int thresholdParallel = 16 * 1024)
         {
-            return arrayToSum.SumSseParInner(start, start + length - 1, thresholdParallel);
+            return arrayToSum.SumDblSseParInner(startIndex, startIndex + length - 1, thresholdParallel);
         }
         public static float SumNeumaierPar(this float[] arrayToSum, int thresholdParallel = 16 * 1024)
         {
