@@ -48,7 +48,7 @@ namespace HPCsharpExamples
             //sumInt = arrInt.Sum();                  // standard C# usage, single-core, will throw overflow exception
             //sumInt = arrInt.AsParallel().Sum();     // standard C# usage, multi-core,  will throw overflow exception
 
-            // No overflow exception thrown
+            // No overflow exception thrown by HPCsharp .Sum(), producing a perfectly accurate sum
             sumLong = arrInt.SumHpc();     // serial
             sumLong = arrInt.SumSse();     // data-parallel, single-core
             sumLong = arrInt.SumSsePar();  // data-parallel,  multi-core
@@ -61,8 +61,8 @@ namespace HPCsharpExamples
             sumFloat = arrFloat.Sum();         // standard C# usage
 
             sumDouble = arrFloat.SumHpc();     // serial
-            sumDouble = arrFloat.SumSse();     // data-parallel, single-core
-            sumDouble = arrFloat.SumSsePar();  // data-parallel,  multi-core
+            sumDouble = arrFloat.SumSse();     // data-parallel (SSE), single-core
+            sumDouble = arrFloat.SumSsePar();  // data-parallel (SSE),  multi-core (Par)
 
             // More accurate floati-point .Sum()
             double[] arrDouble = new double[] { 1, 10.0e100, 1, -10e100 };
@@ -71,9 +71,9 @@ namespace HPCsharpExamples
             var sumDoubleKahan    = arrDouble.SumKahan();    // HPCsharp serial
             var sumDoubleNeumaier = arrDouble.SumNeumaier(); // HPCsharp serial
 
-            Console.WriteLine("Sum          = {0}", sumDouble);
-            Console.WriteLine("Sum Kahan    = {0}", sumDoubleKahan);
-            Console.WriteLine("Sum Neumaier = {0}", sumDoubleNeumaier);
+            Console.WriteLine("Sum          = {0}, correct answer is 2.0", sumDouble);
+            Console.WriteLine("Sum Kahan    = {0}, correct answer is 2.0", sumDoubleKahan);
+            Console.WriteLine("Sum Neumaier = {0}, correct answer is 2.0", sumDoubleNeumaier);
         }
     }
 }
