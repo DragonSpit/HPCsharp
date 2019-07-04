@@ -220,7 +220,12 @@ namespace HPCsharp.Algorithms
             int endIndex = startIndex + length;
             long overallSum = 0;
             for (int i = startIndex; i < endIndex; i++)
-                overallSum += arrayToSum[i];
+            {
+                checked
+                {
+                    overallSum += arrayToSum[i];
+                }
+            }
             return overallSum;
         }
 
@@ -249,7 +254,12 @@ namespace HPCsharp.Algorithms
             long overallSum = 0;
             for (int i = startIndex; i < endIndex; i++)
                 if (arrayToSum[i] != null)
-                    overallSum += (long)arrayToSum[i];
+                {
+                    checked
+                    {
+                        overallSum += (long)arrayToSum[i];
+                    }
+                }
             return overallSum;
         }
 
@@ -505,7 +515,12 @@ namespace HPCsharp.Algorithms
             int endIndex = startIndex + length;
             ulong overallSum = 0;
             for (int i = startIndex; i < endIndex; i++)
-                overallSum += arrayToSum[i];
+            {
+                checked
+                {
+                    overallSum += arrayToSum[i];
+                }
+            }
             return overallSum;
         }
 
@@ -534,7 +549,12 @@ namespace HPCsharp.Algorithms
             ulong overallSum = 0;
             for (int i = startIndex; i < endIndex; i++)
                 if (arrayToSum[i] != null)
-                    overallSum += (ulong)arrayToSum[i];
+                {
+                    checked
+                    {
+                        overallSum += (ulong)arrayToSum[i];
+                    }
+                }
             return overallSum;
         }
 

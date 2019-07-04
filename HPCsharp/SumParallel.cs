@@ -34,6 +34,10 @@
 // TODO: Implement pair-wise floating-point summation that is multi-core and SSE, with separate SSE implementation which recursively combines an SSE-word all the way down possibly, as this eliminates the problem of base-case function being non-pair,
 //       as this most likely could be just about as fast, or we could develop one that is just as fast and keeps the pairing using SSE all the way to the bottom of recursion.
 // TODO: Study parallel solution presented here (parallel for), which may be better in some cases: https://stackoverflow.com/questions/2419343/how-to-sum-up-an-array-of-integers-in-c-sharp/54794753#54794753
+// TODO: One idea that Josh and I came up with to detect overflow for SSE instructions if they saturate for addition is
+//       to subtract and see if the result is the same as the original. If C# chooses the wrap around SSE instructions then
+//       the same technique may still work, or we may need to come up with a different technique to detect wrap around,
+//       possibly when the addition to a positive value makes the result go negative.
 
 using System.Collections.Generic;
 using System.Text;
@@ -560,6 +564,7 @@ namespace HPCsharp.ParallelAlgorithms
 
         /// <summary>
         /// Summation of long[] array, using data parallel SIMD/SSE instructions for higher performance on a single core.
+        /// Caution: Will not throw an overflow exception for the majority of the array, but instead will wrap around to negatives, when the sum goes beyond Int64.MaxValue
         /// </summary>
         /// <param name="arrayToSum">An array to sum up</param>
         /// <returns>long sum</returns>
@@ -571,6 +576,7 @@ namespace HPCsharp.ParallelAlgorithms
 
         /// <summary>
         /// Summation of long[] array, using data parallel SIMD/SSE instructions for higher performance on a single core.
+        /// Caution: Will not throw an overflow exception for the majority of the array, but instead will wrap around to negatives, when the sum goes beyond Int64.MaxValue
         /// </summary>
         /// <param name="arrayToSum">An array to sum up</param>
         /// <param name="startIndex">index of the starting element for the summation</param>
@@ -590,13 +596,26 @@ namespace HPCsharp.ParallelAlgorithms
             for (i = l; i < sseIndexEnd; i += Vector<long>.Count)
             {
                 var inVector = new Vector<long>(arrayToSum, i);
-                sumVector += inVector;
+                checked
+                {
+                    sumVector += inVector;
+                }
             }
             long overallSum = 0;
             for (; i <= r; i++)
-                overallSum += arrayToSum[i];
+            {
+                checked
+                {
+                    overallSum += arrayToSum[i];
+                }
+            }
             for (i = 0; i < Vector<long>.Count; i++)
-                overallSum += sumVector[i];
+            {
+                checked
+                {
+                    overallSum += sumVector[i];
+                }
+            }
             return overallSum;
         }
 
@@ -678,6 +697,7 @@ namespace HPCsharp.ParallelAlgorithms
 
         /// <summary>
         /// Summation of ulong[] array, using data parallel SIMD/SSE instructions for higher performance on a single core.
+        /// Caution: Will not throw an overflow exception for the majority of the array, but instead will wrap around to smaller values, when the sum goes beyond UInt64.MaxValue
         /// </summary>
         /// <param name="arrayToSum">An array to sum up</param>
         /// <returns>ulong sum</returns>
@@ -689,6 +709,7 @@ namespace HPCsharp.ParallelAlgorithms
 
         /// <summary>
         /// Summation of ulong[] array, using data parallel SIMD/SSE instructions for higher performance on a single core.
+        /// Caution: Will not throw an overflow exception for the majority of the array, but instead will wrap around to smaller values, when the sum goes beyond UInt64.MaxValue
         /// </summary>
         /// <param name="arrayToSum">An array to sum up</param>
         /// <param name="startIndex">index of the starting element for the summation</param>
@@ -708,13 +729,26 @@ namespace HPCsharp.ParallelAlgorithms
             for (i = l; i < sseIndexEnd; i += Vector<long>.Count)
             {
                 var inVector = new Vector<ulong>(arrayToSum, i);
-                sumVector += inVector;
+                checked
+                {
+                    sumVector += inVector;
+                }
             }
             ulong overallSum = 0;
             for (; i <= r; i++)
-                overallSum += arrayToSum[i];
+            {
+                checked
+                {
+                    overallSum += arrayToSum[i];
+                }
+            }
             for (i = 0; i < Vector<long>.Count; i++)
-                overallSum += sumVector[i];
+            {
+                checked
+                {
+                    overallSum += sumVector[i];
+                }
+            }
             return overallSum;
         }
 
