@@ -50,7 +50,10 @@ namespace HPCsharp.Algorithms
             {
                 try
                 {
-                    tempSum += arrayToSum[i];
+                    checked
+                    {
+                        tempSum += arrayToSum[i];
+                    }
                 }
                 catch (OverflowException)
                 {
@@ -76,7 +79,10 @@ namespace HPCsharp.Algorithms
             {
                 try
                 {
-                    tempSum += arrayToSum[i];
+                    checked
+                    {
+                        tempSum += arrayToSum[i];
+                    }
                 }
                 catch (OverflowException)
                 {
@@ -102,7 +108,10 @@ namespace HPCsharp.Algorithms
             {
                 try
                 {
-                    tempSum += arrayToSum[i];
+                    checked
+                    {
+                        tempSum += arrayToSum[i];
+                    }
                 }
                 catch (OverflowException)
                 {
@@ -128,7 +137,10 @@ namespace HPCsharp.Algorithms
             {
                 try
                 {
-                    tempSum += arrayToSum[i];
+                    checked
+                    {
+                        tempSum += arrayToSum[i];
+                    }
                 }
                 catch (OverflowException)
                 {
