@@ -27,6 +27,8 @@
 // TODO: Implement scalar pair-wise floating-point summation for nullable arrays of floats and doubles.
 // TODO: Implement nullable versions of BigIntegerFast sums of long?[] and ulong?[]
 // TODO: Rename all Hpc extensions to Hpcs - high performance c-sharp
+// TODO: Change the names of all integer Sum() functions to be ToLong to be consistent with other namings and to indicate the data type conversion.
+// TODO: Change Kahan and pair-wise summation names to MostAccurate and MoreAccurate respectively, to make names meaningfull from users point of view
 using System.Collections.Generic;
 using System.Text;
 using System.Numerics;

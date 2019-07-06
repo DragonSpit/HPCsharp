@@ -41,6 +41,7 @@
 // TODO: Bnechmark all Int64.MaxValue to show the worst case of BigInteger and Decimal summation of long[]
 // TODO: Benchmark smaller arrays that fit into cache to show even a higher level of acceleration for a common user case
 //       where the previous step in functional flow will most likely put the result inside the cache.
+// TODO: Add unit tests for overflow exception throwing by the scalar .Sum(), since we've added checked blocks. This test is simplest to do in xUnit which already part of this project.
 
 using System.Collections.Generic;
 using System.Text;
@@ -599,10 +600,7 @@ namespace HPCsharp.ParallelAlgorithms
             for (i = l; i < sseIndexEnd; i += Vector<long>.Count)
             {
                 var inVector = new Vector<long>(arrayToSum, i);
-                checked
-                {
-                    sumVector += inVector;
-                }
+                sumVector += inVector;
             }
             long overallSum = 0;
             for (; i <= r; i++)
@@ -732,10 +730,7 @@ namespace HPCsharp.ParallelAlgorithms
             for (i = l; i < sseIndexEnd; i += Vector<long>.Count)
             {
                 var inVector = new Vector<ulong>(arrayToSum, i);
-                checked
-                {
-                    sumVector += inVector;
-                }
+                sumVector += inVector;
             }
             ulong overallSum = 0;
             for (; i <= r; i++)
