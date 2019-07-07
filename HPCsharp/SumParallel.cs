@@ -463,14 +463,28 @@ namespace HPCsharp.ParallelAlgorithms
             return overallSum;
         }
 
+        /// <summary>
+        /// Summation of int?[] nullable array, which uses a long accumulator for perfect accuracy, using data parallel SIMD/SSE instructions for higher performance on a single core.
+        /// Null values are skipped. Will not throw overflow exception.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>long sum</returns>
         public static long SumToLongSse(this int?[] arrayToSum)
         {
             return arrayToSum.SumSseInner(0, arrayToSum.Length - 1);
         }
 
-        public static long SumToLongSse(this int?[] arrayToSum, int start, int length)
+        /// <summary>
+        /// Summation of int?[] nullable array, which uses a long accumulator for perfect accuracy, using data parallel SIMD/SSE instructions for higher performance on a single core.
+        /// Null values are skipped. Will not throw overflow exception.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <param name="startIndex">index of the starting element for the summation</param>
+        /// <param name="length">number of array elements to sum up</param>
+        /// <returns>long sum</returns>
+        public static long SumToLongSse(this int?[] arrayToSum, int startIndex, int length)
         {
-            return arrayToSum.SumSseInner(start, start + length - 1);
+            return arrayToSum.SumSseInner(startIndex, startIndex + length - 1);
         }
 
         private static long SumSseAndScalarInner(this int[] arrayToSum, int l, int r)

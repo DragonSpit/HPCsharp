@@ -25,10 +25,8 @@
 // TODO: To speedup summing up of long to decimal accumulation, Josh suggested using a long accumulator and catching the overflow exception and then adding to decimal - i.e. most of the time accumulate to long and once in
 // TODO: Answer this question on stack overflow https://stackoverflow.com/questions/53075546/array-sum-results-in-an-overflow
 // TODO: Implement scalar pair-wise floating-point summation for nullable arrays of floats and doubles.
-// TODO: Implement nullable versions of BigIntegerFast sums of long?[] and ulong?[]
+// TODO: Implement nullable versions of BigIntegerFast and DecimalFast sums of long?[] and ulong?[]
 // TODO: Rename all Hpc extensions to Hpcs - high performance c-sharp
-// TODO: Change the names of all integer Sum() functions to be ToLong to be consistent with other namings and to indicate the data type conversion.
-// TODO: Change Kahan and pair-wise summation names to MostAccurate and MoreAccurate respectively, to make names meaningfull from users point of view
 using System.Collections.Generic;
 using System.Text;
 using System.Numerics;
@@ -185,7 +183,7 @@ namespace HPCsharp.Algorithms
 
         /// <summary>
         /// Slower, perfectly accurate summation of long[] array, which uses a decimal accumulator for perfect accuracy.
-        /// Will not throw overflow exception.
+        /// Null values are skipped. Will not throw overflow exception.
         /// </summary>
         /// <param name="arrayToSum">An array to sum up</param>
         /// <returns>decimal summation value</returns>

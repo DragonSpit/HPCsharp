@@ -15,7 +15,6 @@ namespace HPCSharp.UnitTests
         public void ShouldThrowOverflowExceptionOrNotLong(int whichTestCase)
         {
             long[] arrLong  = new long[] { 5, 7, 16, 3, Int64.MaxValue, 1 };
-            long[] arrLong1 = new long[] { 5, 7, 16, Int64.MaxValue, 3, 1 };
 
             if (whichTestCase == 0)
             {
@@ -27,6 +26,8 @@ namespace HPCSharp.UnitTests
             }
             else if (whichTestCase == 2)
             {
+                // This test demonstrates that SSE doesn't throw overflow exception
+                long[] arrLong1 = new long[] { 5, 7, 16, 4, 2, 0, Int64.MaxValue, 3, 1 };
                 Assert.DoesNotThrow(() => arrLong1.SumSse());
             }
         }
