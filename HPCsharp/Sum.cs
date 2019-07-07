@@ -285,9 +285,9 @@ namespace HPCsharp.Algorithms
         /// </summary>
         /// <param name="arrayToSum">An array to sum up</param>
         /// <returns>long sum</returns>
-        public static long SumHpc(this int[] arrayToSum)
+        public static long SumToLong(this int[] arrayToSum)
         {
-            return arrayToSum.SumHpc(0, arrayToSum.Length);
+            return arrayToSum.SumToLong(0, arrayToSum.Length);
         }
 
         /// <summary>
@@ -298,7 +298,7 @@ namespace HPCsharp.Algorithms
         /// <param name="startIndex">index of the starting element for the summation</param>
         /// <param name="length">number of array elements to sum up</param>
         /// <returns>long sum</returns>
-        public static long SumHpc(this int[] arrayToSum, int startIndex, int length)
+        public static long SumToLong(this int[] arrayToSum, int startIndex, int length)
         {
             int endIndex = startIndex + length;
             long overallSum = 0;
@@ -313,9 +313,9 @@ namespace HPCsharp.Algorithms
         /// </summary>
         /// <param name="arrayToSum">An array to sum up</param>
         /// <returns>long sum</returns>
-        public static long SumHpc(this int?[] arrayToSum)
+        public static long SumToLong(this int?[] arrayToSum)
         {
-            return arrayToSum.SumHpc(0, arrayToSum.Length);
+            return arrayToSum.SumToLong(0, arrayToSum.Length);
         }
 
         /// <summary>
@@ -326,7 +326,7 @@ namespace HPCsharp.Algorithms
         /// <param name="startIndex">index of the starting element for the summation</param>
         /// <param name="length">number of array elements to sum up</param>
         /// <returns>long sum</returns>
-        public static long SumHpc(this int?[] arrayToSum, int startIndex, int length)
+        public static long SumToLong(this int?[] arrayToSum, int startIndex, int length)
         {
             int endIndex = startIndex + length;
             long overallSum = 0;
@@ -342,9 +342,9 @@ namespace HPCsharp.Algorithms
         /// </summary>
         /// <param name="arrayToSum">An array to sum up</param>
         /// <returns>long sum</returns>
-        public static long SumHpc(this short[] arrayToSum)
+        public static long SumToLong(this short[] arrayToSum)
         {
-            return arrayToSum.SumHpc(0, arrayToSum.Length);
+            return arrayToSum.SumToLong(0, arrayToSum.Length);
         }
 
         /// <summary>
@@ -355,7 +355,7 @@ namespace HPCsharp.Algorithms
         /// <param name="startIndex">index of the starting element for the summation</param>
         /// <param name="length">number of array elements to sum up</param>
         /// <returns>long sum</returns>
-        public static long SumHpc(this short[] arrayToSum, int startIndex, int length)
+        public static long SumToLong(this short[] arrayToSum, int startIndex, int length)
         {
             int endIndex = startIndex + length;
             long overallSum = 0;
@@ -370,9 +370,9 @@ namespace HPCsharp.Algorithms
         /// </summary>
         /// <param name="arrayToSum">An array to sum up</param>
         /// <returns>long sum</returns>
-        public static long SumHpc(this short?[] arrayToSum)
+        public static long SumToLong(this short?[] arrayToSum)
         {
-            return arrayToSum.SumHpc(0, arrayToSum.Length);
+            return arrayToSum.SumToLong(0, arrayToSum.Length);
         }
 
         /// <summary>
@@ -383,7 +383,7 @@ namespace HPCsharp.Algorithms
         /// <param name="startIndex">index of the starting element for the summation</param>
         /// <param name="length">number of array elements to sum up</param>
         /// <returns>long sum</returns>
-        public static long SumHpc(this short?[] arrayToSum, int startIndex, int length)
+        public static long SumToLong(this short?[] arrayToSum, int startIndex, int length)
         {
             int endIndex = startIndex + length;
             long overallSum = 0;
@@ -399,9 +399,9 @@ namespace HPCsharp.Algorithms
         /// </summary>
         /// <param name="arrayToSum">An array to sum up</param>
         /// <returns>long sum</returns>
-        public static long SumHpc(this sbyte[] arrayToSum)
+        public static long SumToLong(this sbyte[] arrayToSum)
         {
-            return arrayToSum.SumHpc(0, arrayToSum.Length);
+            return arrayToSum.SumToLong(0, arrayToSum.Length);
         }
 
         /// <summary>
@@ -412,7 +412,7 @@ namespace HPCsharp.Algorithms
         /// <param name="startIndex">index of the starting element for the summation</param>
         /// <param name="length">number of array elements to sum up</param>
         /// <returns>long sum</returns>
-        public static long SumHpc(this sbyte[] arrayToSum, int startIndex, int length)
+        public static long SumToLong(this sbyte[] arrayToSum, int startIndex, int length)
         {
             int endIndex = startIndex + length;
             long overallSum = 0;
@@ -427,9 +427,9 @@ namespace HPCsharp.Algorithms
         /// </summary>
         /// <param name="arrayToSum">An array to sum up</param>
         /// <returns>long sum</returns>
-        public static long SumHpc(this sbyte?[] arrayToSum)
+        public static long SumToLong(this sbyte?[] arrayToSum)
         {
-            return arrayToSum.SumHpc(0, arrayToSum.Length);
+            return arrayToSum.SumToLong(0, arrayToSum.Length);
         }
 
         /// <summary>
@@ -440,7 +440,7 @@ namespace HPCsharp.Algorithms
         /// <param name="startIndex">index of the starting element for the summation</param>
         /// <param name="length">number of array elements to sum up</param>
         /// <returns>long sum</returns>
-        public static long SumHpc(this sbyte?[] arrayToSum, int startIndex, int length)
+        public static long SumToLong(this sbyte?[] arrayToSum, int startIndex, int length)
         {
             int endIndex = startIndex + length;
             long overallSum = 0;
@@ -580,9 +580,9 @@ namespace HPCsharp.Algorithms
         /// </summary>
         /// <param name="arrayToSum">An array to sum up</param>
         /// <returns>ulong sum</returns>
-        public static ulong SumHpc(this uint[] arrayToSum)
+        public static ulong SumToUlong(this uint[] arrayToSum)
         {
-            return arrayToSum.SumHpc(0, arrayToSum.Length);
+            return arrayToSum.SumUlong(0, arrayToSum.Length);
         }
 
         /// <summary>
@@ -593,7 +593,7 @@ namespace HPCsharp.Algorithms
         /// <param name="startIndex">index of the starting element for the summation</param>
         /// <param name="length">number of array elements to sum up</param>
         /// <returns>ulong sum</returns>
-        public static ulong SumHpc(this uint[] arrayToSum, int startIndex, int length)
+        public static ulong SumUlong(this uint[] arrayToSum, int startIndex, int length)
         {
             int endIndex = startIndex + length;
             ulong overallSum = 0;
@@ -608,9 +608,9 @@ namespace HPCsharp.Algorithms
         /// </summary>
         /// <param name="arrayToSum">An array to sum up</param>
         /// <returns>ulong sum</returns>
-        public static ulong SumHpc(this uint?[] arrayToSum)
+        public static ulong SumUlong(this uint?[] arrayToSum)
         {
-            return arrayToSum.SumHpc(0, arrayToSum.Length);
+            return arrayToSum.SumToUlong(0, arrayToSum.Length);
         }
 
         /// <summary>
@@ -621,7 +621,7 @@ namespace HPCsharp.Algorithms
         /// <param name="startIndex">index of the starting element for the summation</param>
         /// <param name="length">number of array elements to sum up</param>
         /// <returns>ulong sum</returns>
-        public static ulong SumHpc(this uint?[] arrayToSum, int startIndex, int length)
+        public static ulong SumToUlong(this uint?[] arrayToSum, int startIndex, int length)
         {
             int endIndex = startIndex + length;
             ulong overallSum = 0;
@@ -637,9 +637,9 @@ namespace HPCsharp.Algorithms
         /// </summary>
         /// <param name="arrayToSum">An array to sum up</param>
         /// <returns>decimal sum</returns>
-        public static ulong SumHpc(this ushort[] arrayToSum)
+        public static ulong SumToUlong(this ushort[] arrayToSum)
         {
-            return arrayToSum.SumHpc(0, arrayToSum.Length);
+            return arrayToSum.SumToUlong(0, arrayToSum.Length);
         }
 
         /// <summary>
@@ -650,7 +650,7 @@ namespace HPCsharp.Algorithms
         /// <param name="startIndex">index of the starting element for the summation</param>
         /// <param name="length">number of array elements to sum up</param>
         /// <returns>ulong sum</returns>
-        public static ulong SumHpc(this ushort[] arrayToSum, int startIndex, int length)
+        public static ulong SumToUlong(this ushort[] arrayToSum, int startIndex, int length)
         {
             int endIndex = startIndex + length;
             ulong overallSum = 0;
@@ -665,9 +665,9 @@ namespace HPCsharp.Algorithms
         /// </summary>
         /// <param name="arrayToSum">An array to sum up</param>
         /// <returns>ulong sum</returns>
-        public static ulong SumHpc(this ushort?[] arrayToSum)
+        public static ulong SumToUlong(this ushort?[] arrayToSum)
         {
-            return arrayToSum.SumHpc(0, arrayToSum.Length);
+            return arrayToSum.SumToUlong(0, arrayToSum.Length);
         }
 
         /// <summary>
@@ -678,7 +678,7 @@ namespace HPCsharp.Algorithms
         /// <param name="startIndex">index of the starting element for the summation</param>
         /// <param name="length">number of array elements to sum up</param>
         /// <returns>ulong sum</returns>
-        public static ulong SumHpc(this ushort?[] arrayToSum, int startIndex, int length)
+        public static ulong SumToUlong(this ushort?[] arrayToSum, int startIndex, int length)
         {
             int endIndex = startIndex + length;
             ulong overallSum = 0;
@@ -694,9 +694,9 @@ namespace HPCsharp.Algorithms
         /// </summary>
         /// <param name="arrayToSum">An array to sum up</param>
         /// <returns>decimal sum</returns>
-        public static ulong SumHpc(this byte[] arrayToSum)
+        public static ulong SumToUlong(this byte[] arrayToSum)
         {
-            return arrayToSum.SumHpc(0, arrayToSum.Length);
+            return arrayToSum.SumToUlong(0, arrayToSum.Length);
         }
 
         /// <summary>
@@ -707,7 +707,7 @@ namespace HPCsharp.Algorithms
         /// <param name="startIndex">index of the starting element for the summation</param>
         /// <param name="length">number of array elements to sum up</param>
         /// <returns>ulong sum</returns>
-        public static ulong SumHpc(this byte[] arrayToSum, int startIndex, int length)
+        public static ulong SumToUlong(this byte[] arrayToSum, int startIndex, int length)
         {
             int endIndex = startIndex + length;
             ulong overallSum = 0;
@@ -722,9 +722,9 @@ namespace HPCsharp.Algorithms
         /// </summary>
         /// <param name="arrayToSum">An array to sum up</param>
         /// <returns>decimal sum</returns>
-        public static ulong SumHpc(this byte?[] arrayToSum)
+        public static ulong SumToUlong(this byte?[] arrayToSum)
         {
-            return arrayToSum.SumHpc(0, arrayToSum.Length);
+            return arrayToSum.SumToUlong(0, arrayToSum.Length);
         }
 
         /// <summary>
@@ -735,7 +735,7 @@ namespace HPCsharp.Algorithms
         /// <param name="startIndex">index of the starting element for the summation</param>
         /// <param name="length">number of array elements to sum up</param>
         /// <returns>ulong sum</returns>
-        public static ulong SumHpc(this byte?[] arrayToSum, int startIndex, int length)
+        public static ulong SumToUlong(this byte?[] arrayToSum, int startIndex, int length)
         {
             int endIndex = startIndex + length;
             ulong overallSum = 0;
@@ -1032,7 +1032,7 @@ namespace HPCsharp.Algorithms
         /// <param name="firstValue">first value to sum up</param>
         /// <param name="secondValue">second value to sum up</param>
         /// <returns>float sum</returns>
-        public static float SumKahan(float firstValue, float secondValue)
+        public static float SumMostAccurate(float firstValue, float secondValue)
         {
             float sum = 0.0f;
             float c   = 0.0f;                                 // A running compensation for lost low-order bits  
@@ -1061,7 +1061,7 @@ namespace HPCsharp.Algorithms
         /// <param name="firstValue">first value to sum up</param>
         /// <param name="secondValue">second value to sum up</param>
         /// <returns>double sum</returns>
-        public static double SumToDoubleKahan(float firstValue, float secondValue)
+        public static double SumToDoubleMostAccurate(float firstValue, float secondValue)
         {
             double sum = 0.0;
             double c = 0.0;                                 // A running compensation for lost low-order bits  
@@ -1089,9 +1089,9 @@ namespace HPCsharp.Algorithms
         /// </summary>
         /// <param name="arrayToSum">An array to sum up</param>
         /// <returns>float sum</returns>
-        public static float SumKahan(this float[] arrayToSum)
+        public static float SumMostAccurate(this float[] arrayToSum)
         {
-            return arrayToSum.SumKahan(0, arrayToSum.Length);
+            return arrayToSum.SumMostAccurate(0, arrayToSum.Length);
         }
 
         /// <summary>
@@ -1102,7 +1102,7 @@ namespace HPCsharp.Algorithms
         /// <param name="startIndex">index of the starting element for the summation</param>
         /// <param name="length">number of array elements to sum up</param>
         /// <returns>float sum</returns>
-        public static float SumKahan(this float[] arrayToSum, int startIndex, int length)
+        public static float SumMostAccurate(this float[] arrayToSum, int startIndex, int length)
         {
             float sum = 0.0f;
             float c = 0.0f;                               // A running compensation for lost low-order bits  
@@ -1127,9 +1127,9 @@ namespace HPCsharp.Algorithms
         /// </summary>
         /// <param name="arrayToSum">An array to sum up</param>
         /// <returns>float sum</returns>
-        public static float SumKahan(this float?[] arrayToSum)
+        public static float SumMostAccurate(this float?[] arrayToSum)
         {
-            return arrayToSum.SumKahan(0, arrayToSum.Length);
+            return arrayToSum.SumMostAccurate(0, arrayToSum.Length);
         }
 
         /// <summary>
@@ -1141,7 +1141,7 @@ namespace HPCsharp.Algorithms
         /// <param name="startIndex">index of the starting element for the summation</param>
         /// <param name="length">number of array elements to sum up</param>
         /// <returns>float sum</returns>
-        public static float SumKahan(this float?[] arrayToSum, int startIndex, int length)
+        public static float SumMostAccurate(this float?[] arrayToSum, int startIndex, int length)
         {
             float sum = 0.0f;
             float c   = 0.0f;                               // A running compensation for lost low-order bits  
@@ -1170,9 +1170,9 @@ namespace HPCsharp.Algorithms
         /// </summary>
         /// <param name="arrayToSum">An array to sum up</param>
         /// <returns>double sum</returns>
-        public static double SumToDoubleKahan(this float[] arrayToSum)
+        public static double SumToDoubleMostAccurate(this float[] arrayToSum)
         {
-            return arrayToSum.SumToDoubleKahan(0, arrayToSum.Length);
+            return arrayToSum.SumToDoubleMostAccurate(0, arrayToSum.Length);
         }
 
         /// <summary>
@@ -1184,7 +1184,7 @@ namespace HPCsharp.Algorithms
         /// <param name="startIndex">index of the starting element for the summation</param>
         /// <param name="length">number of array elements to sum up</param>
         /// <returns>double sum</returns>
-        public static double SumToDoubleKahan(this float[] arrayToSum, int startIndex, int length)
+        public static double SumToDoubleMostAccurate(this float[] arrayToSum, int startIndex, int length)
         {
             double sum = 0.0;
             double c   = 0.0;                               // A running compensation for lost low-order bits  
@@ -1210,9 +1210,9 @@ namespace HPCsharp.Algorithms
         /// </summary>
         /// <param name="arrayToSum">An array to sum up</param>
         /// <returns>double sum</returns>
-        public static double SumToDoubleKahan(this float?[] arrayToSum)
+        public static double SumToDoubleMostAccurate(this float?[] arrayToSum)
         {
-            return arrayToSum.SumKahan(0, arrayToSum.Length);
+            return arrayToSum.SumMostAccurate(0, arrayToSum.Length);
         }
 
         /// <summary>
@@ -1225,7 +1225,7 @@ namespace HPCsharp.Algorithms
         /// <param name="startIndex">index of the starting element for the summation</param>
         /// <param name="length">number of array elements to sum up</param>
         /// <returns>double sum</returns>
-        public static double SumToDoubleKahan(this float?[] arrayToSum, int startIndex, int length)
+        public static double SumToDoubleMostAccurate(this float?[] arrayToSum, int startIndex, int length)
         {
             double sum = 0.0;
             double c   = 0.0;                               // A running compensation for lost low-order bits  
@@ -1253,7 +1253,7 @@ namespace HPCsharp.Algorithms
         /// <param name="firstValue">first value to sum up</param>
         /// <param name="secondValue">second value to sum up</param>
         /// <returns>double sum</returns>
-        public static double SumKahan(double firstValue, double secondValue)
+        public static double SumMostAccurate(double firstValue, double secondValue)
         {
             double sum = 0.0;
             double c   = 0.0;                               // A running compensation for lost low-order bits  
@@ -1282,9 +1282,9 @@ namespace HPCsharp.Algorithms
         /// </summary>
         /// <param name="arrayToSum">An array to sum up</param>
         /// <returns>double sum</returns>
-        public static double SumKahan(this double[] arrayToSum)
+        public static double SumMostAccurate(this double[] arrayToSum)
         {
-            return arrayToSum.SumKahan(0, arrayToSum.Length);
+            return arrayToSum.SumMostAccurate(0, arrayToSum.Length);
         }
 
         /// <summary>
@@ -1295,7 +1295,7 @@ namespace HPCsharp.Algorithms
         /// <param name="startIndex">index of the starting element for the summation</param>
         /// <param name="length">number of array elements to sum up</param>
         /// <returns>double sum</returns>
-        public static double SumKahan(this double[] arrayToSum, int startIndex, int length)
+        public static double SumMostAccurate(this double[] arrayToSum, int startIndex, int length)
         {
             double sum = 0.0;
             double c = 0.0;                                 // A running compensation for lost low-order bits  
@@ -1320,9 +1320,9 @@ namespace HPCsharp.Algorithms
         /// </summary>
         /// <param name="arrayToSum">An array to sum up</param>
         /// <returns>double sum</returns>
-        public static double SumKahan(this double?[] arrayToSum)
+        public static double SumMostAccurate(this double?[] arrayToSum)
         {
-            return arrayToSum.SumKahan(0, arrayToSum.Length);
+            return arrayToSum.SumMostAccurate(0, arrayToSum.Length);
         }
 
         /// <summary>
@@ -1334,7 +1334,7 @@ namespace HPCsharp.Algorithms
         /// <param name="startIndex">index of the starting element for the summation</param>
         /// <param name="length">number of array elements to sum up</param>
         /// <returns>double sum</returns>
-        public static double SumKahan(this double?[] arrayToSum, int startIndex, int length)
+        public static double SumMostAccurate(this double?[] arrayToSum, int startIndex, int length)
         {
             double sum = 0.0;
             double c = 0.0;                                 // A running compensation for lost low-order bits  
@@ -1419,7 +1419,7 @@ namespace HPCsharp.Algorithms
         /// </summary>
         /// <param name="arrayToSum">An array to sum up</param>
         /// <returns>float sum</returns>
-        public static float SumPairwise(this float[] arrayToSum, int thresholdDivideAndConquerSum = 16 * 1024)
+        public static float SumMoreAccurate(this float[] arrayToSum, int thresholdDivideAndConquerSum = 16 * 1024)
         {
             return arrayToSum.SumPairwiseInner(0, arrayToSum.Length - 1, Algorithms.Sum.SumLR, (x, y) => x + y);
         }
@@ -1432,7 +1432,7 @@ namespace HPCsharp.Algorithms
         /// <param name="startIndex">index of the starting element for the summation</param>
         /// <param name="length">number of array elements to sum up</param>
         /// <returns>float sum</returns>
-        public static float SumPairwise(this float[] arrayToSum, int startIndex, int length, int thresholdDivideAndConquerSum = 16 * 1024)
+        public static float SumMoreAccurate(this float[] arrayToSum, int startIndex, int length, int thresholdDivideAndConquerSum = 16 * 1024)
         {
             return arrayToSum.SumPairwiseInner(startIndex, startIndex + length - 1, Algorithms.Sum.SumLR, (x, y) => x + y);
         }
@@ -1444,7 +1444,7 @@ namespace HPCsharp.Algorithms
         /// </summary>
         /// <param name="arrayToSum">An array to sum up</param>
         /// <returns>double sum</returns>
-        public static double SumToDoublePairwise(this float[] arrayToSum, int thresholdDivideAndConquerSum = 16 * 1024)
+        public static double SumToDoubleMoreAccurate(this float[] arrayToSum, int thresholdDivideAndConquerSum = 16 * 1024)
         {
             return arrayToSum.SumPairwiseDblInner(0, arrayToSum.Length - 1, Algorithms.Sum.SumToDoubleLR, (x, y) => x + y);
         }
@@ -1458,7 +1458,7 @@ namespace HPCsharp.Algorithms
         /// <param name="startIndex">index of the starting element for the summation</param>
         /// <param name="length">number of array elements to sum up</param>
         /// <returns>double sum</returns>
-        public static double SumToDoublePairwise(this float[] arrayToSum, int startIndex, int length, int thresholdDivideAndConquerSum = 16 * 1024)
+        public static double SumToDoubleMoreAccurate(this float[] arrayToSum, int startIndex, int length, int thresholdDivideAndConquerSum = 16 * 1024)
         {
             return arrayToSum.SumPairwiseDblInner(startIndex, startIndex + length - 1, Algorithms.Sum.SumToDoubleLR, (x, y) => x + y);
         }
@@ -1469,7 +1469,7 @@ namespace HPCsharp.Algorithms
         /// </summary>
         /// <param name="arrayToSum">An array to sum up</param>
         /// <returns>double sum</returns>
-        public static double SumPairwise(this double[] arrayToSum, int thresholdDivideAndConquerSum = 16 * 1024)
+        public static double SumMoreAccurate(this double[] arrayToSum, int thresholdDivideAndConquerSum = 16 * 1024)
         {
             return arrayToSum.SumPairwiseInner(0, arrayToSum.Length - 1, Algorithms.Sum.SumLR, (x, y) => x + y);
         }
@@ -1482,7 +1482,7 @@ namespace HPCsharp.Algorithms
         /// <param name="startIndex">index of the starting element for the summation</param>
         /// <param name="length">number of array elements to sum up</param>
         /// <returns>double sum</returns>
-        public static double SumPairwise(this double[] arrayToSum, int startIndex, int length, int thresholdDivideAndConquerSum = 16 * 1024)
+        public static double SumMoreAccurate(this double[] arrayToSum, int startIndex, int length, int thresholdDivideAndConquerSum = 16 * 1024)
         {
             return arrayToSum.SumPairwiseInner(startIndex, startIndex + length - 1, Algorithms.Sum.SumLR, (x, y) => x + y);
         }
