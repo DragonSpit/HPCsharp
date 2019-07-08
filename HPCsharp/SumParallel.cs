@@ -41,7 +41,12 @@
 // TODO: Bnechmark all Int64.MaxValue to show the worst case of BigInteger and Decimal summation of long[]
 // TODO: Benchmark smaller arrays that fit into cache to show even a higher level of acceleration for a common user case
 //       where the previous step in functional flow will most likely put the result inside the cache.
-// TODO: Add unit tests for overflow exception throwing by the scalar .Sum(), since we've added checked blocks. This test is simplest to do in xUnit which already part of this project.
+// TODO: Implement long[] to decimal and BigInteger in SSE with overflow detection in s/w. For ulong[] detections can
+//       possibly be done by checking if the sum after the addition is smaller than the sum before the addition.
+//       The same can be done with scalar code, to avoid the overhead of checking for overflow, raising exception, catching it
+//       and then dealing with it - instead just checking for it all the time, which shouold be just as expensive/cheap
+//       as doing checked. If this works, this would make a great blog post or part of an article.
+//       We will have to figure out a similar method for long[] since it's signed.
 
 using System.Collections.Generic;
 using System.Text;
