@@ -63,6 +63,33 @@ namespace HPCsharp.Algorithms
             }
             return overallSum + longSum;
         }
+        /// <summary>
+        /// Faster, perfectly accurate summation of long[] nullable array, which uses a BigInteger accumulator for perfect accuracy,
+        /// and long integer summations for higher performance, handling overflow exceptions internally.
+        /// Null values are skipped. Will not throw overflow exception.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>BigInteger sum</returns>
+        public static BigInteger SumToBigIntegerFast(this long?[] arrayToSum)
+        {
+            BigInteger overallSum = 0;
+            long longSum = 0;
+            for (int i = 0; i < arrayToSum.Length; i++)
+            {
+                try
+                {
+                    if (arrayToSum[i] != null)
+                        longSum = checked(longSum + (long)arrayToSum[i]);
+                }
+                catch (OverflowException)
+                {
+                    overallSum += longSum;
+                    overallSum += (long)arrayToSum[i];
+                    longSum = 0;
+                }
+            }
+            return overallSum + longSum;
+        }
 
         /// <summary>
         /// Faster, perfectly accurate summation of ulong[] array, which uses a BigInteger accumulator for perfect accuracy,
@@ -85,6 +112,34 @@ namespace HPCsharp.Algorithms
                 {
                     overallSum += ulongSum;
                     overallSum += arrayToSum[i];
+                    ulongSum = 0;
+                }
+            }
+            return overallSum + ulongSum;
+        }
+
+        /// <summary>
+        /// Faster, perfectly accurate summation of ulong?[] nullable array, which uses a BigInteger accumulator for perfect accuracy,
+        /// and long integer summations for higher performance, handling overflow exceptions internally.
+        /// Null values are skipped. Will not throw overflow exception.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>BigInteger sum</returns>
+        public static BigInteger SumToBigIntegerFast(this ulong?[] arrayToSum)
+        {
+            BigInteger overallSum = 0;
+            ulong ulongSum = 0;
+            for (int i = 0; i < arrayToSum.Length; i++)
+            {
+                try
+                {
+                    if (arrayToSum[i] != null)
+                        ulongSum = checked(ulongSum + (ulong)arrayToSum[i]);
+                }
+                catch (OverflowException)
+                {
+                    overallSum += ulongSum;
+                    overallSum += (ulong)arrayToSum[i];
                     ulongSum = 0;
                 }
             }
