@@ -47,23 +47,21 @@ namespace HPCsharp.Algorithms
         public static BigInteger SumToBigIntegerFast(this long[] arrayToSum)
         {
             BigInteger overallSum = 0;
-            long tempSum = 0;
+            long longSum = 0;
             for (int i = 0; i < arrayToSum.Length; i++)
             {
                 try
                 {
-                    checked
-                    {
-                        tempSum += arrayToSum[i];
-                    }
+                    longSum = checked(longSum + arrayToSum[i]);
                 }
                 catch (OverflowException)
                 {
-                    overallSum += tempSum;
-                    tempSum = 0;
+                    overallSum += longSum;
+                    overallSum += arrayToSum[i];
+                    longSum = 0;
                 }
             }
-            return overallSum + tempSum;
+            return overallSum + longSum;
         }
 
         /// <summary>
@@ -76,23 +74,21 @@ namespace HPCsharp.Algorithms
         public static BigInteger SumToBigIntegerFast(this ulong[] arrayToSum)
         {
             BigInteger overallSum = 0;
-            ulong tempSum = 0;
+            ulong ulongSum = 0;
             for (int i = 0; i < arrayToSum.Length; i++)
             {
                 try
                 {
-                    checked
-                    {
-                        tempSum += arrayToSum[i];
-                    }
+                    ulongSum = checked(ulongSum + arrayToSum[i]);
                 }
                 catch (OverflowException)
                 {
-                    overallSum += tempSum;
-                    tempSum = 0;
+                    overallSum += ulongSum;
+                    overallSum += arrayToSum[i];
+                    ulongSum = 0;
                 }
             }
-            return overallSum + tempSum;
+            return overallSum + ulongSum;
         }
 
         /// <summary>
@@ -105,23 +101,21 @@ namespace HPCsharp.Algorithms
         public static decimal SumToDecimalFast(this long[] arrayToSum)
         {
             decimal overallSum = 0;
-            long tempSum = 0;
+            long longSum = 0;
             for (int i = 0; i < arrayToSum.Length; i++)
             {
                 try
                 {
-                    checked
-                    {
-                        tempSum += arrayToSum[i];
-                    }
+                    longSum = checked(longSum + arrayToSum[i]);
                 }
                 catch (OverflowException)
                 {
-                    overallSum += tempSum;
-                    tempSum = 0;
+                    overallSum += longSum;
+                    overallSum += arrayToSum[i];
+                    longSum = 0;
                 }
             }
-            return overallSum + tempSum;
+            return overallSum + longSum;
         }
 
         /// <summary>
@@ -134,23 +128,21 @@ namespace HPCsharp.Algorithms
         public static decimal SumToDecimalFast(this ulong[] arrayToSum)
         {
             decimal overallSum = 0;
-            ulong tempSum = 0;
+            ulong ulongSum = 0;
             for (int i = 0; i < arrayToSum.Length; i++)
             {
                 try
                 {
-                    checked
-                    {
-                        tempSum += arrayToSum[i];
-                    }
+                    ulongSum = checked(ulongSum + arrayToSum[i]);
                 }
                 catch (OverflowException)
                 {
-                    overallSum += tempSum;
-                    tempSum = 0;
+                    overallSum += ulongSum;
+                    overallSum += arrayToSum[i];
+                    ulongSum = 0;
                 }
             }
-            return overallSum + tempSum;
+            return overallSum + ulongSum;
         }
 
         /// <summary>
