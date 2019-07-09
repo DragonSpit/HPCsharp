@@ -27,6 +27,9 @@
 // TODO: Implement scalar pair-wise floating-point summation for nullable arrays of floats and doubles.
 // TODO: Implement nullable versions of BigIntegerFast and DecimalFast sums of long?[] and ulong?[]
 // TODO: Rename all Hpc extensions to Hpcs - high performance c-sharp
+// TODO: Faster implementation of decimal and BigInteger summation of long[] (singed) by checking the two conditions
+//       where overflow and underflow are possible: two positives and two negatives. Only in these two conditions is it
+//       possible to overflow or underflow. If sum is positive, then check input for positive, else check input for negative.
 using System.Collections.Generic;
 using System.Text;
 using System.Numerics;
