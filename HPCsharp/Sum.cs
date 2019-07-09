@@ -119,6 +119,32 @@ namespace HPCsharp.Algorithms
         }
 
         /// <summary>
+        /// Faster, perfectly accurate summation of ulong[] array, which uses a BigInteger accumulator for perfect accuracy,
+        /// and integer summations for higher performance, detecting overflow condition without exceptions.
+        /// Will not throw overflow exception.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>BigInteger sum</returns>
+        public static BigInteger SumToBigIntegerFaster(this ulong[] arrayToSum)
+        {
+            BigInteger overallSum = 0;
+            ulong ulongSum = 0;
+            for (int i = 0; i < arrayToSum.Length; i++)
+            {
+                ulong newUlongSum = ulongSum + arrayToSum[i];
+                if (newUlongSum >= ulongSum)
+                    ulongSum = newUlongSum;     // no numeric overflow, as the new unsigned sum increased
+                else
+                {
+                    overallSum += ulongSum;
+                    overallSum += arrayToSum[i];
+                    ulongSum = 0;
+                }
+            }
+            return overallSum + ulongSum;
+        }
+
+        /// <summary>
         /// Faster, perfectly accurate summation of ulong?[] nullable array, which uses a BigInteger accumulator for perfect accuracy,
         /// and long integer summations for higher performance, handling overflow exceptions internally.
         /// Null values are skipped. Will not throw overflow exception.
@@ -201,7 +227,7 @@ namespace HPCsharp.Algorithms
         }
         /// <summary>
         /// Faster, perfectly accurate summation of ulong[] array, which uses a decimal accumulator for perfect accuracy,
-        /// and integer summations for higher performance, handling overflow exceptions internally.
+        /// and integer summations for higher performance, detecting overflow condition without exceptions.
         /// Will not throw overflow exception.
         /// </summary>
         /// <param name="arrayToSum">An array to sum up</param>
