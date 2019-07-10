@@ -176,6 +176,58 @@ namespace HPCsharp.Algorithms
         }
 
         /// <summary>
+        /// Faster, perfectly accurate summation of long[] array, which uses a BigInteger accumulator for perfect accuracy,
+        /// and integer summations for higher performance, detecting overflow condition without exceptions.
+        /// Will not throw overflow exception.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>BigInteger sum</returns>
+        public static BigInteger SumToBigIntegerFaster(this long[] arrayToSum)
+        {
+            BigInteger overallSum = 0;
+            long longSum = 0;
+            for (int i = 0; i < arrayToSum.Length; i++)
+            {
+                if (longSum > 0)
+                {
+                    if (arrayToSum[i] > 0)
+                    {
+                        long newLongSum = longSum + arrayToSum[i];
+                        if (newLongSum >= longSum)
+                            longSum = newLongSum;     // no numeric overflow, as the new positive sum increased
+                        else
+                        {
+                            overallSum += longSum;
+                            overallSum += arrayToSum[i];
+                            longSum = 0;
+                        }
+                    }
+                    else
+                    {
+                        longSum += arrayToSum[i];
+                    }
+                }
+                else if (arrayToSum[i] < 0)
+                {
+                    long newLongSum = longSum + arrayToSum[i];
+                    if (newLongSum <= longSum)
+                        longSum = newLongSum;     // no numeric underflow, as the new negative sum decreased
+                    else
+                    {
+                        overallSum += longSum;
+                        overallSum += arrayToSum[i];
+                        longSum = 0;
+                    }
+                }
+                else
+                {
+                    longSum += arrayToSum[i];
+                }
+            }
+            return overallSum + longSum;
+        }
+
+        /// <summary>
         /// Faster, perfectly accurate summation of long[] array, which uses a decimal accumulator for perfect accuracy,
         /// and integer summations for higher performance, handling overflow exceptions internally.
         /// Will not throw overflow exception.
@@ -197,6 +249,58 @@ namespace HPCsharp.Algorithms
                     overallSum += longSum;
                     overallSum += arrayToSum[i];
                     longSum = 0;
+                }
+            }
+            return overallSum + longSum;
+        }
+
+        /// <summary>
+        /// Faster, perfectly accurate summation of long[] array, which uses a BigInteger accumulator for perfect accuracy,
+        /// and integer summations for higher performance, detecting overflow condition without exceptions.
+        /// Will not throw overflow exception.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>BigInteger sum</returns>
+        public static decimal SumToDecimalFaster(this long[] arrayToSum)
+        {
+            decimal overallSum = 0;
+            long longSum = 0;
+            for (int i = 0; i < arrayToSum.Length; i++)
+            {
+                if (longSum > 0)
+                {
+                    if (arrayToSum[i] > 0)
+                    {
+                        long newLongSum = longSum + arrayToSum[i];
+                        if (newLongSum >= longSum)
+                            longSum = newLongSum;     // no numeric overflow, as the new positive sum increased
+                        else
+                        {
+                            overallSum += longSum;
+                            overallSum += arrayToSum[i];
+                            longSum = 0;
+                        }
+                    }
+                    else
+                    {
+                        longSum += arrayToSum[i];
+                    }
+                }
+                else if (arrayToSum[i] < 0)
+                {
+                    long newLongSum = longSum + arrayToSum[i];
+                    if (newLongSum <= longSum)
+                        longSum = newLongSum;     // no numeric underflow, as the new negative sum decreased
+                    else
+                    {
+                        overallSum += longSum;
+                        overallSum += arrayToSum[i];
+                        longSum = 0;
+                    }
+                }
+                else
+                {
+                    longSum += arrayToSum[i];
                 }
             }
             return overallSum + longSum;
@@ -228,6 +332,7 @@ namespace HPCsharp.Algorithms
             }
             return overallSum + ulongSum;
         }
+
         /// <summary>
         /// Faster, perfectly accurate summation of ulong[] array, which uses a decimal accumulator for perfect accuracy,
         /// and integer summations for higher performance, detecting overflow condition without exceptions.
