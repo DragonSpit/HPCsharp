@@ -47,6 +47,8 @@
 //       and then dealing with it - instead just checking for it all the time, which shouold be just as expensive/cheap
 //       as doing checked. If this works, this would make a great blog post or part of an article.
 //       We will have to figure out a similar method for long[] since it's signed.
+// TODO: Don't forget for ulong Sum of ulong[] needs to throw an overflow exception, along with long Sum of long[]. Now, that we've developed
+//       a way to detect it that is pretty cheap.
 
 using System.Collections.Generic;
 using System.Text;
@@ -766,6 +768,43 @@ namespace HPCsharp.ParallelAlgorithms
                     overallSum += sumVector[i];
                 }
             }
+            return overallSum;
+        }
+
+        private static decimal SumToDecimalSseInner(this ulong[] arrayToSum, int l, int r)
+        {
+            var overallSumVector = new decimal[Vector<ulong>.Count];
+            var sumVector     = new Vector<ulong>();
+            var newSumVector  = new Vector<ulong>();
+            var zeroVector    = new Vector<ulong>(0);
+            int sseIndexEnd = l + ((r - l + 1) / Vector<ulong>.Count) * Vector<ulong>.Count;
+            int i;
+            for (i = 0; i < overallSumVector.Length; i++)
+                overallSumVector[i] = 0;
+
+            for (i = l; i < sseIndexEnd; i += Vector<long>.Count)
+            {
+                var inVector = new Vector<ulong>(arrayToSum, i);
+                newSumVector = sumVector + inVector;
+                Vector<ulong> gteMask = Vector.GreaterThanOrEqual(newSumVector, sumVector);         // if true then 0xFFFFFFFFFFFFFFFFL else 0L at each element of the Vector<long> 
+                sumVector = Vector.ConditionalSelect(gteMask, newSumVector, zeroVector);
+                if (Vector.EqualsAny(gteMask, zeroVector))
+                {
+                    for(int j = 0; j < Vector<ulong>.Count; j++)
+                    {
+                        if (gteMask[j] == 0)    // this particular sum overflowed, since sum decreased
+                        {
+                            overallSumVector[j] += sumVector[j];
+                            overallSumVector[j] += inVector[ j];
+                        }
+                    }
+                }
+            }
+            decimal overallSum = 0;
+            for (i = 0; i < overallSumVector.Length; i++)
+                overallSum += overallSumVector[i];
+            for (; i <= r; i++)
+                overallSum += arrayToSum[i];
             return overallSum;
         }
 
