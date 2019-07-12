@@ -49,6 +49,8 @@
 //       We will have to figure out a similar method for long[] since it's signed.
 // TODO: Don't forget for ulong Sum of ulong[] needs to throw an overflow exception, along with long Sum of long[]. Now, that we've developed
 //       a way to detect it that is pretty cheap.
+// TODO: Create a checkedAdd() for Vector<long> addition and Vector<ulong> addition cases, since we now know exactly what to do to work around
+//       the lack of this capability by the checked block key word, and throw an overflow exception in the detected cases, with minimal overhead.
 
 using System.Collections.Generic;
 using System.Text;
