@@ -51,6 +51,9 @@
 //       a way to detect it that is pretty cheap.
 // TODO: Create a checkedAdd() for Vector<long> addition and Vector<ulong> addition cases, since we now know exactly what to do to work around
 //       the lack of this capability by the checked block key word, and throw an overflow exception in the detected cases, with minimal overhead.
+// TODO: Make sure to look at this https://stackoverflow.com/questions/49308115/c-sharp-vectordouble-copyto-barely-faster-than-non-simd-version?rq=1
+// TODO: Create a checked ulong[] .Sum and long[] .Sum that simply use SSE instructions, but now check for numerical overflow and throw an exception if it happens, and don't do anything about it, but at
+//       at least report it.
 
 using System.Collections.Generic;
 using System.Text;
