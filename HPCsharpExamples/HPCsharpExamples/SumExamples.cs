@@ -68,20 +68,16 @@ namespace HPCsharpExamples
             // More accurate floati-point .Sum()
             double[] arrDouble = new double[] { 1, 10.0e100, 1, -10e100 };
             
-            sumDouble             = arrDouble.Sum();         // standard C#
-            var sumDoubleKahan    = arrDouble.SumKahan();    // HPCsharp serial
-            var sumDoubleNeumaier = arrDouble.SumNeumaier(); // HPCsharp serial
+            sumDouble                = arrDouble.Sum();                // standard C#
+            var sumDoublePar         = arrDouble.AsParallel().Sum();   // standard C#, multi-core
+            var sumDoubleKahan       = arrDouble.SumKahan();           // HPCsharp more accurate, serial
+            var sumDoubleKahanSse    = arrDouble.SumSseKahan();        // HPCsharp more accurate, data-parallel (SSE), single-core
+            var sumDoubleKahanSsePar = arrDouble.SumSseKahanPar();     // HPCsharp more accurate, data-parallel (SSE), multi-core
 
-            Console.WriteLine("Sum          = {0}, correct answer is 2.0", sumDouble);
-            Console.WriteLine("Sum Kahan    = {0}, correct answer is 2.0", sumDoubleKahan);
-            Console.WriteLine("Sum Neumaier = {0}, correct answer is 2.0", sumDoubleNeumaier);
-
-            long[] arrLong = new long[] { 5, 7, 16, 3, Int64.MaxValue, 1 };
-            //sumLong = arrLong.SumSse();     // Sadly, doesn't throw an overflow exception, but I'm guessing saturates
-            sumLong = arrLong.SumHpc();
-            //sumLong = arrLong.Sum();        // throws an overflow exception, as expected
-            Console.WriteLine("Sum = " + sumLong);
-
+            Console.WriteLine("Sum                          = {0}, correct answer is 2.0", sumDouble);
+            Console.WriteLine("Sum Kahan                    = {0}, correct answer is 2.0", sumDoubleKahan);
+            Console.WriteLine("Sum Kahan (SSE)              = {0}, correct answer is 2.0", sumDoubleKahanSse);
+            Console.WriteLine("Sum Kahan (SSE & multi-core) = {0}, correct answer is 2.0", sumDoubleKahanSse);
         }
     }
 }
