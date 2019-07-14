@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Numerics;
 using System.Threading.Tasks;
+using HPCsharp.ParallelAlgorithms;
 
 namespace HPCsharp
 {
@@ -296,7 +297,7 @@ namespace HPCsharp
                 () => { countRight = HistogramOneByteComponentPar(inArray, m + 1, r, shiftRightAmount); }
             );
             // Combine left and right results
-            countLeft = AddSse(countLeft, countRight);
+            countLeft = Addition.AddSse(countLeft, countRight);
 
             return countLeft;
         }
