@@ -10,7 +10,7 @@ similar to standard C# algorithms and Linq. Free, open source, on nuget.org
 
 *Algorithm*|*\**|*\*\**|*SSE*|*Multi-Core*|*Array*|*List*|*Details*
 --- | --- | --- | --- | :---: | :---: | --- | :--
-[Add]\*\*\* | 2 | 4 | | | :heavy_check_mark: | :heavy_check_mark: | Adds two arrays element-wise
+Add\*\*\* | 2 | 4 | | | :heavy_check_mark: | :heavy_check_mark: | Adds two arrays element-wise
 [Binary Search](#Binary-Search) | 1 | 2 | | | :heavy_check_mark: | :heavy_check_mark: | Generic IComparer\<T\>
 [Block Swap](#Block-Swap) | 4 | 5 | | | :heavy_check_mark: | | Generic
 [Parallel Copy](#Parallel-Copy) |  | | | |  | |
@@ -29,6 +29,7 @@ Priority Queue | 2 | 15 | | | :heavy_check_mark: | |
 Radix Sort (MSD) | 4 | 24| :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Numeric arrays, user defined types, In-place
 Sequence Equal | 2 | 19 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | 
 [Sum](#Better-Sum-in-Many-Ways) | 7 | 157 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Numeric arrays. [Better in many ways](https://duvanenko.tech.blog/2019/04/23/better-sum-in-c/)
+Swap | 4 | 4 | | | :heavy_check_mark: | | Generic swap variations
 [Zero Array Detect](#Zero-Array-Detect) | 3 | 13 | :heavy_check_mark: | | :heavy_check_mark: | | Detect if byte array is all zeroes
 
 \* Number of different algorithms\
