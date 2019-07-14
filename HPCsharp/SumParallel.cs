@@ -49,11 +49,11 @@
 //       We will have to figure out a similar method for long[] since it's signed.
 // TODO: Don't forget for ulong Sum of ulong[] needs to throw an overflow exception, along with long Sum of long[]. Now, that we've developed
 //       a way to detect it that is pretty cheap.
+// TODO: Create a checked ulong[] .Sum and long[] .Sum that simply use SSE instructions, but now check for numerical overflow and throw an exception if it happens, and don't do anything about it, but at
+//       at least report it.
 // TODO: Create a checkedAdd() for Vector<long> addition and Vector<ulong> addition cases, since we now know exactly what to do to work around
 //       the lack of this capability by the checked block key word, and throw an overflow exception in the detected cases, with minimal overhead.
 // TODO: Make sure to look at this https://stackoverflow.com/questions/49308115/c-sharp-vectordouble-copyto-barely-faster-than-non-simd-version?rq=1
-// TODO: Create a checked ulong[] .Sum and long[] .Sum that simply use SSE instructions, but now check for numerical overflow and throw an exception if it happens, and don't do anything about it, but at
-//       at least report it.
 
 using System.Collections.Generic;
 using System.Text;
@@ -757,6 +757,68 @@ namespace HPCsharp.ParallelAlgorithms
             {
                 var inVector = new Vector<ulong>(arrayToSum, i);
                 sumVector += inVector;
+            }
+            ulong overallSum = 0;
+            for (; i <= r; i++)
+            {
+                checked
+                {
+                    overallSum += arrayToSum[i];
+                }
+            }
+            for (i = 0; i < Vector<long>.Count; i++)
+            {
+                checked
+                {
+                    overallSum += sumVector[i];
+                }
+            }
+            return overallSum;
+        }
+
+        /// <summary>
+        /// Summation of ulong[] array, using data parallel SIMD/SSE instructions for higher performance on a single core.
+        /// Caution: Will not throw an overflow exception for the majority of the array, but instead will wrap around to smaller values, when the sum goes beyond UInt64.MaxValue
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>ulong sum</returns>
+        /// <exception>TSource:System.OverflowException: when the sum value is greater than UInt64.MaxValue</exception>
+        public static ulong SumCheckedSse(this ulong[] arrayToSum)
+        {
+            return arrayToSum.SumCheckedSseInner(0, arrayToSum.Length - 1);
+        }
+
+        /// <summary>
+        /// Summation of ulong[] array, using data parallel SIMD/SSE instructions for higher performance on a single core.
+        /// Caution: Will not throw an overflow exception for the majority of the array, but instead will wrap around to smaller values, when the sum goes beyond UInt64.MaxValue
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <param name="startIndex">index of the starting element for the summation</param>
+        /// <param name="length">number of array elements to sum up</param>
+        /// <returns>ulong sum</returns>
+        /// <exception>TSource:System.OverflowException: when the sum value is greater than UInt64.MaxValue</exception>
+        public static ulong SumCheckedSse(this ulong[] arrayToSum, int startIndex, int length)
+        {
+            return arrayToSum.SumCheckedSseInner(startIndex, startIndex + length - 1);
+        }
+
+        private static ulong SumCheckedSseInner(this ulong[] arrayToSum, int l, int r)
+        {
+            var sumVector    = new Vector<ulong>();
+            var newSumVector = new Vector<ulong>();
+            var zeroVector   = new Vector<ulong>(0);
+            int sseIndexEnd = l + ((r - l + 1) / Vector<ulong>.Count) * Vector<ulong>.Count;
+            int i;
+            for (i = l; i < sseIndexEnd; i += Vector<long>.Count)
+            {
+                var inVector = new Vector<ulong>(arrayToSum, i);
+                newSumVector = sumVector + inVector;
+                Vector<ulong> gteMask = Vector.GreaterThanOrEqual(newSumVector, sumVector);         // if true then 0xFFFFFFFFFFFFFFFFL else 0L at each element of the Vector<long> 
+                sumVector = Vector.ConditionalSelect(gteMask, newSumVector, zeroVector);
+                if (Vector.EqualsAny(gteMask, zeroVector))
+                    throw new System.OverflowException();
+                else
+                    sumVector += inVector;
             }
             ulong overallSum = 0;
             for (; i <= r; i++)
