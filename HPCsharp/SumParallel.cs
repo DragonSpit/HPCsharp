@@ -814,26 +814,19 @@ namespace HPCsharp.ParallelAlgorithms
                 var inVector = new Vector<ulong>(arrayToSum, i);
                 newSumVector = sumVector + inVector;
                 Vector<ulong> gteMask = Vector.GreaterThanOrEqual(newSumVector, sumVector);         // if true then 0xFFFFFFFFFFFFFFFFL else 0L at each element of the Vector<long> 
-                sumVector = Vector.ConditionalSelect(gteMask, newSumVector, zeroVector);
                 if (Vector.EqualsAny(gteMask, zeroVector))
                     throw new System.OverflowException();
                 else
-                    sumVector += inVector;
+                    sumVector = newSumVector;
             }
             ulong overallSum = 0;
             for (; i <= r; i++)
             {
-                checked
-                {
-                    overallSum += arrayToSum[i];
-                }
+                overallSum = checked(overallSum + arrayToSum[i]);
             }
             for (i = 0; i < Vector<long>.Count; i++)
             {
-                checked
-                {
-                    overallSum += sumVector[i];
-                }
+                overallSum = checked(overallSum + sumVector[i]);
             }
             return overallSum;
         }
