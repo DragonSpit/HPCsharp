@@ -804,9 +804,9 @@ namespace HPCsharp.ParallelAlgorithms
 
         private static ulong SumCheckedSseInner(this ulong[] arrayToSum, int l, int r)
         {
-            var sumVector    = new Vector<ulong>();
-            var newSumVector = new Vector<ulong>();
-            var zeroVector   = new Vector<ulong>(0);
+            var sumVector     = new Vector<ulong>();
+            var newSumVector  = new Vector<ulong>();
+            var allOnesVector = new Vector<ulong>(0xFFFFFFFFFFFFFFFFL);
             int sseIndexEnd = l + ((r - l + 1) / Vector<ulong>.Count) * Vector<ulong>.Count;
             int i;
             for (i = l; i < sseIndexEnd; i += Vector<long>.Count)
@@ -814,17 +814,17 @@ namespace HPCsharp.ParallelAlgorithms
                 var inVector = new Vector<ulong>(arrayToSum, i);
                 newSumVector = sumVector + inVector;
                 Vector<ulong> gteMask = Vector.GreaterThanOrEqual(newSumVector, sumVector);         // if true then 0xFFFFFFFFFFFFFFFFL else 0L at each element of the Vector<long> 
-                if (Vector.EqualsAny(gteMask, zeroVector))
-                    throw new System.OverflowException();
-                else
+                if (Vector.EqualsAll(gteMask, allOnesVector))
                     sumVector = newSumVector;
+                else
+                    throw new System.OverflowException();
             }
             ulong overallSum = 0;
             for (; i <= r; i++)
             {
                 overallSum = checked(overallSum + arrayToSum[i]);
             }
-            for (i = 0; i < Vector<long>.Count; i++)
+            for (i = 0; i < Vector<ulong>.Count; i++)
             {
                 overallSum = checked(overallSum + sumVector[i]);
             }
