@@ -778,7 +778,7 @@ namespace HPCsharp.ParallelAlgorithms
 
         /// <summary>
         /// Summation of ulong[] array, using data parallel SIMD/SSE instructions for higher performance on a single core.
-        /// Caution: Will not throw an overflow exception for the majority of the array, but instead will wrap around to smaller values, when the sum goes beyond UInt64.MaxValue
+        /// Throws a System.OverflowException when the sum goes beyond UInt64.MaxValue, even for the portion of the array that is processed using SSE instructions.
         /// </summary>
         /// <param name="arrayToSum">An array to sum up</param>
         /// <returns>ulong sum</returns>
@@ -790,7 +790,7 @@ namespace HPCsharp.ParallelAlgorithms
 
         /// <summary>
         /// Summation of ulong[] array, using data parallel SIMD/SSE instructions for higher performance on a single core.
-        /// Caution: Will not throw an overflow exception for the majority of the array, but instead will wrap around to smaller values, when the sum goes beyond UInt64.MaxValue
+        /// Throws a System.OverflowException when the sum goes beyond UInt64.MaxValue, even for the portion of the array that is processed using SSE instructions.
         /// </summary>
         /// <param name="arrayToSum">An array to sum up</param>
         /// <param name="startIndex">index of the starting element for the summation</param>
