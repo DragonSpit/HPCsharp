@@ -10,6 +10,7 @@ similar to standard C# algorithms and Linq. Free, open source, on nuget.org
 
 *Algorithm*|*\**|*\*\**|*SSE*|*Multi-Core*|*Array*|*List*|*Details*
 --- | --- | --- | --- | :---: | :---: | --- | :--
+[Add]\*\*\* | 2 | 4 | | | :heavy_check_mark: | :heavy_check_mark: | Adds two arrays element-wise
 [Binary Search](#Binary-Search) | 1 | 2 | | | :heavy_check_mark: | :heavy_check_mark: | Generic IComparer\<T\>
 [Block Swap](#Block-Swap) | 4 | 5 | | | :heavy_check_mark: | | Generic
 [Parallel Copy](#Parallel-Copy) |  | | | |  | |
@@ -41,12 +42,12 @@ To get the maximum performance make sure to target x64 processor architecture fo
 ## Better Sum in Many Ways
 HPCsharp improves .Sum() of numeric arrays in the following ways:
 - No overflow exception for int[] while providing 5X higher performance
-- Support for all signed integer data types
-- Support for all unsigned integer data types
-- Support of .Sum() for long[] and ulong[] with full accuracy and no overflow
-- Support for higher precision floating-point summation, reducing error from ***O***(eN) downto ***O***(elgN) without reduction in performance, and ***O***(e)
-with slight performance reduction. Implements pairwise and Kahan/Neumaier summation algorithms
-- Implements all algorithms using multi-core and data parallel SIMD/SSE processor instructions
+- Summation of all signed integer data types
+- Summation of all unsigned integer data types
+- Full accuracy summation of long[] and ulong[], without throwing overflow exception
+- Two higher precision floating-point summation options, reducing error from ***O***(eN) downto ***O***(elgN) without reduction
+in performance, and ***O***(e), with slight performance reduction. Implements pairwise and Kahan/Neumaier summation algorithms
+- Implements many algorithms using multi-core and data parallel SIMD/SSE processor instructions
 
 The table below compares performance (in Giga/second) of Linq.AsParallel().Sum() and HPCsharp.SumSsePar().
 
@@ -56,7 +57,7 @@ Linq | n/a | n/a | n/a | n/a |0.9*|n/a|0.9*|n/a|0.9|0.9|0.12
 HPCsharp |7.6|8.0|8.0|8.2|5.0|5.3|2.9*|2.8*|5.1|2.9|0.14
 * overflow exception is possible
 
-HPCsharp includes long and ulong summation, which do not throw an overflow exception while producing a perfectly accurate result.
+HPCsharp includes long[] and ulong[] summation, which do not throw an overflow exception while producing a perfectly accurate result.
 
 For more details, see blog https://duvanenko.tech.blog/2019/04/23/better-sum-in-c/
 
