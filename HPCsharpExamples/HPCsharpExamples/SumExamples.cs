@@ -50,9 +50,9 @@ namespace HPCsharpExamples
             //sumInt = arrInt.AsParallel().Sum();     // standard C# usage, multi-core,  will throw overflow exception
 
             // No overflow exception thrown by HPCsharp .Sum(), producing a perfectly accurate sum
-            sumLong = arrInt.SumHpc();     // serial
-            sumLong = arrInt.SumSse();     // data-parallel, single-core
-            sumLong = arrInt.SumSsePar();  // data-parallel,  multi-core
+            sumLong = arrInt.SumToLong();        // serial
+            sumLong = arrInt.SumToLongSse();     // data-parallel, single-core
+            sumLong = arrInt.SumToLongSsePar();  // data-parallel,  multi-core
 
 
             float[] arrFloat = new float[] { 5.0f, 7.3f, 16.3f, 3.1f };
@@ -68,11 +68,11 @@ namespace HPCsharpExamples
             // More accurate floati-point .Sum()
             double[] arrDouble = new double[] { 1, 10.0e100, 1, -10e100 };
             
-            sumDouble                = arrDouble.Sum();                // standard C#
-            var sumDoublePar         = arrDouble.AsParallel().Sum();   // standard C#, multi-core
-            var sumDoubleKahan       = arrDouble.SumKahan();           // HPCsharp more accurate, serial
-            var sumDoubleKahanSse    = arrDouble.SumSseKahan();        // HPCsharp more accurate, data-parallel (SSE), single-core
-            var sumDoubleKahanSsePar = arrDouble.SumSseKahanPar();     // HPCsharp more accurate, data-parallel (SSE), multi-core
+            sumDouble                = arrDouble.Sum();                     // standard C#
+            var sumDoublePar         = arrDouble.AsParallel().Sum();        // standard C#, multi-core
+            var sumDoubleKahan       = arrDouble.SumMostAccurate();         // HPCsharp more accurate, serial
+            var sumDoubleKahanSse    = arrDouble.SumSseMostAccurate();      // HPCsharp more accurate, data-parallel (SSE), single-core
+            var sumDoubleKahanSsePar = arrDouble.SumSseParMostAccurate();   // HPCsharp more accurate, data-parallel (SSE),  multi-core
 
             Console.WriteLine("Sum                          = {0}, correct answer is 2.0", sumDouble);
             Console.WriteLine("Sum Kahan                    = {0}, correct answer is 2.0", sumDoubleKahan);

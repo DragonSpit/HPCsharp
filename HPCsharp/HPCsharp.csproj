@@ -8,7 +8,7 @@
     <Description>High performance, cross-platform C#/.NET algorithms. Sort algorithms: parallel, serial, in-place, stable, O(N) Radix LSD/MSD, Merge. Much improved .Sum(), Histogram, Priority Queue, Merge, Fill, Min/Max, more... Familiar interfaces.</Description>
     <Copyright>© 2018 FooState</Copyright>
     <PackageLicenseUrl>https://github.com/DragonSpit/HPCsharp/blob/master/LICENSE</PackageLicenseUrl>
-    <PackageReleaseNotes>Much improved project Readme, with sections for each type of algorithm, and table listing all available algorithms. All 157 .Sum() functions have been documented, pointing out unique benefits of each, such as higher accuracy and performance, SSE, and multi-core. Fixed the examples project to work with the latest version. Added two more .Sum() functions.</PackageReleaseNotes>
+    <PackageReleaseNotes>Changed Sum function names to be more consistent and clear of intent. Added overflow checking for Sum of long[] and ulong[]. Added overflow checking for SSE ulong[] Sum. Added faster Sum of long[] and ulong[] to Decimal and BigInteger that doesn't use overflow exceptions. Added SSE Sum of ulong[] that will throw overflow in SSE portion. Simplified and clarified usage examples.</PackageReleaseNotes>
     <PackageId>HPCsharp</PackageId>
     <PackageTags>high perfromance algorithms, C#, high performance, high performance computing, HPC, algorithm, algorithms, Linq, parallel, parallel algorithm</PackageTags>
     <PackageIconUrl>https://foostate.com/images/default_lib_icon_64.png</PackageIconUrl>
@@ -17,9 +17,9 @@
     <PackageProjectUrl>https://github.com/DragonSpit/HPCsharp</PackageProjectUrl>
     <RepositoryUrl>https://github.com/DragonSpit/HPCsharp</RepositoryUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <AssemblyVersion>3.4.4.0</AssemblyVersion>
-    <FileVersion>3.4.4.0</FileVersion>
-    <Version>3.4.4</Version>
+    <AssemblyVersion>3.5.0.0</AssemblyVersion>
+    <FileVersion>3.5.0.0</FileVersion>
+    <Version>3.5.0</Version>
     <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 

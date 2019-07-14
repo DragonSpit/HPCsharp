@@ -35,29 +35,29 @@ namespace HPCsharpExamples
             double timeForSumAsParallel = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
 
             stopwatch.Restart();
-            long sumHpc = benchArrayOne.SumHpc();
+            long sumHpc = benchArrayOne.SumToLong();
             stopwatch.Stop();
             double timeForSumHpc = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
 
             stopwatch.Restart();
-            long sumSse = benchArrayOne.SumSse();
+            long sumSse = benchArrayOne.SumToLongSse();
             stopwatch.Stop();
             double timeForSumSse = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
 
 
             stopwatch.Restart();
-            long sumSsePar = benchArrayOne.SumSsePar();
+            long sumSsePar = benchArrayOne.SumToLongSsePar();
             stopwatch.Stop();
             double timeForSumSsePar = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
 
             //Console.WriteLine("C# array of size {0}: Sum   {1:0.000} sec", arraySize, timeForSum);
-            Console.WriteLine("C# array of size {0}: Sum              {1:0.000} sec, HPC#.SumHpc    {2:0.000} sec, speedup {3:0.00}", arraySize,
+            Console.WriteLine("C# array of size {0}: Sum              {1:0.000} sec, HPC#.SumToLong       {2:0.000} sec, speedup {3:0.00}", arraySize,
                                timeForSum, timeForSumHpc, timeForSum / timeForSumHpc);
-            Console.WriteLine("C# array of size {0}: Sum              {1:0.000} sec, HPC#.SumSse    {2:0.000} sec, speedup {3:0.00}", arraySize,
+            Console.WriteLine("C# array of size {0}: Sum              {1:0.000} sec, HPC#.SumToLongSse    {2:0.000} sec, speedup {3:0.00}", arraySize,
                                timeForSum, timeForSumSse, timeForSum / timeForSumSse);
-            Console.WriteLine("C# array of size {0}: Sum.AsParallel   {1:0.000} sec, HPC#.SumSse    {2:0.000} sec, speedup {3:0.00}", arraySize,
+            Console.WriteLine("C# array of size {0}: Sum.AsParallel   {1:0.000} sec, HPC#.SumToLongSse    {2:0.000} sec, speedup {3:0.00}", arraySize,
                                timeForSumAsParallel, timeForSumSse, timeForSumAsParallel / timeForSumSse);
-            Console.WriteLine("C# array of size {0}: Sum.AsParallel   {1:0.000} sec, HPC#.SumSsePar {2:0.000} sec, speedup {3:0.00}", arraySize,
+            Console.WriteLine("C# array of size {0}: Sum.AsParallel   {1:0.000} sec, HPC#.SumToLongSsePar {2:0.000} sec, speedup {3:0.00}", arraySize,
                                timeForSumAsParallel, timeForSumSsePar, timeForSumAsParallel / timeForSumSsePar);
         }
     }
