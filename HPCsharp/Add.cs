@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿// TODO: Add these algorithms to the Readme table/list of algorithms. Now, that we have SSE that's way faster than scalar.
+using System.Collections.Generic;
 using System.Text;
 using System.Numerics;
 using System;

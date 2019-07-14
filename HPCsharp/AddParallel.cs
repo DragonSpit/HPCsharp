@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿// TODO: Implement multi-core versions of the two Add algorithms, to see if we can go even faster.
+// TODO: Try loop unrolling for the SSE implementation to see if it gains in performance.
+using System.Collections.Generic;
 using System.Text;
 using System.Numerics;
 using System.Threading.Tasks;
