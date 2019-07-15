@@ -1206,8 +1206,8 @@ namespace HPCsharp.ParallelAlgorithms
             long sumRight = 0;
 
             Parallel.Invoke(
-                () => { sumLeft  = SumSseParInner(arrayToSum, l,     m); },
-                () => { sumRight = SumSseParInner(arrayToSum, m + 1, r); }
+                () => { sumLeft  = SumSseParInner(arrayToSum, l,     m, thresholdParallel); },
+                () => { sumRight = SumSseParInner(arrayToSum, m + 1, r, thresholdParallel); }
             );
             // Combine left and right results
             return sumLeft + sumRight;
@@ -1227,8 +1227,8 @@ namespace HPCsharp.ParallelAlgorithms
             ulong sumRight = 0;
 
             Parallel.Invoke(
-                () => { sumLeft  = SumSseParInner(arrayToSum, l,     m); },
-                () => { sumRight = SumSseParInner(arrayToSum, m + 1, r); }
+                () => { sumLeft  = SumSseParInner(arrayToSum, l,     m, thresholdParallel); },
+                () => { sumRight = SumSseParInner(arrayToSum, m + 1, r, thresholdParallel); }
             );
             // Combine left and right results
             return sumLeft + sumRight;
@@ -1248,8 +1248,8 @@ namespace HPCsharp.ParallelAlgorithms
             long sumRight = 0;
 
             Parallel.Invoke(
-                () => { sumLeft  = SumSseParInner(arrayToSum, l,     m); },
-                () => { sumRight = SumSseParInner(arrayToSum, m + 1, r); }
+                () => { sumLeft  = SumSseParInner(arrayToSum, l,     m, thresholdParallel); },
+                () => { sumRight = SumSseParInner(arrayToSum, m + 1, r, thresholdParallel); }
             );
             // Combine left and right results
             return sumLeft + sumRight;
@@ -1269,8 +1269,8 @@ namespace HPCsharp.ParallelAlgorithms
             ulong sumRight = 0;
 
             Parallel.Invoke(
-                () => { sumLeft  = SumSseParInner(arrayToSum, l,     m); },
-                () => { sumRight = SumSseParInner(arrayToSum, m + 1, r); }
+                () => { sumLeft  = SumSseParInner(arrayToSum, l,     m, thresholdParallel); },
+                () => { sumRight = SumSseParInner(arrayToSum, m + 1, r, thresholdParallel); }
             );
             // Combine left and right results
             return sumLeft + sumRight;
@@ -1290,8 +1290,8 @@ namespace HPCsharp.ParallelAlgorithms
             long sumRight = 0;
 
             Parallel.Invoke(
-                () => { sumLeft  = SumSseParInner(arrayToSum, l,     m); },
-                () => { sumRight = SumSseParInner(arrayToSum, m + 1, r); }
+                () => { sumLeft  = SumSseParInner(arrayToSum, l,     m, thresholdParallel); },
+                () => { sumRight = SumSseParInner(arrayToSum, m + 1, r, thresholdParallel); }
             );
             // Combine left and right results
             return sumLeft + sumRight;
@@ -1311,8 +1311,8 @@ namespace HPCsharp.ParallelAlgorithms
             ulong sumRight = 0;
 
             Parallel.Invoke(
-                () => { sumLeft  = SumSseParInner(arrayToSum, l,     m); },
-                () => { sumRight = SumSseParInner(arrayToSum, m + 1, r); }
+                () => { sumLeft  = SumSseParInner(arrayToSum, l,     m, thresholdParallel); },
+                () => { sumRight = SumSseParInner(arrayToSum, m + 1, r, thresholdParallel); }
             );
             // Combine left and right results
             return sumLeft + sumRight;
@@ -1332,8 +1332,8 @@ namespace HPCsharp.ParallelAlgorithms
             long sumRight = 0;
 
             Parallel.Invoke(
-                () => { sumLeft  = SumSseParInner(arrayToSum, l,     m); },
-                () => { sumRight = SumSseParInner(arrayToSum, m + 1, r); }
+                () => { sumLeft  = SumSseParInner(arrayToSum, l,     m, thresholdParallel); },
+                () => { sumRight = SumSseParInner(arrayToSum, m + 1, r, thresholdParallel); }
             );
             // Combine left and right results
             return sumLeft + sumRight;
@@ -1353,8 +1353,8 @@ namespace HPCsharp.ParallelAlgorithms
             ulong sumRight = 0;
 
             Parallel.Invoke(
-                () => { sumLeft  = SumSseParInner(arrayToSum, l,     m); },
-                () => { sumRight = SumSseParInner(arrayToSum, m + 1, r); }
+                () => { sumLeft  = SumSseParInner(arrayToSum, l,     m, thresholdParallel); },
+                () => { sumRight = SumSseParInner(arrayToSum, m + 1, r, thresholdParallel); }
             );
             // Combine left and right results
             return sumLeft + sumRight;
@@ -1374,8 +1374,8 @@ namespace HPCsharp.ParallelAlgorithms
             float sumRight = 0;
 
             Parallel.Invoke(
-                () => { sumLeft  = SumParInner(arrayToSum, l,     m); },
-                () => { sumRight = SumParInner(arrayToSum, m + 1, r); }
+                () => { sumLeft  = SumParInner(arrayToSum, l,     m, thresholdParallel); },
+                () => { sumRight = SumParInner(arrayToSum, m + 1, r, thresholdParallel); }
             );
             // Combine left and right results
             return sumLeft + sumRight;
@@ -1395,8 +1395,8 @@ namespace HPCsharp.ParallelAlgorithms
             double sumRight = 0;
 
             Parallel.Invoke(
-                () => { sumLeft  = SumDblParInner(arrayToSum, l, m); },
-                () => { sumRight = SumDblParInner(arrayToSum, m + 1, r); }
+                () => { sumLeft  = SumDblParInner(arrayToSum, l,     m, thresholdParallel); },
+                () => { sumRight = SumDblParInner(arrayToSum, m + 1, r, thresholdParallel); }
             );
             // Combine left and right results
             return sumLeft + sumRight;
@@ -1418,8 +1418,8 @@ namespace HPCsharp.ParallelAlgorithms
             float sumRight = 0;
 
             Parallel.Invoke(
-                () => { sumLeft  = SumParInner(arrayToSum, l,     m, baseCase, reduce); },
-                () => { sumRight = SumParInner(arrayToSum, m + 1, r, baseCase, reduce); }
+                () => { sumLeft  = SumParInner(arrayToSum, l,     m, baseCase, reduce, thresholdParallel); },
+                () => { sumRight = SumParInner(arrayToSum, m + 1, r, baseCase, reduce, thresholdParallel); }
             );
             return reduce(sumLeft, sumRight);
         }
@@ -1438,8 +1438,8 @@ namespace HPCsharp.ParallelAlgorithms
             double sumRight = 0;
 
             Parallel.Invoke(
-                () => { sumLeft  = SumDblParInner(arrayToSum, l,     m, baseCase, reduce); },
-                () => { sumRight = SumDblParInner(arrayToSum, m + 1, r, baseCase, reduce); }
+                () => { sumLeft  = SumDblParInner(arrayToSum, l,     m, baseCase, reduce, thresholdParallel); },
+                () => { sumRight = SumDblParInner(arrayToSum, m + 1, r, baseCase, reduce, thresholdParallel); }
             );
             return reduce(sumLeft, sumRight);
         }
@@ -1458,8 +1458,8 @@ namespace HPCsharp.ParallelAlgorithms
             double sumRight = 0;
 
             Parallel.Invoke(
-                () => { sumLeft  = SumDblSseParInner(arrayToSum, l,     m); },
-                () => { sumRight = SumDblSseParInner(arrayToSum, m + 1, r); }
+                () => { sumLeft  = SumDblSseParInner(arrayToSum, l,     m, thresholdParallel); },
+                () => { sumRight = SumDblSseParInner(arrayToSum, m + 1, r, thresholdParallel); }
             );
             // Combine left and right results
             return sumLeft + sumRight;
@@ -1479,8 +1479,8 @@ namespace HPCsharp.ParallelAlgorithms
             float sumRight = 0;
 
             Parallel.Invoke(
-                () => { sumLeft  = SumNeumaierParInner(arrayToSum, l,     m); },
-                () => { sumRight = SumNeumaierParInner(arrayToSum, m + 1, r); }
+                () => { sumLeft  = SumNeumaierParInner(arrayToSum, l,     m, thresholdParallel); },
+                () => { sumRight = SumNeumaierParInner(arrayToSum, m + 1, r, thresholdParallel); }
             );
             // Combine left and right results
             return Algorithms.Sum.SumMostAccurate(sumLeft, sumRight);
@@ -1500,8 +1500,8 @@ namespace HPCsharp.ParallelAlgorithms
             double sumRight = 0;
 
             Parallel.Invoke(
-                () => { sumLeft  = SumNeumaierDoubleParInner(arrayToSum, l,     m); },
-                () => { sumRight = SumNeumaierDoubleParInner(arrayToSum, m + 1, r); }
+                () => { sumLeft  = SumNeumaierDoubleParInner(arrayToSum, l,     m, thresholdParallel); },
+                () => { sumRight = SumNeumaierDoubleParInner(arrayToSum, m + 1, r, thresholdParallel); }
             );
             // Combine left and right results
             return Algorithms.Sum.SumMostAccurate(sumLeft, sumRight);
@@ -1521,8 +1521,8 @@ namespace HPCsharp.ParallelAlgorithms
             float sumRight = 0;
 
             Parallel.Invoke(
-                () => { sumLeft  = SumSseNeumaierParInner(arrayToSum, l,     m); },
-                () => { sumRight = SumSseNeumaierParInner(arrayToSum, m + 1, r); }
+                () => { sumLeft  = SumSseNeumaierParInner(arrayToSum, l,     m, thresholdParallel); },
+                () => { sumRight = SumSseNeumaierParInner(arrayToSum, m + 1, r, thresholdParallel); }
             );
             // Combine left and right results
             return Algorithms.Sum.SumMostAccurate(sumLeft, sumRight);
@@ -1542,8 +1542,8 @@ namespace HPCsharp.ParallelAlgorithms
             double sumRight = 0;
 
             Parallel.Invoke(
-                () => { sumLeft  = SumSseNeumaierDoubleParInner(arrayToSum, l,     m); },
-                () => { sumRight = SumSseNeumaierDoubleParInner(arrayToSum, m + 1, r); }
+                () => { sumLeft  = SumSseNeumaierDoubleParInner(arrayToSum, l,     m, thresholdParallel); },
+                () => { sumRight = SumSseNeumaierDoubleParInner(arrayToSum, m + 1, r, thresholdParallel); }
             );
             // Combine left and right results
             return Algorithms.Sum.SumMostAccurate(sumLeft, sumRight);
@@ -1563,8 +1563,8 @@ namespace HPCsharp.ParallelAlgorithms
             double sumRight = 0;
 
             Parallel.Invoke(
-                () => { sumLeft  = SumParInner(arrayToSum, l,     m, baseCase, reduce); },
-                () => { sumRight = SumParInner(arrayToSum, m + 1, r, baseCase, reduce); }
+                () => { sumLeft  = SumParInner(arrayToSum, l,     m, baseCase, reduce, thresholdParallel); },
+                () => { sumRight = SumParInner(arrayToSum, m + 1, r, baseCase, reduce, thresholdParallel); }
             );
             return reduce(sumLeft, sumRight);
         }
@@ -1617,8 +1617,8 @@ namespace HPCsharp.ParallelAlgorithms
             float sumRight = 0;
 
             Parallel.Invoke(
-                () => { sumLeft  = SumSseParInner(arrayToSum, l,     m); },
-                () => { sumRight = SumSseParInner(arrayToSum, m + 1, r); }
+                () => { sumLeft  = SumSseParInner(arrayToSum, l,     m, thresholdParallel); },
+                () => { sumRight = SumSseParInner(arrayToSum, m + 1, r, thresholdParallel); }
             );
             // Combine left and right results
             return sumLeft + sumRight;
@@ -1638,8 +1638,8 @@ namespace HPCsharp.ParallelAlgorithms
             double sumRight = 0;
 
             Parallel.Invoke(
-                () => { sumLeft  = SumParInner(arrayToSum, l,     m); },
-                () => { sumRight = SumParInner(arrayToSum, m + 1, r); }
+                () => { sumLeft  = SumParInner(arrayToSum, l,     m, thresholdParallel); },
+                () => { sumRight = SumParInner(arrayToSum, m + 1, r, thresholdParallel); }
             );
             // Combine left and right results
             return sumLeft + sumRight;
@@ -1659,8 +1659,8 @@ namespace HPCsharp.ParallelAlgorithms
             double sumRight = 0;
 
             Parallel.Invoke(
-                () => { sumLeft  = SumSseParInner(arrayToSum, l,     m); },
-                () => { sumRight = SumSseParInner(arrayToSum, m + 1, r); }
+                () => { sumLeft  = SumSseParInner(arrayToSum, l,     m, thresholdParallel); },
+                () => { sumRight = SumSseParInner(arrayToSum, m + 1, r, thresholdParallel); }
             );
             // Combine left and right results
             return sumLeft + sumRight;
@@ -1680,8 +1680,8 @@ namespace HPCsharp.ParallelAlgorithms
             double sumRight = 0;
 
             Parallel.Invoke(
-                () => { sumLeft  = SumNeumaierParInner(arrayToSum, l,     m); },
-                () => { sumRight = SumNeumaierParInner(arrayToSum, m + 1, r); }
+                () => { sumLeft  = SumNeumaierParInner(arrayToSum, l,     m, thresholdParallel); },
+                () => { sumRight = SumNeumaierParInner(arrayToSum, m + 1, r, thresholdParallel); }
             );
             // Combine left and right results
             return Algorithms.Sum.SumMostAccurate(sumLeft, sumRight);
@@ -1701,8 +1701,8 @@ namespace HPCsharp.ParallelAlgorithms
             double sumRight = 0;
 
             Parallel.Invoke(
-                () => { sumLeft  = SumSseNeumaierParInner(arrayToSum, l,     m); },
-                () => { sumRight = SumSseNeumaierParInner(arrayToSum, m + 1, r); }
+                () => { sumLeft  = SumSseNeumaierParInner(arrayToSum, l,     m, thresholdParallel); },
+                () => { sumRight = SumSseNeumaierParInner(arrayToSum, m + 1, r, thresholdParallel); }
             );
             // Combine left and right results
             return Algorithms.Sum.SumMostAccurate(sumLeft, sumRight);
@@ -1722,8 +1722,8 @@ namespace HPCsharp.ParallelAlgorithms
             decimal sumRight = 0;
 
             Parallel.Invoke(
-                () => { sumLeft  = SumParInner(arrayToSum, l,     m); },
-                () => { sumRight = SumParInner(arrayToSum, m + 1, r); }
+                () => { sumLeft  = SumParInner(arrayToSum, l,     m, thresholdParallel); },
+                () => { sumRight = SumParInner(arrayToSum, m + 1, r, thresholdParallel); }
             );
             // Combine left and right results
             return sumLeft + sumRight;
@@ -1743,8 +1743,8 @@ namespace HPCsharp.ParallelAlgorithms
             decimal sumRight = 0;
 
             Parallel.Invoke(
-                () => { sumLeft  = SumParInner(arrayToSum, l,     m); },
-                () => { sumRight = SumParInner(arrayToSum, m + 1, r); }
+                () => { sumLeft  = SumParInner(arrayToSum, l,     m, thresholdParallel); },
+                () => { sumRight = SumParInner(arrayToSum, m + 1, r, thresholdParallel); }
             );
             // Combine left and right results
             return sumLeft + sumRight;
@@ -1764,8 +1764,8 @@ namespace HPCsharp.ParallelAlgorithms
             decimal sumRight = 0;
 
             Parallel.Invoke(
-                () => { sumLeft  = SumParInner(arrayToSum, l,     m); },
-                () => { sumRight = SumParInner(arrayToSum, m + 1, r); }
+                () => { sumLeft  = SumParInner(arrayToSum, l,     m, thresholdParallel); },
+                () => { sumRight = SumParInner(arrayToSum, m + 1, r, thresholdParallel); }
             );
             // Combine left and right results
             return sumLeft + sumRight;
