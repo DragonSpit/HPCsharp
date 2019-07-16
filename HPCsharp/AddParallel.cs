@@ -97,7 +97,10 @@ namespace HPCsharp.ParallelAlgorithms
             if (l > r)
                 return;
             if ((r - l + 1) <= thresholdParallel)
+            {
                 arrayA.AddToSseInner(arrayB, l, r - l + 1);
+                return;
+            }
 
             int m = (r + l) / 2;
 
@@ -112,7 +115,7 @@ namespace HPCsharp.ParallelAlgorithms
         /// </summary>
         /// <param name="arrayA">Input array and the result array</param>
         /// <param name="arrayB">Second input array</param>
-        private static void AddToSsePar(this int[] arrayA, int[] arrayB, int thresholdParallel = 16 * 1024)
+        public static void AddToSsePar(this int[] arrayA, int[] arrayB, int thresholdParallel = 16 * 1024)
         {
             arrayA.AddToSseParInner(arrayB, 0, arrayA.Length - 1, thresholdParallel);
         }
@@ -124,9 +127,50 @@ namespace HPCsharp.ParallelAlgorithms
         /// <param name="arrayB">Second input array</param>
         /// <param name="startIndex">index of the starting element for the summation</param>
         /// <param name="length">number of array elements to sum up</param>
-        private static void AddToSsePar(this int[] arrayA, int[] arrayB, int startIndex, int length, int thresholdParallel = 16 * 1024)
+        public static void AddToSsePar(this int[] arrayA, int[] arrayB, int startIndex, int length, int thresholdParallel = 16 * 1024)
         {
             arrayA.AddToSseParInner(arrayB, startIndex, startIndex + length - 1, thresholdParallel);
+        }
+
+        private static void AddToParInner(this int[] arrayA, int[] arrayB, int l, int r, int thresholdParallel = 16 * 1024)
+        {
+            //Console.WriteLine("AddToParInner: l = {0}, r = {1}", l, r);
+            if (l > r)
+                return;
+            if ((r - l + 1) <= thresholdParallel)
+            {
+                HPCsharp.Algorithms.Addition.AddTo(arrayA, arrayB, l, r - l + 1);
+                return;
+            }
+
+            int m = (r + l) / 2;
+
+            Parallel.Invoke(
+                () => { arrayA.AddToParInner(arrayB, l,     m, thresholdParallel); },
+                () => { arrayA.AddToParInner(arrayB, m + 1, r, thresholdParallel); }
+            );
+        }
+
+        /// <summary>
+        /// Add two int[] arrays together, using multiple cores.
+        /// </summary>
+        /// <param name="arrayA">Input array and the result array</param>
+        /// <param name="arrayB">Second input array</param>
+        public static void AddToPar(this int[] arrayA, int[] arrayB, int thresholdParallel = 16 * 1024)
+        {
+            arrayA.AddToParInner(arrayB, 0, arrayA.Length - 1, thresholdParallel);
+        }
+
+        /// <summary>
+        /// Add two int[] arrays together, using multiple cores.
+        /// </summary>
+        /// <param name="arrayA">Input array and the result array</param>
+        /// <param name="arrayB">Second input array</param>
+        /// <param name="startIndex">index of the starting element for the summation</param>
+        /// <param name="length">number of array elements to sum up</param>
+        public static void AddToPar(this int[] arrayA, int[] arrayB, int startIndex, int length, int thresholdParallel = 16 * 1024)
+        {
+            arrayA.AddToParInner(arrayB, startIndex, startIndex + length - 1, thresholdParallel);
         }
     }
 }
