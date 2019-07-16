@@ -1,5 +1,5 @@
 ﻿// TODO: Implement multi-core versions of the two Add algorithms, to see if we can go even faster.
-// TODO: Try loop unrolling for the SSE implementation to see if it gains in performance.
+// TODO: This problem is related to https://stackoverflow.com/questions/49308115/c-sharp-vectordouble-copyto-barely-faster-than-non-simd-version?rq=1
 using System.Collections.Generic;
 using System.Text;
 using System.Numerics;
@@ -61,6 +61,7 @@ namespace HPCsharp.ParallelAlgorithms
                 arrayA[i] += arrayB[i];
         }
 
+        // Loop unrolling, as in the below implementation did not help performance
         private static void AddToSseUnrolled(this int[] arrayA, int[] arrayB)
         {
             arrayA.AddToSseUnrolledInner(arrayB, 0, arrayA.Length - 1);
@@ -98,7 +99,7 @@ namespace HPCsharp.ParallelAlgorithms
                 return;
             if ((r - l + 1) <= thresholdParallel)
             {
-                arrayA.AddToSseInner(arrayB, l, r - l + 1);
+                arrayA.AddToSseInner(arrayB, l, r);
                 return;
             }
 
