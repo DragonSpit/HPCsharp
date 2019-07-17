@@ -54,6 +54,8 @@
 // TODO: Create a checkedAdd() for Vector<long> addition and Vector<ulong> addition cases, since we now know exactly what to do to work around
 //       the lack of this capability by the checked block key word, and throw an overflow exception in the detected cases, with minimal overhead.
 // TODO: Make sure to look at this https://stackoverflow.com/questions/49308115/c-sharp-vectordouble-copyto-barely-faster-than-non-simd-version?rq=1
+// TODO: Contribute to this https://stackoverflow.com/questions/2056445/no-overflow-exception-for-int-in-c and point them to my question of
+//       no overflow even when checked for SSE instructions.
 
 using System.Collections.Generic;
 using System.Text;
