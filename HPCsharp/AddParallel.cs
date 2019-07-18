@@ -61,6 +61,31 @@ namespace HPCsharp.ParallelAlgorithms
                 arrayA[i] += arrayB[i];
         }
 
+        public static void AddToSse(this uint[] arrayA, uint[] arrayB)
+        {
+            arrayA.AddToSseInner(arrayB, 0, arrayA.Length - 1);
+        }
+
+        public static void AddToSse(this uint[] arrayA, uint[] arrayB, int start, int length)
+        {
+            arrayA.AddToSseInner(arrayB, start, start + length - 1);
+        }
+
+        private static void AddToSseInner(this uint[] arrayA, uint[] arrayB, int l, int r)
+        {
+            int sseIndexEnd = l + ((r - l + 1) / Vector<uint>.Count) * Vector<uint>.Count;
+            int i;
+            for (i = l; i < sseIndexEnd; i += Vector<int>.Count)
+            {
+                var inVectorA = new Vector<uint>(arrayA, i);
+                var inVectorB = new Vector<uint>(arrayB, i);
+                inVectorA += inVectorB;
+                inVectorA.CopyTo(arrayA, i);
+            }
+            for (; i <= r; i++)
+                arrayA[i] += arrayB[i];
+        }
+
         // Loop unrolling, as in the below implementation did not help performance
         private static void AddToSseUnrolled(this int[] arrayA, int[] arrayB)
         {
