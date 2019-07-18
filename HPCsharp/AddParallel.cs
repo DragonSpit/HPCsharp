@@ -1,5 +1,6 @@
 ﻿// TODO: Implement multi-core versions of the two Add algorithms, to see if we can go even faster.
 // TODO: This problem is related to https://stackoverflow.com/questions/49308115/c-sharp-vectordouble-copyto-barely-faster-than-non-simd-version?rq=1
+// TODO: Apply the improved parallel algorithm to Histogram, which uses this style of addition. Use addTo instead to get nearly 2X in performance.
 using System.Collections.Generic;
 using System.Text;
 using System.Numerics;
