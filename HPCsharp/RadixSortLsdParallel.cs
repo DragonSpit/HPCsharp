@@ -15,11 +15,23 @@ namespace HPCsharp
 {
     static public partial class ParallelAlgorithm
     {
+        /// <summary>
+        /// Parallel Sort an array of bytes using Radix Sorting algorithm (least significant digit variation - LSD)
+        /// This algorithm is stable, but is not in-place.
+        /// </summary>
+        /// <param name="arrayToBeSorted">array of unsigned integers to be sorted</param>
+        /// <returns>sorted array of bytes</returns>
         public static byte[] SortRadixPar(this byte[] arrayToBeSorted)
         {
             return arrayToBeSorted.SortCountingInPlaceFuncPar();
         }
 
+        /// <summary>
+        /// Parallel Sort an array of unsigned short integers using Radix Sorting algorithm (least significant digit variation - LSD)
+        /// This algorithm is stable, but is not in-place.
+        /// </summary>
+        /// <param name="arrayToBeSorted">array of unsigned integers to be sorted</param>
+        /// <returns>sorted array of unsigned short integers</returns>
         public static ushort[] SortRadixPar(this ushort[] arrayToBeSorted)
         {
             return arrayToBeSorted.SortCountingInPlaceFuncPar();
@@ -27,7 +39,7 @@ namespace HPCsharp
 
         /// <summary>
         /// Parallel Sort an array of unsigned integers using Radix Sorting algorithm (least significant digit variation - LSD)
-        /// This algorithm is not in-place. This algorithm is stable.
+        /// This algorithm is stable, but is not in-place.
         /// </summary>
         /// <param name="inputArray">array of unsigned integers to be sorted</param>
         /// <returns>sorted array of unsigned integers</returns>
@@ -78,6 +90,7 @@ namespace HPCsharp
 
             return inputArray;
         }
+
         /// <summary>
         /// Parallel Sort an array of unsigned integers using Radix Sorting algorithm (least significant digit variation - LSD)
         /// The core algorithm is not in-place, but the interface is in-place. This algorithm is stable.
@@ -89,9 +102,65 @@ namespace HPCsharp
             var sortedArray = SortRadixPar(inputArray);
             Array.Copy(sortedArray, inputArray, inputArray.Length);
         }
+
+        /// <summary>
+        /// Parallel Sort an array of unsigned integers using Radix Sorting algorithm (least significant digit variation - LSD)
+        /// This algorithm uses SIMD/SSE instructions for higher performance on each core, as well as multiple cores.
+        /// This algorithm is stable, but is not in-place.
+        /// </summary>
+        /// <param name="inputArray">array of unsigned integers to be sorted</param>
+        /// <returns>sorted array of unsigned integers</returns>
+        public static uint[] SortRadixSsePar(this uint[] inputArray)
+        {
+            int numberOfBins = 256;
+            int numberOfDigits = 4;
+            int Log2ofPowerOfTwoRadix = 8;
+            int d = 0;
+            uint[] outputArray = new uint[inputArray.Length];
+
+            uint[][] startOfBin = new uint[numberOfDigits][];
+            for (int i = 0; i < numberOfDigits; i++)
+                startOfBin[i] = new uint[numberOfBins];
+            bool outputArrayHasResult = false;
+
+            uint bitMask = 255;
+            int shiftRightAmount = 0;
+
+            uint[][] count = HistogramByteComponentsSsePar(inputArray, 0, inputArray.Length - 1);
+
+            for (d = 0; d < numberOfDigits; d++)
+            {
+                startOfBin[d][0] = 0;
+                for (uint i = 1; i < numberOfBins; i++)
+                    startOfBin[d][i] = startOfBin[d][i - 1] + count[d][i - 1];
+            }
+
+            d = 0;
+            while (bitMask != 0)    // end processing digits when all the mask bits have been processed and shifted out, leaving no bits set in the bitMask
+            {
+                uint[] startOfBinLoc = startOfBin[d];
+                for (uint current = 0; current < inputArray.Length; current++)
+                    outputArray[startOfBinLoc[(inputArray[current] & bitMask) >> shiftRightAmount]++] = inputArray[current];
+
+                bitMask <<= Log2ofPowerOfTwoRadix;
+                shiftRightAmount += Log2ofPowerOfTwoRadix;
+                outputArrayHasResult = !outputArrayHasResult;
+                d++;
+
+                uint[] tmp = inputArray;       // swap input and output arrays
+                inputArray = outputArray;
+                outputArray = tmp;
+            }
+            if (outputArrayHasResult)
+                for (uint current = 0; current < inputArray.Length; current++)    // copy from output array into the input array
+                    inputArray[current] = outputArray[current];
+
+            return inputArray;
+        }
+
         /// <summary>
         /// Parallel Sort an array of signed long integers using Radix Sorting algorithm (least significant digit variation - LSD)
-        /// This algorithm is not in-place. This algorithm is stable.
+        /// This algorithm is stable, but not in-place.
         /// </summary>
         /// <param name="inputArray">array of signed long integers to be sorted</param>
         /// <returns>sorted array of signed long integers</returns>
@@ -143,6 +212,63 @@ namespace HPCsharp
             }
             return outputArrayHasResult ? outputArray : inputArray;
         }
+
+        /// <summary>
+        /// Parallel Sort an array of signed long integers using Radix Sorting algorithm (least significant digit variation - LSD)
+        /// This algorithm uses SIMD/SSE instructions for higher performance on each core, as well as multiple cores.
+        /// This algorithm is stable, but not in-place.
+        /// </summary>
+        /// <param name="inputArray">array of signed long integers to be sorted</param>
+        /// <returns>sorted array of signed long integers</returns>
+        public static long[] SortRadixSsePar(this long[] inputArray)
+        {
+            const int bitsPerDigit = 8;
+            const uint numberOfBins = 1 << bitsPerDigit;
+            const uint numberOfDigits = (sizeof(ulong) * 8 + bitsPerDigit - 1) / bitsPerDigit;
+            int d = 0;
+            var outputArray = new long[inputArray.Length];
+
+            uint[][] startOfBin = new uint[numberOfDigits][];
+            for (int i = 0; i < numberOfDigits; i++)
+                startOfBin[i] = new uint[numberOfBins];
+            bool outputArrayHasResult = false;
+
+            const ulong bitMask = numberOfBins - 1;
+            const ulong halfOfPowerOfTwoRadix = PowerOfTwoRadix / 2;
+            int shiftRightAmount = 0;
+
+            uint[][] count = HistogramByteComponentsSsePar(inputArray, 0, inputArray.Length - 1);
+
+            for (d = 0; d < numberOfDigits; d++)
+            {
+                startOfBin[d][0] = 0;
+                for (uint i = 1; i < numberOfBins; i++)
+                    startOfBin[d][i] = startOfBin[d][i - 1] + count[d][i - 1];
+            }
+
+            d = 0;
+            while (d < numberOfDigits)
+            {
+                uint[] startOfBinLoc = startOfBin[d];
+
+                if (d != 7)
+                    for (uint current = 0; current < inputArray.Length; current++)
+                        outputArray[startOfBinLoc[((ulong)inputArray[current] >> shiftRightAmount) & bitMask]++] = inputArray[current];
+                else
+                    for (uint current = 0; current < inputArray.Length; current++)
+                        outputArray[startOfBinLoc[((ulong)inputArray[current] >> shiftRightAmount) ^ halfOfPowerOfTwoRadix]++] = inputArray[current];
+
+                shiftRightAmount += bitsPerDigit;
+                outputArrayHasResult = !outputArrayHasResult;
+                d++;
+
+                long[] tmp = inputArray;       // swap input and output arrays
+                inputArray = outputArray;
+                outputArray = tmp;
+            }
+            return outputArrayHasResult ? outputArray : inputArray;
+        }
+
         /// <summary>
         /// Sort an array of signed long integers using Radix Sorting algorithm (least significant digit variation - LSD)
         /// The core algorithm is not in-place, but the interface is in-place. This algorithm is stable.
@@ -154,7 +280,6 @@ namespace HPCsharp
             var sortedArray = SortRadixPar(inputArray);
             Array.Copy(sortedArray, inputArray, inputArray.Length);
         }
-
     }
 
     class CustomData
