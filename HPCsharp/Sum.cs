@@ -441,10 +441,7 @@ namespace HPCsharp.Algorithms
             long overallSum = 0;
             for (int i = startIndex; i < endIndex; i++)
             {
-                checked
-                {
-                    overallSum += arrayToSum[i];
-                }
+                overallSum = checked(overallSum + arrayToSum[i]);
             }
             return overallSum;
         }
@@ -475,10 +472,7 @@ namespace HPCsharp.Algorithms
             for (int i = startIndex; i < endIndex; i++)
                 if (arrayToSum[i] != null)
                 {
-                    checked
-                    {
-                        overallSum += (long)arrayToSum[i];
-                    }
+                    overallSum = checked(overallSum + (long)arrayToSum[i]);
                 }
             return overallSum;
         }

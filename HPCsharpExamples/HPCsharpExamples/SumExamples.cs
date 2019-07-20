@@ -74,7 +74,7 @@ namespace HPCsharpExamples
             var sumDoubleKahanSse    = arrDouble.SumSseMostAccurate();      // HPCsharp more accurate, data-parallel (SSE), single-core
             var sumDoubleKahanSsePar = arrDouble.SumSseParMostAccurate();   // HPCsharp more accurate, data-parallel (SSE),  multi-core
 
-            Console.WriteLine("Sum                          = {0}, correct answer is 2.0", sumDouble);
+            Console.WriteLine("Sum Naive (for loop)         = {0}, correct answer is 2.0", sumDouble);
             Console.WriteLine("Sum Kahan                    = {0}, correct answer is 2.0", sumDoubleKahan);
             Console.WriteLine("Sum Kahan (SSE)              = {0}, correct answer is 2.0", sumDoubleKahanSse);
             Console.WriteLine("Sum Kahan (SSE & multi-core) = {0}, correct answer is 2.0", sumDoubleKahanSse);

@@ -10,13 +10,9 @@
 // TODO: See if SSEandScalar version is faster when the array is entirely inside the cache, to make sure that it's not just being memory bandwidth limited and hiding ILP speedup. Port it to C++ and see
 //       if it speeds up. Run many times over the same array using .Sum() and provide the average and minimum timing. Also, could test using a single core, where memory bandwidth is not the limiter.
 // TODO: Return a tupple (sum and c) from each parallel Neumaier result and figure out how to combine these results for a more accurate and possibly perfect overall result that will match serial array processing result.
-// TODO: Since C# has support for BigInteger data type in System.Numerics, then provide accurate .Sum() all the way to these for decimal[], float[] and double[]. Basically, provide a consistent story for .Sum() where every type can be
-//       summed with perfect accuracy when needed. Make sure naming of functions is consistent for all of this and across all data types, multi-core and SSE implementations, to make it simple, logical and consistent to use.
-//       Sadly, this idea won't work, since we need a BigDecimal or BigFloatingPoint to capture perfect accumulation for both of these non-integer types.
 // TODO: Implement .Sum() for summing a field of Objects/UserDefinedTypes, if it's possible to add value by possibly aggregating elements into a local array of Vector size and doing an SSE sum. Is it possible to abstract it well and to
 //       perform well to support extracting all numeric data types, so that performance and abstraction are competitive and as simple or simpler than Linq?
 // TODO: Write a blog on floating-point .Sum() and all of it's capabilities, options and trade-offs in performance and accuracy (Submitted a paper proposal to the MSDN journal. Waiting for response first.)
-// TODO: Rename Neumaier .Sum() to sum_kbn as Julia language does, since the original implementation was done by Kahan-Babuska and KBN would give all three creators credit
 // TODO: Re-use the new generic divide-and-conquer function, and it could even be a lambda function for some implementations (like non-Kahan-Neumaier addition). For float and double summation, we just need to pass in function of double or float.
 //       This would reduce the code base within this file by a very large amount, as most if not all divide-and-conquer repeated implementations would go away. Then we can claim that we use our own divide-and-conquer abstraction inside HPCsharp itself.
 // TODO: Note that by default parallel .Sum() implementations are pairwise summation, since it does divide-and-conquer. This needs to be noted in the Readme or somehow be communicated to the user, and bloged about and in the parallel section of
@@ -50,7 +46,9 @@
 // TODO: Don't forget for ulong Sum of ulong[] needs to throw an overflow exception, along with long Sum of long[]. Now, that we've developed
 //       a way to detect it that is pretty cheap.
 // TODO: Create a checked ulong[] .Sum and long[] .Sum that simply use SSE instructions, but now check for numerical overflow and throw an exception if it happens, and don't do anything about it, but at
-//       at least report it.
+//       at least report it. This will match functionality of Linq implementation, but now with SSE.
+// TODO: We could also do SSE equivalent versions of int[] .Sum() in SSE, and uint[] in SSE that are fast and check
+//       for numeric overflow. We could even do it for other smaller data types, if it's worthwhile to do.
 // TODO: Create a checkedAdd() for Vector<long> addition and Vector<ulong> addition cases, since we now know exactly what to do to work around
 //       the lack of this capability by the checked block key word, and throw an overflow exception in the detected cases, with minimal overhead.
 // TODO: Make sure to look at this https://stackoverflow.com/questions/49308115/c-sharp-vectordouble-copyto-barely-faster-than-non-simd-version?rq=1
@@ -633,17 +631,66 @@ namespace HPCsharp.ParallelAlgorithms
             long overallSum = 0;
             for (; i <= r; i++)
             {
-                checked
-                {
-                    overallSum += arrayToSum[i];
-                }
+                overallSum = checked(overallSum + arrayToSum[i]);
             }
             for (i = 0; i < Vector<long>.Count; i++)
             {
-                checked
-                {
-                    overallSum += sumVector[i];
-                }
+                overallSum = checked(overallSum + sumVector[i]);
+            }
+            return overallSum;
+        }
+
+        /// <summary>
+        /// Summation of long[] array, using data parallel SIMD/SSE instructions for higher performance on a single core.
+        /// Throws a System.OverflowException when the sum goes beyond Int64.MaxValue, even for the portion of the array that is processed using SSE instructions.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>long sum</returns>
+        /// <exception>TSource:System.OverflowException: when the sum value is greater than Int64.MaxValue</exception>
+        public static long SumCheckedSse(this long[] arrayToSum)
+        {
+            return arrayToSum.SumCheckedSseInner(0, arrayToSum.Length - 1);
+        }
+
+        /// <summary>
+        /// Summation of long[] array, using data parallel SIMD/SSE instructions for higher performance on a single core.
+        /// Throws a System.OverflowException when the sum goes beyond Int64.MaxValue, even for the portion of the array that is processed using SSE instructions.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <param name="startIndex">index of the starting element for the summation</param>
+        /// <param name="length">number of array elements to sum up</param>
+        /// <returns>long sum</returns>
+        /// <exception>TSource:System.OverflowException: when the sum value is greater than Int64.MaxValue</exception>
+        public static long SumCheckedSse(this long[] arrayToSum, int startIndex, int length)
+        {
+            return arrayToSum.SumCheckedSseInner(startIndex, startIndex + length - 1);
+        }
+
+        private static long SumCheckedSseInner(this long[] arrayToSum, int l, int r)
+        {
+            var sumVector     = new Vector<long>();
+            var newSumVector  = new Vector<long>();
+            var allOnesVector = new Vector<long>(-1L);  // all bits are 1's
+            int sseIndexEnd = l + ((r - l + 1) / Vector<long>.Count) * Vector<long>.Count;
+            int i;
+            for (i = l; i < sseIndexEnd; i += Vector<long>.Count)
+            {
+                var inVector = new Vector<long>(arrayToSum, i);
+                newSumVector = sumVector + inVector;
+                Vector<long> gteMask = Vector.GreaterThanOrEqual(newSumVector, sumVector);         // if true then 0xFFFFFFFFFFFFFFFFL else 0L at each element of the Vector<long> 
+                if (Vector.EqualsAll(gteMask, allOnesVector))
+                    sumVector = newSumVector;
+                else
+                    throw new System.OverflowException();
+            }
+            long overallSum = 0;
+            for (; i <= r; i++)
+            {
+                overallSum = checked(overallSum + arrayToSum[i]);
+            }
+            for (i = 0; i < Vector<ulong>.Count; i++)
+            {
+                overallSum = checked(overallSum + sumVector[i]);
             }
             return overallSum;
         }
