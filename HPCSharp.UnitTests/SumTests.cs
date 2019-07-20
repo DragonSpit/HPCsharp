@@ -68,5 +68,18 @@ namespace HPCSharp.UnitTests
             Decimal resultDecimal = new Decimal(input0) + new Decimal(input1);
             Assert.AreEqual(resultDecimal, arrLong.SumToDecimalFaster());
         }
+        [Test]
+        [TestCase(UInt64.MaxValue, 1UL)]
+        [TestCase(UInt64.MaxValue, 0UL)]
+        public void CorrectnessOfSumOfULongArrayToBigIntegerAndDecimalFaster(ulong input0, ulong input1)
+        {
+            ulong[] arrLong = new ulong[] { input0, input1 };
+
+            BigInteger resultBigInteger = new BigInteger(input0) + new BigInteger(input1);
+            Assert.AreEqual(resultBigInteger, arrLong.SumToBigIntegerFaster());
+
+            Decimal resultDecimal = new Decimal(input0) + new Decimal(input1);
+            Assert.AreEqual(resultDecimal, arrLong.SumToDecimalFaster());
+        }
     }
 }
