@@ -188,9 +188,9 @@ namespace HPCsharp.Algorithms
             long longSum = 0;
             for (int i = 0; i < arrayToSum.Length; i++)
             {
-                if (longSum > 0)
+                if (longSum >= 0)
                 {
-                    if (arrayToSum[i] > 0)
+                    if (arrayToSum[i] >= 0)
                     {
                         long newLongSum = longSum + arrayToSum[i];
                         if (newLongSum >= longSum)
@@ -267,9 +267,9 @@ namespace HPCsharp.Algorithms
             long longSum = 0;
             for (int i = 0; i < arrayToSum.Length; i++)
             {
-                if (longSum > 0)
+                if (longSum >= 0)
                 {
-                    if (arrayToSum[i] > 0)
+                    if (arrayToSum[i] >= 0)
                     {
                         long newLongSum = longSum + arrayToSum[i];
                         if (newLongSum >= longSum)
