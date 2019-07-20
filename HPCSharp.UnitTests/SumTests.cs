@@ -52,12 +52,21 @@ namespace HPCSharp.UnitTests
         }
         [Test]
         [TestCase(Int64.MaxValue, 1)]
-        public void CorrectnessOfSumOfLongArrayToBigIntegerFaster(long input0, long input1)
+        [TestCase(Int64.MinValue, -1L)]
+        [TestCase(Int64.MaxValue, 0)]
+        [TestCase(Int64.MinValue, 0)]
+        [TestCase(Int64.MinValue, Int64.MaxValue)]
+        [TestCase(Int64.MaxValue, Int64.MaxValue)]
+        [TestCase(Int64.MinValue, Int64.MinValue)]
+        public void CorrectnessOfSumOfLongArrayToBigIntegerAndDecimalFaster(long input0, long input1)
         {
             long[] arrLong = new long[] { input0, input1 };
-            BigInteger result = new BigInteger(input0) + new BigInteger(input1);
 
-            Assert.AreEqual(result, arrLong.SumToBigIntegerFaster());
+            BigInteger resultBigInteger = new BigInteger(input0) + new BigInteger(input1);
+            Assert.AreEqual(resultBigInteger, arrLong.SumToBigIntegerFaster());
+
+            Decimal resultDecimal = new Decimal(input0) + new Decimal(input1);
+            Assert.AreEqual(resultDecimal, arrLong.SumToDecimalFaster());
         }
     }
 }
