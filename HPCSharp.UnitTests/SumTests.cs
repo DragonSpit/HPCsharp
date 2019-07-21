@@ -81,5 +81,26 @@ namespace HPCSharp.UnitTests
             Decimal resultDecimal = new Decimal(input0) + new Decimal(input1);
             Assert.AreEqual(resultDecimal, arrLong.SumToDecimalFaster());
         }
+        [Test]
+        [TestCase(0)]
+       public void ShouldThrowOverflowExceptionLongSse(int whichTestCase)
+        {
+            if (whichTestCase == 0)
+            {
+                long[] arrLong = new long[] { Int64.MaxValue, 5, 7, 16, 4, 2, 8, 3, 1 };
+                Assert.Throws<OverflowException>(() => arrLong.SumCheckedSse());
+                arrLong = new long[] { 5, Int64.MaxValue, 7, 16, 4, 2, 8, 3, 1 };
+                Assert.Throws<OverflowException>(() => arrLong.SumCheckedSse());
+                arrLong = new long[] { 5, 7, Int64.MaxValue, 16, 4, 2, 8, 3, 1 };
+                Assert.Throws<OverflowException>(() => arrLong.SumCheckedSse());
+                arrLong = new long[] { 5, 7, 16, Int64.MaxValue, 4, 2, 8, 3, 1 };
+                Assert.Throws<OverflowException>(() => arrLong.SumCheckedSse());
+
+                arrLong = new long[] { 5, 7, 16, 2, 4, 2, 3, 0, 3 };
+                Assert.DoesNotThrow(() => arrLong.SumCheckedSse());
+                //arrLong = new long[] { 5, 7, 16, Int64.MaxValue, 4, 2, 3, 0, 3 };
+                //Assert.DoesNotThrow(() => arrLong.SumCheckedSse());
+            }
+        }
     }
 }

@@ -682,43 +682,43 @@ namespace HPCsharp.ParallelAlgorithms
                 var inVectorLtZeroMask   = Vector.OnesComplement(inVectorGteZeroMask);
                 var sumVectorLtZeroMask  = Vector.OnesComplement(sumVectorGteZeroMask);
 
+                // Create mutually exclusive masks for the four possible cases
+
                 // Optimize paths which don't overflow or underflow
                 // if (inVector >= 0 && sumVector < 0)
                 var inGteZeroAndSumLtZeroMask = Vector.BitwiseAnd(inVectorGteZeroMask, sumVectorLtZeroMask);
+                // if (inVector < 0 && sumVector >= 0)
+                var inLtZeroAndSumGteZeroMask = Vector.BitwiseAnd(inVectorLtZeroMask, sumVectorGteZeroMask);
+                var orMask = Vector.BitwiseOr(inGteZeroAndSumLtZeroMask, inLtZeroAndSumGteZeroMask);
+                if (Vector.EqualsAll(orMask, allOnesVector))
+                {
+                    sumVector += inVector;
+                    continue;
+                }
 
-                // Create mutually exclusive masks for the four possible cases
+                newSumVector = sumVector + inVector;
+
                 // if (inVector >= 0 && sumVector >= 0)
                 var bothGteZeroMask = Vector.BitwiseAnd(inVectorGteZeroMask, sumVectorGteZeroMask);
                 // if (inVector < 0 && sumVector < 0)
-                var inLtZeroAndSumLtZeroMask = Vector.BitwiseAnd(inVectorLtZeroMask, sumVectorLtZeroMask);
-                // if (inVector < 0 && sumVector >= 0)
-                var inLtZeroAndSumGteZeroMask = Vector.BitwiseAnd(inVectorLtZeroMask, sumVectorGteZeroMask);
+                var bothLtZeroMask = Vector.BitwiseAnd(inVectorLtZeroMask, sumVectorLtZeroMask);
 
-                // Perform the Summation
-                newSumVector = sumVector + inVector;
+                var newSumLtSumMask  = Vector.LessThan(   newSumVector, sumVector);
+                var newSumGtSumMask = Vector.GreaterThan(newSumVector, sumVector);
 
-                var newSumGteSumMask = Vector.GreaterThanOrEqual(newSumVector, sumVector);
-                var newSumLteSumMask = Vector.LessThanOrEqual(   newSumVector, sumVector);
+                var comb10Mask = Vector.BitwiseAnd(bothGteZeroMask, newSumLtSumMask);
+                var comb01Mask = Vector.BitwiseAnd(bothLtZeroMask,  newSumGtSumMask);
 
-                // Combine masks
-                var comb11 = Vector.BitwiseAnd(bothGteZeroMask, newSumGteSumMask);
+                if (Vector.EqualsAny(comb10Mask, allOnesVector) || Vector.EqualsAny(comb01Mask, allOnesVector))
+                    throw new OverflowException();
 
-                newSumVector = sumVector + inVector;
-                Vector<long> gteMask = Vector.GreaterThanOrEqual(newSumVector, sumVector);  // if true then 0xFFFFFFFFFFFFFFFFL else 0L at each element of the Vector<long> 
-                if (Vector.EqualsAll(gteMask, allOnesVector))
-                    sumVector = newSumVector;
-                else
-                    throw new System.OverflowException();
+                sumVector = newSumVector;
             }
             long overallSum = 0;
             for (; i <= r; i++)
-            {
                 overallSum = checked(overallSum + arrayToSum[i]);
-            }
             for (i = 0; i < Vector<ulong>.Count; i++)
-            {
                 overallSum = checked(overallSum + sumVector[i]);
-            }
             return overallSum;
         }
 
