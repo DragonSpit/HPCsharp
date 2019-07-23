@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Numerics;
 using HPCsharp.Algorithms;
 using HPCsharp.ParallelAlgorithms;
@@ -83,7 +84,7 @@ namespace HPCSharp.UnitTests
         }
         [Test]
         [TestCase(0)]
-       public void ShouldThrowOverflowExceptionLongSse(int whichTestCase)
+        public void ShouldThrowOverflowExceptionLongSse(int whichTestCase)
         {
             if (whichTestCase == 0)
             {
@@ -96,10 +97,32 @@ namespace HPCSharp.UnitTests
                 arrLong = new long[] { 5, 7, 16, Int64.MaxValue, 4, 2, 8, 3, 1 };
                 Assert.Throws<OverflowException>(() => arrLong.SumCheckedSse());
 
-                arrLong = new long[] { 5, 7, 16, 2, 4, 2, 3, 0, 3 };
-                Assert.DoesNotThrow(() => arrLong.SumCheckedSse());
-                //arrLong = new long[] { 5, 7, 16, Int64.MaxValue, 4, 2, 3, 0, 3 };
+                //arrLong = new long[] { Int64.MaxValue, 4, 0, 0, 0, 0, 0 };
                 //Assert.DoesNotThrow(() => arrLong.SumCheckedSse());
+            }
+        }
+        [Test]
+        [TestCase(0)]
+        public void CorrectnessOfLongCheckedSseSum(int whichTestCase)
+        {
+            if (whichTestCase == 0)
+            {
+                var arrLong = new long[] { 5, 7, 16, 2, 4, 2, 3, 0, 3 };
+                Assert.DoesNotThrow(() => arrLong.SumCheckedSse());
+                Assert.AreEqual(42, arrLong.SumCheckedSse());
+            }
+        }
+        [Test]
+        [TestCase(0)]
+        public void CorrectnessOfBigIntegerSum(int whichTestCase)
+        {
+            if (whichTestCase == 0)
+            {
+                var arrLong = new long[] { 5, 7, 16, Int64.MaxValue, 4, 2, 3, 0, 3 };
+                Assert.DoesNotThrow(() => arrLong.SumToBigIntegerFaster());
+                var result = new BigInteger();
+                result = arrLong.Aggregate(result, (current, i) => current + i);
+                Assert.AreEqual(arrLong.SumToBigIntegerFaster(), result);
             }
         }
     }
