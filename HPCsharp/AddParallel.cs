@@ -1,6 +1,7 @@
-﻿// TODO: Implement multi-core versions of the two Add algorithms, to see if we can go even faster.
-// TODO: This problem is related to https://stackoverflow.com/questions/49308115/c-sharp-vectordouble-copyto-barely-faster-than-non-simd-version?rq=1
-// TODO: Apply the improved parallel algorithm to Histogram, which uses this style of addition. Use addTo instead to get nearly 2X in performance.
+﻿// TODO: This problem is related to https://stackoverflow.com/questions/49308115/c-sharp-vectordouble-copyto-barely-faster-than-non-simd-version?rq=1
+// TODO: Could we improve performance even further by having a single array that is a structure of { A, B } elements
+//       making it a single array that is brought into the cache. May not be as generally useful, but there may be cases
+//       which benefit from it.
 using System.Collections.Generic;
 using System.Text;
 using System.Numerics;

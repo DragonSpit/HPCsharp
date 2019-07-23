@@ -5,6 +5,8 @@
 //       otherwise it is executed on the current thread" since this is a common pattern that comes up.
 // TODO: Implement parallel versions of HistogramByteComponents, as that seems like a potential performance limiter at the moment to parallel acceleration, since in MSD
 //       Radix Sort this operation runs many more times than in LSD Radix Sort (where it runs only once for all the digits). Thus, optimizing its performance is more critical here.
+// TODO: Make sure to inline Swap() in routines that John is using.
+// TODO: Benchmark MSD Radix Sort parallel with and without SSE AddTo usage in the Histogram function.
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

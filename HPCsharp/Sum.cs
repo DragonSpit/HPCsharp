@@ -22,7 +22,6 @@
 // TODO: Similar to above, but implement a version of Kahan/Neumaier sum for float arrays with the same exponent, which would be divide-and-conquer split up and when the chunks are smaller than 500M those array spans would
 //       be summed up using double for possibly higher speed and perfect precision, until we needed to accumulate results of these array spans, when we would use Kahan/Neumaier.
 // TODO: Does Kahan algorithm also make sense for decimal?
-// TODO: To speedup summing up of long to decimal accumulation, Josh suggested using a long accumulator and catching the overflow exception and then adding to decimal - i.e. most of the time accumulate to long and once in
 // TODO: Answer this question on stack overflow https://stackoverflow.com/questions/53075546/array-sum-results-in-an-overflow
 // TODO: Implement scalar pair-wise floating-point summation for nullable arrays of floats and doubles.
 // TODO: Implement nullable versions of BigIntegerFast and DecimalFast sums of long?[] and ulong?[]
