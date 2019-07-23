@@ -671,9 +671,9 @@ namespace HPCsharp.ParallelAlgorithms
             var sumVector     = new Vector<long>(0);
             var newSumVector  = new Vector<long>();
             var zeroVector    = new Vector<long>(0);
-            var allOnesVector = new Vector<long>(-1L);  // all bits are 1's
-            int sseIndexEnd = l + ((r - l + 1) / Vector<long>.Count) * Vector<long>.Count;
+            var allOnesVector = new Vector<long>(-1L);
             int i;
+            int sseIndexEnd = l + ((r - l + 1) / Vector<long>.Count) * Vector<long>.Count;
             for (i = l; i < sseIndexEnd; i += Vector<long>.Count)
             {
                 var inVector = new Vector<long>(arrayToSum, i);
@@ -703,7 +703,7 @@ namespace HPCsharp.ParallelAlgorithms
                 // if (inVector < 0 && sumVector < 0)
                 var bothLtZeroMask = Vector.BitwiseAnd(inVectorLtZeroMask, sumVectorLtZeroMask);
 
-                var newSumLtSumMask  = Vector.LessThan(   newSumVector, sumVector);
+                var newSumLtSumMask = Vector.LessThan(   newSumVector, sumVector);
                 var newSumGtSumMask = Vector.GreaterThan(newSumVector, sumVector);
 
                 var comb10Mask = Vector.BitwiseAnd(bothGteZeroMask, newSumLtSumMask);
@@ -1805,6 +1805,27 @@ namespace HPCsharp.ParallelAlgorithms
             return sumLeft + sumRight;
         }
 
+        private static BigInteger SumParInner(this BigInteger[] arrayToSum, int l, int r, int thresholdParallel = 16 * 1024)
+        {
+            BigInteger sumLeft = 0;
+
+            if (l > r)
+                return sumLeft;
+            if ((r - l + 1) <= thresholdParallel)
+                return Algorithms.Sum.SumHpc(arrayToSum, l, r - l + 1);
+
+            int m = (r + l) / 2;
+
+            BigInteger sumRight = 0;
+
+            Parallel.Invoke(
+                () => { sumLeft  = SumParInner(arrayToSum, l,     m, thresholdParallel); },
+                () => { sumRight = SumParInner(arrayToSum, m + 1, r, thresholdParallel); }
+            );
+            // Combine left and right results
+            return sumLeft + sumRight;
+        }
+
         private static decimal SumParInner(this long[] arrayToSum, int l, int r, int thresholdParallel = 16 * 1024)
         {
             decimal sumLeft = 0;
@@ -2383,6 +2404,28 @@ namespace HPCsharp.ParallelAlgorithms
         /// <param name="length">number of array elements to sum up</param>
         /// <returns>decimal sum</returns>
         public static decimal SumPar(this decimal[] arrayToSum, int startIndex, int length, int thresholdParallel = 16 * 1024)
+        {
+            return arrayToSum.SumParInner(startIndex, startIndex + length - 1, thresholdParallel);
+        }
+
+        /// <summary>
+        /// Summation of BigInteger[] array, using multiple cores.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>BigInteger sum</returns>
+        public static BigInteger SumPar(this BigInteger[] arrayToSum, int thresholdParallel = 16 * 1024)
+        {
+            return SumParInner(arrayToSum, 0, arrayToSum.Length - 1, thresholdParallel);
+        }
+
+        /// <summary>
+        /// Summation of BigInteger[] array, using multiple cores.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <param name="startIndex">index of the starting element for the summation</param>
+        /// <param name="length">number of array elements to sum up</param>
+        /// <returns>decimal sum</returns>
+        public static BigInteger SumPar(this BigInteger[] arrayToSum, int startIndex, int length, int thresholdParallel = 16 * 1024)
         {
             return arrayToSum.SumParInner(startIndex, startIndex + length - 1, thresholdParallel);
         }

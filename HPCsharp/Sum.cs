@@ -42,6 +42,35 @@ namespace HPCsharp.Algorithms
     static public partial class Sum
     {
         /// <summary>
+        /// Summation of BigInteger array into a BigInteger sum.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>BigInteger sum</returns>
+        public static BigInteger SumHpc(this BigInteger[] arrayToSum)
+        {
+            BigInteger overallSum = 0;
+            for (int i = 0; i < arrayToSum.Length; i++)
+                overallSum += arrayToSum[i];
+            return overallSum;
+        }
+
+        /// <summary>
+        /// Summation of BigInteger array into a BigInteger sum.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <param name="startIndex">index of the starting element for the summation</param>
+        /// <param name="length">number of array elements to sum up</param>
+        /// <returns>BigInteger sum</returns>
+        public static BigInteger SumHpc(this BigInteger[] arrayToSum, int startIndex, int length)
+        {
+            int endIndex = startIndex + length;
+            BigInteger overallSum = 0;
+            for (int i = startIndex; i < endIndex; i++)
+                overallSum += arrayToSum[i];
+            return overallSum;
+        }
+
+        /// <summary>
         /// Faster, perfectly accurate summation of long[] array, which uses a BigInteger accumulator for perfect accuracy,
         /// and long integer summations for higher performance, handling overflow exceptions internally.
         /// Will not throw overflow exception.
