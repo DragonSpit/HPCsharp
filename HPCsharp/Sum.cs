@@ -30,6 +30,7 @@
 // TODO: Faster implementation of decimal and BigInteger summation of long[] (singed) by checking the two conditions
 //       where overflow and underflow are possible: two positives and two negatives. Only in these two conditions is it
 //       possible to overflow or underflow. If sum is positive, then check input for positive, else check input for negative.
+// TODO: It seems that Linq doesn't include a BigInteger.Sum() implementation. Add this to HPCsharp and improve the answer of https://stackoverflow.com/questions/41515299/how-to-calculate-the-sum-of-an-int-array-whose-result-exceeds-int32-max-value/41515465
 using System.Collections.Generic;
 using System.Text;
 using System.Numerics;
