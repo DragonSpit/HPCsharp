@@ -46,7 +46,7 @@
 // TODO: Don't forget for ulong Sum of ulong[] needs to throw an overflow exception, along with long Sum of long[]. Now, that we've developed
 //       a way to detect it that is pretty cheap.
 // TODO: Create a checked ulong[] .Sum and long[] .Sum that simply use SSE instructions, but now check for numerical overflow and throw an exception if it happens, and don't do anything about it, but at
-//       at least report it. This will match functionality of Linq implementation, but now with SSE.
+//       at least report it. This will match functionality of Linq implementation, but now with SSE, and at least ulong[] checked SSE Sum will be way faster.
 // TODO: We could also do SSE equivalent versions of int[] .Sum() in SSE, and uint[] in SSE that are fast and check
 //       for numeric overflow. We could even do it for other smaller data types, if it's worthwhile to do.
 // TODO: Create a checkedAdd() for Vector<long> addition and Vector<ulong> addition cases, since we now know exactly what to do to work around
@@ -60,11 +60,30 @@ using System.Text;
 using System.Numerics;
 using System.Threading.Tasks;
 using System;
+using System.Collections.Concurrent;
+using System.Threading;
 
 namespace HPCsharp.ParallelAlgorithms
 {
     static public partial class Sum
     {
+        // from https://stackoverflow.com/questions/2419343/how-to-sum-up-an-array-of-integers-in-c-sharp?noredirect=1&lq=1
+        public static long SumToLongExperimental(this int[] arrayToSum)
+        {
+            long sum = 0;
+            var options = new ParallelOptions() { MaxDegreeOfParallelism = Environment.ProcessorCount };
+
+            Parallel.ForEach(Partitioner.Create(0, arrayToSum.Length), options, range =>
+            {
+                long localSum = 0;
+                for (int i = range.Item1; i < range.Item2; i++)
+                {
+                    localSum += arrayToSum[i];
+                }
+                Interlocked.Add(ref sum, localSum);
+            });
+            return sum;
+        }
         /// <summary>
         /// Summation of sbyte[] array, which uses a long accumulator for perfect accuracy, using data parallel SIMD/SSE instructions for higher performance on a single core.
         /// Will not throw overflow exception.
