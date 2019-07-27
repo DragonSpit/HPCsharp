@@ -125,5 +125,36 @@ namespace HPCSharp.UnitTests
                 Assert.AreEqual(arrLong.SumToBigIntegerFaster(), result);
             }
         }
+        [Test]
+        [TestCase(0)]
+        public void OverflowOfSum(int whichTestCase)
+        {
+            if (whichTestCase == 0)
+            {
+                uint valueUint = 4294967295;   // UInt32.MaxValue, 0xFFFFFFFF
+                Assert.DoesNotThrow(() => valueUint += 1);
+                Assert.AreEqual(valueUint, 0);
+
+                ulong valueUlong = 18446744073709551615;   // UInt64.MaxValue, 0xFFFFFFFFFFFFFFFF
+                Assert.DoesNotThrow(() => valueUlong += 1);
+                Assert.AreEqual(valueUlong, 0);
+
+                int valueInt = 2147483647;   // Int32.MaxValue, 0x7FFFFFFF
+                Assert.DoesNotThrow(() => valueInt += 1);
+                Assert.AreEqual(valueInt, Int32.MinValue);
+
+                long valueLong = 9223372036854775807;   // Int64.MaxValue, 0x7FFFFFFFFFFFFFFF
+                Assert.DoesNotThrow(() => valueLong += 1);
+                Assert.AreEqual(valueLong, Int64.MinValue);
+
+                valueInt = -2147483648;   // Int32.MinValue, 0xFFFFFFFF
+                Assert.DoesNotThrow(() => valueInt -= 1);
+                Assert.AreEqual(valueInt, Int32.MaxValue);
+
+                valueLong = -9223372036854775808;   // Int64.MinValue, 0xFFFFFFFFFFFFFFFF
+                Assert.DoesNotThrow(() => valueLong -= 1);
+                Assert.AreEqual(valueLong, Int64.MaxValue);
+            }
+        }
     }
 }
