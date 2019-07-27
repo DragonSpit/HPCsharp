@@ -2,6 +2,8 @@
 // TODO: Could we improve performance even further by having a single array that is a structure of { A, B } elements
 //       making it a single array that is brought into the cache. May not be as generally useful, but there may be cases
 //       which benefit from it.
+// TODO: Implement AddKernelSSE() function that can be composed with other kernels, to make more complex molecules out atomic
+//       functions, and keep performance high. No loops, no if statements, no overhead.
 using System.Collections.Generic;
 using System.Text;
 using System.Numerics;
