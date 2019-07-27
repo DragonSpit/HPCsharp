@@ -54,6 +54,8 @@
 // TODO: Make sure to look at this https://stackoverflow.com/questions/49308115/c-sharp-vectordouble-copyto-barely-faster-than-non-simd-version?rq=1
 // TODO: Contribute to this https://stackoverflow.com/questions/2056445/no-overflow-exception-for-int-in-c and point them to my question of
 //       no overflow even when checked for SSE instructions.
+// TODO: Suggest to Intel/AMD how to improve SSE instructions to make them better for addition, such as like multiplication, put the carry bits in another result, or produce a bigger result. The overflow bit seems like a really
+//       outdated and inefficient way of computing. We can do better.
 
 using System.Collections.Generic;
 using System.Text;
