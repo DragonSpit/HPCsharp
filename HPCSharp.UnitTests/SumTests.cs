@@ -127,7 +127,8 @@ namespace HPCSharp.UnitTests
         }
         [Test]
         [TestCase(0)]
-        public void OverflowOfSum(int whichTestCase)
+        [TestCase(1)]
+        public void OverflowOfAddition(int whichTestCase)
         {
             if (whichTestCase == 0)
             {
@@ -154,6 +155,26 @@ namespace HPCSharp.UnitTests
                 valueLong = -9223372036854775808;   // Int64.MinValue, 0xFFFFFFFFFFFFFFFF
                 Assert.DoesNotThrow(() => valueLong -= 1);
                 Assert.AreEqual(valueLong, Int64.MaxValue);
+            }
+            else if (whichTestCase == 1)
+            {
+                uint valueUint = 4294967295;   // UInt32.MaxValue, 0xFFFFFFFF
+                Assert.Throws<OverflowException>(() => valueUint = checked(valueUint + 1));
+
+                ulong valueUlong = 18446744073709551615;   // UInt64.MaxValue, 0xFFFFFFFFFFFFFFFF
+                Assert.Throws<OverflowException>(() => valueUlong = checked(valueUlong + 1));
+
+                int valueInt = 2147483647;   // Int32.MaxValue, 0x7FFFFFFF
+                Assert.Throws<OverflowException>(() => valueInt = checked(valueInt + 1));
+
+                long valueLong = 9223372036854775807;   // Int64.MaxValue, 0x7FFFFFFFFFFFFFFF
+                Assert.Throws<OverflowException>(() => valueLong = checked(valueLong + 1));
+
+                valueInt = -2147483648;   // Int32.MinValue, 0xFFFFFFFF
+                Assert.Throws<OverflowException>(() => valueInt = checked(valueInt - 1));
+
+                valueLong = -9223372036854775808;   // Int64.MinValue, 0xFFFFFFFFFFFFFFFF
+                Assert.Throws<OverflowException>(() => valueLong = checked(valueLong - 1));
             }
         }
     }
