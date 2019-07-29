@@ -2,6 +2,8 @@
 using HPCsharp.ParallelAlgorithms;
 using System;
 using System.Linq;
+using System.Numerics;
+
 
 namespace HPCsharpExamples
 {
@@ -51,8 +53,25 @@ namespace HPCsharpExamples
 
             // No overflow exception thrown by HPCsharp .Sum(), producing a perfectly accurate sum
             sumLong = arrInt.SumToLong();        // serial
-            sumLong = arrInt.SumToLongSse();     // data-parallel, single-core
-            sumLong = arrInt.SumToLongSsePar();  // data-parallel,  multi-core
+            sumLong = arrInt.SumToLongSse();     // data-parallel, single-core (many times faster)
+            sumLong = arrInt.SumToLongSsePar();  // data-parallel,  multi-core (even faster)
+
+
+            long[] arrLong = new long[] { 5, 7, 16, 3, Int64.MaxValue, 1 };
+            decimal sumDecimal;
+            BigInteger sumBigInteger;
+
+            //sumLong = arrLong.Sum();                  // standard C# usage, single-core, will throw overflow exception
+            //sumLong = arrLong.AsParallel().Sum();     // standard C# usage, multi-core,  will throw overflow exception
+
+            // No overflow exception thrown by HPCsharp .Sum(), producing a perfectly accurate sum
+            sumDecimal = arrLong.SumToDecimal();     // serial
+            sumDecimal = arrLong.SumToDecimal();     // data-parallel, single-core (many times faster)
+            sumDecimal = arrLong.SumToDecimalPar();  // data-parallel,  multi-core (even faster)
+
+            // No overflow exception thrown by HPCsharp .Sum(), producing a perfectly accurate sum
+            sumBigInteger = arrLong.SumToBigIntegerFast();     // serial
+            sumBigInteger = arrLong.SumToBigIntegerFaster();   // serial single-core (much faster when lots of overflows occur)
 
 
             float[] arrFloat = new float[] { 5.0f, 7.3f, 16.3f, 3.1f };
