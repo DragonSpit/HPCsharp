@@ -1889,6 +1889,69 @@ namespace HPCsharp.ParallelAlgorithms
             return sumLeft + sumRight;
         }
 
+        private static decimal SumToDecimalFasterParInner(this ulong[] arrayToSum, int l, int r, int thresholdParallel = 16 * 1024)
+        {
+            decimal sumLeft = 0;
+
+            if (l > r)
+                return sumLeft;
+            if ((r - l + 1) <= thresholdParallel)
+                return Algorithms.Sum.SumToDecimalFaster(arrayToSum, l, r - l + 1);
+
+            int m = (r + l) / 2;
+
+            decimal sumRight = 0;
+
+            Parallel.Invoke(
+                () => { sumLeft  = SumToDecimalFasterParInner(arrayToSum, l,     m, thresholdParallel); },
+                () => { sumRight = SumToDecimalFasterParInner(arrayToSum, m + 1, r, thresholdParallel); }
+            );
+            // Combine left and right results
+            return sumLeft + sumRight;
+        }
+
+        private static decimal SumToDecimalSseParInner(this ulong[] arrayToSum, int l, int r, int thresholdParallel = 16 * 1024)
+        {
+            decimal sumLeft = 0;
+
+            if (l > r)
+                return sumLeft;
+            if ((r - l + 1) <= thresholdParallel)
+                return ParallelAlgorithms.Sum.SumToDecimalSseInner(arrayToSum, l, r - l + 1);
+
+            int m = (r + l) / 2;
+
+            decimal sumRight = 0;
+
+            Parallel.Invoke(
+                () => { sumLeft  = SumToDecimalSseParInner(arrayToSum, l,     m, thresholdParallel); },
+                () => { sumRight = SumToDecimalSseParInner(arrayToSum, m + 1, r, thresholdParallel); }
+            );
+            // Combine left and right results
+            return sumLeft + sumRight;
+        }
+
+        private static BigInteger SumToBigIntegerFasterParInner(this ulong[] arrayToSum, int l, int r, int thresholdParallel = 16 * 1024)
+        {
+            BigInteger sumLeft = 0;
+
+            if (l > r)
+                return sumLeft;
+            if ((r - l + 1) <= thresholdParallel)
+                return Algorithms.Sum.SumToBigIntegerFaster(arrayToSum, l, r - l + 1);
+
+            int m = (r + l) / 2;
+
+            BigInteger sumRight = 0;
+
+            Parallel.Invoke(
+                () => { sumLeft  = SumToBigIntegerFasterParInner(arrayToSum, l, m, thresholdParallel); },
+                () => { sumRight = SumToBigIntegerFasterParInner(arrayToSum, m + 1, r, thresholdParallel); }
+            );
+            // Combine left and right results
+            return sumLeft + sumRight;
+        }
+
         /// <summary>
         /// Summation of sbyte[] array, using multiple cores, and using data parallel SIMD/SSE instructions for higher performance within each core.
         /// Uses a long accumulator for perfect accuracy. Will not trow an overflow exception.
@@ -2034,7 +2097,7 @@ namespace HPCsharp.ParallelAlgorithms
         }
 
         /// <summary>
-        /// Summation of long[] array, using multiple cores, and using data parallel SIMD/SSE instructions for higher performance within each core.
+        /// Summation of long[] array, using multiple cores, and using data parallel SIMD/SSE instructions on each core, for higher performance within each core.
         /// </summary>
         /// <param name="arrayToSum">An array to sum up</param>
         /// <returns>long sum</returns>
@@ -2044,7 +2107,7 @@ namespace HPCsharp.ParallelAlgorithms
         }
 
         /// <summary>
-        /// Summation of long[] array, using multiple cores, and using data parallel SIMD/SSE instructions for higher performance within each core.
+        /// Summation of long[] array, using multiple cores, and using data parallel SIMD/SSE instructions on each core, for higher performance within each core.
         /// </summary>
         /// <param name="arrayToSum">An array to sum up</param>
         /// <param name="startIndex">index of the starting element for the summation</param>
@@ -2056,7 +2119,7 @@ namespace HPCsharp.ParallelAlgorithms
         }
 
         /// <summary>
-        /// Summation of long[] array, using multiple cores, and using data parallel SIMD/SSE instructions for higher performance within each core.
+        /// Summation of long[] array, using multiple cores, for higher performance within each core.
         /// Uses a decimal accumulator for perfect accuracy. Will not trow an overflow exception.
         /// </summary>
         /// <param name="arrayToSum">An array to sum up</param>
@@ -2067,7 +2130,7 @@ namespace HPCsharp.ParallelAlgorithms
         }
 
         /// <summary>
-        /// Summation of long[] array, using multiple cores, and using data parallel SIMD/SSE instructions for higher performance within each core.
+        /// Summation of long[] array, using multiple cores, for higher performance within each core.
         /// Uses a decimal accumulator for perfect accuracy. Will not trow an overflow exception.
         /// </summary>
         /// <param name="arrayToSum">An array to sum up</param>
@@ -2080,17 +2143,17 @@ namespace HPCsharp.ParallelAlgorithms
         }
 
         /// <summary>
-        /// Summation of ulong[] array, using multiple cores, and using data parallel SIMD/SSE instructions for higher performance within each core.
+        /// Summation of ulong[] array, using multiple cores, for higher performance within each core.
         /// Uses a decimal accumulator for perfect accuracy. Will not trow an overflow exception.
         /// </summary>
         /// <param name="arrayToSum">An array to sum up</param>
         /// <returns>decimal sum</returns>
         public static decimal SumToDecimalPar(this ulong[] arrayToSum, int thresholdParallel = 16 * 1024)
         {
-            return SumParInner(arrayToSum, 0, arrayToSum.Length - 1, thresholdParallel);
+            return arrayToSum.SumParInner(0, arrayToSum.Length - 1, thresholdParallel);
         }
         /// <summary>
-        /// Summation of ulong[] array, using multiple cores, and using data parallel SIMD/SSE instructions for higher performance within each core.
+        /// Summation of ulong[] array, using multiple cores, for higher performance within each core.
         /// Uses a decimal accumulator for perfect accuracy. Will not trow an overflow exception.
         /// </summary>
         /// <param name="arrayToSum">An array to sum up</param>
@@ -2100,6 +2163,56 @@ namespace HPCsharp.ParallelAlgorithms
         public static decimal SumToDecimalPar(this ulong[] arrayToSum, int startIndex, int length, int thresholdParallel = 16 * 1024)
         {
             return arrayToSum.SumParInner(startIndex, startIndex + length - 1, thresholdParallel);
+        }
+
+        /// <summary>
+        /// Summation of ulong[] array, using multiple cores, for higher performance within each core.
+        /// Uses a ulong accumulator for faster performance while detecting overflow without exceptions and returning a decimal for perfect accuracy.
+        /// Will not trow an overflow exception.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>decimal sum</returns>
+        public static decimal SumToDecimalFasterPar(this ulong[] arrayToSum, int thresholdParallel = 16 * 1024)
+        {
+            return arrayToSum.SumToDecimalFasterParInner(0, arrayToSum.Length - 1, thresholdParallel);
+        }
+        /// <summary>
+        /// Summation of ulong[] array, using multiple cores, for higher performance within each core.
+        /// Uses a ulong accumulator for faster performance while detecting overflow without exceptions and returning a decimal for perfect accuracy.
+        /// Will not trow an overflow exception.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <param name="startIndex">index of the starting element for the summation</param>
+        /// <param name="length">number of array elements to sum up</param>
+        /// <returns>decimal sum</returns>
+        public static decimal SumToDecimalFasterPar(this ulong[] arrayToSum, int startIndex, int length, int thresholdParallel = 16 * 1024)
+        {
+            return arrayToSum.SumToDecimalFasterParInner(startIndex, startIndex + length - 1, thresholdParallel);
+        }
+
+        /// <summary>
+        /// Summation of ulong[] array, using multiple cores, and using data parallel SIMD/SSE instructions on each core, for higher performance within each core.
+        /// Uses a ulong accumulator for faster performance while detecting overflow without exceptions and returning a decimal for perfect accuracy.
+        /// Will not trow an overflow exception.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>decimal sum</returns>
+        public static decimal SumToDecimalSseFasterPar(this ulong[] arrayToSum, int thresholdParallel = 16 * 1024)
+        {
+            return arrayToSum.SumToDecimalSseParInner(0, arrayToSum.Length - 1, thresholdParallel);
+        }
+        /// <summary>
+        /// Summation of ulong[] array, using multiple cores, and using data parallel SIMD/SSE instructions on each core, for higher performance within each core.
+        /// Uses a ulong accumulator for faster performance while detecting overflow without exceptions and returning a decimal for perfect accuracy.
+        /// Will not trow an overflow exception.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <param name="startIndex">index of the starting element for the summation</param>
+        /// <param name="length">number of array elements to sum up</param>
+        /// <returns>decimal sum</returns>
+        public static decimal SumToDecimalSseFasterPar(this ulong[] arrayToSum, int startIndex, int length, int thresholdParallel = 16 * 1024)
+        {
+            return arrayToSum.SumToDecimalSseParInner(startIndex, startIndex + length - 1, thresholdParallel);
         }
 
         /// <summary>
