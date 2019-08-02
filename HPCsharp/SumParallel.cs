@@ -48,7 +48,9 @@
 // TODO: Create a checked ulong[] .Sum and long[] .Sum that simply use SSE instructions, but now check for numerical overflow and throw an exception if it happens, and don't do anything about it, but at
 //       at least report it. This will match functionality of Linq implementation, but now with SSE, and at least ulong[] checked SSE Sum will be way faster.
 // TODO: We could also do SSE equivalent versions of int[] .Sum() in SSE, and uint[] in SSE that are fast and check
-//       for numeric overflow. We could even do it for other smaller data types, if it's worthwhile to do.
+//       for numeric overflow. We could even do it for other smaller data types, if it's worthwhile to do. This may provide
+//       higher performance, especially for uint[] checked, which would be equivalent in functionality to LInq and be higher
+//       performance than expanding to long implementation in SSE - i.e. still safe, but eliminating overflow, just checking for it.
 // TODO: Create a checkedAdd() for Vector<long> addition and Vector<ulong> addition cases, since we now know exactly what to do to work around
 //       the lack of this capability by the checked block key word, and throw an overflow exception in the detected cases, with minimal overhead.
 // TODO: Make sure to look at this https://stackoverflow.com/questions/49308115/c-sharp-vectordouble-copyto-barely-faster-than-non-simd-version?rq=1

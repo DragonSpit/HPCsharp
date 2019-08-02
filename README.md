@@ -10,7 +10,7 @@ similar to standard C# algorithms and Linq. Free, open source, on nuget.org
 
 *Algorithm*|*\**|*\*\**|*SSE*|*Multi-Core*|*Array*|*List*|*Details*
 --- | --- | --- | --- | :---: | :---: | --- | :--
-Add\*\*\* | 2 | 4 | | | :heavy_check_mark: | :heavy_check_mark: | Adds two arrays element-wise
+[Add](#Add) | 2 | 14 | :heavy_check_mark: |:heavy_check_mark: | :heavy_check_mark: | | Adds two arrays element-wise
 [Binary Search](#Binary-Search) | 1 | 2 | | | :heavy_check_mark: | :heavy_check_mark: | Generic IComparer\<T\>
 [Block Swap](#Block-Swap) | 4 | 5 | | | :heavy_check_mark: | | Generic
 [Parallel Copy](#Parallel-Copy) |  | | | |  | |
@@ -142,6 +142,15 @@ Used by Parallel Merge Sort. See example solution for working code samples.
 ## Insertion Sort
 Insertion Sort, which is ***O***(N<sup>2</sup>), and useful for fast in-place sorting of very small collections, due to its cache-friendliness.
 Generic implemenation for Array and List containers. Used by Parallel Merge Sort and MSD Radix Sort for the base case.
+
+## Add
+Two algorithms for adding two arrays together:
+- c\[] = a\[] + b\[]
+- a\[] += b\[]
+
+The second algorithm is about 70% faster than the first. So far, both algorithms are implemented for int[] only, but other data types
+can be easily added. Both algorithms are implemented in scalar, data-parallel SIMD/SSE on a single core, and multi-core. Both run up to
+the memory bandwidth limit.
 
 ## Binary Search
 Generic implementation of the binary search algorithm, for Array and List containers. Used by the scalar and parallel divide-and-conquer
