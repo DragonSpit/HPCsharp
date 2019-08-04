@@ -184,6 +184,8 @@ namespace HPCsharp.Algorithms
         /// Will not throw overflow exception.
         /// </summary>
         /// <param name="arrayToSum">An array to sum up</param>
+        /// <param name="startIndex">index of the starting element for the summation</param>
+        /// <param name="length">number of array elements to sum up</param>
         /// <returns>decimal sum</returns>
         public static decimal SumToDecimalFaster(this ulong[] arrayToSum, int startIndex, int length)
         {
@@ -237,6 +239,8 @@ namespace HPCsharp.Algorithms
         /// Will not throw overflow exception.
         /// </summary>
         /// <param name="arrayToSum">An array to sum up</param>
+        /// <param name="startIndex">index of the starting element for the summation</param>
+        /// <param name="length">number of array elements to sum up</param>
         /// <returns>BigInteger sum</returns>
         public static BigInteger SumToBigIntegerFaster(this ulong[] arrayToSum, int startIndex, int length)
         {
@@ -364,7 +368,6 @@ namespace HPCsharp.Algorithms
             }
             return overallSum + longSum;
         }
-
         /// <summary>
         /// Faster, perfectly accurate summation of long[] array, which uses a BigInteger accumulator for perfect accuracy,
         /// and integer summations for higher performance, detecting overflow condition without exceptions.
@@ -374,9 +377,24 @@ namespace HPCsharp.Algorithms
         /// <returns>BigInteger sum</returns>
         public static decimal SumToDecimalFaster(this long[] arrayToSum)
         {
+            return arrayToSum.SumToDecimalFaster(0, arrayToSum.Length);
+        }
+
+        /// <summary>
+        /// Faster, perfectly accurate summation of long[] array, which uses a BigInteger accumulator for perfect accuracy,
+        /// and integer summations for higher performance, detecting overflow condition without exceptions.
+        /// Will not throw overflow exception.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <param name="startIndex">index of the starting element for the summation</param>
+        /// <param name="length">number of array elements to sum up</param>
+        /// <returns>BigInteger sum</returns>
+        public static decimal SumToDecimalFaster(this long[] arrayToSum, int startIndex, int length)
+        {
+            int endIndex = startIndex + length;
             decimal overallSum = 0;
             long longSum = 0;
-            for (int i = 0; i < arrayToSum.Length; i++)
+            for (int i = startIndex; i < endIndex; i++)
             {
                 if (longSum >= 0)
                 {
