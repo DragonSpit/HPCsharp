@@ -703,9 +703,7 @@ namespace HPCsharp.ParallelAlgorithms
                 var inVectorLtZeroMask   = Vector.OnesComplement(inVectorGteZeroMask);
                 var sumVectorLtZeroMask  = Vector.OnesComplement(sumVectorGteZeroMask);
 
-                // Create mutually exclusive masks for the four possible cases
-
-                // Optimize paths which don't overflow or underflow
+                // Optimize performance of paths which don't overflow or underflow, assuming that's the common case
                 // if (inVector >= 0 && sumVector < 0)
                 var inGteZeroAndSumLtZeroMask = Vector.BitwiseAnd(inVectorGteZeroMask, sumVectorLtZeroMask);
                 // if (inVector < 0 && sumVector >= 0)
