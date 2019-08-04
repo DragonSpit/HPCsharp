@@ -37,8 +37,6 @@ namespace HPCSharp.UnitTests
         [TestCase(1)]
         public void ShouldNotThrowOverflowExceptionLong(int whichTestCase)
         {
-            long[] arrLong = new long[] { 5, 7, 16, 3, Int64.MaxValue, 1 };
-
             if (whichTestCase == 1)
             {
                 // This test demonstrates that SSE doesn't throw overflow exception
@@ -84,21 +82,29 @@ namespace HPCSharp.UnitTests
         }
         [Test]
         [TestCase(0)]
+        [TestCase(1)]
         public void ShouldThrowOverflowExceptionLongSse(int whichTestCase)
         {
+            // Throw an exception in SIMD/SSE code
             if (whichTestCase == 0)
             {
-                long[] arrLong = new long[] { Int64.MaxValue, 5, 7, 16, 4, 2, 8, 3, 1 };
+                // Throw an exception in SIMD/SSE code
+                long[] arrLong = new long[] { Int64.MaxValue, 5, 7, 16, 4, 2, 8, 3 };
                 Assert.Throws<OverflowException>(() => arrLong.SumCheckedSse());
-                arrLong = new long[] { 5, Int64.MaxValue, 7, 16, 4, 2, 8, 3, 1 };
+                arrLong = new long[] { 5, Int64.MaxValue, 7, 16, 4, 2, 8, 3 };
                 Assert.Throws<OverflowException>(() => arrLong.SumCheckedSse());
-                arrLong = new long[] { 5, 7, Int64.MaxValue, 16, 4, 2, 8, 3, 1 };
+                arrLong = new long[] { 5, 7, Int64.MaxValue, 16, 4, 2, 8, 3};
                 Assert.Throws<OverflowException>(() => arrLong.SumCheckedSse());
-                arrLong = new long[] { 5, 7, 16, Int64.MaxValue, 4, 2, 8, 3, 1 };
+                arrLong = new long[] { 5, 7, 16, Int64.MaxValue, 4, 2, 8, 3 };
                 Assert.Throws<OverflowException>(() => arrLong.SumCheckedSse());
-
-                //arrLong = new long[] { Int64.MaxValue, 4, 0, 0, 0, 0, 0 };
-                //Assert.DoesNotThrow(() => arrLong.SumCheckedSse());
+            }
+            else if (whichTestCase == 1)
+            {
+                // Throw exception in scalar code following SIMD/SSE code
+                long[] arrLong = new long[] { 5, 7, 16, 4, 2, 8, 3, 1, Int64.MaxValue, 1 };
+                Assert.Throws<OverflowException>(() => arrLong.SumCheckedSse());
+                arrLong = new long[] { 5, 7, 16, 0, 2, 8, 3, Int64.MaxValue, 1 };
+                Assert.Throws<OverflowException>(() => arrLong.SumCheckedSse());
             }
         }
         [Test]
