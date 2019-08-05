@@ -61,17 +61,26 @@ namespace HPCsharpExamples
             decimal sumDecimal;
             BigInteger sumBigInteger;
 
-            //sumLong = arrLong.Sum();                  // standard C# usage, single-core, will throw overflow exception
-            //sumLong = arrLong.AsParallel().Sum();     // standard C# usage, multi-core,  will throw overflow exception
+            //sumLong = arrLong.Sum();                  // standard C# usage,   single-core, throws an overflow exception
+            //sumLong = arrLong.AsParallel().Sum();     // standard C# usage,    multi-core, throws an overflow exception
+            //sumLong = arrLong.SumCheckedSse();        // data parallel (SSE), single-core, throws an overflow exception
 
             // No overflow exception thrown by HPCsharp .Sum(), producing a perfectly accurate sum
-            sumDecimal = arrLong.SumToDecimal();     // serial
-            sumDecimal = arrLong.SumToDecimal();     // data-parallel, single-core (many times faster)
-            sumDecimal = arrLong.SumToDecimalPar();  // data-parallel,  multi-core (even faster)
+            sumDecimal = arrLong.SumToDecimal();               // scalar, single-core
+            sumDecimal = arrLong.SumToDecimalPar();            // scalar,  multi-core
+
+            sumDecimal = arrLong.SumToDecimalFast();           // scalar, single-core, faster when a few overflow exceptions occur
+            sumDecimal = arrLong.SumToDecimalFaster();         // scalar, single-core, much faster when lots of overflows can occur
+            sumDecimal = arrLong.SumToDecimalSseFaster();      // data parallel (SSE), single-core, much faster when lots of overflows can occur
+            sumDecimal = arrLong.SumToDecimalFasterPar();      // scalar,               multi-core, much faster when lots of overflows can occur
+            sumDecimal = arrLong.SumToDecimalSseFasterPar();   // data parallel (SSE),  multi-core, much faster when lots of overflows can occur
 
             // No overflow exception thrown by HPCsharp .Sum(), producing a perfectly accurate sum
-            sumBigInteger = arrLong.SumToBigIntegerFast();     // serial
-            sumBigInteger = arrLong.SumToBigIntegerFaster();   // serial single-core (much faster when lots of overflows occur)
+            sumBigInteger = arrLong.SumToBigIntegerFast();           // scalar, single-core
+            sumBigInteger = arrLong.SumToBigIntegerFaster();         // scalar, single-core (much faster when lots of overflows can occur)
+            sumBigInteger = arrLong.SumToBigIntegerSseFaster();      // data parallel (SSE), single-core, much faster when lots of overflows can occur
+            sumBigInteger = arrLong.SumToBigIntegerFasterPar();      // scalar,               multi-core, much faster when lots of overflows can occur
+            sumBigInteger = arrLong.SumToBigIntegerSseFasterPar();   // data parallel (SSE),  multi-core, much faster when lots of overflows can occur
 
 
             float[] arrFloat = new float[] { 5.0f, 7.3f, 16.3f, 3.1f };
@@ -97,6 +106,32 @@ namespace HPCsharpExamples
             Console.WriteLine("Sum Kahan                    = {0}, correct answer is 2.0", sumDoubleKahan);
             Console.WriteLine("Sum Kahan (SSE)              = {0}, correct answer is 2.0", sumDoubleKahanSse);
             Console.WriteLine("Sum Kahan (SSE & multi-core) = {0}, correct answer is 2.0", sumDoubleKahanSse);
+
+
+            ulong[] arrUlong = new ulong[] { 5, 7, 16, 3, UInt64.MaxValue, 1 };
+            long sumUlong;
+
+            //sumULong = arrUlong.Sum();                  // standard C# usage,   single-core, throws an overflow exception
+            //sumUlong = arrUlong.AsParallel().Sum();     // standard C# usage,    multi-core, throws an overflow exception
+            //sumUlong = arrLong.SumCheckedSse();         // data parallel (SSE), single-core, throws an overflow exception
+
+            // No overflow exception thrown by HPCsharp .Sum(), producing a perfectly accurate sum
+            sumDecimal = arrUlong.SumToDecimal();       // scalar, single-core
+            sumDecimal = arrUlong.SumToDecimalPar();    // scalar,  multi-core
+
+            // No overflow exception thrown by HPCsharp .Sum(), producing a perfectly accurate sum
+            sumDecimal = arrUlong.SumToDecimalFast();           // scalar, single-core, faster when a few overflow exceptions occur
+            sumDecimal = arrUlong.SumToDecimalFaster();         // scalar, single-core, much faster when lots of overflows can occur
+            sumDecimal = arrUlong.SumToDecimalSseFaster();      // data parallel (SSE), single-core, much faster when lots of overflows can occur
+            sumDecimal = arrUlong.SumToDecimalFasterPar();      // scalar,               multi-core, much faster when lots of overflows can occur
+            sumDecimal = arrUlong.SumToDecimalSseFasterPar();   // data parallel (SSE),  multi-core, much faster when lots of overflows can occur
+
+            // No overflow exception thrown by HPCsharp .Sum(), producing a perfectly accurate sum
+            sumBigInteger = arrUlong.SumToBigIntegerFast();           // scalar, single-core
+            sumBigInteger = arrUlong.SumToBigIntegerFaster();         // scalar, single-core (much faster when lots of overflows can occur)
+            //sumBigInteger = arrUlong.SumToBigIntegerSseFaster();      // data parallel (SSE), single-core, much faster when lots of overflows can occur
+            //sumBigInteger = arrUlong.SumToBigIntegerFasterPar();      // scalar,               multi-core, much faster when lots of overflows can occur
+            //sumBigInteger = arrUlong.SumToBigIntegerSseFasterPar();   // data parallel (SSE),  multi-core, much faster when lots of overflows can occur
         }
     }
 }
