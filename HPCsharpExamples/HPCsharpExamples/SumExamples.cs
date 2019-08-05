@@ -129,9 +129,9 @@ namespace HPCsharpExamples
             // No overflow exception thrown by HPCsharp .Sum(), producing a perfectly accurate sum
             sumBigInteger = arrUlong.SumToBigIntegerFast();           // scalar, single-core
             sumBigInteger = arrUlong.SumToBigIntegerFaster();         // scalar, single-core (much faster when lots of overflows can occur)
-            //sumBigInteger = arrUlong.SumToBigIntegerSseFaster();      // data parallel (SSE), single-core, much faster when lots of overflows can occur
-            //sumBigInteger = arrUlong.SumToBigIntegerFasterPar();      // scalar,               multi-core, much faster when lots of overflows can occur
-            //sumBigInteger = arrUlong.SumToBigIntegerSseFasterPar();   // data parallel (SSE),  multi-core, much faster when lots of overflows can occur
+            sumBigInteger = arrUlong.SumToBigIntegerSseFaster();      // data parallel (SSE), single-core, much faster when lots of overflows can occur
+            sumBigInteger = arrUlong.SumToBigIntegerFasterPar();      // scalar,               multi-core, much faster when lots of overflows can occur
+            sumBigInteger = arrUlong.SumToBigIntegerSseFasterPar();   // data parallel (SSE),  multi-core, much faster when lots of overflows can occur
         }
     }
 }

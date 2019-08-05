@@ -2140,6 +2140,48 @@ namespace HPCsharp.ParallelAlgorithms
             return sumLeft + sumRight;
         }
 
+        private static BigInteger SumToBigIntegerFasterParInner(this long[] arrayToSum, int l, int r, int thresholdParallel = 16 * 1024)
+        {
+            BigInteger sumLeft = 0;
+
+            if (l > r)
+                return sumLeft;
+            if ((r - l + 1) <= thresholdParallel)
+                return Algorithms.Sum.SumToBigIntegerFaster(arrayToSum, l, r - l + 1);
+
+            int m = (r + l) / 2;
+
+            BigInteger sumRight = 0;
+
+            Parallel.Invoke(
+                () => { sumLeft  = SumToBigIntegerFasterParInner(arrayToSum, l,     m, thresholdParallel); },
+                () => { sumRight = SumToBigIntegerFasterParInner(arrayToSum, m + 1, r, thresholdParallel); }
+            );
+            // Combine left and right results
+            return sumLeft + sumRight;
+        }
+
+        private static BigInteger SumToBigIntegerSseFasterParInner(this long[] arrayToSum, int l, int r, int thresholdParallel = 16 * 1024)
+        {
+            BigInteger sumLeft = 0;
+
+            if (l > r)
+                return sumLeft;
+            if ((r - l + 1) <= thresholdParallel)
+                return ParallelAlgorithms.Sum.SumToBigIntegerSseFasterInner(arrayToSum, l, r - l + 1);
+
+            int m = (r + l) / 2;
+
+            BigInteger sumRight = 0;
+
+            Parallel.Invoke(
+                () => { sumLeft  = SumToBigIntegerSseFasterParInner(arrayToSum, l,     m, thresholdParallel); },
+                () => { sumRight = SumToBigIntegerSseFasterParInner(arrayToSum, m + 1, r, thresholdParallel); }
+            );
+            // Combine left and right results
+            return sumLeft + sumRight;
+        }
+
         private static decimal SumParInner(this ulong[] arrayToSum, int l, int r, int thresholdParallel = 16 * 1024)
         {
             decimal sumLeft = 0;
@@ -2462,6 +2504,58 @@ namespace HPCsharp.ParallelAlgorithms
         public static decimal SumToDecimalSseFasterPar(this long[] arrayToSum, int startIndex, int length, int thresholdParallel = 16 * 1024)
         {
             return arrayToSum.SumToDecimalSseFasterParInner(startIndex, startIndex + length - 1, thresholdParallel);
+        }
+
+        /// <summary>
+        /// Summation of long[] array, using multiple cores, for higher performance within each core.
+        /// Uses a long accumulator for faster performance while detecting overflow without exceptions and returning a BigInteger for perfect accuracy.
+        /// Will not trow an overflow exception.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>BigInteger sum</returns>
+        public static BigInteger SumToBigIntegerFasterPar(this long[] arrayToSum, int thresholdParallel = 16 * 1024)
+        {
+            return arrayToSum.SumToBigIntegerFasterParInner(0, arrayToSum.Length - 1, thresholdParallel);
+        }
+
+        /// <summary>
+        /// Summation of long[] array, using multiple cores, for higher performance within each core.
+        /// Uses a long accumulator for faster performance while detecting overflow without exceptions and returning a BigInteger for perfect accuracy.
+        /// Will not trow an overflow exception.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <param name="startIndex">index of the starting element for the summation</param>
+        /// <param name="length">number of array elements to sum up</param>
+        /// <returns>decimal sum</returns>
+        public static BigInteger SumToBigIntegerFasterPar(this long[] arrayToSum, int startIndex, int length, int thresholdParallel = 16 * 1024)
+        {
+            return arrayToSum.SumToBigIntegerFasterParInner(startIndex, startIndex + length - 1, thresholdParallel);
+        }
+
+        /// <summary>
+        /// Summation of long[] array, using multiple cores, and using data parallel SIMD/SSE instructions on each core, for higher performance within each core.
+        /// Uses a long accumulator for faster performance while detecting overflow without exceptions and returning a BigInteger for perfect accuracy.
+        /// Will not trow an overflow exception.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>BigInteger sum</returns>
+        public static BigInteger SumToBigIntegerSseFasterPar(this long[] arrayToSum, int thresholdParallel = 16 * 1024)
+        {
+            return arrayToSum.SumToBigIntegerSseFasterParInner(0, arrayToSum.Length - 1, thresholdParallel);
+        }
+
+        /// <summary>
+        /// Summation of long[] array, using multiple cores, and using data parallel SIMD/SSE instructions on each core, for higher performance within each core.
+        /// Uses a long accumulator for faster performance while detecting overflow without exceptions and returning a BigInteger for perfect accuracy.
+        /// Will not trow an overflow exception.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <param name="startIndex">index of the starting element for the summation</param>
+        /// <param name="length">number of array elements to sum up</param>
+        /// <returns>BigInteger sum</returns>
+        public static BigInteger SumToBigIntegerSseFasterPar(this long[] arrayToSum, int startIndex, int length, int thresholdParallel = 16 * 1024)
+        {
+            return arrayToSum.SumToBigIntegerSseFasterParInner(startIndex, startIndex + length - 1, thresholdParallel);
         }
 
         /// <summary>
