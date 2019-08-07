@@ -1169,7 +1169,7 @@ namespace HPCsharp.ParallelAlgorithms
             for (i = 0; i < overallSumVector.Length; i++)
                 overallSumVector[i] = 0;
 
-            for (i = l; i < sseIndexEnd; i += Vector<long>.Count)
+            for (i = l; i < sseIndexEnd; i += Vector<ulong>.Count)
             {
                 var inVector = new Vector<ulong>(arrayToSum, i);
                 newSumVector = sumVector + inVector;
@@ -1185,13 +1185,16 @@ namespace HPCsharp.ParallelAlgorithms
                             overallSumVector[j] += inVector[ j];
                         }
                     }
+                    sumVector = Vector.BitwiseAnd(sumVector, gteMask);
                 }
             }
             decimal overallSum = 0;
-            for (i = 0; i < overallSumVector.Length; i++)
-                overallSum += overallSumVector[i];
             for (; i <= r; i++)
                 overallSum += arrayToSum[i];
+            for (i = 0; i < overallSumVector.Length; i++)
+                overallSum += overallSumVector[i];
+            for (i = 0; i < Vector<ulong>.Count; i++)
+                overallSum += sumVector[i];
             return overallSum;
         }
 
