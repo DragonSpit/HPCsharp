@@ -774,7 +774,7 @@ namespace HPCsharp.ParallelAlgorithms
             var newSumVector  = new Vector<long>();
             var zeroVector    = new Vector<long>(0);
             var allOnesVector = new Vector<long>(-1L);
-            int sseIndexEnd = l + ((r - l + 1) / Vector<ulong>.Count) * Vector<ulong>.Count;
+            int sseIndexEnd = l + ((r - l + 1) / Vector<long>.Count) * Vector<long>.Count;
             int i;
             for (i = 0; i < overallSumVector.Length; i++)
                 overallSumVector[i] = 0;
@@ -839,10 +839,12 @@ namespace HPCsharp.ParallelAlgorithms
             }
 
             decimal overallSum = 0;
-            for (i = 0; i < overallSumVector.Length; i++)
-                overallSum += overallSumVector[i];
             for (; i <= r; i++)
                 overallSum += arrayToSum[i];
+            for (i = 0; i < Vector<long>.Count; i++)
+                overallSum += sumVector[i];
+            for (i = 0; i < overallSumVector.Length; i++)
+                overallSum += overallSumVector[i];
             return overallSum;
         }
 
@@ -2190,7 +2192,7 @@ namespace HPCsharp.ParallelAlgorithms
             if (l > r)
                 return sumLeft;
             if ((r - l + 1) <= thresholdParallel)
-                return ParallelAlgorithms.Sum.SumToDecimalSseFasterInner(arrayToSum, l, r - l + 1);
+                return ParallelAlgorithms.Sum.SumToDecimalSseFasterInner(arrayToSum, l, r);
 
             int m = (r + l) / 2;
 
