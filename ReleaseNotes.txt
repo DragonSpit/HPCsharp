@@ -1,3 +1,6 @@
+Version 3.5.3
+Fixed bug in ulong[] Sum to BigInteger and to Decimal SSE Faster algorithm, found with extensive randomized testing. Simplified implementation of both algorithms.
+
 Version 3.5.2
 Implemented ulong[] Sum to decimal using ulong accumulator and detecting overflow without using exceptions in scalar, SSE and multi-core.
 Implemented ulong[] Sum to BigIntger with same features as above. Both of these run near memory bandwidth speeds, and way faster than Linq Sum.
