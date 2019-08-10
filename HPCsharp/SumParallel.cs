@@ -58,6 +58,7 @@
 //       no overflow even when checked for SSE instructions.
 // TODO: Suggest to Intel/AMD how to improve SSE instructions to make them better for addition, such as like multiplication, put the carry bits in another result, or produce a bigger result. The overflow bit seems like a really
 //       outdated and inefficient way of computing. We can do better.
+// TODO: For ulong[] Sum to Decimal and BigInteger, we should be able to use a single sumAccumulator instead of an array of them, and accumulate when overflow is detected to that single accumulator.
 
 using System.Collections.Generic;
 using System.Text;
@@ -1176,7 +1177,6 @@ namespace HPCsharp.ParallelAlgorithms
                 var inVector = new Vector<ulong>(arrayToSum, i);
                 newSumVector = sumVector + inVector;
                 Vector<ulong> gteMask = Vector.GreaterThanOrEqual(newSumVector, sumVector);         // if true then 0xFFFFFFFFFFFFFFFFL else 0L at each element of the Vector<long> 
-                sumVector = Vector.ConditionalSelect(gteMask, newSumVector, zeroVector);
                 if (Vector.EqualsAny(gteMask, zeroVector))
                 {
                     for(int j = 0; j < Vector<ulong>.Count; j++)
@@ -1187,8 +1187,8 @@ namespace HPCsharp.ParallelAlgorithms
                             overallSumVector[j] += inVector[ j];
                         }
                     }
-                    sumVector = Vector.BitwiseAnd(sumVector, gteMask);
                 }
+                sumVector = Vector.ConditionalSelect(gteMask, newSumVector, zeroVector);
             }
             decimal overallSum = 0;
             for (; i <= r; i++)
@@ -1240,7 +1240,6 @@ namespace HPCsharp.ParallelAlgorithms
                 var inVector = new Vector<ulong>(arrayToSum, i);
                 newSumVector = sumVector + inVector;
                 Vector<ulong> gteMask = Vector.GreaterThanOrEqual(newSumVector, sumVector);         // if true then 0xFFFFFFFFFFFFFFFFL else 0L at each element of the Vector<long> 
-                sumVector = Vector.ConditionalSelect(gteMask, newSumVector, zeroVector);
                 if (Vector.EqualsAny(gteMask, zeroVector))
                 {
                     for (int j = 0; j < Vector<ulong>.Count; j++)
@@ -1251,8 +1250,8 @@ namespace HPCsharp.ParallelAlgorithms
                             overallSumVector[j] += inVector[j];
                         }
                     }
-                    sumVector = Vector.BitwiseAnd(sumVector, gteMask);
                 }
+                sumVector = Vector.ConditionalSelect(gteMask, newSumVector, zeroVector);
             }
             BigInteger overallSum = 0;
             for (; i <= r; i++)
