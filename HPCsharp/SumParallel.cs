@@ -58,7 +58,6 @@
 //       no overflow even when checked for SSE instructions.
 // TODO: Suggest to Intel/AMD how to improve SSE instructions to make them better for addition, such as like multiplication, put the carry bits in another result, or produce a bigger result. The overflow bit seems like a really
 //       outdated and inefficient way of computing. We can do better.
-// TODO: For ulong[] Sum to Decimal and BigInteger, we should be able to use a single sumAccumulator instead of an array of them, and accumulate when overflow is detected to that single accumulator.
 
 using System.Collections.Generic;
 using System.Text;
@@ -1163,14 +1162,12 @@ namespace HPCsharp.ParallelAlgorithms
 
         private static decimal SumToDecimalSseFasterInner(this ulong[] arrayToSum, int l, int r)
         {
-            var overallSumVector = new decimal[Vector<ulong>.Count];
-            var sumVector     = new Vector<ulong>();
-            var newSumVector  = new Vector<ulong>();
-            var zeroVector    = new Vector<ulong>(0);
+            decimal overallSum = 0;
+            var sumVector    = new Vector<ulong>();
+            var newSumVector = new Vector<ulong>();
+            var zeroVector   = new Vector<ulong>(0);
             int sseIndexEnd = l + ((r - l + 1) / Vector<ulong>.Count) * Vector<ulong>.Count;
             int i;
-            for (i = 0; i < overallSumVector.Length; i++)
-                overallSumVector[i] = 0;
 
             for (i = l; i < sseIndexEnd; i += Vector<ulong>.Count)
             {
@@ -1183,18 +1180,15 @@ namespace HPCsharp.ParallelAlgorithms
                     {
                         if (gteMask[j] == 0)    // this particular sum overflowed, since sum decreased
                         {
-                            overallSumVector[j] += sumVector[j];
-                            overallSumVector[j] += inVector[ j];
+                            overallSum += sumVector[j];
+                            overallSum += inVector[ j];
                         }
                     }
                 }
                 sumVector = Vector.ConditionalSelect(gteMask, newSumVector, zeroVector);
             }
-            decimal overallSum = 0;
             for (; i <= r; i++)
                 overallSum += arrayToSum[i];
-            for (i = 0; i < overallSumVector.Length; i++)
-                overallSum += overallSumVector[i];
             for (i = 0; i < Vector<ulong>.Count; i++)
                 overallSum += sumVector[i];
             return overallSum;
@@ -1226,14 +1220,12 @@ namespace HPCsharp.ParallelAlgorithms
 
         private static BigInteger SumToBigIntegerSseFasterInner(this ulong[] arrayToSum, int l, int r)
         {
-            var overallSumVector = new BigInteger[Vector<ulong>.Count];
+            BigInteger overallSum = 0;
             var sumVector    = new Vector<ulong>();
             var newSumVector = new Vector<ulong>();
             var zeroVector   = new Vector<ulong>(0);
             int sseIndexEnd = l + ((r - l + 1) / Vector<ulong>.Count) * Vector<ulong>.Count;
             int i;
-            for (i = 0; i < overallSumVector.Length; i++)
-                overallSumVector[i] = 0;
 
             for (i = l; i < sseIndexEnd; i += Vector<ulong>.Count)
             {
@@ -1246,18 +1238,15 @@ namespace HPCsharp.ParallelAlgorithms
                     {
                         if (gteMask[j] == 0)    // this particular sum overflowed, since sum decreased
                         {
-                            overallSumVector[j] += sumVector[j];
-                            overallSumVector[j] += inVector[j];
+                            overallSum += sumVector[j];
+                            overallSum += inVector[j];
                         }
                     }
                 }
                 sumVector = Vector.ConditionalSelect(gteMask, newSumVector, zeroVector);
             }
-            BigInteger overallSum = 0;
             for (; i <= r; i++)
                 overallSum += arrayToSum[i];
-            for (i = 0; i < overallSumVector.Length; i++)
-                overallSum += overallSumVector[i];
             for (i = 0; i < Vector<ulong>.Count; i++)
                 overallSum += sumVector[i];
             return overallSum;
