@@ -63,6 +63,7 @@ HPCsharp |7.6|8.0|8.0|8.2|5.0|5.3|2.9*|2.8*|5.1|2.9|0.14
 HPCsharp includes long[] and ulong[] summation, which do not throw an overflow exception while producing a perfectly accurate result.
 
 For more details, see blog https://duvanenko.tech.blog/2019/04/23/better-sum-in-c/
+For more details on faster SIMD/SSE overflow checked functions, see blog https://duvanenko.tech.blog/2019/07/20/checked-data-parallel-arithmetic-in-c/
 
 ## Counting Sort
 
