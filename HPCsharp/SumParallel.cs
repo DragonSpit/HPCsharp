@@ -874,80 +874,82 @@ namespace HPCsharp.ParallelAlgorithms
 
         private static BigInteger SumToBigIntegerSseFasterInner(this long[] arrayToSum, int l, int r)
         {
-            var overallSumVector = new BigInteger[Vector<ulong>.Count];
-            var sumVector     = new Vector<long>();
-            var newSumVector  = new Vector<long>();
-            var zeroVector    = new Vector<long>(0);
-            var allOnesVector = new Vector<long>(-1L);
-            int sseIndexEnd = l + ((r - l + 1) / Vector<ulong>.Count) * Vector<ulong>.Count;
+            BigInteger overallSum = 0;
+            var sumVector    = new Vector<long>(0);
+            var newSumVector = new Vector<long>();
+            var zeroVector   = new Vector<long>(0);
+            var tmpVector    = new Vector<long>();
+            var allOnesVector = Vector.OnesComplement(new Vector<long>(0));
+            int sseIndexEnd = l + ((r - l + 1) / Vector<long>.Count) * Vector<long>.Count;
             int i;
-            for (i = 0; i < overallSumVector.Length; i++)
-                overallSumVector[i] = 0;
 
             for (i = l; i < sseIndexEnd; i += Vector<long>.Count)
             {
                 var inVector = new Vector<long>(arrayToSum, i);
-                var inVectorGteZeroMask  = Vector.GreaterThanOrEqual(inVector, zeroVector);   // if true then 0xFFFFFFFFFFFFFFFFL else 0L at each element of the Vector<long> 
-                var sumVectorGteZeroMask = Vector.GreaterThanOrEqual(sumVector, zeroVector);  // if true then 0xFFFFFFFFFFFFFFFFL else 0L at each element of the Vector<long> 
-                var inVectorLtZeroMask  = Vector.OnesComplement(inVectorGteZeroMask);
-                var sumVectorLtZeroMask = Vector.OnesComplement(sumVectorGteZeroMask);
+                var sumVectorPositiveMask = Vector.GreaterThanOrEqual(sumVector, zeroVector);  // if true then 0xFFFFFFFFFFFFFFFFL else 0L at each element of the Vector<long> 
+                var inVectorPositiveMask = Vector.GreaterThanOrEqual(inVector, zeroVector);    // if true then 0xFFFFFFFFFFFFFFFFL else 0L at each element of the Vector<long> 
+                var sumVectorNegativeMask = Vector.OnesComplement(sumVectorPositiveMask);
+                var inVectorNegativeMask = Vector.OnesComplement(inVectorPositiveMask);
 
                 // Optimize performance of paths which don't overflow or underflow, assuming that's the common case
-                // if (inVector >= 0 && sumVector < 0)
-                var inGteZeroAndSumLtZeroMask = Vector.BitwiseAnd(inVectorGteZeroMask, sumVectorLtZeroMask);
-                // if (inVector < 0 && sumVector >= 0)
-                var inLtZeroAndSumGteZeroMask = Vector.BitwiseAnd(inVectorLtZeroMask, sumVectorGteZeroMask);
-                var orMask = Vector.BitwiseOr(inGteZeroAndSumLtZeroMask, inLtZeroAndSumGteZeroMask);
-                if (Vector.EqualsAll(orMask, allOnesVector))
-                {
-                    sumVector += inVector;
-                    continue;
-                }
+                // if (sumVector >= 0 && inVector < 0)
+                var sumPositiveAndInNegativeMask = Vector.BitwiseAnd(sumVectorPositiveMask, inVectorNegativeMask);
+                // if (sumVector < 0 && inVector >= 0)
+                var sumNegativeAndInPositiveMask = Vector.BitwiseAnd(sumVectorNegativeMask, inVectorPositiveMask);
+                var oppositeSignsMask = Vector.BitwiseOr(sumNegativeAndInPositiveMask, sumPositiveAndInNegativeMask);
+
+                sumVector = Vector.ConditionalSelect(oppositeSignsMask, sumVector + inVector, sumVector);
 
                 newSumVector = sumVector + inVector;
 
                 // if (inVector >= 0 && sumVector >= 0)
-                var bothGteZeroMask = Vector.BitwiseAnd(inVectorGteZeroMask, sumVectorGteZeroMask);
+                var bothPositiveMask = Vector.BitwiseAnd(inVectorPositiveMask, sumVectorPositiveMask);
                 // if (inVector < 0 && sumVector < 0)
-                var bothLtZeroMask = Vector.BitwiseAnd(inVectorLtZeroMask, sumVectorLtZeroMask);
+                var bothNegativeMask = Vector.BitwiseAnd(inVectorNegativeMask, sumVectorNegativeMask);
 
                 var newSumLtSumMask = Vector.LessThan(newSumVector, sumVector);
                 var newSumGtSumMask = Vector.GreaterThan(newSumVector, sumVector);
 
-                var comb10Mask = Vector.BitwiseAnd(bothGteZeroMask, newSumLtSumMask);
-                var comb01Mask = Vector.BitwiseAnd(bothLtZeroMask, newSumGtSumMask);
+                var comb10Mask = Vector.BitwiseAnd(bothPositiveMask, newSumLtSumMask);
+                var comb01Mask = Vector.BitwiseAnd(bothNegativeMask, newSumGtSumMask);
 
-                if (Vector.EqualsAny(comb10Mask, allOnesVector))
+                if (Vector.EqualsAny(comb10Mask, allOnesVector))    // overflow occured in one of the vector elements
                 {
                     for (int j = 0; j < Vector<ulong>.Count; j++)
                     {
                         if (comb10Mask[j] == -1L)    // this particular sum overflowed
                         {
-                            overallSumVector[j] += sumVector[j];
-                            overallSumVector[j] += inVector[j];
+                            overallSum += sumVector[j];
+                            overallSum += inVector[j];
                         }
                     }
+                    tmpVector = Vector.ConditionalSelect(newSumLtSumMask, zeroVector, newSumVector);
                 }
-                else if (Vector.EqualsAny(comb01Mask, allOnesVector))
+                else
+                    tmpVector = newSumVector;
+                sumVector = Vector.ConditionalSelect(bothPositiveMask, tmpVector, sumVector);
+
+                if (Vector.EqualsAny(comb01Mask, allOnesVector))    // underflow occured in one of the vector elements
                 {
                     for (int j = 0; j < Vector<ulong>.Count; j++)
                     {
-                        if (comb01Mask[j] == -1L)    // this particular sum overflowed
+                        if (comb01Mask[j] == -1L)    // this particular sum underflowed
                         {
-                            overallSumVector[j] += sumVector[j];
-                            overallSumVector[j] += inVector[j];
+                            overallSum += sumVector[j];
+                            overallSum += inVector[j];
                         }
                     }
+                    tmpVector = Vector.ConditionalSelect(newSumGtSumMask, zeroVector, newSumVector);
                 }
                 else
-                    sumVector = newSumVector;
+                    tmpVector = newSumVector;
+                sumVector = Vector.ConditionalSelect(bothNegativeMask, tmpVector, sumVector);
             }
 
-            BigInteger overallSum = 0;
-            for (i = 0; i < overallSumVector.Length; i++)
-                overallSum += overallSumVector[i];
             for (; i <= r; i++)
                 overallSum += arrayToSum[i];
+            for (i = 0; i < Vector<long>.Count; i++)
+                overallSum += sumVector[i];
             return overallSum;
         }
 
