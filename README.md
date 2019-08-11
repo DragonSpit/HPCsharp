@@ -28,7 +28,7 @@ Priority Queue | 2 | 15 | | | :heavy_check_mark: | |
 [Radix Sort (LSD)](#LSD-Radix-Sort) | 6 | 40 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Numeric arrays, user defined types, Stable
 Radix Sort (MSD) | 4 | 24| :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Numeric arrays, user defined types, In-place
 Sequence Equal | 2 | 19 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | 
-[Sum](#Better-Sum-in-Many-Ways) | 7 | 157 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Numeric arrays. [Better in many ways](https://duvanenko.tech.blog/2019/04/23/better-sum-in-c/)
+[Sum](#Better-Sum-in-Many-Ways) | 7 | 214 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Numeric arrays. [Better in many ways](https://duvanenko.tech.blog/2019/04/23/better-sum-in-c/)
 Swap | 4 | 4 | | | :heavy_check_mark: | | Generic swap variations
 [Zero Array Detect](#Zero-Array-Detect) | 3 | 13 | :heavy_check_mark: | | :heavy_check_mark: | | Detect if byte array is all zeroes
 
@@ -49,7 +49,8 @@ HPCsharp improves .Sum() of numeric arrays in the following ways:
 - Two higher precision floating-point summation options, reducing error from ***O***(eN) downto ***O***(elgN) without reduction
 in performance, and ***O***(e), with slight performance reduction. Implements pairwise and Kahan/Neumaier summation algorithms
 - Implements many algorithms using multi-core and data parallel SIMD/SSE processor instructions
-- Summation of BigInteger array single and multi-core (coming soon)
+- Summation of BigInteger array single and multi-core
+- Fast summation at full accuracy of ulong[] array to Decimal and BigInteger: SIMD/SSE and multi-core
 
 The table below compares performance (in Giga/second) of Linq.AsParallel().Sum() and HPCsharp.SumSsePar().
 
