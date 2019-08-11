@@ -58,6 +58,7 @@
 //       no overflow even when checked for SSE instructions.
 // TODO: Suggest to Intel/AMD how to improve SSE instructions to make them better for addition, such as like multiplication, put the carry bits in another result, or produce a bigger result. The overflow bit seems like a really
 //       outdated and inefficient way of computing. We can do better.
+// TODO: Figure out the bug with "BigInteger += longValue" that Microsoft seems to have, possibly posting to StackOverflow, as it seems to produce wrong result, but "BigInteger = BigInteger + longValue" seems to work fine.
 
 using System.Collections.Generic;
 using System.Text;
@@ -886,10 +887,10 @@ namespace HPCsharp.ParallelAlgorithms
             for (i = l; i < sseIndexEnd; i += Vector<long>.Count)
             {
                 var inVector = new Vector<long>(arrayToSum, i);
-                var sumVectorPositiveMask = Vector.GreaterThanOrEqual(sumVector, zeroVector);  // if true then 0xFFFFFFFFFFFFFFFFL else 0L at each element of the Vector<long> 
-                var inVectorPositiveMask = Vector.GreaterThanOrEqual(inVector, zeroVector);    // if true then 0xFFFFFFFFFFFFFFFFL else 0L at each element of the Vector<long> 
+                var sumVectorPositiveMask = Vector.GreaterThanOrEqual(sumVector, zeroVector);   // if true then 0xFFFFFFFFFFFFFFFFL else 0L at each element of the Vector<long> 
+                var inVectorPositiveMask  = Vector.GreaterThanOrEqual(inVector,  zeroVector);   // if true then 0xFFFFFFFFFFFFFFFFL else 0L at each element of the Vector<long> 
                 var sumVectorNegativeMask = Vector.OnesComplement(sumVectorPositiveMask);
-                var inVectorNegativeMask = Vector.OnesComplement(inVectorPositiveMask);
+                var inVectorNegativeMask  = Vector.OnesComplement(inVectorPositiveMask);
 
                 // Optimize performance of paths which don't overflow or underflow, assuming that's the common case
                 // if (sumVector >= 0 && inVector < 0)
@@ -907,7 +908,7 @@ namespace HPCsharp.ParallelAlgorithms
                 // if (inVector < 0 && sumVector < 0)
                 var bothNegativeMask = Vector.BitwiseAnd(inVectorNegativeMask, sumVectorNegativeMask);
 
-                var newSumLtSumMask = Vector.LessThan(newSumVector, sumVector);
+                var newSumLtSumMask = Vector.LessThan(   newSumVector, sumVector);
                 var newSumGtSumMask = Vector.GreaterThan(newSumVector, sumVector);
 
                 var comb10Mask = Vector.BitwiseAnd(bothPositiveMask, newSumLtSumMask);
@@ -915,12 +916,12 @@ namespace HPCsharp.ParallelAlgorithms
 
                 if (Vector.EqualsAny(comb10Mask, allOnesVector))    // overflow occured in one of the vector elements
                 {
-                    for (int j = 0; j < Vector<ulong>.Count; j++)
+                    for (int j = 0; j < Vector<long>.Count; j++)
                     {
                         if (comb10Mask[j] == -1L)    // this particular sum overflowed
                         {
-                            overallSum += sumVector[j];
-                            overallSum += inVector[j];
+                            overallSum = overallSum + sumVector[j];
+                            overallSum = overallSum + inVector[j];
                         }
                     }
                     tmpVector = Vector.ConditionalSelect(newSumLtSumMask, zeroVector, newSumVector);
@@ -931,12 +932,12 @@ namespace HPCsharp.ParallelAlgorithms
 
                 if (Vector.EqualsAny(comb01Mask, allOnesVector))    // underflow occured in one of the vector elements
                 {
-                    for (int j = 0; j < Vector<ulong>.Count; j++)
+                    for (int j = 0; j < Vector<long>.Count; j++)
                     {
                         if (comb01Mask[j] == -1L)    // this particular sum underflowed
                         {
-                            overallSum += sumVector[j];
-                            overallSum += inVector[j];
+                            overallSum = overallSum + sumVector[j];
+                            overallSum = overallSum + inVector[j];
                         }
                     }
                     tmpVector = Vector.ConditionalSelect(newSumGtSumMask, zeroVector, newSumVector);
@@ -947,9 +948,9 @@ namespace HPCsharp.ParallelAlgorithms
             }
 
             for (; i <= r; i++)
-                overallSum += arrayToSum[i];
+                overallSum = overallSum + arrayToSum[i];
             for (i = 0; i < Vector<long>.Count; i++)
-                overallSum += sumVector[i];
+                overallSum = overallSum + sumVector[i];
             return overallSum;
         }
 

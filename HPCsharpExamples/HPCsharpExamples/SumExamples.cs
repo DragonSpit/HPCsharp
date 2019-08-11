@@ -132,6 +132,10 @@ namespace HPCsharpExamples
             sumBigInteger = arrUlong.SumToBigIntegerSseFaster();      // data parallel (SSE), single-core, much faster when lots of overflows can occur
             sumBigInteger = arrUlong.SumToBigIntegerFasterPar();      // scalar,               multi-core, much faster when lots of overflows can occur
             sumBigInteger = arrUlong.SumToBigIntegerSseFasterPar();   // data parallel (SSE),  multi-core, much faster when lots of overflows can occur
+
+
+            //sumOfGoldenArray = testArrayGolden.Aggregate(sumOfGoldenArray, (current, i) => current + i);
+            //sumOfGoldenArray = testArrayGolden.Sum();                                 // !!! Linq is missing BigInteger.Sum()
         }
     }
 }
