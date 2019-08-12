@@ -358,6 +358,34 @@ namespace HPCsharp.Algorithms
         }
 
         /// <summary>
+        /// Summation of long[] array, which uses a BigInteger accumulator for perfect accuracy.
+        /// Will not throw overflow exception.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>BigInteger sum</returns>
+        public static BigInteger SumToBigInteger(this long[] arrayToSum)
+        {
+            return arrayToSum.SumToBigInteger(0, arrayToSum.Length);
+        }
+
+        /// <summary>
+        /// Summation of long[] array, which uses a BigInteger accumulator for perfect accuracy.
+        /// Will not throw overflow exception.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <param name="startIndex">index of the starting element for the summation</param>
+        /// <param name="length">number of array elements to sum up</param>
+        /// <returns>BigInteger sum</returns>
+        public static BigInteger SumToBigInteger(this long[] arrayToSum, int startIndex, int length)
+        {
+            int endIndex = startIndex + length;
+            BigInteger overallSum = 0;
+            for (int i = startIndex; i < endIndex; i++)
+                overallSum += arrayToSum[i];
+            return overallSum;
+        }
+
+        /// <summary>
         /// Faster, perfectly accurate summation of long[] array, which uses a decimal accumulator for perfect accuracy,
         /// and integer summations for higher performance, handling overflow exceptions internally.
         /// Will not throw overflow exception.

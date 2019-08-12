@@ -2228,7 +2228,7 @@ namespace HPCsharp.ParallelAlgorithms
             if (l > r)
                 return sumLeft;
             if ((r - l + 1) <= thresholdParallel)
-                return ParallelAlgorithms.Sum.SumToBigIntegerSseFasterInner(arrayToSum, l, r - l + 1);
+                return ParallelAlgorithms.Sum.SumToBigIntegerSseFasterInner(arrayToSum, l, r);
 
             int m = (r + l) / 2;
 
