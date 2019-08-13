@@ -13,8 +13,8 @@ similar to standard C# algorithms and Linq. Free, open source, on nuget.org
 [Add](#Add) | 2 | 14 | :heavy_check_mark: |:heavy_check_mark: | :heavy_check_mark: | | Adds two arrays element-wise
 [Binary Search](#Binary-Search) | 1 | 2 | | | :heavy_check_mark: | :heavy_check_mark: | Generic IComparer\<T\>
 [Block Swap](#Block-Swap) | 4 | 5 | | | :heavy_check_mark: | | Generic
-[Parallel Copy](#Parallel-Copy) |  | | | |  | |
-Copy List to Array |  | | | |  | |
+[Parallel Copy](#Parallel-Copy) | 1 | 2 | | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | Generic
+[Copy List to Array](#Parallel-Copy) | 1 | 3 | | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | Generic
 [Counting Sort](#Counting-Sort) | 3 | 14 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | byte, ushort, sbyte, short arrays. Ludicrous speed!
 Divide-And-Conquer\*\*\* | 1 | 2 | | :heavy_check_mark: | :heavy_check_mark: | | Generic scalar and parallel abstraction
 Fill | 4 | 10 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Numeric arrays
@@ -191,7 +191,10 @@ For systems with more memory channels, SSE unrolled multi-core will most likely 
 --- | --- | ---
 Parallel CopyTo|List to Array|1.7X-2.5X faster
 
-Discussion on when it's appropriate to use parallel copy is coming soon...
+Each individual processor core on the latest generation of processors is not able to saturate memory bandwidth. This situation
+is even worse for server processors with higher number of memory channels for higher memory bandwidth.
+HPCsharp provides several generic multi-core copy functions, which run as fast as memory bandwidth allows, for array.
+Copy from list to array is also provided, using multi-core.
 
 ## Naming Conventions
 HPCsharp follows a few simple naming conventions:

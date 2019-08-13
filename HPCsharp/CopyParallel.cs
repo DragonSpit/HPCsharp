@@ -1,6 +1,9 @@
 ﻿// TODO: Optimize parallel copy using our new statistical methods, since these are paying off for sorting and merging.
 // TODO: Take a look at this great post! https://stackoverflow.com/questions/1389821/array-copy-vs-buffer-blockcopy learn and use it all.
 // TODO: and figure out if parallel copy still makes sense and gains performance, and under what conditions: already paged in or not paged in
+// TODO: Seems like CopyTo should return an array for simpler usage, or possibly have this as another function option supported
+// TODO: CopyPar should also support a full array copy without specifying the length as an option to be consistent with List
+// TODO: Using SSE instructions for possible higher bandwidth thru each CPU core is worth experimenting with.
 using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
