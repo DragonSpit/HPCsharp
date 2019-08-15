@@ -191,8 +191,15 @@ For systems with more memory channels, SSE unrolled multi-core will most likely 
 --- | --- | ---
 Parallel CopyTo|List to Array|1.7X-2.5X faster
 
+https://stackoverflow.com/questions/56803987/memory-bandwidth-for-many-channels-x86-systems
+
+The above link shows that on Xeon and desktop processors a single thread is not sufficient to use all of the memory bandwidth. On dual-memory
+channel desktop systems, two threads are necessary to saturate system memory. On Xeon workstation and cloud systems, many-many threads and cores
+are needed. HPCsharp provides this capability with parallel copy.
+
 Each individual processor core on the latest generation of processors is not able to saturate memory bandwidth. This situation
-is even worse for server processors with higher number of memory channels for higher memory bandwidth.
+is even worse for server processors with higher number of cores, multi-socket and latency between sockets, as well as higher number of overall memory channels
+distributed between multiple processor sockets, for higher memory bandwidth.
 HPCsharp provides several generic multi-core copy functions, which run as fast as memory bandwidth allows, for array.
 Copy from list to array is also provided, using multi-core.
 
