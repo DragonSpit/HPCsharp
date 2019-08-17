@@ -1,8 +1,6 @@
 ﻿// TODO: Optimize parallel copy using our new statistical methods, since these are paying off for sorting and merging.
 // TODO: Take a look at this great post! https://stackoverflow.com/questions/1389821/array-copy-vs-buffer-blockcopy learn and use it all.
 // TODO: and figure out if parallel copy still makes sense and gains performance, and under what conditions: already paged in or not paged in
-// TODO: Seems like CopyTo should return an array for simpler usage, or possibly have this as another function option supported
-// TODO: CopyPar should also support a full array copy without specifying the length as an option to be consistent with List
 // TODO: Using SSE instructions for possible higher bandwidth thru each CPU core is worth experimenting with.
 using System;
 using System.Threading.Tasks;
@@ -27,7 +25,8 @@ namespace HPCsharp
         /// </summary>
         public static Int32 CopyParParallelism { get; set; } = 2;
         /// <summary>
-        /// Copy elements from the source array to the destination array
+        /// Copy elements from the source array to the destination array.
+        /// Faster version, especially whenever the destination can be reused several times.
         /// </summary>
         /// <typeparam name="T">data type of each element</typeparam>
         /// <param name="src">source array</param>
@@ -55,6 +54,7 @@ namespace HPCsharp
         }
         /// <summary>
         /// Copy elements from the source array to the destination array
+        /// Faster version, especially whenever the destination can be reused several times.
         /// </summary>
         /// <typeparam name="T">data type of each array element</typeparam>
         /// <param name="src">source array</param>
@@ -63,6 +63,57 @@ namespace HPCsharp
         public static void CopyPar<T>(this T[] src, T[] dst, Int32 length)
         {
             CopyPar<T>(src, 0, dst, 0, length);
+        }
+        /// <summary>
+        /// Copy elements from the source array to the destination array
+        /// Faster version, especially whenever the destination can be reused several times.
+        /// </summary>
+        /// <typeparam name="T">data type of each array element</typeparam>
+        /// <param name="src">source array</param>
+        /// <param name="dst">destination array</param>
+        public static void CopyPar<T>(this T[] src, T[] dst)
+        {
+            CopyPar<T>(src, 0, dst, 0, src.Length);
+        }
+        /// <summary>
+        /// Copy elements from the source array to the destination array.
+        /// Slower than the version with destination array argument, because a new destination array has not yet
+        /// </summary>
+        /// <typeparam name="T">data type of each element</typeparam>
+        /// <param name="src">source array</param>
+        /// <param name="srcStart">source array starting index</param>
+        /// <param name="dstStart">destination array starting index</param>
+        /// <param name="length">number of array elements to copy</param>
+        public static T[] CopyPar<T>(T[] src, Int32 srcStart, Int32 dstStart, Int32 length)
+        {
+            T[] dst = new T[src.Length];
+            CopyPar<T>(src, srcStart, dst, dstStart, length);
+            return dst;
+        }
+        /// <summary>
+        /// Copy elements from the source array to a new array which is returned.
+        /// Slower than the version with destination array argument, because a new destination array has not yet
+        /// been paged in.
+        /// </summary>
+        /// <typeparam name="T">data type of each array element</typeparam>
+        /// <param name="src">source array</param>
+        /// <param name="length">number of array elements to copy</param>
+        public static T[] CopyPar<T>(this T[] src, Int32 length)
+        {
+            T[] dst = new T[src.Length];
+            CopyPar<T>(src, 0, dst, 0, length);
+            return dst;
+        }
+        /// <summary>
+        /// Copy elements from the source array to the destination array
+        /// </summary>
+        /// <typeparam name="T">data type of each array element</typeparam>
+        /// <param name="src">source array</param>
+        public static T[] CopyPar<T>(this T[] src)
+        {
+            T[] dst = new T[src.Length];
+            CopyPar<T>(src, 0, dst, 0, src.Length);
+            return dst;
         }
         /// <summary>
         /// Copy elements from the source List to the destination List
