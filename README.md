@@ -49,8 +49,8 @@ HPCsharp improves .Sum() of numeric arrays in the following ways:
 - Two higher precision floating-point summation options, reducing error from ***O***(eN) downto ***O***(elgN) without reduction
 in performance, and ***O***(e), with slight performance reduction. Implements pairwise and Kahan/Neumaier summation algorithms
 - Implements many algorithms using multi-core and data parallel SIMD/SSE processor instructions
-- Summation of BigInteger array single and multi-core
-- Fast summation at full accuracy of ulong[] array to Decimal and BigInteger: SIMD/SSE and multi-core
+- Summation of BigInteger array: single and multi-core
+- Fast summation at full accuracy of ulong[] array to Decimal and BigInteger: SIMD/SSE, single and multi-core
 
 The table below compares performance (in Giga/second) of Linq.AsParallel().Sum() and HPCsharp.SumSsePar().
 
