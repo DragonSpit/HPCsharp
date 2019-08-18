@@ -208,6 +208,10 @@ Two use cases come into play for copying:
 
 Performance of array copy and parallel array copy is about 2X faster when the destination array has been paged in. One way to page an array in is to re-use it.
 
+Parallel copy functions provide two styles of copying: copy to an existing destination, copy that creates a new destination. In the second case, a new destination array
+is created and then copied from the source. In this case, the destination array, being new, has not been paged in yet, and thus, the performance is lower than if the
+destination array has already existed, and has been used before (and paged in). The second copy style is useful when you need a new array and can't reuse it.
+
 ## Naming Conventions
 HPCsharp follows a few simple naming conventions:
 - SSE functions append "Sse" to the function name
