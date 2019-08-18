@@ -1,7 +1,7 @@
 ﻿// TODO: Optimize parallel copy using our new statistical methods, since these are paying off for sorting and merging.
-// TODO: Take a look at this great post! https://stackoverflow.com/questions/1389821/array-copy-vs-buffer-blockcopy learn and use it all.
-// TODO: and figure out if parallel copy still makes sense and gains performance, and under what conditions: already paged in or not paged in
-// TODO: Using SSE instructions for possible higher bandwidth thru each CPU core is worth experimenting with.
+// TODO: Figure out when parallel copy makes sense and gains performance, and under what conditions: already paged in or not paged in or when reusing dst and src arrays
+// TODO: Using SSE instructions for possible higher bandwidth thru each CPU core is worth experimenting with, to see if it beats Array.Copy
+// TODO: Strengthen argument error checking for each function
 using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -62,6 +62,8 @@ namespace HPCsharp
         /// <param name="length">number of array elements to copy</param>
         public static void CopyPar<T>(this T[] src, T[] dst, Int32 length)
         {
+            if (length > src.Length || length > dst.Length)
+                throw new ArgumentOutOfRangeException();
             CopyPar<T>(src, 0, dst, 0, length);
         }
         /// <summary>
@@ -73,6 +75,8 @@ namespace HPCsharp
         /// <param name="dst">destination array</param>
         public static void CopyPar<T>(this T[] src, T[] dst)
         {
+            if (src.Length > dst.Length)
+                throw new ArgumentOutOfRangeException();
             CopyPar<T>(src, 0, dst, 0, src.Length);
         }
         /// <summary>
@@ -100,6 +104,8 @@ namespace HPCsharp
         /// <param name="length">number of array elements to copy</param>
         public static T[] CopyPar<T>(this T[] src, Int32 length)
         {
+            if (length > src.Length)
+                throw new ArgumentOutOfRangeException();
             T[] dst = new T[src.Length];
             CopyPar<T>(src, 0, dst, 0, length);
             return dst;
@@ -221,6 +227,8 @@ namespace HPCsharp
         /// <param name="length">number of elements to copy</param>
         public static void CopyToPar<T>(this List<T> src, T[] dst, Int32 length)
         {
+            if (length > src.Count || length > dst.Length)
+                throw new ArgumentOutOfRangeException();
             CopyParallelInner<T>(src, 0, dst, 0, length);
         }
         /// <summary>
@@ -231,6 +239,8 @@ namespace HPCsharp
         /// <param name="dst">destination Array</param>
         public static void CopyToPar<T>(this List<T> src, T[] dst)
         {
+            if (src.Count > dst.Length)
+                throw new ArgumentOutOfRangeException();
             CopyParallelInner<T>(src, 0, dst, 0, src.Count);
         }
         /// <summary>
