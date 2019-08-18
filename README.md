@@ -197,7 +197,9 @@ https://stackoverflow.com/questions/56803987/memory-bandwidth-for-many-channels-
 
 The above link shows that on Xeon and desktop processors a single thread is not sufficient to use all of the memory bandwidth. On dual-memory
 channel desktop systems, two threads are necessary to saturate system memory. On Xeon workstation and cloud systems, many-many threads and cores
-are needed. HPCsharp provides a set of multi-core copy functions, which are able to use most of the available memory bandwidth when copying arrays or when copying a List to an array.
+are needed.
+
+HPCsharp provides a set of multi-core copy functions, which are able to use most of the available memory bandwidth when copying arrays or when copying a List to an array.
 These parallel copy functions are generic.
 
 Two use cases come into play for copying:
