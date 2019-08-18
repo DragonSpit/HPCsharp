@@ -13,7 +13,7 @@ similar to standard C# algorithms and Linq. Free, open source, on nuget.org
 [Add](#Add) | 2 | 14 | :heavy_check_mark: |:heavy_check_mark: | :heavy_check_mark: | | Adds two arrays element-wise
 [Binary Search](#Binary-Search) | 1 | 2 | | | :heavy_check_mark: | :heavy_check_mark: | Generic IComparer\<T\>
 [Block Swap](#Block-Swap) | 4 | 5 | | | :heavy_check_mark: | | Generic
-[Parallel Copy](#Parallel-Copy) | 1 | 2 | | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | Generic
+[Parallel Copy](#Parallel-Copy) | 1 | 11 | | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | List.ToArray() and Array.CopyTo() parallel generic
 [Copy List to Array](#Parallel-Copy) | 1 | 3 | | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | Generic
 [Counting Sort](#Counting-Sort) | 3 | 14 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | byte, ushort, sbyte, short arrays. Ludicrous speed!
 Divide-And-Conquer\*\*\* | 1 | 2 | | :heavy_check_mark: | :heavy_check_mark: | | Generic scalar and parallel abstraction
@@ -194,9 +194,9 @@ For systems with more memory channels, SSE unrolled multi-core will most likely 
 ## Parallel Copy
 *Method*|*Copy Function*|*Speedup*|*Paged-in*|*GigaInts/sec*
 --- | --- | --- | --- | ---
-Parallel Copy|Array.Copy() or Array.ToArray()|2.5X| No | 0.9
+Parallel ToArray|List.ToArray()|1.7X-2.5X| No |
+Parallel CopyTo|Array.CopyTo() or Array.ToArray()|2.5X| No | 0.9
 Parallel Copy|Array.Copy() or Array.ToArray()|1.15X| Yes | 2.2
-Parallel CopyTo|List.ToArray()|1.7X-2.5X| No |
 
 https://stackoverflow.com/questions/56803987/memory-bandwidth-for-many-channels-x86-systems
 
