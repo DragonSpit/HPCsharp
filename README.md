@@ -192,11 +192,11 @@ On dual memory channel CPUs, SSE-unrolled is the fastest, using a single core, s
 For systems with more memory channels, SSE unrolled multi-core will most likely have the highest performance.
 
 ## Parallel Copy
-*Method*|*Collection*|*Speedup*|*Paged-in*|*GigaInts/sec*
+*Method*|*Copy Function*|*Speedup*|*Paged-in*|*GigaInts/sec*
 --- | --- | --- | --- | ---
-Parallel Copy|Array to Array|2.5X| No | 0.9
-Parallel Copy|Array to Array|1.15X| Yes | 2.2
-Parallel CopyTo|List to Array|1.7X-2.5X| No |
+Parallel Copy|Array.Copy() or Array.ToArray()|2.5X| No | 0.9
+Parallel Copy|Array.Copy() or Array.ToArray()|1.15X| Yes | 2.2
+Parallel CopyTo|List.ToArray()|1.7X-2.5X| No |
 
 https://stackoverflow.com/questions/56803987/memory-bandwidth-for-many-channels-x86-systems
 
