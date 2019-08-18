@@ -8,7 +8,7 @@
     <Description>High performance, cross-platform C#/.NET algorithms. Sort algorithms: parallel, serial, in-place, stable, O(N) Radix LSD/MSD, Merge. Much improved .Sum(), Histogram, Priority Queue, Merge, Fill, Min/Max, more... Familiar interfaces.</Description>
     <Copyright>© 2018 FooState</Copyright>
     <PackageLicenseUrl>https://github.com/DragonSpit/HPCsharp/blob/master/LICENSE</PackageLicenseUrl>
-    <PackageReleaseNotes>Fixed bug in ulong[] Sum to BigInteger and to Decimal SSE Faster algorithm, found with extensive randomized testing. Simplified implementation of both algorithms.</PackageReleaseNotes>
+    <PackageReleaseNotes>Added long[] checked .Sum() SSE single and multi-core to Decimal and BigInteger which performs well (https://duvanenko.tech.blog/2019/07/20/checked-data-parallel-arithmetic-in-c/). Added more parallel copy functions, and explained benefits and benchmarks in the Readme.</PackageReleaseNotes>
     <PackageId>HPCsharp</PackageId>
     <PackageTags>high perfromance algorithms, C#, high performance, high performance computing, HPC, algorithm, algorithms, Linq, parallel, parallel algorithm</PackageTags>
     <PackageIconUrl>https://foostate.com/images/default_lib_icon_64.png</PackageIconUrl>
