@@ -187,21 +187,24 @@ On dual memory channel CPUs, SSE-unrolled is the fastest, using a single core, s
 For systems with more memory channels, SSE unrolled multi-core will most likely have the highest performance.
 
 ## Parallel Copy
-*Method*|*Collection*|*Parallel*
---- | --- | ---
-Parallel CopyTo|List to Array|1.7X-2.5X faster
+*Method*|*Collection*|*Speedup*|*Paged-in*
+--- | --- | --- | ---
+Parallel Copy|Array to Array|2.5X| No
+Parallel Copy|Array to Array|1.15X| Yes
+Parallel CopyTo|List to Array|1.7X-2.5X| No
 
 https://stackoverflow.com/questions/56803987/memory-bandwidth-for-many-channels-x86-systems
 
 The above link shows that on Xeon and desktop processors a single thread is not sufficient to use all of the memory bandwidth. On dual-memory
 channel desktop systems, two threads are necessary to saturate system memory. On Xeon workstation and cloud systems, many-many threads and cores
-are needed. HPCsharp provides this capability with parallel copy.
+are needed. HPCsharp provides a set of multi-core copy functions, which are able to use most of the available memory bandwidth when copying arrays or when copying a List to an array.
+These parallel copy functions are generic.
 
-Each individual processor core on the latest generation of processors is not able to saturate memory bandwidth. This situation
-is even worse for server processors with higher number of cores, multi-socket and latency between sockets, as well as higher number of overall memory channels
-distributed between multiple processor sockets, for higher memory bandwidth.
-HPCsharp provides several generic multi-core copy functions, which run as fast as memory bandwidth allows, for array.
-Copy from list to array is also provided, using multi-core.
+Two use cases come into play for copying:
+- the destination array has never been used before - i.e. paged in. In this case, parallel copy provides about 15% speedup.
+- the destination array has been used before - i.e. not paged in. In this case, parallel copy provides over 250% speedup = 2.5X speedup.
+
+Performance of array copy and parallel array copy is about 2X faster when the destination array has been paged in. One way to page an array in is to re-use it.
 
 ## Naming Conventions
 HPCsharp follows a few simple naming conventions:
