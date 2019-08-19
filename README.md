@@ -194,28 +194,15 @@ For systems with more memory channels, SSE unrolled multi-core will most likely 
 ## Parallel Copy
 *Method*|*Copy Function*|*Speedup*|*Paged-in*|*GigaInts/sec*
 --- | --- | --- | --- | ---
-Parallel ToArray|List.ToArray()|1.7X-2.5X| No |
+Parallel ToArray|List.ToArray()|2.5X| No | 1.1
+Parallel ToArray|List.ToArray()|1.2X| Yes | 2.4
 Parallel CopyTo|Array.CopyTo() or Array.ToArray()|2.5X| No | 0.9
 Parallel Copy|Array.Copy() or Array.ToArray()|1.15X| Yes | 2.2
-
-https://stackoverflow.com/questions/56803987/memory-bandwidth-for-many-channels-x86-systems
-
-The above link shows that on Xeon and desktop processors a single thread is not sufficient to use all of the memory bandwidth. On dual-memory
-channel desktop systems, two threads are necessary to saturate system memory. On Xeon workstation and cloud systems, many-many threads and cores
-are needed.
 
 HPCsharp provides a set of multi-core copy functions, which are able to use most of the available memory bandwidth when copying arrays or when copying a List to an array.
 These parallel copy functions are generic.
 
-Two use cases come into play for copying:
-- the destination array has never been used before - i.e. paged in. In this case, parallel copy provides about 15% speedup.
-- the destination array has been used before - i.e. not paged in. In this case, parallel copy provides over 250% speedup = 2.5X speedup.
-
-Performance of array copy and parallel array copy is about 2X faster when the destination array has been paged in. One way to page an array in is to re-use it.
-
-Parallel copy functions provide two styles of copying: copy to an existing destination, copy that creates a new destination. In the second case, a new destination array
-is created and then copied from the source. In this case, the destination array, being new, has not been paged in yet, and thus, the performance is lower than if the
-destination array has already existed, and has been used before (and paged in). The second copy style is useful when you need a new array and can't reuse it.
+See this blog for more details https://duvanenko.tech.blog/2019/08/19/faster-copying-in-c/
 
 ## Naming Conventions
 HPCsharp follows a few simple naming conventions:
