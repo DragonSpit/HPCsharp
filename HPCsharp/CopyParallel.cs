@@ -7,6 +7,8 @@
 // TODO: Look for faster copying or ToArray() in stackOverflow https://stackoverflow.com/questions/12380266/how-this-toarray-implementation-more-optimized definitely can answer that question better
 //       by using List.CopyTo() to an array which is C# built-in function, and then point them to HPCsharp for CopyToPar() multi-threaded version.
 // TODO: Is there a native .AsParallel().CopyTo() or native .AsParallel().ToArray() in C#?
+// TODO: Make interfaces exactly the same as C#'s .Copy() and .CopyTo() and .ToInteger(). These have a startIndex
+//       and length, whereas ours don't and need to
 using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
