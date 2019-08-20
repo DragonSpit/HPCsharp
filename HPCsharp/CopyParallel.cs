@@ -41,7 +41,7 @@ namespace HPCsharp
         /// <param name="dst">destination array</param>
         /// <param name="dstStart">destination array starting index</param>
         /// <param name="length">number of array elements to copy</param>
-        public static void CopyPar<T>(T[] src, Int32 srcStart, T[] dst, Int32 dstStart, Int32 length)
+        public static void CopyPar<T>(this T[] src, Int32 srcStart, T[] dst, Int32 dstStart, Int32 length)
         {
             if (length <= 0)      // zero elements to copy
                 return;
@@ -95,7 +95,7 @@ namespace HPCsharp
         /// <param name="srcStart">source array starting index</param>
         /// <param name="dstStart">destination array starting index</param>
         /// <param name="length">number of array elements to copy</param>
-        public static T[] CopyPar<T>(T[] src, Int32 srcStart, Int32 dstStart, Int32 length)
+        public static T[] CopyPar<T>(this T[] src, Int32 srcStart, Int32 dstStart, Int32 length)
         {
             T[] dst = new T[src.Length];
             CopyPar<T>(src, srcStart, dst, dstStart, length);
