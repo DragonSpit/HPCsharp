@@ -1,5 +1,4 @@
-﻿using HPCsharp;
-using HPCsharp.ParallelAlgorithms;
+﻿using HPCsharp.ParallelAlgorithms;
 using System;
 using System.Linq;
 using System.Numerics;
@@ -19,14 +18,14 @@ namespace HPCsharpExamples
             Array.Copy(arraySource, 0, arrayDestination, 0, arraySource.Length);
 
             // HPCsharp parallel (multi-core) Array.Copy() variations. Similar interface
-            Copy.CopyPar(arraySource, arrayDestination, arraySource.Length);
-            Copy.CopyPar(arraySource, 0, arrayDestination, 0, arraySource.Length);
+            ArrayHpc.CopyPar(arraySource, arrayDestination, arraySource.Length);
+            ArrayHpc.CopyPar(arraySource, 0, arrayDestination, 0, arraySource.Length);
 
             // HPCsharp parallel (multi-core) Array.Copy() variations. More modern interface, and more convenient
             arraySource.CopyPar(arrayDestination, arraySource.Length);
             arraySource.CopyPar(0, arrayDestination, 0, arraySource.Length);
 
-            // HPCsharp parallel (multi-core) Array.Copy() variations. More modern interface, and new more convenient interface
+            // HPCsharp parallel (multi-core) Array.Copy() variations. More modern interface, and additional more convenient interfaces
             arraySource.CopyPar(arrayDestination);
             arrayDestination = arraySource.CopyPar();
 
