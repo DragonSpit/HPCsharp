@@ -6,6 +6,7 @@
 // TODO: Test whether Merge is also stable, so that we don't have to resort to DivideAndConquerMerge for stability and give up performance in the process.
 using System;
 using System.Collections.Generic;
+using HPCsharp.ParallelAlgorithms;
 
 namespace HPCsharp
 {

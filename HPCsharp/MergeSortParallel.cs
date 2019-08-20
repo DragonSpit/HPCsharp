@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using HPCsharp.ParallelAlgorithms;
 
 namespace HPCsharp
 {

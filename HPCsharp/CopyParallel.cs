@@ -13,9 +13,9 @@ using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
-namespace HPCsharp
+namespace HPCsharp.ParallelAlgorithms
 {
-    static public partial class ParallelAlgorithm
+    static public partial class Copy
     {
         // Pays off on quad memory channel CPU, where one core may not be able to use all memory bandwidth with a single core
         // Not only do Xeon's have quad-channel memory, but also some high end i7's
