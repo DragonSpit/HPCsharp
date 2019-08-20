@@ -124,5 +124,17 @@ namespace HPCsharp.ParallelAlgorithms
             CopyPar<T>(src, 0, dst, 0, src.Length);
             return dst;
         }
+        /// <summary>
+        /// Copy elements from the source array to the destination array, starting at an index within the destination
+        /// Faster version, especially whenever the destination can be reused several times.
+        /// </summary>
+        /// <typeparam name="T">data type of each array element</typeparam>
+        /// <param name="src">source array</param>
+        /// <param name="dst">destination array</param>
+        /// <param name="startDstIndex">starting index of the destination array</param>
+        public static void CopyToPar<T>(this T[] src, T[] dst, Int32 startDstIndex)
+        {
+            CopyPar<T>(src, 0, dst, startDstIndex, src.Length);
+        }
     }
 }

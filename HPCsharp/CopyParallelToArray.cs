@@ -103,7 +103,7 @@ namespace HPCsharp.ParallelAlgorithms
         /// <param name="dst">destination Array</param>
         /// <param name="dstStart">destination Array starting index</param>
         /// <param name="length">number of Array elements to copy</param>
-        public static void CopyToPar<T>(this List<T> src, Int32 srcStart, T[] dst, Int32 dstStart, Int32 length)
+        public static void ToArrayPar<T>(this List<T> src, Int32 srcStart, T[] dst, Int32 dstStart, Int32 length)
         {
             CopyParallelInner<T>(src, srcStart, dst, dstStart, length);
         }
@@ -114,7 +114,7 @@ namespace HPCsharp.ParallelAlgorithms
         /// <param name="src">source List</param>
         /// <param name="dst">destination Array</param>
         /// <param name="length">number of elements to copy</param>
-        public static void CopyToPar<T>(this List<T> src, T[] dst, Int32 length)
+        public static void ToArrayPar<T>(this List<T> src, T[] dst, Int32 length)
         {
             if (length > src.Count || length > dst.Length)
                 throw new ArgumentOutOfRangeException();
@@ -126,7 +126,7 @@ namespace HPCsharp.ParallelAlgorithms
         /// <typeparam name="T">data type of each element</typeparam>
         /// <param name="src">source List</param>
         /// <param name="dst">destination Array</param>
-        public static void CopyToPar<T>(this List<T> src, T[] dst)
+        public static void ToArrayPar<T>(this List<T> src, T[] dst)
         {
             if (src.Count > dst.Length)
                 throw new ArgumentOutOfRangeException();
