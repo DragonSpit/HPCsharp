@@ -13,7 +13,7 @@ similar to standard C# algorithms and Linq. Free, open source, on nuget.org
 [Add](#Add) | 2 | 14 | :heavy_check_mark: |:heavy_check_mark: | :heavy_check_mark: | | Adds two arrays element-wise
 [Binary Search](#Binary-Search) | 1 | 2 | | | :heavy_check_mark: | :heavy_check_mark: | Generic IComparer\<T\>
 [Block Swap](#Block-Swap) | 4 | 5 | | | :heavy_check_mark: | | Generic
-[Parallel Copy](#Parallel-Copy) | 1 | 11 | | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | List.ToArray() and Array.CopyTo() parallel generic
+[Parallel Copy](#Parallel-Copy) | 1 | 11 | | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | List.ToArray() and Array.Copy() parallel generic
 [Copy List to Array](#Parallel-Copy) | 1 | 3 | | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | Generic
 [Counting Sort](#Counting-Sort) | 3 | 14 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | byte, ushort, sbyte, short arrays. Ludicrous speed!
 Divide-And-Conquer\*\*\* | 1 | 2 | | :heavy_check_mark: | :heavy_check_mark: | | Generic scalar and parallel abstraction
@@ -192,6 +192,14 @@ On dual memory channel CPUs, SSE-unrolled is the fastest, using a single core, s
 For systems with more memory channels, SSE unrolled multi-core will most likely have the highest performance.
 
 ## Parallel Copy
+Converting a List to an Array is a common operation:'
+```
+var listSource = new List<int> { 5, 7, 16, 3 };
+
+int[] arrayDestination1 = listSource.ToArray();	    // C# standard conversion
+int[] arrayDestination2 = listSource.ToArrayPar();  // HPCsharp parallel/multi-core/faster conversion
+```
+
 *Method*|*Copy Function*|*Speedup*|*Paged-in*|*GigaInts/sec*|*Description*
 --- | --- | --- | --- | --- | ---
 Parallel ToArray|List.ToArray()|2.5X|  No | 1.1 | Returns new Array
