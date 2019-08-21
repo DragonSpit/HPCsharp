@@ -205,18 +205,21 @@ int[] arrayDestination2 = listSource.ToArrayPar();  // HPCsharp parallel/multi-c
 Parallel ToArray|List.ToArray()|2.5X|  No | 1.1 | Returns new Array
 Parallel CopyTo |List.CopyTo() |2.5X|  No | 1.1 | Copies to new Array
 Parallel CopyTo |List.CopyTo() |1.2X| Yes | 2.4 | Copies to existing Array
---- | --- | --- | --- | --- | ---
-Parallel Copy  |Array.Copy()  |1.1X | Yes | 2.4 | Copies to existing Array
-Parallel Copy  |Array.Copy()  |2.5X |  No | 1.1 | Copies to new Array
-Parallel CopyTo|Array.CopyTo()|2.5X |  No | 1.1 | Copies to new Array
+-------------- | ------------- | --- | --- | --- | ----------------
+Parallel Copy  |Array.Copy()   |1.1X| Yes | 2.4 | Copies to existing Array
+Parallel Copy  |Array.Copy()   |2.5X|  No | 1.1 | Copies to new Array
+Parallel CopyTo|Array.CopyTo() |2.5X|  No | 1.1 | Copies to new Array
 
-HPCsharp provides parallel (multi-core) versions of List.ToArray() and List.CopyTo() functions, with exactly the same interfaces.
-These parallel versions are 2.5 times faster when the destination is new array - i.e. just allocated and never touched - a common use case.
-These parallel versions are also 10-20% faster when a destination array has been used before and has been paged into system memory.
-These parallel functions are also much faster than Linq Array.AsParallel().ToArray() because .AsParallel() causes .ToArray() to slow down significantly.
+HPCsharp provides parallel (multi-core) versions of List.ToArray(), List.CopyTo(), Array.Copy() and Array.CopyTo() functions,
+with exactly the same interfaces, and extended interfaces.
+These parallel functions are 2.5 times faster when the destination is new array - i.e. just allocated and never touched - a common use case
+shown in source code above.
+These parallel functions are 10-20% faster when a destination array has been used before and has been paged into system memory.
+These parallel functions are also much faster than List.AsParallel().ToArray() because .AsParallel() causes .ToArray() to slow downto
+by several times.
 These parallel copy functions are generic.
 
-See this blog for more details https://duvanenko.tech.blog/2019/08/19/faster-copying-in-c/
+For more details, seee blog https://duvanenko.tech.blog/2019/08/19/faster-copying-in-c/
 
 ## Naming Conventions
 HPCsharp follows a few simple naming conventions:
