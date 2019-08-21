@@ -192,14 +192,20 @@ On dual memory channel CPUs, SSE-unrolled is the fastest, using a single core, s
 For systems with more memory channels, SSE unrolled multi-core will most likely have the highest performance.
 
 ## Parallel Copy
-*Method*|*Copy Function*|*Speedup*|*Paged-in*|*GigaInts/sec*
---- | --- | --- | --- | ---
-Parallel ToArray|List.ToArray()|2.5X| No | 1.1
-Parallel ToArray|List.ToArray()|1.2X| Yes | 2.4
-Parallel CopyTo|Array.CopyTo() or Array.ToArray()|2.5X| No | 0.9
-Parallel Copy|Array.Copy() or Array.ToArray()|1.15X| Yes | 2.2
+*Method*|*Copy Function*|*Speedup*|*Paged-in*|*GigaInts/sec*|*Description*
+--- | --- | --- | --- | --- | ---
+Parallel ToArray|List.ToArray()|2.5X|  No | 1.1 | Returns new Array
+Parallel CopyTo |List.CopyTo() |2.5X|  No | 1.1 | Copies to new Array
+Parallel CopyTo |List.CopyTo() |1.2X| Yes | 2.4 | Copies to existing Array
+--- | --- | --- | --- | --- | ---
+Parallel Copy  |Array.Copy()  |1.1X | Yes | 2.4 | Copies to existing Array
+Parallel Copy  |Array.Copy()  |2.5X |  No | 1.1 | Copies to new Array
+Parallel CopyTo|Array.CopyTo()|2.5X |  No | 1.1 | Copies to new Array
 
-HPCsharp provides a set of multi-core copy functions, which are able to use most of the available memory bandwidth when copying arrays or when copying a List to an array.
+HPCsharp provides parallel (multi-core) versions of List.ToArray() and List.CopyTo() functions, with exactly the same interfaces.
+These parallel versions are 2.5 times faster when the destination is new array - i.e. just allocated and never touched - a common use case.
+These parallel versions are also 10-20% faster when a destination array has been used before and has been paged into system memory.
+These parallel functions are also much faster than Linq Array.AsParallel().ToArray() because .AsParallel() causes .ToArray() to slow down significantly.
 These parallel copy functions are generic.
 
 See this blog for more details https://duvanenko.tech.blog/2019/08/19/faster-copying-in-c/
