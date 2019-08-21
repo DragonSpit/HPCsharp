@@ -71,66 +71,28 @@ namespace HPCsharp.ParallelAlgorithms
         /// <summary>
         /// List smaller than this value will not be copied using a parallel copy
         /// </summary>
-        public static Int32 CopyParallelListToArrayThreshold { get; set; } = 16 * 1024;    // TODO: don't guess, find threshold
+        public static Int32 CopyToArrayParallelListToArrayThreshold { get; set; } = 16 * 1024;    // TODO: don't guess, find threshold
         /// <summary>
         /// Amount of parallelism used for array copy, since most of the time it's not necessary to use all cores to use all of memory bandwidth
         /// </summary>
-        public static Int32 CopyToParParallelism { get; set; } = 2;
-        private static void CopyParallelInner<T>(this List<T> src, Int32 srcStart, T[] dst, Int32 dstStart, Int32 length)
+        public static Int32 CopyToArrayParParallelism { get; set; } = 2;
+        private static void CopyToArrayParallelInner<T>(this List<T> src, Int32 srcStart, T[] dst, Int32 dstStart, Int32 length)
         {
             if (length <= 0)      // zero elements to copy
                 return;
-            if (length < CopyParallelListToArrayThreshold)
+            if (length < CopyToArrayParallelListToArrayThreshold)
             {
                 src.CopyTo(srcStart, dst, dstStart, length);
                 return;
             }
             int lengthFirstHalf  = length / 2;
             int lengthSecondHalf = length - lengthFirstHalf;
-            var options = new ParallelOptions { MaxDegreeOfParallelism = CopyToParParallelism };
+            var options = new ParallelOptions { MaxDegreeOfParallelism = CopyToArrayParParallelism };
             Parallel.Invoke(options,
-                () => { CopyParallelInner<T>(src, srcStart,                   dst, dstStart,                   lengthFirstHalf ); },
-                () => { CopyParallelInner<T>(src, srcStart + lengthFirstHalf, dst, dstStart + lengthFirstHalf, lengthSecondHalf); }
+                () => { CopyToArrayParallelInner<T>(src, srcStart,                   dst, dstStart,                   lengthFirstHalf ); },
+                () => { CopyToArrayParallelInner<T>(src, srcStart + lengthFirstHalf, dst, dstStart + lengthFirstHalf, lengthSecondHalf); }
             );
             return;
-        }
-        /// <summary>
-        /// Copy elements from the source List to the destination Array
-        /// </summary>
-        /// <typeparam name="T">data type of each element</typeparam>
-        /// <param name="src">source List</param>
-        /// <param name="srcStart">source List starting index</param>
-        /// <param name="dst">destination Array</param>
-        /// <param name="dstStart">destination Array starting index</param>
-        /// <param name="length">number of Array elements to copy</param>
-        public static void ToArrayPar<T>(this List<T> src, Int32 srcStart, T[] dst, Int32 dstStart, Int32 length)
-        {
-            CopyParallelInner<T>(src, srcStart, dst, dstStart, length);
-        }
-        /// <summary>
-        /// Copy elements from the source List to the destination Array
-        /// </summary>
-        /// <typeparam name="T">data type of each element</typeparam>
-        /// <param name="src">source List</param>
-        /// <param name="dst">destination Array</param>
-        /// <param name="length">number of elements to copy</param>
-        public static void ToArrayPar<T>(this List<T> src, T[] dst, Int32 length)
-        {
-            if (length > src.Count || length > dst.Length)
-                throw new ArgumentOutOfRangeException();
-            CopyParallelInner<T>(src, 0, dst, 0, length);
-        }
-        /// <summary>
-        /// Copy elements from the source List to the destination Array
-        /// </summary>
-        /// <typeparam name="T">data type of each element</typeparam>
-        /// <param name="src">source List</param>
-        /// <param name="dst">destination Array</param>
-        public static void ToArrayPar<T>(this List<T> src, T[] dst)
-        {
-            if (src.Count > dst.Length)
-                throw new ArgumentOutOfRangeException();
-            CopyParallelInner<T>(src, 0, dst, 0, src.Count);
         }
         /// <summary>
         /// Create a new Array from the source List
@@ -140,7 +102,7 @@ namespace HPCsharp.ParallelAlgorithms
         public static T[] ToArrayPar<T>(this List<T> src)
         {
             T[] dst = new T[src.Count];
-            CopyParallelInner<T>(src, 0, dst, 0, src.Count);
+            CopyToArrayParallelInner<T>(src, 0, dst, 0, src.Count);
             return dst;
         }
         /// <summary>
@@ -153,8 +115,56 @@ namespace HPCsharp.ParallelAlgorithms
         public static T[] ToArrayPar<T>(this List<T> src, Int32 srcStart, Int32 length)
         {
             T[] dst = new T[length];
-            CopyParallelInner<T>(src, srcStart, dst, 0, length);
+            CopyToArrayParallelInner<T>(src, srcStart, dst, 0, length);
             return dst;
+        }
+        /// <summary>
+        /// Copy elements from the source List to the destination Array
+        /// </summary>
+        /// <typeparam name="T">data type of each element</typeparam>
+        /// <param name="src">source List</param>
+        /// <param name="srcStart">source List starting index</param>
+        /// <param name="dstStart">destination Array starting index</param>
+        /// <param name="length">number of Array elements to copy</param>
+        public static T[] ToArrayPar<T>(this List<T> src, Int32 srcStart, Int32 dstStart, Int32 length)
+        {
+            T[] dst = new T[src.Count];
+            CopyToArrayParallelInner<T>(src, srcStart, dst, dstStart, length);
+            return dst;
+        }
+        /// <summary>
+        /// Copy to an existing Array from the source List
+        /// </summary>
+        /// <typeparam name="T">data type of each element</typeparam>
+        /// <param name="src">source List</param>
+        /// <param name="dst">destination array</param>
+        public static void CopyToPar<T>(this List<T> src, T[] dst)
+        {
+            CopyToArrayParallelInner<T>(src, 0, dst, 0, src.Count);
+        }
+        /// <summary>
+        /// Copy to an existing Array from a portion of source List
+        /// </summary>
+        /// <typeparam name="T">data type of each element</typeparam>
+        /// <param name="src">source List</param>
+        /// <param name="dst">destination array</param>
+        /// <param name="dstStart">starting index within dst Array</param>
+        public static void CopyToPar<T>(this List<T> src, T[] dst, Int32 dstStart)
+        {
+            CopyToArrayParallelInner<T>(src, 0, dst, dstStart, src.Count);
+        }
+        /// <summary>
+        /// Copy to an existing Array from a portion of source List
+        /// </summary>
+        /// <typeparam name="T">data type of each element</typeparam>
+        /// <param name="src">source List</param>
+        /// <param name="srcStart">source List starting index</param>
+        /// <param name="dst">destination array</param>
+        /// <param name="dstStart">destination Array starting index</param>
+        /// <param name="length">number of Array elements to copy</param>
+        public static void CopyToPar<T>(this List<T> src, Int32 srcStart, T[] dst, Int32 dstStart, Int32 length)
+        {
+            CopyToArrayParallelInner<T>(src, srcStart, dst, dstStart, length);
         }
     }
 }
