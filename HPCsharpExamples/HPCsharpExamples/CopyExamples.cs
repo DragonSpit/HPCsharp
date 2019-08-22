@@ -8,6 +8,30 @@ namespace HPCsharpExamples
 {
     class CopyExamples
     {
+        public static void ListToArrayCopy()
+        {
+            // HPCsharp parallel List.ToArray() variations
+            var listSource = new List<int> { 5, 7, 16, 3 };
+            int[] arrayDestination = new int[4];
+
+            // C# built-in convert from List to Array
+            arrayDestination = listSource.ToArray();
+
+            // HPCsharp parallel (multi-core) copy from List to Array
+            arrayDestination = listSource.ToArrayPar();
+            arrayDestination = listSource.ToArrayPar(0, listSource.Count);  // additional interface
+
+            // C# built-in copy from List to an existing Array
+            listSource.CopyTo(arrayDestination);
+            listSource.CopyTo(arrayDestination, 0);
+            listSource.CopyTo(0, arrayDestination, 0, listSource.Count);
+
+            // HPCsharp parallel (multi-core) copy from List to an existing Array
+            listSource.CopyToPar(arrayDestination);
+            listSource.CopyToPar(arrayDestination, 0);
+            listSource.CopyToPar(0, arrayDestination, 0, listSource.Count);
+        }
+
         public static void ArrayToArrayCopy()
         {
             int[] arraySource = new int[] { 5, 7, 16, 3 };
@@ -35,30 +59,6 @@ namespace HPCsharpExamples
 
             // HPCsharp parallel (multi-core) Array.CopyTo()
             arraySource.CopyToPar(arrayDestination, 0);
-        }
-
-        public static void ListToArrayCopy()
-        {
-            // HPCsharp parallel List.ToArray() variations
-            var listSource = new List<int> { 5, 7, 16, 3 };
-            int[] arrayDestination = new int[4];
-
-            // C# built-in convert from List to Array
-            arrayDestination = listSource.ToArray();
-
-            // HPCsharp parallel (multi-core) copy from List to Array
-            arrayDestination = listSource.ToArrayPar();
-            arrayDestination = listSource.ToArrayPar(0, listSource.Count);  // additional interface
-
-            // C# built-in copy from List to an existing Array
-            listSource.CopyTo(arrayDestination);
-            listSource.CopyTo(arrayDestination, 0);
-            listSource.CopyTo(0, arrayDestination, 0, listSource.Count);
-
-            // HPCsharp parallel (multi-core) copy from List to an existing Array
-            listSource.CopyToPar(arrayDestination);
-            listSource.CopyToPar(arrayDestination, 0);
-            listSource.CopyToPar(0, arrayDestination, 0, listSource.Count);
         }
     }
 }

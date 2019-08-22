@@ -192,7 +192,7 @@ On dual memory channel CPUs, SSE-unrolled is the fastest, using a single core, s
 For systems with more memory channels, SSE unrolled multi-core will most likely have the highest performance.
 
 ## Parallel Copy
-Converting a List to an Array is a common operation:'
+Converting a List to an Array is a common operation:
 ```
 var listSource = new List<int> { 5, 7, 16, 3 };
 
