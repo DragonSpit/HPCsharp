@@ -9,6 +9,7 @@
 // TODO: Is there a native .AsParallel().CopyTo() or native .AsParallel().ToArray() in C#?
 // TODO: Make interfaces exactly the same as C#'s .Copy() and .CopyTo() and .ToInteger(). These have a startIndex
 //       and length, whereas ours don't and need to
+// TODO: Tune the parallelThreshold value
 using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -20,14 +21,6 @@ namespace HPCsharp.ParallelAlgorithms
         // Pays off on quad memory channel CPU, where one core may not be able to use all memory bandwidth with a single core
         // Not only do Xeon's have quad-channel memory, but also some high end i7's and AMD EPYC and earlier generation AMD desktop Zen CPUs
         /// <summary>
-        /// Array smaller than this value will not be copied using a parallel copy
-        /// </summary>
-        public static Int32 CopyParArrayThreshold { get; set; } = 8 * 1024;
-        /// <summary>
-        /// Amount of parallelism used for array copy, since most of the time it's not necessary to use all cores to use all of memory bandwidth
-        /// </summary>
-        public static Int32 CopyParParallelism { get; set; } = 2;
-        /// <summary>
         /// Copy elements from the source array to the destination array.
         /// Faster version, especially whenever the destination can be reused several times.
         /// </summary>
@@ -37,11 +30,12 @@ namespace HPCsharp.ParallelAlgorithms
         /// <param name="dst">destination array</param>
         /// <param name="dstStart">destination array starting index</param>
         /// <param name="length">number of array elements to copy</param>
-        public static void CopyPar<T>(this T[] src, Int32 srcStart, T[] dst, Int32 dstStart, Int32 length)
+        /// <param name="parallelThreshold">array size larger than this threshold will use multiple cores</param>
+        public static void CopyPar<T>(this T[] src, Int32 srcStart, T[] dst, Int32 dstStart, Int32 length, Int32 parallelThreshold = 8 * 1024)
         {
             if (length <= 0)      // zero elements to copy
                 return;
-            if (length < CopyParArrayThreshold)
+            if (length < parallelThreshold)
             {
                 Array.Copy(src, srcStart, dst, dstStart, length);
                 return;
@@ -50,8 +44,8 @@ namespace HPCsharp.ParallelAlgorithms
             int lengthFirstHalf = length / 2;
             int lengthSecondHalf = length - lengthFirstHalf;
             Parallel.Invoke(
-                () => { CopyPar<T>(src, srcStart,                   dst, dstStart,                   lengthFirstHalf ); },
-                () => { CopyPar<T>(src, srcStart + lengthFirstHalf, dst, dstStart + lengthFirstHalf, lengthSecondHalf); }
+                () => { CopyPar<T>(src, srcStart,                   dst, dstStart,                   lengthFirstHalf,  parallelThreshold); },
+                () => { CopyPar<T>(src, srcStart + lengthFirstHalf, dst, dstStart + lengthFirstHalf, lengthSecondHalf, parallelThreshold); }
             );
             return;
         }
@@ -63,11 +57,12 @@ namespace HPCsharp.ParallelAlgorithms
         /// <param name="src">source array</param>
         /// <param name="dst">destination array</param>
         /// <param name="length">number of array elements to copy</param>
-        public static void CopyPar<T>(this T[] src, T[] dst, Int32 length)
+        /// <param name="parallelThreshold">array size larger than this threshold will use multiple cores</param>
+        public static void CopyPar<T>(this T[] src, T[] dst, Int32 length, Int32 parallelThreshold = 8 * 1024)
         {
             if (length > src.Length || length > dst.Length)
                 throw new ArgumentOutOfRangeException();
-            CopyPar<T>(src, 0, dst, 0, length);
+            CopyPar<T>(src, 0, dst, 0, length, parallelThreshold);
         }
         /// <summary>
         /// Copy elements from the source array to the destination array
@@ -76,11 +71,12 @@ namespace HPCsharp.ParallelAlgorithms
         /// <typeparam name="T">data type of each array element</typeparam>
         /// <param name="src">source array</param>
         /// <param name="dst">destination array</param>
-        public static void CopyPar<T>(this T[] src, T[] dst)
+        /// <param name="parallelThreshold">array size larger than this threshold will use multiple cores</param>
+        public static void CopyPar<T>(this T[] src, T[] dst, Int32 parallelThreshold = 8 * 1024)
         {
             if (src.Length > dst.Length)
                 throw new ArgumentOutOfRangeException();
-            CopyPar<T>(src, 0, dst, 0, src.Length);
+            CopyPar<T>(src, 0, dst, 0, src.Length, parallelThreshold);
         }
         /// <summary>
         /// Copy elements from the source array to the destination array.
@@ -91,10 +87,11 @@ namespace HPCsharp.ParallelAlgorithms
         /// <param name="srcStart">source array starting index</param>
         /// <param name="dstStart">destination array starting index</param>
         /// <param name="length">number of array elements to copy</param>
-        public static T[] CopyPar<T>(this T[] src, Int32 srcStart, Int32 dstStart, Int32 length)
+        /// <param name="parallelThreshold">array size larger than this threshold will use multiple cores</param>
+        public static T[] CopyPar<T>(this T[] src, Int32 srcStart, Int32 dstStart, Int32 length, Int32 parallelThreshold = 8 * 1024)
         {
             T[] dst = new T[src.Length];
-            CopyPar<T>(src, srcStart, dst, dstStart, length);
+            CopyPar<T>(src, srcStart, dst, dstStart, length, parallelThreshold);
             return dst;
         }
         /// <summary>
@@ -105,12 +102,13 @@ namespace HPCsharp.ParallelAlgorithms
         /// <typeparam name="T">data type of each array element</typeparam>
         /// <param name="src">source array</param>
         /// <param name="length">number of array elements to copy</param>
-        public static T[] CopyPar<T>(this T[] src, Int32 length)
+        /// <param name="parallelThreshold">array size larger than this threshold will use multiple cores</param>
+        public static T[] CopyPar<T>(this T[] src, Int32 length, Int32 parallelThreshold = 8 * 1024)
         {
             if (length > src.Length)
                 throw new ArgumentOutOfRangeException();
             T[] dst = new T[src.Length];
-            CopyPar<T>(src, 0, dst, 0, length);
+            CopyPar<T>(src, 0, dst, 0, length, parallelThreshold);
             return dst;
         }
         /// <summary>
@@ -118,10 +116,11 @@ namespace HPCsharp.ParallelAlgorithms
         /// </summary>
         /// <typeparam name="T">data type of each array element</typeparam>
         /// <param name="src">source array</param>
-        public static T[] CopyPar<T>(this T[] src)
+        /// <param name="parallelThreshold">array size larger than this threshold will use multiple cores</param>
+        public static T[] CopyPar<T>(this T[] src, Int32 parallelThreshold = 8 * 1024)
         {
             T[] dst = new T[src.Length];
-            CopyPar<T>(src, 0, dst, 0, src.Length);
+            CopyPar<T>(src, 0, dst, 0, src.Length, parallelThreshold);
             return dst;
         }
         /// <summary>
@@ -132,9 +131,10 @@ namespace HPCsharp.ParallelAlgorithms
         /// <param name="src">source array</param>
         /// <param name="dst">destination array</param>
         /// <param name="startDstIndex">starting index of the destination array</param>
-        public static void CopyToPar<T>(this T[] src, T[] dst, Int32 startDstIndex)
+        /// <param name="parallelThreshold">array size larger than this threshold will use multiple cores</param>
+        public static void CopyToPar<T>(this T[] src, T[] dst, Int32 startDstIndex, Int32 parallelThreshold = 8 * 1024)
         {
-            CopyPar<T>(src, 0, dst, startDstIndex, src.Length);
+            CopyPar<T>(src, 0, dst, startDstIndex, src.Length, parallelThreshold);
         }
     }
 }
