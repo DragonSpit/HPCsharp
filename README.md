@@ -198,6 +198,11 @@ var listSource = new List<int> { 5, 7, 16, 3 };
 
 int[] arrayDestination1 = listSource.ToArray();	    // C# standard conversion
 int[] arrayDestination2 = listSource.ToArrayPar();  // HPCsharp parallel/multi-core/faster conversion
+
+int[] arrayDestination = new int[4];
+
+listSource.CopyTo(arrayDestination);	 // C# standard List to Array copy
+listSource.CopyToPar(arrayDestination);  // HPCsharp parallel/multi-core/faster copy
 ```
 *Method*|*ToArray()*|*ToArray().AsParallel()*|*ToArrayPar()*|*Paged-in*|*Description*
 --- | --- | --- | --- | --- | ---
