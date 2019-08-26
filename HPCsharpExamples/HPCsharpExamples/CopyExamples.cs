@@ -10,11 +10,10 @@ namespace HPCsharpExamples
     {
         public static void ListToArrayCopy()
         {
-            // HPCsharp parallel List.ToArray() variations
             var listSource = new List<int> { 5, 7, 16, 3 };
             int[] arrayDestination = new int[4];
 
-            // C# built-in convert from List to Array
+            // C# built-in convert/copy from List to Array
             arrayDestination = listSource.ToArray();
 
             // HPCsharp parallel (multi-core) copy from List to Array
@@ -37,27 +36,33 @@ namespace HPCsharpExamples
             int[] arraySource = new int[] { 5, 7, 16, 3 };
             int[] arrayDestination = new int[4];
 
-            // C# built-in Array.Copy() variations
+            // C# built-in copy Array to another Array variations
             Array.Copy(arraySource, arrayDestination, arraySource.Length);
             Array.Copy(arraySource, 0, arrayDestination, 0, arraySource.Length);
 
-            // HPCsharp parallel (multi-core) Array.Copy() variations. Similar interface
+            // HPCsharp parallel (multi-core) copy Array to another Array variations. Similar interface
             ArrayHpc.CopyPar(arraySource, arrayDestination, arraySource.Length);
             ArrayHpc.CopyPar(arraySource, 0, arrayDestination, 0, arraySource.Length);
 
-            // HPCsharp parallel (multi-core) Array.Copy() variations. More modern and convenient interface
+            // HPCsharp parallel (multi-core) copy Array to another Array variations. More modern and convenient interface
             arraySource.CopyPar(arrayDestination, arraySource.Length);
             arraySource.CopyPar(0, arrayDestination, 0, arraySource.Length);
 
-            // HPCsharp parallel (multi-core) Array.Copy() variations. Additional convenient interfaces
+            // HPCsharp parallel (multi-core) copy Array to another Array variations. Additional convenient interfaces
             arraySource.CopyPar(arrayDestination);
-            arrayDestination = arraySource.CopyPar();
 
 
-            // C# built-in Array.CopyTo() variations
+            // C# built-in convert/copy Array to new Array
+            arrayDestination = arraySource.ToArray();
+
+            // HPCsharp parallel (multi-core) convert/copy Array to a new Array
+            arrayDestination = arraySource.ToArrayPar();
+
+
+            // C# built-in copy from Array to another Array variation with a starting index
             arraySource.CopyTo(arrayDestination, 0);
 
-            // HPCsharp parallel (multi-core) Array.CopyTo()
+            // HPCsharp parallel (multi-core) copy Array to another Array variation
             arraySource.CopyToPar(arrayDestination, 0);
         }
     }

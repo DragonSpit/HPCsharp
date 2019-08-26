@@ -1,5 +1,7 @@
 ﻿// TODO: Detect and use C# well implemented cases for List, and use our code for the cases where C# does not implement well
 // TODO: Remove usage of global thresholds and move them into function arguments with defaults
+// TODO: Fix the issue with CopyToPar being ambiguous between several versions, probably because of defaults. Maybe use a
+//       tuple instead for all parallelism settings
 using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;

@@ -79,6 +79,19 @@ namespace HPCsharp.ParallelAlgorithms
             CopyPar<T>(src, 0, dst, 0, src.Length, parallelThreshold);
         }
         /// <summary>
+        /// Copy elements from the source array to the destination array, starting at an index within the destination
+        /// Faster version, especially whenever the destination can be reused several times.
+        /// </summary>
+        /// <typeparam name="T">data type of each array element</typeparam>
+        /// <param name="src">source array</param>
+        /// <param name="dst">destination array</param>
+        /// <param name="startDstIndex">starting index of the destination array</param>
+        /// <param name="parallelThreshold">array size larger than this threshold will use multiple cores</param>
+        public static void CopyToPar<T>(this T[] src, T[] dst, Int32 startDstIndex, Int32 parallelThreshold = 8 * 1024)
+        {
+            CopyPar<T>(src, 0, dst, startDstIndex, src.Length, parallelThreshold);
+        }
+        /// <summary>
         /// Copy elements from the source array to the destination array.
         /// Slower than the version with destination array argument, because a new destination array has not yet
         /// </summary>
@@ -88,7 +101,7 @@ namespace HPCsharp.ParallelAlgorithms
         /// <param name="dstStart">destination array starting index</param>
         /// <param name="length">number of array elements to copy</param>
         /// <param name="parallelThreshold">array size larger than this threshold will use multiple cores</param>
-        public static T[] CopyPar<T>(this T[] src, Int32 srcStart, Int32 dstStart, Int32 length, Int32 parallelThreshold = 8 * 1024)
+        public static T[] ToArrayPar<T>(this T[] src, Int32 srcStart, Int32 dstStart, Int32 length, Int32 parallelThreshold = 8 * 1024)
         {
             T[] dst = new T[src.Length];
             CopyPar<T>(src, srcStart, dst, dstStart, length, parallelThreshold);
@@ -103,7 +116,7 @@ namespace HPCsharp.ParallelAlgorithms
         /// <param name="src">source array</param>
         /// <param name="length">number of array elements to copy</param>
         /// <param name="parallelThreshold">array size larger than this threshold will use multiple cores</param>
-        public static T[] CopyPar<T>(this T[] src, Int32 length, Int32 parallelThreshold = 8 * 1024)
+        public static T[] ToArrayPar<T>(this T[] src, Int32 length, Int32 parallelThreshold = 8 * 1024)
         {
             if (length > src.Length)
                 throw new ArgumentOutOfRangeException();
@@ -117,24 +130,11 @@ namespace HPCsharp.ParallelAlgorithms
         /// <typeparam name="T">data type of each array element</typeparam>
         /// <param name="src">source array</param>
         /// <param name="parallelThreshold">array size larger than this threshold will use multiple cores</param>
-        public static T[] CopyPar<T>(this T[] src, Int32 parallelThreshold = 8 * 1024)
+        public static T[] ToArrayPar<T>(this T[] src, Int32 parallelThreshold = 8 * 1024)
         {
             T[] dst = new T[src.Length];
             CopyPar<T>(src, 0, dst, 0, src.Length, parallelThreshold);
             return dst;
-        }
-        /// <summary>
-        /// Copy elements from the source array to the destination array, starting at an index within the destination
-        /// Faster version, especially whenever the destination can be reused several times.
-        /// </summary>
-        /// <typeparam name="T">data type of each array element</typeparam>
-        /// <param name="src">source array</param>
-        /// <param name="dst">destination array</param>
-        /// <param name="startDstIndex">starting index of the destination array</param>
-        /// <param name="parallelThreshold">array size larger than this threshold will use multiple cores</param>
-        public static void CopyToPar<T>(this T[] src, T[] dst, Int32 startDstIndex, Int32 parallelThreshold = 8 * 1024)
-        {
-            CopyPar<T>(src, 0, dst, startDstIndex, src.Length, parallelThreshold);
         }
     }
 }
