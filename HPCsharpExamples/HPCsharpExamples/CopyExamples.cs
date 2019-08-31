@@ -36,6 +36,13 @@ namespace HPCsharpExamples
             int[] arraySource = new int[] { 5, 7, 16, 3 };
             int[] arrayDestination = new int[4];
 
+            // C# built-in convert/copy Array to new Array
+            arrayDestination = arraySource.ToArray();
+
+            // HPCsharp parallel (multi-core) convert/copy Array to a new Array
+            arrayDestination = arraySource.ToArrayPar();
+
+
             // C# built-in copy Array to another Array variations
             Array.Copy(arraySource, arrayDestination, arraySource.Length);
             Array.Copy(arraySource, 0, arrayDestination, 0, arraySource.Length);
@@ -50,13 +57,6 @@ namespace HPCsharpExamples
 
             // HPCsharp parallel (multi-core) copy Array to another Array variations. Additional convenient interfaces
             arraySource.CopyPar(arrayDestination);
-
-
-            // C# built-in convert/copy Array to new Array
-            arrayDestination = arraySource.ToArray();
-
-            // HPCsharp parallel (multi-core) convert/copy Array to a new Array
-            arrayDestination = arraySource.ToArrayPar();
 
 
             // C# built-in copy from Array to another Array variation with a starting index

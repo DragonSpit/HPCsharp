@@ -1,7 +1,5 @@
 ﻿// TODO: Detect and use C# well implemented cases for List, and use our code for the cases where C# does not implement well
-// TODO: Remove usage of global thresholds and move them into function arguments with defaults
-// TODO: Fix the issue with CopyToPar being ambiguous between several versions, probably because of defaults. Maybe use a
-//       tuple instead for all parallelism settings
+// TODO: Strengthen argument value and combinations error checking
 using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -58,11 +56,11 @@ namespace HPCsharp.ParallelAlgorithms
             }
         }
 #endif
-        public static Int32 degreeOfParallelism { get; set; } = 2;
-        private static void CopyToArrayParallelInner<T>(this List<T> src, Int32 srcStart, T[] dst, Int32 dstStart, Int32 length, Int32 parallelThreshold = 16 * 1024, Int32 degreeOfParallelism = 2)
+        private static void CopyToArrayParallelInner<T>(this List<T> src, Int32 srcStart, T[] dst, Int32 dstStart, Int32 length, (Int32 parallelThreshold, Int32 degreeOfParallelism)? parSettings = null)
         {
             if (length <= 0)      // zero elements to copy
                 return;
+            (Int32 parallelThreshold, Int32 degreeOfParallelism) = parSettings ?? (16 * 1024, 2);      // default values for parallelThreshold and degreeOfParallelism
             if (length < parallelThreshold)
             {
                 src.CopyTo(srcStart, dst, dstStart, length);
@@ -72,8 +70,8 @@ namespace HPCsharp.ParallelAlgorithms
             int lengthSecondHalf = length - lengthFirstHalf;
             var options = new ParallelOptions { MaxDegreeOfParallelism = degreeOfParallelism };
             Parallel.Invoke(options,
-                () => { CopyToArrayParallelInner<T>(src, srcStart,                   dst, dstStart,                   lengthFirstHalf,  parallelThreshold, degreeOfParallelism); },
-                () => { CopyToArrayParallelInner<T>(src, srcStart + lengthFirstHalf, dst, dstStart + lengthFirstHalf, lengthSecondHalf, parallelThreshold, degreeOfParallelism); }
+                () => { CopyToArrayParallelInner<T>(src, srcStart,                   dst, dstStart,                   lengthFirstHalf,  (parallelThreshold, degreeOfParallelism)); },
+                () => { CopyToArrayParallelInner<T>(src, srcStart + lengthFirstHalf, dst, dstStart + lengthFirstHalf, lengthSecondHalf, (parallelThreshold, degreeOfParallelism)); }
             );
             return;
         }
@@ -82,12 +80,12 @@ namespace HPCsharp.ParallelAlgorithms
         /// </summary>
         /// <typeparam name="T">data type of each element</typeparam>
         /// <param name="src">source List</param>
-        /// <param name="parallelThreshold">array size larger than this threshold will use multiple cores</param>
-        /// <param name="degreeOfParallelism">maximum number of CPU cores that will be used</param>
-        public static T[] ToArrayPar<T>(this List<T> src, Int32 parallelThreshold = 16 * 1024, Int32 degreeOfParallelism = 2)
+        /// <param name="parSettings">parallelThreshold = array size larger than this threshold will use multiple cores; degreeOfParallelism = maximum number of CPU cores that will be used</param>
+        public static T[] ToArrayPar<T>(this List<T> src, (Int32 parallelThreshold, Int32 degreeOfParallelism)? parSettings = null)
         {
+            (Int32 parallelThreshold, Int32 degreeOfParallelism) = parSettings ?? (16 * 1024, 2);      // default values for parallelThreshold and degreeOfParallelism
             T[] dst = new T[src.Count];
-            CopyToArrayParallelInner<T>(src, 0, dst, 0, src.Count, parallelThreshold, degreeOfParallelism);
+            CopyToArrayParallelInner<T>(src, 0, dst, 0, src.Count, (parallelThreshold, degreeOfParallelism));
             return dst;
         }
         /// <summary>
@@ -97,12 +95,12 @@ namespace HPCsharp.ParallelAlgorithms
         /// <param name="src">source List</param>
         /// <param name="srcStart">starting index within src List</param>
         /// <param name="length">number of elements to be copied</param>
-        /// <param name="parallelThreshold">array size larger than this threshold will use multiple cores</param>
-        /// <param name="degreeOfParallelism">maximum number of CPU cores that will be used</param>
-        public static T[] ToArrayPar<T>(this List<T> src, Int32 srcStart, Int32 length, Int32 parallelThreshold = 16 * 1024, Int32 degreeOfParallelism = 2)
+        /// <param name="parSettings">parallelThreshold = array size larger than this threshold will use multiple cores; degreeOfParallelism = maximum number of CPU cores that will be used</param>
+        public static T[] ToArrayPar<T>(this List<T> src, Int32 srcStart, Int32 length, (Int32 parallelThreshold, Int32 degreeOfParallelism)? parSettings = null )
         {
+            (Int32 parallelThreshold, Int32 degreeOfParallelism) = parSettings ?? (16 * 1024, 2);      // default values for parallelThreshold and degreeOfParallelism
             T[] dst = new T[length];
-            CopyToArrayParallelInner<T>(src, srcStart, dst, 0, length, parallelThreshold, degreeOfParallelism);
+            CopyToArrayParallelInner<T>(src, srcStart, dst, 0, length, (parallelThreshold, degreeOfParallelism));
             return dst;
         }
         /// <summary>
@@ -113,12 +111,12 @@ namespace HPCsharp.ParallelAlgorithms
         /// <param name="srcStart">source List starting index</param>
         /// <param name="dstStart">destination Array starting index</param>
         /// <param name="length">number of Array elements to copy</param>
-        /// <param name="parallelThreshold">array size larger than this threshold will use multiple cores</param>
-        /// <param name="degreeOfParallelism">maximum number of CPU cores that will be used</param>
-        public static T[] ToArrayPar<T>(this List<T> src, Int32 srcStart, Int32 dstStart, Int32 length, Int32 parallelThreshold = 16 * 1024, Int32 degreeOfParallelism = 2)
+        /// <param name="parSettings">parallelThreshold = array size larger than this threshold will use multiple cores; degreeOfParallelism = maximum number of CPU cores that will be used</param>
+        public static T[] ToArrayPar<T>(this List<T> src, Int32 srcStart, Int32 dstStart, Int32 length, (Int32 parallelThreshold, Int32 degreeOfParallelism)? parSettings = null)
         {
+            (Int32 parallelThreshold, Int32 degreeOfParallelism) = parSettings ?? (16 * 1024, 2);      // default values for parallelThreshold and degreeOfParallelism
             T[] dst = new T[src.Count];
-            CopyToArrayParallelInner<T>(src, srcStart, dst, dstStart, length, parallelThreshold, degreeOfParallelism);
+            CopyToArrayParallelInner<T>(src, srcStart, dst, dstStart, length, (parallelThreshold, degreeOfParallelism));
             return dst;
         }
         /// <summary>
@@ -127,11 +125,11 @@ namespace HPCsharp.ParallelAlgorithms
         /// <typeparam name="T">data type of each element</typeparam>
         /// <param name="src">source List</param>
         /// <param name="dst">destination array</param>
-        /// <param name="parallelThreshold">array size larger than this threshold will use multiple cores</param>
-        /// <param name="degreeOfParallelism">maximum number of CPU cores that will be used</param>
-        public static void CopyToPar<T>(this List<T> src, T[] dst, Int32 parallelThreshold = 16 * 1024, Int32 degreeOfParallelism = 2)
+        /// <param name="parSettings">parallelThreshold = array size larger than this threshold will use multiple cores; degreeOfParallelism = maximum number of CPU cores that will be used</param>
+        public static void CopyToPar<T>(this List<T> src, T[] dst, (Int32 parallelThreshold, Int32 degreeOfParallelism)? parSettings = null)
         {
-            CopyToArrayParallelInner<T>(src, 0, dst, 0, src.Count, parallelThreshold, degreeOfParallelism);
+            (Int32 parallelThreshold, Int32 degreeOfParallelism) = parSettings ?? (16 * 1024, 2);      // default values for parallelThreshold and degreeOfParallelism
+            CopyToArrayParallelInner<T>(src, 0, dst, 0, src.Count, (parallelThreshold, degreeOfParallelism));
         }
         /// <summary>
         /// Copy to an existing Array from a portion of source List
@@ -140,11 +138,11 @@ namespace HPCsharp.ParallelAlgorithms
         /// <param name="src">source List</param>
         /// <param name="dst">destination array</param>
         /// <param name="dstStart">starting index within dst Array</param>
-        /// <param name="parallelThreshold">array size larger than this threshold will use multiple cores</param>
-        /// <param name="degreeOfParallelism">maximum number of CPU cores that will be used</param>
-        public static void CopyToPar<T>(this List<T> src, T[] dst, Int32 dstStart, Int32 parallelThreshold = 16 * 1024, Int32 degreeOfParallelism = 2)
+        /// <param name="parSettings">parallelThreshold = array size larger than this threshold will use multiple cores; degreeOfParallelism = maximum number of CPU cores that will be used</param>
+        public static void CopyToPar<T>(this List<T> src, T[] dst, Int32 dstStart, (Int32 parallelThreshold, Int32 degreeOfParallelism)? parSettings = null)
         {
-            CopyToArrayParallelInner<T>(src, 0, dst, dstStart, src.Count, parallelThreshold, degreeOfParallelism);
+            (Int32 parallelThreshold, Int32 degreeOfParallelism) = parSettings ?? (16 * 1024, 2);      // default values for parallelThreshold and degreeOfParallelism
+            CopyToArrayParallelInner<T>(src, 0, dst, dstStart, src.Count, (parallelThreshold, degreeOfParallelism));
         }
         /// <summary>
         /// Copy to an existing Array from a portion of source List
@@ -155,11 +153,11 @@ namespace HPCsharp.ParallelAlgorithms
         /// <param name="dst">destination array</param>
         /// <param name="dstStart">destination Array starting index</param>
         /// <param name="length">number of Array elements to copy</param>
-        /// <param name="parallelThreshold">array size larger than this threshold will use multiple cores</param>
-        /// <param name="degreeOfParallelism">maximum number of CPU cores that will be used</param>
-        public static void CopyToPar<T>(this List<T> src, Int32 srcStart, T[] dst, Int32 dstStart, Int32 length, Int32 parallelThreshold = 16 * 1024, Int32 degreeOfParallelism = 2)
+        /// <param name="parSettings">parallelThreshold = array size larger than this threshold will use multiple cores; degreeOfParallelism = maximum number of CPU cores that will be used</param>
+        public static void CopyToPar<T>(this List<T> src, Int32 srcStart, T[] dst, Int32 dstStart, Int32 length, (Int32 parallelThreshold, Int32 degreeOfParallelism)? parSettings = null)
         {
-            CopyToArrayParallelInner<T>(src, srcStart, dst, dstStart, length, parallelThreshold, degreeOfParallelism);
+            (Int32 parallelThreshold, Int32 degreeOfParallelism) = parSettings ?? (16 * 1024, 2);      // default values for parallelThreshold and degreeOfParallelism
+            CopyToArrayParallelInner<T>(src, srcStart, dst, dstStart, length, (parallelThreshold, degreeOfParallelism));
         }
     }
 }
