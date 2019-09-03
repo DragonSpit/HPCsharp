@@ -198,9 +198,11 @@ var listSource = new List<int> { 5, 7, 16, 3 };
 int[] arrayDestination1 = listSource.ToArray();	    // C# standard conversion
 int[] arrayDestination2 = listSource.ToArrayPar();  // HPCsharp parallel/multi-core/faster conversion
 ```
+The following table shows GigaInt/sec performance of copy functions:
 *Method*|*ToArray()*|*ToArray().AsParallel()*|*ToArrayPar()*|*Paged-in*|*Description*
 --- | --- | --- | --- | --- | ---
 Parallel ToArray|0.4|0.09|1.2|  No | Returns new Array
+
 ```
 var listSource = new List<int> { 5, 7, 16, 3 };
 int[] arrayDestination = new int[4];
@@ -208,6 +210,7 @@ int[] arrayDestination = new int[4];
 listSource.CopyTo(arrayDestination);	 // C# standard List to Array copy
 listSource.CopyToPar(arrayDestination);  // HPCsharp parallel/multi-core/faster copy
 ```
+The following table shows GigaInt/sec performance of copy functions:
 *Method*|*CopyTo()*|*CopyTo().AsParallel()*|*CopyToPar()*|*Paged-in*|*Description*
 --- | --- | --- | --- | --- | ---
 Parallel CopyTo|0.4| |1.3|  No | Copies to new Array
