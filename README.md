@@ -197,11 +197,6 @@ var listSource = new List<int> { 5, 7, 16, 3 };
 
 int[] arrayDestination1 = listSource.ToArray();	    // C# standard conversion
 int[] arrayDestination2 = listSource.ToArrayPar();  // HPCsharp parallel/multi-core/faster conversion
-
-int[] arrayDestination = new int[4];
-
-listSource.CopyTo(arrayDestination);	 // C# standard List to Array copy
-listSource.CopyToPar(arrayDestination);  // HPCsharp parallel/multi-core/faster copy
 ```
 *Method*|*ToArray()*|*ToArray().AsParallel()*|*ToArrayPar()*|*Paged-in*|*Description*
 --- | --- | --- | --- | --- | ---
@@ -217,18 +212,6 @@ listSource.CopyToPar(arrayDestination);  // HPCsharp parallel/multi-core/faster 
 --- | --- | --- | --- | ---
 Parallel CopyTo|0.4|1.3|  No | Copies to new Array
 Parallel CopyTo|2.4|2.9| Yes | Copies to existing Array
-```
-int[] arraySource = new int[] { 5, 7, 16, 3 };
-int[] arrayDestination = new int[4];
-
-Array.Copy(arraySource, arrayDestination, arraySource.Length);	      // C# standard array copy
-ArrayHpc.CopyPar(arraySource, arrayDestination, arraySource.Length);  // HPCsharp parallel/multi-core/faster copy
-```
-*Method*|*CopyTo()*|*CopyToPar()*|*Paged-in*|*Description*
---- | --- | --- | --- | ---
-Parallel Copy  | | | Yes | Copies to existing Array
-Parallel Copy  | | |  No | Copies to new Array
-Parallel CopyTo| | |  No | Copies to new Array
 
 HPCsharp provides parallel (multi-core) versions of List.ToArray(), List.CopyTo(), Array.Copy() and Array.CopyTo() functions,
 with exactly the same interfaces, and extended interfaces.
