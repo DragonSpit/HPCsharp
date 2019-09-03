@@ -10,6 +10,7 @@
 // TODO: Make interfaces exactly the same as C#'s .Copy() and .CopyTo() and .ToInteger(). These have a startIndex
 //       and length, whereas ours don't and need to
 // TODO: Tune the parallelThreshold value
+// TODO: Answer https://stackoverflow.com/questions/5099604/any-faster-way-of-copying-arrays-in-c?noredirect=1&lq=1
 using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
