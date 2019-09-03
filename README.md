@@ -208,19 +208,17 @@ int[] arrayDestination = new int[4];
 listSource.CopyTo(arrayDestination);	 // C# standard List to Array copy
 listSource.CopyToPar(arrayDestination);  // HPCsharp parallel/multi-core/faster copy
 ```
-*Method*|*CopyTo()*|*CopyToPar()*|*Paged-in*|*Description*
---- | --- | --- | --- | ---
-Parallel CopyTo|0.4|1.3|  No | Copies to new Array
-Parallel CopyTo|2.4|2.9| Yes | Copies to existing Array
+*Method*|*CopyTo()*|*CopyTo().AsParallel()*|*CopyToPar()*|*Paged-in*|*Description*
+--- | --- | --- | --- | --- | ---
+Parallel CopyTo|0.4| |1.3|  No | Copies to new Array
+Parallel CopyTo|2.4| |2.9| Yes | Copies to existing Array
 
-HPCsharp provides parallel (multi-core) versions of List.ToArray(), List.CopyTo(), Array.Copy() and Array.CopyTo() functions,
-with exactly the same interfaces, and extended interfaces.
-These parallel functions are 2.5 times faster when the destination is new array - i.e. just allocated and never touched - a common use case
-shown in source code above.
-These parallel functions are 10-20% faster when a destination array has been used before and has been paged into system memory.
-These parallel functions are also much faster than List.AsParallel().ToArray() because .AsParallel() causes .ToArray() to slow downto
-by several times.
-These parallel copy functions are generic.
+HPCsharp provides parallel (multi-core) versions of List.ToArray() and List.CopyTo() functions,
+with exactly the same interfaces. Parallel Array.ToArray() and Array.CopyTo() are also available.
+These parallel functions are 3 times faster when the destination is new array - i.e. allocated but never touched - a common use case
+shown in the first source code case above.
+When a destination array has been used before and has been paged into system memory, these parallel functions are 10-20% faster.
+These parallel copy functions provide a generic interface, handling any data type.
 
 For more details, seee blog https://duvanenko.tech.blog/2019/08/19/faster-copying-in-c/
 
