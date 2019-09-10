@@ -12,6 +12,8 @@
 // TODO: Tune the parallelThreshold value
 // TODO: An interesting case to optimize https://stackoverflow.com/questions/17571621/copying-a-list-to-a-new-list-more-efficient-best-practice
 //       How about List.ToArrayPar() and then create a new List out of that array
+// TODO: Answer https://stackoverflow.com/questions/5099604/any-faster-way-of-copying-arrays-in-c?noredirect=1&lq=1
+
 using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;

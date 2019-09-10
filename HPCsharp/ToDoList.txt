@@ -1,4 +1,6 @@
-﻿// TODO: Write a blog about the loss of performance when using SIMD/SSE with several nested if statements, because of the need to execute all of the branches on all of the SIMD data items.
+﻿// TODO: Write a blog about the need to reduce system memory latency: to not leave algorithms behind, to raise performance
+// TODO: Write a blog about the need to improve random access time to system memory, as a way to raise performance (not just cache random accesss time)
+// TODO: Write a blog about the loss of performance when using SIMD/SSE with several nested if statements, because of the need to execute all of the branches on all of the SIMD data items.
 // TODO: Implement DotProduct of two arrays, and SSE kernels/atoms, which can be composed. Kernel/Atom may be way more useful than
 //       dot product of a large array. But, a general SSE dot-product of any length would be useful, even if they are small arrays.
 // TODO: Add SoftMax algorithm used by Machine Learning: https://stackoverflow.com/questions/42599498/numercially-stable-softmax
