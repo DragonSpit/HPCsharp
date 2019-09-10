@@ -32,6 +32,8 @@
 // TODO: It seems that Linq doesn't include a BigInteger.Sum() implementation. Add this to HPCsharp and improve the answer of https://stackoverflow.com/questions/41515299/how-to-calculate-the-sum-of-an-int-array-whose-result-exceeds-int32-max-value/41515465
 // TODO: It may be possible to consolidate some of the .Sum() functions by adding a generic abstraction on top of groups of .Sum()'s using "where T : struct" construct followed by checking if the type is certain ones that are supported, otherwise
 //       throw an error
+// TODO: Contribute to https://stackoverflow.com/questions/891217/how-expensive-are-exceptions-in-c as I measured exception
+//       at 8.4 microseconds each or about 120 Thousand/second
 using System.Collections.Generic;
 using System.Text;
 using System.Numerics;

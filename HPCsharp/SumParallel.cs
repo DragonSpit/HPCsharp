@@ -59,6 +59,7 @@
 // TODO: Suggest to Intel/AMD how to improve SSE instructions to make them better for addition, such as like multiplication, put the carry bits in another result, or produce a bigger result. The overflow bit seems like a really
 //       outdated and inefficient way of computing. We can do better.
 // TODO: Figure out the bug with "BigInteger += longValue" that Microsoft seems to have, possibly posting to StackOverflow, as it seems to produce wrong result, but "BigInteger = BigInteger + longValue" seems to work fine.
+// TODO: Implement checked SSE subtraction, which is a bit less useful, but completes checked Addition/Subtraction coverage
 
 using System.Collections.Generic;
 using System.Text;
