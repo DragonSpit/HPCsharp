@@ -63,6 +63,7 @@ The table below compares performance (in Giga/second) of Linq.AsParallel().Sum()
 --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ---
 Linq | n/a | n/a | n/a | n/a |0.9\*|n/a|0.9\*|n/a|0.9|0.9|0.12|0.011\*\*
 HPCsharp |7.6|8.0|8.0|8.2|5.0|5.3|2.9\*|2.8\*|5.1|2.9|0.14|0.036
+
 \* overflow exception is possible
 \*\* Linq doesn't implement BigInteger.Sum(), used .Aggregate() instead, which doesn't speed-up with .AsParallel()
 
