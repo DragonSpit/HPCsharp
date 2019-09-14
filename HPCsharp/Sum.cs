@@ -36,6 +36,9 @@
 //       at 8.4 microseconds each or about 120 Thousand/second
 // TODO: It may be possible to create larger arrays in C#, but it's unusual https://stackoverflow.com/questions/30895549/cant-create-huge-arrays
 //       It would be cool to write a blog about it and to benchmark it to compare performance.
+// TODO: One way to speed-up the worst case of ulong[] and long[] summation is to create a custom 128-bit data type, which
+//       would be used during all of the summation, handling overflow detection and extending summation to 128-bit integer
+//       This may possibly be faster than using Decimal.
 using System.Collections.Generic;
 using System.Text;
 using System.Numerics;
