@@ -57,7 +57,8 @@ in performance, and ***O***(e), with slight performance reduction. Implements pa
 - Faster summation at full accuracy of ulong[] array to Decimal and BigInteger: SIMD/SSE, single and multi-core. Uses checked
 SIMD/SSE addition (HPCsharp development) in C# for much higher performance
 
-The table below compares performance (in Giga/second) of Linq.AsParallel().Sum() and HPCsharp.SumSsePar().
+The table below compares performance (in Giga/second) of Linq.AsParallel().Sum() and HPCsharp.SumSsePar() - both use multi-core, with
+HPCsharp also using SIMD/SSE data parallel instructions on each core to gain additional performance:
 
 *Library*|*sbyte*|*byte*|*short*|*ushort*|*int*|*uint*|*long*|*ulong*|*float*|*double*|*decimal*|*BigInteger*
 --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ---
@@ -67,7 +68,7 @@ HPCsharp |7.6|8.0|8.0|8.2|5.0|5.3|2.9\*|2.8\*|5.1|2.9|0.14|0.036
 \* overflow exception is possible\
 \*\* Linq doesn't implement BigInteger.Sum(), used .Aggregate() instead, which doesn't speed-up with .AsParallel()
 
-HPCsharp includes long[] and ulong[] summation, which do not throw an overflow exception while producing a perfectly accurate result.
+All integer summations (unsigned and signed) including long[] and ulong[] arrays, do not throw overflow exceptions, while producing a perfectly accurate result.
 
 For more details, see several blogs on various aspects:
 - [Better C# .Sum() in Many Ways](https://duvanenko.tech.blog/2019/04/23/better-sum-in-c/ "Better C# .Sum() in Many Ways")
