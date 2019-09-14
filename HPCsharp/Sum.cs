@@ -34,6 +34,8 @@
 //       throw an error
 // TODO: Contribute to https://stackoverflow.com/questions/891217/how-expensive-are-exceptions-in-c as I measured exception
 //       at 8.4 microseconds each or about 120 Thousand/second
+// TODO: It may be possible to create larger arrays in C#, but it's unusual https://stackoverflow.com/questions/30895549/cant-create-huge-arrays
+//       It would be cool to write a blog about it and to benchmark it to compare performance.
 using System.Collections.Generic;
 using System.Text;
 using System.Numerics;
