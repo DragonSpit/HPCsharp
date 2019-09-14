@@ -39,6 +39,7 @@
 // TODO: One way to speed-up the worst case of ulong[] and long[] summation is to create a custom 128-bit data type, which
 //       would be used during all of the summation, handling overflow detection and extending summation to 128-bit integer
 //       This may possibly be faster than using Decimal.
+// TODO: Continue discussion in https://github.com/dotnet/corefx/issues/17147 for support of 128-bit native integers in C#
 using System.Collections.Generic;
 using System.Text;
 using System.Numerics;

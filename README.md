@@ -54,20 +54,25 @@ HPCsharp improves .Sum() of numeric arrays in the following ways:
 in performance, and ***O***(e), with slight performance reduction. Implements pairwise and Kahan/Neumaier summation algorithms
 - Implements many algorithms using multi-core and data parallel SIMD/SSE processor instructions
 - Summation of BigInteger array: single and multi-core
-- Fast summation at full accuracy of ulong[] array to Decimal and BigInteger: SIMD/SSE, single and multi-core
+- Faster summation at full accuracy of ulong[] array to Decimal and BigInteger: SIMD/SSE, single and multi-core. Uses checked
+SIMD/SSE addition (HPCsharp development) in C# for much higher performance
 
 The table below compares performance (in Giga/second) of Linq.AsParallel().Sum() and HPCsharp.SumSsePar().
 
-*Library*|*sbyte*|*byte*|*short*|*ushort*|*int*|*uint*|*long*|*ulong*|*float*|*double*|*decimal*
---- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ---
-Linq | n/a | n/a | n/a | n/a |0.9*|n/a|0.9*|n/a|0.9|0.9|0.12
-HPCsharp |7.6|8.0|8.0|8.2|5.0|5.3|2.9*|2.8*|5.1|2.9|0.14
-* overflow exception is possible
+*Library*|*sbyte*|*byte*|*short*|*ushort*|*int*|*uint*|*long*|*ulong*|*float*|*double*|*decimal*|*BigInteger*
+--- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ---
+Linq | n/a | n/a | n/a | n/a |0.9\*|n/a|0.9\*|n/a|0.9|0.9|0.12|0.011\*\*
+HPCsharp |7.6|8.0|8.0|8.2|5.0|5.3|2.9\*|2.8\*|5.1|2.9|0.14|0.036
+\* overflow exception is possible
+\*\* Linq doesn't implement BigInteger.Sum(), used .Aggregate() instead, which doesn't speed-up with .AsParallel()
 
 HPCsharp includes long[] and ulong[] summation, which do not throw an overflow exception while producing a perfectly accurate result.
 
-For more details, see blog https://duvanenko.tech.blog/2019/04/23/better-sum-in-c/
-For more details on faster SIMD/SSE overflow checked functions, see blog https://duvanenko.tech.blog/2019/07/20/checked-data-parallel-arithmetic-in-c/
+For more details, see several blogs on various aspects:
+- Better C# .Sum() in Many Ways: https://duvanenko.tech.blog/2019/04/23/better-sum-in-c/
+- Better C# .Sum() in More Ways: https://duvanenko.tech.blog/2019/09/06/better-c-sum-in-more-ways/
+- Faster Checked Addition in C#: https://duvanenko.tech.blog/2019/07/20/checked-data-parallel-arithmetic-in-c/
+- Checked SIMD/SSE Addition in C#: https://duvanenko.tech.blog/2019/07/20/checked-data-parallel-arithmetic-in-c/
 
 ## Counting Sort
 
