@@ -59,6 +59,7 @@
 // TODO: Use the same optimization as done for MSD Radix Sort, which detects if all values fell in a single bin and then doesn't do any work. This helps not only the constant array case, but also
 //       the case of indexes being only as large as the array size. This optimization is worthwhile since it helps more than one special case.
 // TODO: Optimize floating-point Radix Sort by minimize flipping by doing flipping once at the beginning and at the end.
+// TODO: Implement LSD Radix sort for the larger memory array support of C# that I found on StackOverflow.
 using System;
 using System.Collections.Generic;
 using System.Text;
