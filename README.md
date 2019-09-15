@@ -56,6 +56,7 @@ in performance, and ***O***(e), with slight performance reduction. Implements pa
 - Summation of BigInteger array: single and multi-core
 - Faster summation at full accuracy of ulong[] array to Decimal and BigInteger: SIMD/SSE, single and multi-core
 - Developed checked SIMD/SSE addition in C#, unsigned and signed, for much higher performance
+- Simpler to use: no overflow to deal with
 
 The table below compares performance (in Giga/second) of Linq.AsParallel().Sum() and HPCsharp.SumSsePar() - both use multi-core, with
 HPCsharp also using SIMD/SSE data parallel instructions on each core to gain additional performance:
