@@ -1249,7 +1249,7 @@ namespace HPCsharp.ParallelAlgorithms
                 overallSum += sumVector[i];
 
                 decimal multiplier = 0x8000_0000_0000_0000;
-                overallSum = multiplier * (Decimal)2 * (Decimal)upperSumVector[i];   // uintUpperSum << 64
+                overallSum += multiplier * (Decimal)2 * (Decimal)upperSumVector[i];   // uintUpperSum << 64
             }
 
             return overallSum;
