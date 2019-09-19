@@ -8,7 +8,7 @@
     <Description>Parallel high performance cross-platform C#/.NET algorithms. 20+ algorithms with familiar interfaces and examples. Multi-core and data parallel (SIMD/SSE). Open source and free. See project Readme, blog, and videos...</Description>
     <Copyright>© 2018 FooState</Copyright>
     <PackageLicenseUrl>https://github.com/DragonSpit/HPCsharp/blob/master/LICENSE</PackageLicenseUrl>
-    <PackageReleaseNotes>Additional parallel Copy() methods and their re-organization, with a change of its namespace, and in many of its interfaces. Examples have been added to show how parallel Copy() interfaces are the same as C# List.ToArray() and Array.ToArray() as well as List.CopyTo(Array) and Array.CopyTo(Array). Performance benefits explained in https://duvanenko.tech.blog/2019/08/19/faster-copying-in-c/</PackageReleaseNotes>
+    <PackageReleaseNotes>Implemented an even faster ulong[] array .Sum to Decimal, which only uses integer arithmetic and only converts the final result to Decimal</PackageReleaseNotes>
     <PackageId>HPCsharp</PackageId>
     <PackageTags>high perfromance algorithms, C#, high performance, high performance computing, HPC, algorithm, algorithms, Linq, parallel, parallel algorithm</PackageTags>
     <PackageIconUrl>https://foostate.com/images/default_lib_icon_64.png</PackageIconUrl>
@@ -17,9 +17,9 @@
     <PackageProjectUrl>https://github.com/DragonSpit/HPCsharp</PackageProjectUrl>
     <RepositoryUrl>https://github.com/DragonSpit/HPCsharp</RepositoryUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <AssemblyVersion>3.6.0.0</AssemblyVersion>
-    <FileVersion>3.6.0.0</FileVersion>
-    <Version>3.6.0</Version>
+    <AssemblyVersion>3.6.1.0</AssemblyVersion>
+    <FileVersion>3.6.1.0</FileVersion>
+    <Version>3.6.1</Version>
     <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 

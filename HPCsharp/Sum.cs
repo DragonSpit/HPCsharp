@@ -162,7 +162,33 @@ namespace HPCsharp.Algorithms
         }
 
         /// <summary>
-        /// Faster, perfectly accurate summation of ulong[] array, which uses a BigInteger accumulator for perfect accuracy,
+        /// Even faster, perfectly accurate summation of ulong[] array, which uses a BigInteger accumulator for perfect accuracy,
+        /// and integer summations for higher performance, detecting overflow condition without exceptions.
+        /// Will not throw overflow exception.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>decimal sum</returns>
+        public static decimal SumToDecimalEvenFaster(this ulong[] arrayToSum)
+        {
+            decimal overallSum = 0;
+            ulong ulongSum = 0;
+            uint uintUpperSum = 0;      // together uintUpperSum and ulongSum represent a 96-bit uint
+            for (int i = 0; i < arrayToSum.Length; i++)
+            {
+                ulong newUlongSum = ulongSum + arrayToSum[i];
+                if (newUlongSum < ulongSum)
+                    uintUpperSum++;            // carry-out of lower 64-bit into carry-in of upper 32-bits
+                ulongSum = newUlongSum;
+            }
+            decimal multiplier = 0x8000_0000_0000_0000;
+            overallSum = multiplier * (Decimal)2 * (Decimal)uintUpperSum;   // uintUpperSum << 64
+            overallSum += ulongSum;
+            
+            return overallSum;
+        }
+
+        /// <summary>
+        /// Faster, perfectly accurate summation of ulong[] array, which uses a Decimal accumulator for perfect accuracy,
         /// and integer summations for higher performance, detecting overflow condition without exceptions.
         /// Will not throw overflow exception.
         /// </summary>
@@ -188,7 +214,7 @@ namespace HPCsharp.Algorithms
         }
 
         /// <summary>
-        /// Faster, perfectly accurate summation of ulong[] array, which uses a BigInteger accumulator for perfect accuracy,
+        /// Faster, perfectly accurate summation of ulong[] array, which uses a Decimal accumulator for perfect accuracy,
         /// and integer summations for higher performance, detecting overflow condition without exceptions.
         /// Will not throw overflow exception.
         /// </summary>
