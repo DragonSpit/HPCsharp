@@ -40,6 +40,7 @@
 //       would be used during all of the summation, handling overflow detection and extending summation to 128-bit integer
 //       This may possibly be faster than using Decimal. It seems simple to implement an increment of the upper 64-bits of
 //       the 128-bit value any time overflow of the lower 64-bit occurs. Then at the end convert the 128-bit value into Decimal or BigInteger.
+//       The beauty of this algorithm is that it will perform at the same high speed for Decimal or BigInteger result!
 // TODO: Continue discussion in https://github.com/dotnet/corefx/issues/17147 for support of 128-bit native integers in C#
 using System.Collections.Generic;
 using System.Text;
