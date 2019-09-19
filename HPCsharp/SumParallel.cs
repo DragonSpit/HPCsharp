@@ -1202,6 +1202,61 @@ namespace HPCsharp.ParallelAlgorithms
 
         /// <summary>
         /// Summation of ulong[] array, using data parallel SIMD/SSE instructions for higher performance on a single core.
+        /// Uses a ulong accumulator for faster performance while detecting overflow without exceptions and returning a decimal for perfect accuracy.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <returns>decimal sum</returns>
+        public static decimal SumToDecimalSseEvenFaster(this ulong[] arrayToSum)
+        {
+            return arrayToSum.SumToDecimalSseEvenFasterInner(0, arrayToSum.Length - 1);
+        }
+
+        /// <summary>
+        /// Summation of ulong[] array, using data parallel SIMD/SSE instructions for higher performance on a single core.
+        /// Uses a ulong accumulator for faster performance while detecting overflow without exceptions and returning a decimal for perfect accuracy.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <param name="startIndex">index of the starting element for the summation</param>
+        /// <param name="length">number of array elements to sum up</param>
+        /// <returns>decimal sum</returns>
+        public static decimal SumToDecimalSseEvenFaster(this ulong[] arrayToSum, int startIndex, int length)
+        {
+            return arrayToSum.SumToDecimalSseEvenFasterInner(startIndex, startIndex + length - 1);
+        }
+
+        private static decimal SumToDecimalSseEvenFasterInner(this ulong[] arrayToSum, int l, int r)
+        {
+            decimal overallSum = 0;
+            var sumVector = new Vector<ulong>();
+            var upperSumVector = new Vector<ulong>();
+            var newSumVector = new Vector<ulong>();
+            var zeroVector = new Vector<ulong>(0);
+            int sseIndexEnd = l + ((r - l + 1) / Vector<ulong>.Count) * Vector<ulong>.Count;
+            int i;
+
+            for (i = l; i < sseIndexEnd; i += Vector<ulong>.Count)
+            {
+                var inVector = new Vector<ulong>(arrayToSum, i);
+                newSumVector = sumVector + inVector;
+                Vector<ulong> ltMask = Vector.LessThan(newSumVector, sumVector);         // if true then 0xFFFFFFFFFFFFFFFFL else 0L at each element of the Vector<long> 
+                upperSumVector -= ltMask;
+                sumVector = newSumVector;
+            }
+            for (; i <= r; i++)
+                overallSum += arrayToSum[i];
+            for (i = 0; i < Vector<ulong>.Count; i++)
+            {
+                overallSum += sumVector[i];
+
+                decimal multiplier = 0x8000_0000_0000_0000;
+                overallSum = multiplier * (Decimal)2 * (Decimal)upperSumVector[i];   // uintUpperSum << 64
+            }
+
+            return overallSum;
+        }
+
+        /// <summary>
+        /// Summation of ulong[] array, using data parallel SIMD/SSE instructions for higher performance on a single core.
         /// Uses a ulong accumulator for faster performance while detecting overflow without exceptions and returning a BigInteger for perfect accuracy.
         /// </summary>
         /// <param name="arrayToSum">An array to sum up</param>
