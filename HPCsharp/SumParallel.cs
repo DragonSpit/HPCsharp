@@ -62,6 +62,12 @@
 // TODO: Implement checked SSE subtraction, which is a bit less useful, but completes checked Addition/Subtraction coverage
 // TODO: Figure out how .AsParallel() works by studying .NET Core open source code, and make HPCsharp compattible with it.
 // TODO: Check out this blog and links that it points to https://devblogs.microsoft.com/dotnet/hardware-intrinsics-in-net-core/
+// TODO: Apply the new overflow detecting SSE implementation which has no if statements to byte, ushort, uint .SumSse()
+//       as this may be faster, because + would be done at native data type size (byte, ushort, uint) instead of
+//       spending instruction to expand bytes to ulong, which takes many steps.
+// TODO: Benchmark the above improved SSE .Sum() implementation inside CPU cache only, by doing many loops accross
+//       an array that fits into the cache completely, to see how much faster it really runs when not being
+//       limited by speed of system memory.
 
 using System.Collections.Generic;
 using System.Text;
