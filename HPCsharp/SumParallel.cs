@@ -71,6 +71,9 @@
 // TODO: Benchmark the above improved SSE .Sum() implementation inside CPU cache only, by doing many loops accross
 //       an array that fits into the cache completely, to see how much faster it really runs when not being
 //       limited by speed of system memory.
+// TODO: Apply the new SSE worst-case optimization for ulong[].Sum() to BigInteger as well, as this will speedup even more than Decimal in the worst-case.
+// TODO: Document in the Readme that .Sum() is a next higher level of abstraction for Sum(), since it takes care of more details internally, such as
+//       removes the need to be concerned about arithmetic overflow, as that is handled inside the HPCsharp .Sum() functions.
 
 using System.Collections.Generic;
 using System.Text;
