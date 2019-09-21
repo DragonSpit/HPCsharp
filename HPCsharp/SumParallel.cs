@@ -64,7 +64,10 @@
 // TODO: Check out this blog and links that it points to https://devblogs.microsoft.com/dotnet/hardware-intrinsics-in-net-core/
 // TODO: Apply the new overflow detecting SSE implementation which has no if statements to byte, ushort, uint .SumSse()
 //       as this may be faster, because + would be done at native data type size (byte, ushort, uint) instead of
-//       spending instruction to expand bytes to ulong, which takes many steps.
+//       spending instruction to expand bytes to ulong, which takes many steps. The way to do this for byte is to use a byte (same data type)
+//       for carry-out bits and make an inner loop be fixed at 256 times, and figure out ahead of time how many of these 256 times loops we
+//       can do. Then outside the loop accumulate these carry-out's into several 32-bit split SSE registers. This way the very inner loop is
+//       minimal and the outer loops happens less often, amortized over the 256 times loop. This method should also work well for ushort. Uint won't need it.
 // TODO: Benchmark the above improved SSE .Sum() implementation inside CPU cache only, by doing many loops accross
 //       an array that fits into the cache completely, to see how much faster it really runs when not being
 //       limited by speed of system memory.
