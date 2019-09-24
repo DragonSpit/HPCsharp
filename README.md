@@ -46,17 +46,17 @@ its full performance. Keep this behavior of the C# JIT compiler in mind as you u
 
 ## Better Sum in Many Ways
 HPCsharp improves .Sum() of numeric arrays in the following ways:
-- No overflow exception for int[] while providing 5X higher performance
+- Simpler to use: no overflow exceptions to deal with, for all integer data types
+- 25X faster ulong[] array summation, than an equivalent Linq summation without overflow. 3X faster when overflow exceptions are not a concern
+- 5X faster int[] summation without overflow exceptions
 - Summation of all signed integer data types
 - Summation of all unsigned integer data types
-- Full accuracy summation of long[] and ulong[], without throwing overflow exception
 - Two higher precision floating-point summation options, reducing error from ***O***(eN) downto ***O***(elgN) without reduction
 in performance, and ***O***(e), with slight performance reduction. Implements pairwise and Kahan/Neumaier summation algorithms
 - Implements many algorithms using multi-core and data parallel SIMD/SSE processor instructions
 - Summation of BigInteger array: single and multi-core
 - Faster summation at full accuracy of ulong[] array to Decimal and BigInteger: SIMD/SSE, single and multi-core
 - Developed checked SIMD/SSE addition in C#, unsigned and signed, for much higher performance
-- Simpler to use: no overflow to deal with
 
 The table below compares performance (in Giga/second) of Linq.AsParallel().Sum() and HPCsharp.SumSsePar() - both use multi-core, with
 HPCsharp also using SIMD/SSE data parallel instructions on each core to gain additional performance:
@@ -64,7 +64,7 @@ HPCsharp also using SIMD/SSE data parallel instructions on each core to gain add
 *Library*|*sbyte*|*byte*|*short*|*ushort*|*int*|*uint*|*long*|*ulong*|*float*|*double*|*decimal*|*BigInteger*
 --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ---
 Linq | n/a | n/a | n/a | n/a |0.9\*|n/a|0.9\*|n/a|0.9|0.9|0.12|0.011\*\*
-HPC# |7.6|8.0|8.0|8.2|5.0|5.3|2.9\*|2.8\*|5.1|2.9|0.14|0.036
+HPC# |7.6|8.0|8.0|8.2|5.0|5.3|2.9\*|2.8|5.1|2.9|0.14|0.036
 
 \* overflow exception is possible\
 \*\* Linq doesn't implement BigInteger.Sum(), used .Aggregate() instead, which doesn't speed-up with .AsParallel()
@@ -75,6 +75,7 @@ For more details, see several blogs on various aspects:
 - [Better C# .Sum() in Many Ways](https://duvanenko.tech.blog/2019/04/23/better-sum-in-c/ "Better C# .Sum() in Many Ways")
 - [Better C# .Sum() in More Ways](https://duvanenko.tech.blog/2019/09/06/better-c-sum-in-more-ways/ "Better C# .Sum() in More Ways")
 - [Faster Checked Addition in C#](https://duvanenko.tech.blog/2019/07/20/checked-data-parallel-arithmetic-in-c/ "Faster Checked Addition in C#")
+- [Faster Checked Addition in C# (Part 2)](https://duvanenko.tech.blog/2019/09/23/faster-checked-addition-in-c-part-2/ "Faster Checked Addition in C# (Part 2)")
 - [Checked SIMD/SSE Addition in C#](https://duvanenko.tech.blog/2019/07/20/checked-data-parallel-arithmetic-in-c/ "Checked SIMD/SSE Addition in C#")
 
 ## Counting Sort
