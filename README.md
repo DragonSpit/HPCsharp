@@ -58,7 +58,7 @@ in performance, and ***O***(e), with slight performance reduction. Implements pa
 - Faster summation at full accuracy of ulong[] array to Decimal and BigInteger: SIMD/SSE, single and multi-core
 - Developed checked SIMD/SSE addition in C#, unsigned and signed, for much higher performance
 
-The table below compares performance (in Giga/second) of Linq.AsParallel().Sum() and HPCsharp.SumSsePar() - both use multi-core, with
+The table below compares performance (in GigaAdds/second) of Linq.AsParallel().Sum() and HPCsharp.SumSsePar() - both use multi-core, with
 HPCsharp also using SIMD/SSE data parallel instructions on each core to gain additional performance:
 
 *Library*|*sbyte*|*byte*|*short*|*ushort*|*int*|*uint*|*long*|*ulong*|*float*|*double*|*decimal*|*BigInteger*
@@ -69,17 +69,17 @@ HPC# |7.6|8.0|8.0|8.2|5.0|5.3|2.9\*|2.7|5.1|2.9|0.14|0.036
 \* overflow exception is possible\
 \*\* Linq doesn't implement BigInteger.Sum(), used .Aggregate() instead, which doesn't speed-up with .AsParallel()
 
-All integer summations (unsigned and signed) including long[] and ulong[] arrays, do not throw overflow exceptions,
-while producing a perfectly accurate result.
+All HPCsharp integer summations (unsigned and signed) including long[] and ulong[] arrays, do not throw overflow exceptions,
+while producing a perfectly accurate result. This simplifies usage, while also providing higher performance.
 
 *Algorithm*|*MegaAdds*|*Generates Overflow Exception*|*Result*|*Details*
 --- | --- | --- | --- | ---
 Linq ulongArray.AsParallel().Sum() | 900 | Yes | ulong | Requires dealing with overflow exceptions
 Linq ulongArray.AsParallel().Sum(x =>(decimal)x) | 103 | No | decimal | Full accuracy result
-HPCsharp ulongArray.SumToDecimalSseEvenFaster() | 2,700 | No | decimal | Full accuracy result
+HPCsharp ulongArray.SumToDecimalSseEvenFasterPar() | 2,700 | No | decimal | Full accuracy result
 
 HPCsharp ulong[] array summation implements a full accuracy algorithm using integer only arithmetic to provide maximum performance.
-It deals with arithmetic overflow internally, using integer only computation.
+It detects and deals with arithmetic overflow internally, without using exceptions, using integer only computation.
 It also uses SIMD/SSE data parallel instructions to get maximum performance out of each core, and uses multi-core to run even faster.
 
 For more details, see several blogs on various aspects:

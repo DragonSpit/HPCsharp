@@ -61,6 +61,7 @@
 // TODO: Figure out the bug with "BigInteger += longValue" that Microsoft seems to have, possibly posting to StackOverflow, as it seems to produce wrong result, but "BigInteger = BigInteger + longValue" seems to work fine.
 // TODO: Implement checked SSE subtraction, which is a bit less useful, but completes checked Addition/Subtraction coverage
 // TODO: Figure out how .AsParallel() works by studying .NET Core open source code, and make HPCsharp compattible with it.
+//       Add a new .AsDataParallel() that implements it in SIMD/SSE as an option.
 // TODO: Check out this blog and links that it points to https://devblogs.microsoft.com/dotnet/hardware-intrinsics-in-net-core/
 // TODO: Apply the new overflow detecting SSE implementation which has no if statements to byte, ushort, uint .SumSse()
 //       as this may be faster, because + would be done at native data type size (byte, ushort, uint) instead of
