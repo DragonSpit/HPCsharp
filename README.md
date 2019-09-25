@@ -76,9 +76,10 @@ while producing a perfectly accurate result.
 --- | --- | --- | --- | ---
 Linq ulongArray.AsParallel().Sum() | 900 | Yes | ulong | Requires dealing with overflow exceptions
 Linq ulongArray.AsParallel().Sum(x =>(decimal)x) | 48 | No | decimal | Full accuracy result
-HPC# ulongArray.SumToDecimalSseEvenFaster() | 2,700 | No | decimal | Full accuracy result
+HPCsharp ulongArray.SumToDecimalSseEvenFaster() | 2,700 | No | decimal | Full accuracy result
 
 HPCsharp ulong[] array summation implements a full accuracy algorithm using integer only arithmetic to provide maximum performance.
+It deals with arithmetic overflow internally, using integer only computation.
 It also uses SIMD/SSE data parallel instructions to get maximum performance out of each core, and uses multi-core to run even faster.
 
 For more details, see several blogs on various aspects:
