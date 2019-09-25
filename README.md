@@ -69,7 +69,17 @@ HPC# |7.6|8.0|8.0|8.2|5.0|5.3|2.9\*|2.7|5.1|2.9|0.14|0.036
 \* overflow exception is possible\
 \*\* Linq doesn't implement BigInteger.Sum(), used .Aggregate() instead, which doesn't speed-up with .AsParallel()
 
-All integer summations (unsigned and signed) including long[] and ulong[] arrays, do not throw overflow exceptions, while producing a perfectly accurate result.
+All integer summations (unsigned and signed) including long[] and ulong[] arrays, do not throw overflow exceptions,
+while producing a perfectly accurate result.
+
+*Algorithm*|*MegaAdds*|*Generates Overflow Exception*|*Result*|*Details*
+--- | --- | --- | --- | ---
+Linq ulongArray.AsParallel().Sum() | 900 | Yes | ulong | Requires dealing with overflow exceptions
+Linq ulongArray.AsParallel().Sum(x =>(decimal)x) | 48 | No | decimal | Full accuracy result
+HPC# ulongArray.SumToDecimalSseEvenFaster() | 2,700 | No | decimal | Full accuracy result
+
+HPCsharp ulong[] array summation implements a full accuracy algorithm using integer only arithmetic to provide maximum performance.
+It also uses SIMD/SSE data parallel instructions to get maximum performance out of each core, and uses multi-core to run even faster.
 
 For more details, see several blogs on various aspects:
 - [Better C# .Sum() in Many Ways](https://duvanenko.tech.blog/2019/04/23/better-sum-in-c/ "Better C# .Sum() in Many Ways")
