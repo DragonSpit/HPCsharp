@@ -63,7 +63,7 @@ HPCsharp also using SIMD/SSE data parallel instructions on each core to gain add
 
 *Library*|*sbyte*|*byte*|*short*|*ushort*|*int*|*uint*|*long*|*ulong*|*float*|*double*|*decimal*|*BigInteger*
 --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ---
-Linq | n/a | n/a | n/a | n/a |0.9\*|n/a|0.9\*|n/a|0.9|0.9|0.12|0.011\*\*
+Linq | n/a | n/a | n/a | n/a |0.9\*|n/a|0.9\*|n/a|0.9|0.9|0.10|0.011\*\*
 HPC# |7.6|8.0|8.0|8.2|5.0|5.3|2.9\*|2.7|5.1|2.9|0.14|0.036
 
 \* overflow exception is possible\
@@ -75,7 +75,7 @@ while producing a perfectly accurate result.
 *Algorithm*|*MegaAdds*|*Generates Overflow Exception*|*Result*|*Details*
 --- | --- | --- | --- | ---
 Linq ulongArray.AsParallel().Sum() | 900 | Yes | ulong | Requires dealing with overflow exceptions
-Linq ulongArray.AsParallel().Sum(x =>(decimal)x) | 48 | No | decimal | Full accuracy result
+Linq ulongArray.AsParallel().Sum(x =>(decimal)x) | 103 | No | decimal | Full accuracy result
 HPCsharp ulongArray.SumToDecimalSseEvenFaster() | 2,700 | No | decimal | Full accuracy result
 
 HPCsharp ulong[] array summation implements a full accuracy algorithm using integer only arithmetic to provide maximum performance.
