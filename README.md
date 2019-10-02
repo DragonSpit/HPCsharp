@@ -75,6 +75,7 @@ while producing a perfectly accurate result. This simplifies usage, while also p
 *Algorithm*|*MegaAdds*|*Generates Overflow Exception*|*Result*|*Details*
 --- | --- | --- | --- | ---
 Linq ulongArray.AsParallel().Sum() | 900 | Yes | ulong | Requires dealing with overflow exceptions
+Linq ulongArray.Aggregate(bigIntegerSum, (current, i) => current + i) | 11 | No | BigInteger | Full accuracy result
 Linq ulongArray.AsParallel().Sum(x =>(decimal)x) | 103 | No | decimal | Full accuracy result
 HPCsharp ulongArray.SumToDecimalSseEvenFasterPar() | 2,700 | No | decimal | Full accuracy result
 
