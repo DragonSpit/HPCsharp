@@ -89,7 +89,7 @@ For more details, see several blogs on various aspects:
 - [Faster Checked Addition in C#](https://duvanenko.tech.blog/2019/07/20/checked-data-parallel-arithmetic-in-c/ "Faster Checked Addition in C#")
 - [Faster Checked Addition in C# (Part 2)](https://duvanenko.tech.blog/2019/09/23/faster-checked-addition-in-c-part-2/ "Faster Checked Addition in C# (Part 2)")
 - [Checked SIMD/SSE Addition in C#](https://duvanenko.tech.blog/2019/07/20/checked-data-parallel-arithmetic-in-c/ "Checked SIMD/SSE Addition in C#")
-- [Video of Checked SIMD/SSE/multi-core Addition in C#](https://www.youtube.com/watch?v=hNqE1Ghwbv4 "Checked SIMD/SSE/multi-core Addition in C#"
+- [Video of Checked SIMD/SSE/multi-core Addition in C#](https://www.youtube.com/watch?v=hNqE1Ghwbv4 "Checked SIMD/SSE/multi-core Addition in C#")
 
 ## Counting Sort
 
@@ -262,7 +262,10 @@ https://duvanenko.tech.blog/2018/03/03/high-performance-c/
 For more performance discussion see blog:
 https://duvanenko.tech.blog/2018/05/23/faster-sorting-in-c/
 
-Recent HPCsharp presentation at the Indianapolis .NET Consortium, March 2019 on https://youtu.be/IRNW4VGevvQ
+HPCsharp presentation at the Indianapolis .NET Consortium, March 2019 on https://youtu.be/IRNW4VGevvQ
+
+HPCsharp lighning talk at the Indianapolis .NET Consortium, October 2019 on - https://www.youtube.com/watch?v=hNqE1Ghwbv4
+
 
 ## Website for Feature Votes
 Visit us at https://foostate.com/ and let us know what other high performance algorithms are important to you, and you'd like to see in this NuGet package.
