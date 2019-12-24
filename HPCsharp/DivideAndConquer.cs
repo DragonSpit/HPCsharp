@@ -120,6 +120,23 @@ namespace HPCsharp
         /// Parallel Divide and Conquer generic pattern.
         /// </summary>
         /// <param name="arrayToProcess">An input array to be processed</param>
+        /// <param name="start">starting index of the first element to be processed (inclusive)</param>
+        /// <param name="length">number of elements to be processed</param>
+        /// <param name="baseCase">function for the recursion base case (leaf node)</param>
+        /// <param name="reduce">function for combining the two recursive results</param>
+        /// <param name="thresholdPar">if array is larger than this value, then parallel processing will be used, otherwise serial processing will be used by invoking the baseCase function</param>
+        /// <param name="degreeOfParallelism">amount of parallelism to be used - i.e. number of computational cores. When set to zero or negative, all available cores will be utilized.
+        /// When set to 1, then a single core will be used. When set to > 1, then that many cores will be used.</param>
+        /// <returns>result value</returns>
+        public static T2 DivideAndConquerTwoTypesPar<T, T2>(this T[] arrayToProcess, int start, int length, Func<T[], int, int, T2> baseCase,
+                                                            Func<T2, T2, T2> reduce, int thresholdPar = 16 * 1024, int degreeOfParallelism = 0)
+        {
+            return DivideAndConquerTwoTypesParLR(arrayToProcess, start, start + length - 1, baseCase, reduce, thresholdPar, degreeOfParallelism);
+        }
+        /// <summary>
+        /// Parallel Divide and Conquer generic pattern.
+        /// </summary>
+        /// <param name="arrayToProcess">An input array to be processed</param>
         /// <param name="left">left/starting index of the first element to be processed (inclusive)</param>
         /// <param name="right">right/last index of the last element to be processed (inclusive)</param>
         /// <param name="baseCase">function for the recursion base case (leaf node)</param>
@@ -128,10 +145,12 @@ namespace HPCsharp
         /// <param name="degreeOfParallelism">amount of parallelism to be used - i.e. number of computational cores. When set to zero or negative, all available cores will be utilized.
         /// When set to 1, then a single core will be used. When set to > 1, then that many cores will be used.</param>
         /// <returns>result value</returns>
-        public static T2 DivideAndConquerTwoTypesPar<T, T2>(this T[] arrayToProcess, int left, int right, Func<T[], int, int, T2> baseCase, Func<T2, T2, T2> reduce, int thresholdPar = 16 * 1024,
-                                                            int degreeOfParallelism = 0)
+        internal static T2 DivideAndConquerTwoTypesParLR<T, T2>(this T[] arrayToProcess, int left, int right, Func<T[], int, int, T2> baseCase, Func<T2, T2, T2> reduce,
+                                                               int thresholdPar = 16 * 1024, int degreeOfParallelism = 0)
         {
             T2 resultLeft = (T2)Convert.ChangeType(default(T), typeof(T2));
+
+            //Console.WriteLine("left = {0}   right = {1}", left, right);
 
             if (left > right)
                 return resultLeft;
@@ -144,22 +163,22 @@ namespace HPCsharp
 
             if (degreeOfParallelism == 1)
             {
-                resultLeft  = DivideAndConquerTwoTypesPar(arrayToProcess, left,    mid,   baseCase, reduce, thresholdPar);
-                resultRight = DivideAndConquerTwoTypesPar(arrayToProcess, mid + 1, right, baseCase, reduce, thresholdPar);
+                resultLeft  = DivideAndConquerTwoTypesParLR(arrayToProcess, left,    mid,   baseCase, reduce, thresholdPar);
+                resultRight = DivideAndConquerTwoTypesParLR(arrayToProcess, mid + 1, right, baseCase, reduce, thresholdPar);
             }
             else if (degreeOfParallelism > 1)
             {
                 var options = new ParallelOptions { MaxDegreeOfParallelism = degreeOfParallelism };
                 Parallel.Invoke(options,
-                    () => { resultLeft  = DivideAndConquerTwoTypesPar(arrayToProcess, left,    mid,   baseCase, reduce, thresholdPar); },
-                    () => { resultRight = DivideAndConquerTwoTypesPar(arrayToProcess, mid + 1, right, baseCase, reduce, thresholdPar); }
+                    () => { resultLeft  = DivideAndConquerTwoTypesParLR(arrayToProcess, left,    mid,   baseCase, reduce, thresholdPar); },
+                    () => { resultRight = DivideAndConquerTwoTypesParLR(arrayToProcess, mid + 1, right, baseCase, reduce, thresholdPar); }
                 );
             }
             else
             {
                 Parallel.Invoke(
-                    () => { resultLeft  = DivideAndConquerTwoTypesPar(arrayToProcess, left,    mid,   baseCase, reduce, thresholdPar); },
-                    () => { resultRight = DivideAndConquerTwoTypesPar(arrayToProcess, mid + 1, right, baseCase, reduce, thresholdPar); }
+                    () => { resultLeft  = DivideAndConquerTwoTypesParLR(arrayToProcess, left,    mid,   baseCase, reduce, thresholdPar); },
+                    () => { resultRight = DivideAndConquerTwoTypesParLR(arrayToProcess, mid + 1, right, baseCase, reduce, thresholdPar); }
                 );
             }
 

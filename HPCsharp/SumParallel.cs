@@ -1696,7 +1696,7 @@ namespace HPCsharp.ParallelAlgorithms
 
         private static long SumSseParInner(this sbyte[] arrayToSum, int l, int r, int thresholdParallel = 16 * 1024)
         {
-            return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, l, r, SumToLongSse, (x, y) => x + y, thresholdParallel);
+            return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, l, r - l + 1, SumToLongSse, (x, y) => x + y, thresholdParallel);
         }
 
         private static ulong SumSseParInner(this byte[] arrayToSum, int l, int r, int thresholdParallel = 16 * 1024)
