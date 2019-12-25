@@ -1673,27 +1673,6 @@ namespace HPCsharp.ParallelAlgorithms
             return sum + c;
         }
 
-        private static long SumSseParInner_old(this sbyte[] arrayToSum, int l, int r, int thresholdParallel = 16 * 1024)
-        {
-            long sumLeft = 0;
-
-            if (l > r)
-                return sumLeft;
-            if ((r - l + 1) <= thresholdParallel)
-                return SumToLongSse(arrayToSum, l, r - l + 1);
-
-            int m = (r + l) / 2;
-
-            long sumRight = 0;
-
-            Parallel.Invoke(
-                () => { sumLeft  = SumSseParInner(arrayToSum, l,     m, thresholdParallel); },
-                () => { sumRight = SumSseParInner(arrayToSum, m + 1, r, thresholdParallel); }
-            );
-            // Combine left and right results
-            return sumLeft + sumRight;
-        }
-
         private static long SumSseParInner(this sbyte[] arrayToSum, int l, int r, int thresholdParallel = 16 * 1024)
         {
             return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, l, r - l + 1, SumToLongSse, (x, y) => x + y, thresholdParallel);
@@ -1701,378 +1680,72 @@ namespace HPCsharp.ParallelAlgorithms
 
         private static ulong SumSseParInner(this byte[] arrayToSum, int l, int r, int thresholdParallel = 16 * 1024)
         {
-            ulong sumLeft = 0;
-
-            if (l > r)
-                return sumLeft;
-            if ((r - l + 1) <= thresholdParallel)
-                return SumToUlongSse(arrayToSum, l, r - l + 1);
-
-            int m = (r + l) / 2;
-
-            ulong sumRight = 0;
-
-            Parallel.Invoke(
-                () => { sumLeft  = SumSseParInner(arrayToSum, l,     m, thresholdParallel); },
-                () => { sumRight = SumSseParInner(arrayToSum, m + 1, r, thresholdParallel); }
-            );
-            // Combine left and right results
-            return sumLeft + sumRight;
+            return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, l, r - l + 1, SumToUlongSse, (x, y) => x + y, thresholdParallel);
         }
 
         private static long SumSseParInner(this short[] arrayToSum, int l, int r, int thresholdParallel = 16 * 1024)
         {
-            long sumLeft = 0;
-
-            if (l > r)
-                return sumLeft;
-            if ((r - l + 1) <= thresholdParallel)
-                return SumToLongSse(arrayToSum, l, r - l + 1);
-
-            int m = (r + l) / 2;
-
-            long sumRight = 0;
-
-            Parallel.Invoke(
-                () => { sumLeft  = SumSseParInner(arrayToSum, l,     m, thresholdParallel); },
-                () => { sumRight = SumSseParInner(arrayToSum, m + 1, r, thresholdParallel); }
-            );
-            // Combine left and right results
-            return sumLeft + sumRight;
+            return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, l, r - l + 1, SumToLongSse, (x, y) => x + y, thresholdParallel);
         }
 
         private static ulong SumSseParInner(this ushort[] arrayToSum, int l, int r, int thresholdParallel = 16 * 1024)
         {
-            ulong sumLeft = 0;
-
-            if (l > r)
-                return sumLeft;
-            if ((r - l + 1) <= thresholdParallel)
-                return SumToUlongSse(arrayToSum, l, r - l + 1);
-
-            int m = (r + l) / 2;
-
-            ulong sumRight = 0;
-
-            Parallel.Invoke(
-                () => { sumLeft  = SumSseParInner(arrayToSum, l,     m, thresholdParallel); },
-                () => { sumRight = SumSseParInner(arrayToSum, m + 1, r, thresholdParallel); }
-            );
-            // Combine left and right results
-            return sumLeft + sumRight;
+            return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, l, r - l + 1, SumToUlongSse, (x, y) => x + y, thresholdParallel);
         }
 
         private static long SumSseParInner(this int[] arrayToSum, int l, int r, int thresholdParallel = 16 * 1024)
         {
-            long sumLeft = 0;
-
-            if (l > r)
-                return sumLeft;
-            if ((r - l + 1) <= thresholdParallel)
-                return SumToLongSse(arrayToSum, l, r - l + 1);
-
-            int m = (r + l) / 2;
-
-            long sumRight = 0;
-
-            Parallel.Invoke(
-                () => { sumLeft  = SumSseParInner(arrayToSum, l,     m, thresholdParallel); },
-                () => { sumRight = SumSseParInner(arrayToSum, m + 1, r, thresholdParallel); }
-            );
-            // Combine left and right results
-            return sumLeft + sumRight;
+            return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, l, r - l + 1, SumToLongSse, (x, y) => x + y, thresholdParallel);
         }
 
         private static ulong SumSseParInner(this uint[] arrayToSum, int l, int r, int thresholdParallel = 16 * 1024)
         {
-            ulong sumLeft = 0;
-
-            if (l > r)
-                return sumLeft;
-            if ((r - l + 1) <= thresholdParallel)
-                return SumToUlongSse(arrayToSum, l, r - l + 1);
-
-            int m = (r + l) / 2;
-
-            ulong sumRight = 0;
-
-            Parallel.Invoke(
-                () => { sumLeft  = SumSseParInner(arrayToSum, l,     m, thresholdParallel); },
-                () => { sumRight = SumSseParInner(arrayToSum, m + 1, r, thresholdParallel); }
-            );
-            // Combine left and right results
-            return sumLeft + sumRight;
+            return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, l, r - l + 1, SumToUlongSse, (x, y) => x + y, thresholdParallel);
         }
 
         private static long SumSseParInner(this long[] arrayToSum, int l, int r, int thresholdParallel = 16 * 1024)
         {
-            long sumLeft = 0;
-
-            if (l > r)
-                return sumLeft;
-            if ((r - l + 1) <= thresholdParallel)
-                return SumSse(arrayToSum, l, r - l + 1);
-
-            int m = (r + l) / 2;
-
-            long sumRight = 0;
-
-            Parallel.Invoke(
-                () => { sumLeft  = SumSseParInner(arrayToSum, l,     m, thresholdParallel); },
-                () => { sumRight = SumSseParInner(arrayToSum, m + 1, r, thresholdParallel); }
-            );
-            // Combine left and right results
-            return sumLeft + sumRight;
+            return AlgorithmPatterns.DivideAndConquerPar(arrayToSum, l, r - l + 1, SumSse, (x, y) => x + y, thresholdParallel);
         }
 
         private static ulong SumSseParInner(this ulong[] arrayToSum, int l, int r, int thresholdParallel = 16 * 1024)
         {
-            ulong sumLeft = 0;
-
-            if (l > r)
-                return sumLeft;
-            if ((r - l + 1) <= thresholdParallel)
-                return SumSse(arrayToSum, l, r - l + 1);
-
-            int m = (r + l) / 2;
-
-            ulong sumRight = 0;
-
-            Parallel.Invoke(
-                () => { sumLeft  = SumSseParInner(arrayToSum, l,     m, thresholdParallel); },
-                () => { sumRight = SumSseParInner(arrayToSum, m + 1, r, thresholdParallel); }
-            );
-            // Combine left and right results
-            return sumLeft + sumRight;
+            return AlgorithmPatterns.DivideAndConquerPar(arrayToSum, l, r - l + 1, SumSse, (x, y) => x + y, thresholdParallel);
         }
 
         private static float SumParInner(this float[] arrayToSum, int l, int r, int thresholdParallel = 16 * 1024)
         {
-            float sumLeft = 0;
-
-            if (l > r)
-                return sumLeft;
-            if ((r - l + 1) <= thresholdParallel)
-                return Algorithms.Sum.SumHpc(arrayToSum, l, r - l + 1);
-
-            int m = (r + l) / 2;
-
-            float sumRight = 0;
-
-            Parallel.Invoke(
-                () => { sumLeft  = SumParInner(arrayToSum, l,     m, thresholdParallel); },
-                () => { sumRight = SumParInner(arrayToSum, m + 1, r, thresholdParallel); }
-            );
-            // Combine left and right results
-            return sumLeft + sumRight;
+            return AlgorithmPatterns.DivideAndConquerPar(arrayToSum, l, r - l + 1, Algorithms.Sum.SumHpc, (x, y) => x + y, thresholdParallel);
         }
 
         private static double SumDblParInner(this float[] arrayToSum, int l, int r, int thresholdParallel = 16 * 1024)
         {
-            double sumLeft = 0;
-
-            if (l > r)
-                return sumLeft;
-            if ((r - l + 1) <= thresholdParallel)
-                return Algorithms.Sum.SumToDouble(arrayToSum, l, r - l + 1);
-
-            int m = (r + l) / 2;
-
-            double sumRight = 0;
-
-            Parallel.Invoke(
-                () => { sumLeft  = SumDblParInner(arrayToSum, l,     m, thresholdParallel); },
-                () => { sumRight = SumDblParInner(arrayToSum, m + 1, r, thresholdParallel); }
-            );
-            // Combine left and right results
-            return sumLeft + sumRight;
-        }
-
-        // Generic enough to be used for scalar multi-core, SSE multi-core, Kahan/Neumaier multi-core, and SSE Kahan/Neumaier multi-core
-        // Sadly, C# generics do not support limiting to only certain numeric types, making it impossible to implement an even further generic function for all numeric types
-        private static float SumParInner(this float[] arrayToSum, int l, int r, Func<float[], int, int, float> baseCase, Func<float, float, float> reduce, int thresholdParallel = 16 * 1024)
-        {
-            float sumLeft = 0;
-
-            if (l > r)
-                return sumLeft;
-            if ((r - l + 1) <= thresholdParallel)
-                return baseCase(arrayToSum, l, r);
-
-            int m = (r + l) / 2;
-
-            float sumRight = 0;
-
-            Parallel.Invoke(
-                () => { sumLeft  = SumParInner(arrayToSum, l,     m, baseCase, reduce, thresholdParallel); },
-                () => { sumRight = SumParInner(arrayToSum, m + 1, r, baseCase, reduce, thresholdParallel); }
-            );
-            return reduce(sumLeft, sumRight);
-        }
-
-        private static double SumDblParInner(this float[] arrayToSum, int l, int r, Func<float[], int, int, double> baseCase, Func<double, double, double> reduce, int thresholdParallel = 16 * 1024)
-        {
-            double sumLeft = 0;
-
-            if (l > r)
-                return sumLeft;
-            if ((r - l + 1) <= thresholdParallel)
-                return baseCase(arrayToSum, l, r);
-
-            int m = (r + l) / 2;
-
-            double sumRight = 0;
-
-            Parallel.Invoke(
-                () => { sumLeft  = SumDblParInner(arrayToSum, l,     m, baseCase, reduce, thresholdParallel); },
-                () => { sumRight = SumDblParInner(arrayToSum, m + 1, r, baseCase, reduce, thresholdParallel); }
-            );
-            return reduce(sumLeft, sumRight);
+            return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, l, r - l + 1, Algorithms.Sum.SumToDouble, (x, y) => x + y, thresholdParallel);
         }
 
         private static double SumDblSseParInner(this float[] arrayToSum, int l, int r, int thresholdParallel = 16 * 1024)
         {
-            double sumLeft = 0;
-
-            if (l > r)
-                return sumLeft;
-            if ((r - l + 1) <= thresholdParallel)
-                return SumSse(arrayToSum, l, r - l + 1);
-
-            int m = (r + l) / 2;
-
-            double sumRight = 0;
-
-            Parallel.Invoke(
-                () => { sumLeft  = SumDblSseParInner(arrayToSum, l,     m, thresholdParallel); },
-                () => { sumRight = SumDblSseParInner(arrayToSum, m + 1, r, thresholdParallel); }
-            );
-            // Combine left and right results
-            return sumLeft + sumRight;
+            return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, l, r - l + 1, SumSse, (x, y) => x + y, thresholdParallel);
         }
 
         private static float SumNeumaierParInner(this float[] arrayToSum, int l, int r, int thresholdParallel = 16 * 1024)
         {
-            float sumLeft = 0;
-
-            if (l > r)
-                return sumLeft;
-            if ((r - l + 1) <= thresholdParallel)
-                return Algorithms.Sum.SumMostAccurate(arrayToSum, l, r - l + 1);
-
-            int m = (r + l) / 2;
-
-            float sumRight = 0;
-
-            Parallel.Invoke(
-                () => { sumLeft  = SumNeumaierParInner(arrayToSum, l,     m, thresholdParallel); },
-                () => { sumRight = SumNeumaierParInner(arrayToSum, m + 1, r, thresholdParallel); }
-            );
-            // Combine left and right results
-            return Algorithms.Sum.SumMostAccurate(sumLeft, sumRight);
+            return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, l, r - l + 1, Algorithms.Sum.SumMostAccurate, Algorithms.Sum.SumMostAccurate, thresholdParallel);
         }
 
         private static double SumNeumaierDoubleParInner(this float[] arrayToSum, int l, int r, int thresholdParallel = 16 * 1024)
         {
-            double sumLeft = 0;
-
-            if (l > r)
-                return sumLeft;
-            if ((r - l + 1) <= thresholdParallel)
-                return Algorithms.Sum.SumToDoubleMostAccurate(arrayToSum, l, r - l + 1);
-
-            int m = (r + l) / 2;
-
-            double sumRight = 0;
-
-            Parallel.Invoke(
-                () => { sumLeft  = SumNeumaierDoubleParInner(arrayToSum, l,     m, thresholdParallel); },
-                () => { sumRight = SumNeumaierDoubleParInner(arrayToSum, m + 1, r, thresholdParallel); }
-            );
-            // Combine left and right results
-            return Algorithms.Sum.SumMostAccurate(sumLeft, sumRight);
+            return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, l, r - l + 1, Algorithms.Sum.SumToDoubleMostAccurate, Algorithms.Sum.SumMostAccurate, thresholdParallel);
         }
 
         private static float SumSseNeumaierParInner(this float[] arrayToSum, int l, int r, int thresholdParallel = 16 * 1024)
         {
-            float sumLeft = 0;
-
-            if (l > r)
-                return sumLeft;
-            if ((r - l + 1) <= thresholdParallel)
-                return SumSseMostAccurate(arrayToSum, l, r - l + 1);
-
-            int m = (r + l) / 2;
-
-            float sumRight = 0;
-
-            Parallel.Invoke(
-                () => { sumLeft  = SumSseNeumaierParInner(arrayToSum, l,     m, thresholdParallel); },
-                () => { sumRight = SumSseNeumaierParInner(arrayToSum, m + 1, r, thresholdParallel); }
-            );
-            // Combine left and right results
-            return Algorithms.Sum.SumMostAccurate(sumLeft, sumRight);
+            return AlgorithmPatterns.DivideAndConquerPar(arrayToSum, l, r - l + 1, SumSseMostAccurate, Algorithms.Sum.SumMostAccurate, thresholdParallel);
         }
 
         private static double SumSseNeumaierDoubleParInner(this float[] arrayToSum, int l, int r, int thresholdParallel = 16 * 1024)
         {
-            double sumLeft = 0;
-
-            if (l > r)
-                return sumLeft;
-            if ((r - l + 1) <= thresholdParallel)
-                return SumToDoubleSseMostAccurate(arrayToSum, l, r - l + 1);
-
-            int m = (r + l) / 2;
-
-            double sumRight = 0;
-
-            Parallel.Invoke(
-                () => { sumLeft  = SumSseNeumaierDoubleParInner(arrayToSum, l,     m, thresholdParallel); },
-                () => { sumRight = SumSseNeumaierDoubleParInner(arrayToSum, m + 1, r, thresholdParallel); }
-            );
-            // Combine left and right results
-            return Algorithms.Sum.SumMostAccurate(sumLeft, sumRight);
-        }
-
-        private static double SumParInner(this double[] arrayToSum, int l, int r, Func<double[], int, int, double> baseCase, Func<double, double, double> reduce, int thresholdParallel = 16 * 1024)
-        {
-            double sumLeft = 0;
-
-            if (l > r)
-                return sumLeft;
-            if ((r - l + 1) <= thresholdParallel)
-                return baseCase(arrayToSum, l, r);
-
-            int m = (r + l) / 2;
-
-            double sumRight = 0;
-
-            Parallel.Invoke(
-                () => { sumLeft  = SumParInner(arrayToSum, l,     m, baseCase, reduce, thresholdParallel); },
-                () => { sumRight = SumParInner(arrayToSum, m + 1, r, baseCase, reduce, thresholdParallel); }
-            );
-            return reduce(sumLeft, sumRight);
-        }
-
-        private static T SumParInner<T>(this T[] arrayToSum, int l, int r, Func<T[], int, int, T> baseCase, Func<T, T, T> reduce, int thresholdParallel = 16 * 1024)
-        {
-            T sumLeft = default(T);
-
-            if (l > r)
-                return sumLeft;
-            if ((r - l + 1) <= thresholdParallel)
-                return baseCase(arrayToSum, l, r);
-
-            int m = (r + l) / 2;
-
-            T sumRight = default(T);
-
-            Parallel.Invoke(
-                () => { sumLeft  = SumParInner(arrayToSum, l,     m, baseCase, reduce, thresholdParallel); },
-                () => { sumRight = SumParInner(arrayToSum, m + 1, r, baseCase, reduce, thresholdParallel); }
-            );
-            return reduce(sumLeft, sumRight);
+            return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, l, r - l + 1, SumToDoubleSseMostAccurate, Algorithms.Sum.SumMostAccurate, thresholdParallel);
         }
 
         private static ulong NumberOfBytesToNextCacheLine(float[] arrayToAlign)
@@ -2091,149 +1764,37 @@ namespace HPCsharp.ParallelAlgorithms
 
         private static float SumSseParInner(this float[] arrayToSum, int l, int r, int thresholdParallel = 16 * 1024)
         {
-            float sumLeft = 0;
-
-            if (l > r)
-                return sumLeft;
-            if ((r - l + 1) <= thresholdParallel)
-                return SumSse(arrayToSum, l, r - l + 1);
-
-            int m = (r + l) / 2;
-
-            float sumRight = 0;
-
-            Parallel.Invoke(
-                () => { sumLeft  = SumSseParInner(arrayToSum, l,     m, thresholdParallel); },
-                () => { sumRight = SumSseParInner(arrayToSum, m + 1, r, thresholdParallel); }
-            );
-            // Combine left and right results
-            return sumLeft + sumRight;
+            return AlgorithmPatterns.DivideAndConquerPar(arrayToSum, l, r - l + 1, SumSse, (x, y) => x + y, thresholdParallel);
         }
 
         private static double SumParInner(this double[] arrayToSum, int l, int r, int thresholdParallel = 16 * 1024)
         {
-            double sumLeft = 0;
-
-            if (l > r)
-                return sumLeft;
-            if ((r - l + 1) <= thresholdParallel)
-                return Algorithms.Sum.SumHpc(arrayToSum, l, r - l + 1);
-
-            int m = (r + l) / 2;
-
-            double sumRight = 0;
-
-            Parallel.Invoke(
-                () => { sumLeft  = SumParInner(arrayToSum, l,     m, thresholdParallel); },
-                () => { sumRight = SumParInner(arrayToSum, m + 1, r, thresholdParallel); }
-            );
-            // Combine left and right results
-            return sumLeft + sumRight;
+            return AlgorithmPatterns.DivideAndConquerPar(arrayToSum, l, r - l + 1, Algorithms.Sum.SumHpc, (x, y) => x + y, thresholdParallel);
         }
 
         private static double SumSseParInner(this double[] arrayToSum, int l, int r, int thresholdParallel = 16 * 1024)
         {
-            double sumLeft = 0;
-
-            if (l > r)
-                return sumLeft;
-            if ((r - l + 1) <= thresholdParallel)
-                return SumSse(arrayToSum, l, r - l + 1);
-
-            int m = (r + l) / 2;
-
-            double sumRight = 0;
-
-            Parallel.Invoke(
-                () => { sumLeft  = SumSseParInner(arrayToSum, l,     m, thresholdParallel); },
-                () => { sumRight = SumSseParInner(arrayToSum, m + 1, r, thresholdParallel); }
-            );
-            // Combine left and right results
-            return sumLeft + sumRight;
+            return AlgorithmPatterns.DivideAndConquerPar(arrayToSum, l, r - l + 1, SumSse, (x, y) => x + y, thresholdParallel);
         }
 
         private static double SumNeumaierParInner(this double[] arrayToSum, int l, int r, int thresholdParallel = 16 * 1024)
         {
-            double sumLeft = 0;
-
-            if (l > r)
-                return sumLeft;
-            if ((r - l + 1) <= thresholdParallel)
-                return Algorithms.Sum.SumMostAccurate(arrayToSum, l, r - l + 1);
-
-            int m = (r + l) / 2;
-
-            double sumRight = 0;
-
-            Parallel.Invoke(
-                () => { sumLeft  = SumNeumaierParInner(arrayToSum, l,     m, thresholdParallel); },
-                () => { sumRight = SumNeumaierParInner(arrayToSum, m + 1, r, thresholdParallel); }
-            );
-            // Combine left and right results
-            return Algorithms.Sum.SumMostAccurate(sumLeft, sumRight);
+            return AlgorithmPatterns.DivideAndConquerPar(arrayToSum, l, r - l + 1, Algorithms.Sum.SumMostAccurate, Algorithms.Sum.SumMostAccurate, thresholdParallel);
         }
 
         private static double SumSseNeumaierParInner(this double[] arrayToSum, int l, int r, int thresholdParallel = 16 * 1024)
         {
-            double sumLeft = 0;
-
-            if (l > r)
-                return sumLeft;
-            if ((r - l + 1) <= thresholdParallel)
-                return SumSseMostAccurate(arrayToSum, l, r - l + 1);
-
-            int m = (r + l) / 2;
-
-            double sumRight = 0;
-
-            Parallel.Invoke(
-                () => { sumLeft  = SumSseNeumaierParInner(arrayToSum, l,     m, thresholdParallel); },
-                () => { sumRight = SumSseNeumaierParInner(arrayToSum, m + 1, r, thresholdParallel); }
-            );
-            // Combine left and right results
-            return Algorithms.Sum.SumMostAccurate(sumLeft, sumRight);
+            return AlgorithmPatterns.DivideAndConquerPar(arrayToSum, l, r - l + 1, SumSseMostAccurate, Algorithms.Sum.SumMostAccurate, thresholdParallel);
         }
 
         private static decimal SumParInner(this decimal[] arrayToSum, int l, int r, int thresholdParallel = 16 * 1024)
         {
-            decimal sumLeft = 0;
-
-            if (l > r)
-                return sumLeft;
-            if ((r - l + 1) <= thresholdParallel)
-                return Algorithms.Sum.SumHpc(arrayToSum, l, r - l + 1);
-
-            int m = (r + l) / 2;
-
-            decimal sumRight = 0;
-
-            Parallel.Invoke(
-                () => { sumLeft  = SumParInner(arrayToSum, l,     m, thresholdParallel); },
-                () => { sumRight = SumParInner(arrayToSum, m + 1, r, thresholdParallel); }
-            );
-            // Combine left and right results
-            return sumLeft + sumRight;
+            return AlgorithmPatterns.DivideAndConquerPar(arrayToSum, l, r - l + 1, Algorithms.Sum.SumHpc, (x, y) => x + y, thresholdParallel);
         }
 
         private static BigInteger SumParInner(this BigInteger[] arrayToSum, int l, int r, int thresholdParallel = 16 * 1024)
         {
-            BigInteger sumLeft = 0;
-
-            if (l > r)
-                return sumLeft;
-            if ((r - l + 1) <= thresholdParallel)
-                return Algorithms.Sum.SumHpc(arrayToSum, l, r - l + 1);
-
-            int m = (r + l) / 2;
-
-            BigInteger sumRight = 0;
-
-            Parallel.Invoke(
-                () => { sumLeft  = SumParInner(arrayToSum, l,     m, thresholdParallel); },
-                () => { sumRight = SumParInner(arrayToSum, m + 1, r, thresholdParallel); }
-            );
-            // Combine left and right results
-            return sumLeft + sumRight;
+            return AlgorithmPatterns.DivideAndConquerPar(arrayToSum, l, r - l + 1, Algorithms.Sum.SumHpc, (x, y) => x + y, thresholdParallel);
         }
 
         private static decimal SumParInner(this long[] arrayToSum, int l, int r, int thresholdParallel = 16 * 1024)
