@@ -1,6 +1,5 @@
 ﻿// TODO: Implement a cache-aligned divide-and-conquer split. This is useful and fundamental when writing to cache lines, otherwise false sharing causes performance, and cache line boundary
 //       divide-and-conquer is needed to improve consistency of performance - i.e. reduce veriability in performance. However, for algorithms such as .Sum() which only read from memory, this is not needed.
-// TODO: Change the overall interface to be not (left, right), but (startIndex, length) instead, to be consistent with the rest of HPCsharp library
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -14,13 +13,28 @@ namespace HPCsharp
         /// Serial Divide and Conquer generic pattern.
         /// </summary>
         /// <param name="arrayToProcess">An input array to be processed</param>
+        /// <param name="start">starting index of the first element to be processed (inclusive)</param>
+        /// <param name="length">number of elements to be processed</param>
+        /// <param name="baseCase">function for the recursion base case (leaf node). The two parameters are start and length</param>
+        /// <param name="reduce">function for combining the two recursive results</param>
+        /// <param name="threshold">if array is larger than this value, then divide-and-conquer will be applied, otherwise the baseCase function will be invoked</param>
+        /// <returns>result value</returns>
+        public static T DivideAndConquer<T>(this T[] arrayToProcess, int start, int length, Func<T[], int, int, T> baseCase, Func<T, T, T> reduce, int threshold = 16 * 1024)
+        {
+            return DivideAndConquerLR(arrayToProcess, start, start + length - 1, baseCase, reduce, threshold);
+        }
+        /// <summary>
+        /// Serial Divide and Conquer generic pattern.
+        /// </summary>
+        /// <param name="arrayToProcess">An input array to be processed</param>
         /// <param name="left">left/starting index of the first element to be processed (inclusive)</param>
         /// <param name="right">right/last index of the last element to be processed (inclusive)</param>
         /// <param name="baseCase">function for the recursion base case (leaf node)</param>
         /// <param name="reduce">function for combining the two recursive results</param>
-        /// <param name="threshold">if array is larger than this value, then divide-and-conquer will be applied, otherwise the basecase function will be invoked</param>
+        /// <param name="threshold">if array is larger than this value, then divide-and-conquer will be applied, otherwise the baseCase function will be invoked</param>
         /// <returns>result value</returns>
-        private static T DivideAndConquer<T>(this T[] arrayToProcess, int left, int right, Func<T[], int, int, T> baseCase, Func<T, T, T> reduce, int threshold = 16 * 1024)
+        /// Note that the baseCase function is on (start, length) interface and not (left, right) because the pulic divide-and-conquer function has that interface too
+        internal static T DivideAndConquerLR<T>(this T[] arrayToProcess, int left, int right, Func<T[], int, int, T> baseCase, Func<T, T, T> reduce, int threshold = 16 * 1024)
         {
             T resultLeft = default(T);
 
@@ -33,10 +47,25 @@ namespace HPCsharp
 
             T resultRight = default(T);
 
-            resultLeft  = DivideAndConquer(arrayToProcess, left,    mid,   baseCase, reduce, threshold);
-            resultRight = DivideAndConquer(arrayToProcess, mid + 1, right, baseCase, reduce, threshold);
+            resultLeft  = DivideAndConquerLR(arrayToProcess, left,    mid,   baseCase, reduce, threshold);
+            resultRight = DivideAndConquerLR(arrayToProcess, mid + 1, right, baseCase, reduce, threshold);
 
             return reduce(resultLeft, resultRight);
+        }
+        /// <summary>
+        /// Serial Divide and Conquer generic pattern, using input type T and output type T2.
+        /// </summary>
+        /// <param name="arrayToProcess">An input array to be processed</param>
+        /// <param name="start">starting index of the first element to be processed (inclusive)</param>
+        /// <param name="length">number of elements to be processed</param>
+        /// <param name="baseCase">function for the recursion base case (leaf node). The two parameters are start and length</param>
+        /// <param name="reduce">function for combining the two recursive results</param>
+        /// <param name="threshold">if array is larger than this value, then divide-and-conquer will be applied, otherwise the basecase function will be invoked</param>
+        /// <returns>result value</returns>
+        internal static T2 DivideAndConquerTwoTypes<T, T2>(this T[] arrayToProcess, int start, int length, Func<T[], int, int, T2> baseCase, Func<T2, T2, T2> reduce,
+                                                           int threshold = 16 * 1024)
+        {
+            return DivideAndConquerTwoTypesLR(arrayToProcess, start, start + length - 1, baseCase, reduce, threshold);
         }
         /// <summary>
         /// Serial Divide and Conquer generic pattern.
@@ -48,8 +77,9 @@ namespace HPCsharp
         /// <param name="reduce">function for combining the two recursive results</param>
         /// <param name="threshold">if array is larger than this value, then divide-and-conquer will be applied, otherwise the basecase function will be invoked</param>
         /// <returns>result value</returns>
-        private static T2 DivideAndConquerTwoTypes<T, T2>(this T[] arrayToProcess, int left, int right, Func<T[], int, int, T2> baseCase, Func<T2, T2, T2> reduce,
-                                                          int threshold = 16 * 1024)
+        /// Note that the baseCase function is on (start, length) interface and not (left, right) because the pulic divide-and-conquer function has that interface too
+        internal static T2 DivideAndConquerTwoTypesLR<T, T2>(this T[] arrayToProcess, int left, int right, Func<T[], int, int, T2> baseCase, Func<T2, T2, T2> reduce,
+                                                           int threshold = 16 * 1024)
         {
             T2 resultLeft = (T2)Convert.ChangeType(default(T), typeof(T2));
 
@@ -62,10 +92,28 @@ namespace HPCsharp
 
             T2 resultRight = (T2)Convert.ChangeType(default(T), typeof(T2));
 
-            resultLeft  = DivideAndConquerTwoTypes(arrayToProcess, left,    mid,   baseCase, reduce, threshold);
-            resultRight = DivideAndConquerTwoTypes(arrayToProcess, mid + 1, right, baseCase, reduce, threshold);
+            resultLeft  = DivideAndConquerTwoTypesLR(arrayToProcess, left,    mid,   baseCase, reduce, threshold);
+            resultRight = DivideAndConquerTwoTypesLR(arrayToProcess, mid + 1, right, baseCase, reduce, threshold);
 
             return reduce(resultLeft, resultRight);
+        }
+        /// <summary>
+        /// Parallel Divide and Conquer generic pattern.
+        /// </summary>
+        /// <param name="arrayToProcess">An input array to be processed</param>
+        /// <param name="start">starting index of the first element to be processed (inclusive)</param>
+        /// <param name="length">number of elements to be processed</param>
+        /// <param name="baseCase">function for the recursion base case (leaf node). The two parameters are start and length</param>
+        /// <param name="reduce">function for combining the two recursive results</param>
+        /// <param name="thresholdPar">if array is larger than this value, then parallel processing will be used, otherwise serial processing will be used by invoking the baseCase function</param>
+        /// <param name="degreeOfParallelism">amount of parallelism to be used - i.e. number of computational cores. When set to zero or negative, all available cores will be utilized.
+        /// When set to 1, then a single core will be used. When set to > 1, then that many cores will be used.</param>
+        /// <returns>result value</returns>
+        /// Note that the baseCase function is on (start, length) interface and not (left, right) because the pulic divide-and-conquer function has that interface too
+        public static T DivideAndConquerPar<T>(this T[] arrayToProcess, int start, int length, Func<T[], int, int, T> baseCase, Func<T, T, T> reduce,
+                                               int thresholdPar = 16 * 1024, int degreeOfParallelism = 0)
+        {
+            return DivideAndConquerParLR(arrayToProcess, start, start + length - 1, baseCase, reduce, thresholdPar, degreeOfParallelism);
         }
         /// <summary>
         /// Parallel Divide and Conquer generic pattern.
@@ -79,8 +127,9 @@ namespace HPCsharp
         /// <param name="degreeOfParallelism">amount of parallelism to be used - i.e. number of computational cores. When set to zero or negative, all available cores will be utilized.
         /// When set to 1, then a single core will be used. When set to > 1, then that many cores will be used.</param>
         /// <returns>result value</returns>
-        public static T DivideAndConquerPar<T>(this T[] arrayToProcess, int left, int right, Func<T[], int, int, T> baseCase, Func<T, T, T> reduce, int thresholdPar = 16 * 1024,
-                                               int degreeOfParallelism = 0)
+        /// Note that the baseCase function is on (start, length) interface and not (left, right) because the pulic divide-and-conquer function has that interface too
+        internal static T DivideAndConquerParLR<T>(this T[] arrayToProcess, int left, int right, Func<T[], int, int, T> baseCase, Func<T, T, T> reduce, int thresholdPar = 16 * 1024,
+                                                   int degreeOfParallelism = 0)
         {
             T resultLeft = default(T);
 
@@ -95,34 +144,34 @@ namespace HPCsharp
 
             if (degreeOfParallelism == 1)
             {
-                resultLeft  = DivideAndConquerPar(arrayToProcess, left,    mid,   baseCase, reduce, thresholdPar);
-                resultRight = DivideAndConquerPar(arrayToProcess, mid + 1, right, baseCase, reduce, thresholdPar);
+                resultLeft  = DivideAndConquerParLR(arrayToProcess, left,    mid,   baseCase, reduce, thresholdPar);
+                resultRight = DivideAndConquerParLR(arrayToProcess, mid + 1, right, baseCase, reduce, thresholdPar);
             }
             else if (degreeOfParallelism > 1)
             {
                 var options = new ParallelOptions { MaxDegreeOfParallelism = degreeOfParallelism };
                 Parallel.Invoke( options,
-                    () => { resultLeft  = DivideAndConquerPar(arrayToProcess, left,    mid,   baseCase, reduce, thresholdPar); },
-                    () => { resultRight = DivideAndConquerPar(arrayToProcess, mid + 1, right, baseCase, reduce, thresholdPar); }
+                    () => { resultLeft  = DivideAndConquerParLR(arrayToProcess, left,    mid,   baseCase, reduce, thresholdPar); },
+                    () => { resultRight = DivideAndConquerParLR(arrayToProcess, mid + 1, right, baseCase, reduce, thresholdPar); }
                 );
             }
             else
             {
                 Parallel.Invoke(
-                    () => { resultLeft  = DivideAndConquerPar(arrayToProcess, left,    mid,   baseCase, reduce, thresholdPar); },
-                    () => { resultRight = DivideAndConquerPar(arrayToProcess, mid + 1, right, baseCase, reduce, thresholdPar); }
+                    () => { resultLeft  = DivideAndConquerParLR(arrayToProcess, left,    mid,   baseCase, reduce, thresholdPar); },
+                    () => { resultRight = DivideAndConquerParLR(arrayToProcess, mid + 1, right, baseCase, reduce, thresholdPar); }
                 );
             }
 
             return reduce(resultLeft, resultRight);
         }
         /// <summary>
-        /// Parallel Divide and Conquer generic pattern.
+        /// Parallel Divide and Conquer generic pattern, using input type T and output type T2.
         /// </summary>
         /// <param name="arrayToProcess">An input array to be processed</param>
         /// <param name="start">starting index of the first element to be processed (inclusive)</param>
         /// <param name="length">number of elements to be processed</param>
-        /// <param name="baseCase">function for the recursion base case (leaf node)</param>
+        /// <param name="baseCase">function for the recursion base case (leaf node). The two parameters are start and length</param>
         /// <param name="reduce">function for combining the two recursive results</param>
         /// <param name="thresholdPar">if array is larger than this value, then parallel processing will be used, otherwise serial processing will be used by invoking the baseCase function</param>
         /// <param name="degreeOfParallelism">amount of parallelism to be used - i.e. number of computational cores. When set to zero or negative, all available cores will be utilized.
@@ -139,18 +188,17 @@ namespace HPCsharp
         /// <param name="arrayToProcess">An input array to be processed</param>
         /// <param name="left">left/starting index of the first element to be processed (inclusive)</param>
         /// <param name="right">right/last index of the last element to be processed (inclusive)</param>
-        /// <param name="baseCase">function for the recursion base case (leaf node)</param>
+        /// <param name="baseCase">function for the recursion base case (leaf node), which must be of (start, length) interface and not (left, right)</param>
         /// <param name="reduce">function for combining the two recursive results</param>
         /// <param name="thresholdPar">if array is larger than this value, then parallel processing will be used, otherwise serial processing will be used by invoking the baseCase function</param>
         /// <param name="degreeOfParallelism">amount of parallelism to be used - i.e. number of computational cores. When set to zero or negative, all available cores will be utilized.
         /// When set to 1, then a single core will be used. When set to > 1, then that many cores will be used.</param>
         /// <returns>result value</returns>
+        /// Note that the baseCase function is on (start, length) interface and not (left, right) because the pulic divide-and-conquer function has that interface too
         internal static T2 DivideAndConquerTwoTypesParLR<T, T2>(this T[] arrayToProcess, int left, int right, Func<T[], int, int, T2> baseCase, Func<T2, T2, T2> reduce,
                                                                int thresholdPar = 16 * 1024, int degreeOfParallelism = 0)
         {
             T2 resultLeft = (T2)Convert.ChangeType(default(T), typeof(T2));
-
-            //Console.WriteLine("left = {0}   right = {1}", left, right);
 
             if (left > right)
                 return resultLeft;
