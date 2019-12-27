@@ -1,3 +1,12 @@
+Version 3.7.2
+Added divide-and-conquer generic function abstraction: serial and parallel versions, which makes parallel programming simpler.
+It's used inside HPCsharp. Blog on usage: https://duvanenko.tech.blog/2019/12/25/parallel-divide-and-conquer-abstraction-in-c/
+
+Version 3.7.1
+25X even faster ulong[].Sum, which produces a perfectly accurate result without causing overflow, by producing a BigInteger result,
+which uses a newly developed algorithm using integer arithmetic internally and only converts the final result to BigInteger.
+Associated blog https://duvanenko.tech.blog/2019/07/20/checked-data-parallel-arithmetic-in-c/
+
 Version 3.7.0
 25X even faster ulong[].Sum, which produces a perfectly accurate result without causing overflow, by producing a Decimal result,
 which only uses integer arithmetic internally and only converts the final result to Decimal. Associated blog https://duvanenko.tech.blog/2019/07/20/checked-data-parallel-arithmetic-in-c/
