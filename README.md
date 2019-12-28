@@ -15,7 +15,7 @@ similar to standard C# algorithms and Linq. Free, open source, on nuget.org
 [Block Swap](#Block-Swap) | 4 | 5 | | | :heavy_check_mark: | | Generic
 [Parallel Copy](#Parallel-Copy) | 1 | 11 | | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | List.ToArray() and Array.Copy() parallel generic
 [Counting Sort](#Counting-Sort) | 3 | 14 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | byte, ushort, sbyte, short arrays. Ludicrous speed!
-Divide-And-Conquer\*\*\* | 1 | 2 | | :heavy_check_mark: | :heavy_check_mark: | | Generic scalar and parallel abstraction
+[Divide-and-Conquer](#Divide-and-Conquer) | 2 | 4 | | :heavy_check_mark: | :heavy_check_mark: | | Generic serial and parallel abstraction
 Fill | 4 | 10 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Numeric arrays
 Histogram | 14 | 35 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Byte, N-bit components of numeric arrays
 [Insertion Sort](#Insertion-Sort) | 1 | 2 | | | :heavy_check_mark: | :heavy_check_mark: | Generic IComparer\<T\>
@@ -90,6 +90,13 @@ For more details, see several blogs on various aspects:
 - [Faster Checked Addition in C# (Part 2)](https://duvanenko.tech.blog/2019/09/23/faster-checked-addition-in-c-part-2/ "Faster Checked Addition in C# (Part 2)")
 - [Checked SIMD/SSE Addition in C#](https://duvanenko.tech.blog/2019/07/20/checked-data-parallel-arithmetic-in-c/ "Checked SIMD/SSE Addition in C#")
 - [Video of Checked SIMD/SSE/multi-core Addition in C#](https://www.youtube.com/watch?v=hNqE1Ghwbv4 "Checked SIMD/SSE/multi-core Addition in C#")
+
+## Divide-and-Conquer
+Provides parallel and serial generic functions, which support multi-core and single-core divide-and-conquer algorithm.
+Two versions are provided: single data type and two types.
+
+For more details, see blog:
+- [Divide-and-Conquer](https://duvanenko.tech.blog/2019/12/25/parallel-divide-and-conquer-abstraction-in-c/ "Divide-and-Conquer")
 
 ## Counting Sort
 
