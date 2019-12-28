@@ -1676,76 +1676,6 @@ namespace HPCsharp.ParallelAlgorithms
             return sum + c;
         }
 
-        private static ulong SumSseParInner(this byte[] arrayToSum, int l, int r, int thresholdParallel = 16 * 1024)
-        {
-            return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, l, r - l + 1, SumToUlongSse, (x, y) => x + y, thresholdParallel);
-        }
-
-        private static long SumSseParInner(this short[] arrayToSum, int l, int r, int thresholdParallel = 16 * 1024)
-        {
-            return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, l, r - l + 1, SumToLongSse, (x, y) => x + y, thresholdParallel);
-        }
-
-        private static ulong SumSseParInner(this ushort[] arrayToSum, int l, int r, int thresholdParallel = 16 * 1024)
-        {
-            return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, l, r - l + 1, SumToUlongSse, (x, y) => x + y, thresholdParallel);
-        }
-
-        private static long SumSseParInner(this int[] arrayToSum, int l, int r, int thresholdParallel = 16 * 1024)
-        {
-            return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, l, r - l + 1, SumToLongSse, (x, y) => x + y, thresholdParallel);
-        }
-
-        private static ulong SumSseParInner(this uint[] arrayToSum, int l, int r, int thresholdParallel = 16 * 1024)
-        {
-            return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, l, r - l + 1, SumToUlongSse, (x, y) => x + y, thresholdParallel);
-        }
-
-        private static long SumSseParInner(this long[] arrayToSum, int l, int r, int thresholdParallel = 16 * 1024)
-        {
-            return AlgorithmPatterns.DivideAndConquerPar(arrayToSum, l, r - l + 1, SumSse, (x, y) => x + y, thresholdParallel);
-        }
-
-        private static ulong SumSseParInner(this ulong[] arrayToSum, int l, int r, int thresholdParallel = 16 * 1024)
-        {
-            return AlgorithmPatterns.DivideAndConquerPar(arrayToSum, l, r - l + 1, SumSse, (x, y) => x + y, thresholdParallel);
-        }
-
-        private static float SumParInner(this float[] arrayToSum, int l, int r, int thresholdParallel = 16 * 1024)
-        {
-            return AlgorithmPatterns.DivideAndConquerPar(arrayToSum, l, r - l + 1, Algorithms.Sum.SumHpc, (x, y) => x + y, thresholdParallel);
-        }
-
-        private static double SumDblParInner(this float[] arrayToSum, int l, int r, int thresholdParallel = 16 * 1024)
-        {
-            return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, l, r - l + 1, Algorithms.Sum.SumToDouble, (x, y) => x + y, thresholdParallel);
-        }
-
-        private static double SumDblSseParInner(this float[] arrayToSum, int l, int r, int thresholdParallel = 16 * 1024)
-        {
-            return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, l, r - l + 1, SumSse, (x, y) => x + y, thresholdParallel);
-        }
-
-        private static float SumNeumaierParInner(this float[] arrayToSum, int l, int r, int thresholdParallel = 16 * 1024)
-        {
-            return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, l, r - l + 1, Algorithms.Sum.SumMostAccurate, Algorithms.Sum.SumMostAccurate, thresholdParallel);
-        }
-
-        private static double SumNeumaierDoubleParInner(this float[] arrayToSum, int l, int r, int thresholdParallel = 16 * 1024)
-        {
-            return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, l, r - l + 1, Algorithms.Sum.SumToDoubleMostAccurate, Algorithms.Sum.SumMostAccurate, thresholdParallel);
-        }
-
-        private static float SumSseNeumaierParInner(this float[] arrayToSum, int l, int r, int thresholdParallel = 16 * 1024)
-        {
-            return AlgorithmPatterns.DivideAndConquerPar(arrayToSum, l, r - l + 1, SumSseMostAccurate, Algorithms.Sum.SumMostAccurate, thresholdParallel);
-        }
-
-        private static double SumSseNeumaierDoubleParInner(this float[] arrayToSum, int l, int r, int thresholdParallel = 16 * 1024)
-        {
-            return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, l, r - l + 1, SumToDoubleSseMostAccurate, Algorithms.Sum.SumMostAccurate, thresholdParallel);
-        }
-
         private static ulong NumberOfBytesToNextCacheLine(float[] arrayToAlign)
         {
             ulong numBytesUnaligned = 0;
@@ -2065,7 +1995,7 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>ulong sum</returns>
         public static ulong SumToUlongSsePar(this byte[] arrayToSum, int thresholdParallel = 16 * 1024)
         {
-            return SumSseParInner(arrayToSum, 0, arrayToSum.Length - 1, thresholdParallel);
+            return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, 0, arrayToSum.Length, SumToUlongSse, (x, y) => x + y, thresholdParallel);
         }
 
         /// <summary>
@@ -2078,7 +2008,7 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>ulong sum</returns>
         public static ulong SumToUlongSsePar(this byte[] arrayToSum, int startIndex, int length, int thresholdParallel = 16 * 1024)
         {
-            return arrayToSum.SumSseParInner(startIndex, startIndex + length - 1, thresholdParallel);
+            return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, startIndex, length, SumToUlongSse, (x, y) => x + y, thresholdParallel);
         }
 
         /// <summary>
@@ -2089,7 +2019,7 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>long sum</returns>
         public static long SumToLongSsePar(this short[] arrayToSum, int thresholdParallel = 16 * 1024)
         {
-            return SumSseParInner(arrayToSum, 0, arrayToSum.Length - 1, thresholdParallel);
+            return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, 0, arrayToSum.Length, SumToLongSse, (x, y) => x + y, thresholdParallel);
         }
 
         /// <summary>
@@ -2102,7 +2032,7 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>long sum</returns>
         public static long SumToLongSsePar(this short[] arrayToSum, int startIndex, int length, int thresholdParallel = 16 * 1024)
         {
-            return arrayToSum.SumSseParInner(startIndex, startIndex + length - 1, thresholdParallel);
+            return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, startIndex, length, SumToLongSse, (x, y) => x + y, thresholdParallel);
         }
 
         /// <summary>
@@ -2113,7 +2043,7 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>ulong sum</returns>
         public static ulong SumToUlongSsePar(this ushort[] arrayToSum, int thresholdParallel = 16 * 1024)
         {
-            return SumSseParInner(arrayToSum, 0, arrayToSum.Length - 1, thresholdParallel);
+            return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, 0, arrayToSum.Length, SumToUlongSse, (x, y) => x + y, thresholdParallel);
         }
 
         /// <summary>
@@ -2126,7 +2056,7 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>ulong sum</returns>
         public static ulong SumToUlongSsePar(this ushort[] arrayToSum, int startIndex, int length, int thresholdParallel = 16 * 1024)
         {
-            return arrayToSum.SumSseParInner(startIndex, startIndex + length - 1, thresholdParallel);
+            return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, startIndex, length, SumToUlongSse, (x, y) => x + y, thresholdParallel);
         }
 
         /// <summary>
@@ -2137,7 +2067,7 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>long sum</returns>
         public static long SumToLongSsePar(this int[] arrayToSum, int thresholdParallel = 16 * 1024)
         {
-            return SumSseParInner(arrayToSum, 0, arrayToSum.Length - 1, thresholdParallel);
+            return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, 0, arrayToSum.Length, SumToLongSse, (x, y) => x + y, thresholdParallel);
         }
 
         /// <summary>
@@ -2150,7 +2080,7 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>long sum</returns>
         public static long SumToLongSsePar(this int[] arrayToSum, int startIndex, int length, int thresholdParallel = 16 * 1024)
         {
-            return arrayToSum.SumSseParInner(startIndex, startIndex + length - 1, thresholdParallel);
+            return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, startIndex, length, SumToLongSse, (x, y) => x + y, thresholdParallel);
         }
 
         /// <summary>
@@ -2161,7 +2091,7 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>ulong sum</returns>
         public static ulong SumToUlongSsePar(this uint[] arrayToSum, int thresholdParallel = 16 * 1024)
         {
-            return SumSseParInner(arrayToSum, 0, arrayToSum.Length - 1, thresholdParallel);
+            return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, 0, arrayToSum.Length, SumToUlongSse, (x, y) => x + y, thresholdParallel);
         }
 
         /// <summary>
@@ -2174,7 +2104,7 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>ulong sum</returns>
         public static ulong SumToUlongSsePar(this uint[] arrayToSum, int startIndex, int length, int thresholdParallel = 16 * 1024)
         {
-            return arrayToSum.SumSseParInner(startIndex, startIndex + length - 1, thresholdParallel);
+            return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, startIndex, length, SumToUlongSse, (x, y) => x + y, thresholdParallel);
         }
 
         /// <summary>
@@ -2184,7 +2114,7 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>long sum</returns>
         public static long SumSsePar(this long[] arrayToSum, int thresholdParallel = 16 * 1024)
         {
-            return SumSseParInner(arrayToSum, 0, arrayToSum.Length - 1, thresholdParallel);
+            return AlgorithmPatterns.DivideAndConquerPar(arrayToSum, 0, arrayToSum.Length, SumSse, (x, y) => x + y, thresholdParallel);
         }
 
         /// <summary>
@@ -2196,7 +2126,7 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>long sum</returns>
         public static long SumSsePar(this long[] arrayToSum, int startIndex, int length, int thresholdParallel = 16 * 1024)
         {
-            return arrayToSum.SumSseParInner(startIndex, startIndex + length - 1, thresholdParallel);
+            return AlgorithmPatterns.DivideAndConquerPar(arrayToSum, startIndex, length, SumSse, (x, y) => x + y, thresholdParallel);
         }
 
         /// <summary>
@@ -2529,7 +2459,7 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>ulong sum</returns>
         public static ulong SumSsePar(this ulong[] arrayToSum, int thresholdParallel = 16 * 1024)
         {
-            return SumSseParInner(arrayToSum, 0, arrayToSum.Length - 1, thresholdParallel);
+            return AlgorithmPatterns.DivideAndConquerPar(arrayToSum, 0, arrayToSum.Length, SumSse, (x, y) => x + y, thresholdParallel);
         }
 
         /// <summary>
@@ -2541,7 +2471,7 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>ulong sum</returns>
         public static ulong SumSsePar(this ulong[] arrayToSum, int startIndex, int length, int thresholdParallel = 16 * 1024)
         {
-            return arrayToSum.SumSseParInner(startIndex, startIndex + length - 1, thresholdParallel);
+            return AlgorithmPatterns.DivideAndConquerPar(arrayToSum, startIndex, length, SumSse, (x, y) => x + y, thresholdParallel);
         }
 
         /// <summary>
@@ -2551,8 +2481,7 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>float sum</returns>
         public static float SumPar(this float[] arrayToSum, int thresholdParallel = 16 * 1024)
         {
-            return arrayToSum.SumParInner(0, arrayToSum.Length - 1, thresholdParallel);
-            //return arrayToSum.SumParInner(0, arrayToSum.Length - 1, Algorithm.SumLR, (x, y) => x + y);
+            return AlgorithmPatterns.DivideAndConquerPar(arrayToSum, 0, arrayToSum.Length, Algorithms.Sum.SumHpc, (x, y) => x + y, thresholdParallel);
         }
 
         /// <summary>
@@ -2564,8 +2493,7 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>float sum</returns>
         public static float SumPar(this float[] arrayToSum, int startIndex, int length, int thresholdParallel = 16 * 1024)
         {
-            return arrayToSum.SumParInner(startIndex, startIndex + length - 1, thresholdParallel);
-            //return arrayToSum.SumParInner(start, start + length - 1, Algorithm.SumLR, (x, y) => x + y);
+            return AlgorithmPatterns.DivideAndConquerPar(arrayToSum, startIndex, length, Algorithms.Sum.SumHpc, (x, y) => x + y, thresholdParallel);
         }
 
         /// <summary>
@@ -2576,8 +2504,7 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>float sum</returns>
         public static double SumToDoublePar(this float[] arrayToSum, int thresholdParallel = 16 * 1024)
         {
-            return arrayToSum.SumDblParInner(0, arrayToSum.Length - 1, thresholdParallel);
-            //return arrayToSum.SumDblParInner(0, arrayToSum.Length - 1, Algorithm.SumDblLR, (x, y) => x + y);
+            return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, 0, arrayToSum.Length, Algorithms.Sum.SumToDouble, (x, y) => x + y, thresholdParallel);
         }
 
         /// <summary>
@@ -2590,8 +2517,7 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>float sum</returns>
         public static double SumToDoublePar(this float[] arrayToSum, int startIndex, int length, int thresholdParallel = 16 * 1024)
         {
-            return arrayToSum.SumDblParInner(startIndex, startIndex + length - 1, thresholdParallel);
-            //return arrayToSum.SumDblParInner(start, start + length - 1, Algorithm.SumDblLR, (x, y) => x + y);
+            return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, startIndex, length, Algorithms.Sum.SumToDouble, (x, y) => x + y, thresholdParallel);
         }
 
         /// <summary>
@@ -2624,7 +2550,7 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>double sum</returns>
         public static double SumToDoubleSsePar(this float[] arrayToSum, int thresholdParallel = 16 * 1024)
         {
-            return SumDblSseParInner(arrayToSum, 0, arrayToSum.Length - 1, thresholdParallel);
+            return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, 0, arrayToSum.Length, SumSse, (x, y) => x + y, thresholdParallel);
         }
 
         /// <summary>
@@ -2637,7 +2563,7 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>double sum</returns>
         public static double SumToDoubleSsePar(this float[] arrayToSum, int startIndex, int length, int thresholdParallel = 16 * 1024)
         {
-            return arrayToSum.SumDblSseParInner(startIndex, startIndex + length - 1, thresholdParallel);
+            return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, startIndex, length, SumSse, (x, y) => x + y, thresholdParallel);
         }
 
         /// <summary>
@@ -2692,7 +2618,7 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>float sum</returns>
         public static float SumParMostAccurate(this float[] arrayToSum, int thresholdParallel = 16 * 1024)
         {
-            return SumNeumaierParInner(arrayToSum, 0, arrayToSum.Length - 1, thresholdParallel);
+            return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, 0, arrayToSum.Length, Algorithms.Sum.SumMostAccurate, Algorithms.Sum.SumMostAccurate, thresholdParallel);
         }
 
         /// <summary>
@@ -2705,7 +2631,7 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>float sum</returns>
         public static float SumParMostAccurate(this float[] arrayToSum, int startIndex, int length, int thresholdParallel = 16 * 1024)
         {
-            return arrayToSum.SumNeumaierParInner(startIndex, startIndex + length - 1, thresholdParallel);
+            return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, startIndex, length, Algorithms.Sum.SumMostAccurate, Algorithms.Sum.SumMostAccurate, thresholdParallel);
         }
         /// <summary>
         /// Implementation of the Neumaier variation of Kahan floating-point summation: more accurate than for loop summation.
@@ -2715,7 +2641,7 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>double sum</returns>
         public static double SumToDoubleParMostAccurate(this float[] arrayToSum, int thresholdParallel = 16 * 1024)
         {
-            return SumNeumaierDoubleParInner(arrayToSum, 0, arrayToSum.Length - 1, thresholdParallel);
+            return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, 0, arrayToSum.Length, Algorithms.Sum.SumToDoubleMostAccurate, Algorithms.Sum.SumMostAccurate, thresholdParallel);
         }
 
         /// <summary>
@@ -2728,7 +2654,7 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>double sum</returns>
         public static double SumToDoubleParMostAccurate(this float[] arrayToSum, int startIndex, int length, int thresholdParallel = 16 * 1024)
         {
-            return arrayToSum.SumNeumaierDoubleParInner(startIndex, startIndex + length - 1, thresholdParallel);
+            return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, startIndex, length, Algorithms.Sum.SumToDoubleMostAccurate, Algorithms.Sum.SumMostAccurate, thresholdParallel);
         }
 
         /// <summary>
@@ -2739,7 +2665,7 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>float sum</returns>
         public static float SumSseParMostAccurate(this float[] arrayToSum, int thresholdParallel = 16 * 1024)
         {
-            return SumSseNeumaierParInner(arrayToSum, 0, arrayToSum.Length - 1, thresholdParallel);
+            return AlgorithmPatterns.DivideAndConquerPar(arrayToSum, 0, arrayToSum.Length, SumSseMostAccurate, Algorithms.Sum.SumMostAccurate, thresholdParallel);
         }
 
         /// <summary>
@@ -2752,7 +2678,7 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>float sum</returns>
         public static float SumSseParMostAccurate(this float[] arrayToSum, int startIndex, int length, int thresholdParallel = 16 * 1024)
         {
-            return arrayToSum.SumSseNeumaierParInner(startIndex, startIndex + length - 1, thresholdParallel);
+            return AlgorithmPatterns.DivideAndConquerPar(arrayToSum, startIndex, length, SumSseMostAccurate, Algorithms.Sum.SumMostAccurate, thresholdParallel);
         }
 
         /// <summary>
@@ -2763,7 +2689,7 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>double sum</returns>
         public static double SumToDoubleSseParMostAccurate(this float[] arrayToSum, int thresholdParallel = 16 * 1024)
         {
-            return SumSseNeumaierDoubleParInner(arrayToSum, 0, arrayToSum.Length - 1, thresholdParallel);
+            return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, 0, arrayToSum.Length, SumToDoubleSseMostAccurate, Algorithms.Sum.SumMostAccurate, thresholdParallel);
         }
 
         /// <summary>
@@ -2776,7 +2702,7 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>double sum</returns>
         public static double SumToDoubleSseParMostAccurate(this float[] arrayToSum, int startIndex, int length, int thresholdParallel = 16 * 1024)
         {
-            return arrayToSum.SumSseNeumaierDoubleParInner(startIndex, startIndex + length - 1, thresholdParallel);
+            return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, startIndex, length, SumToDoubleSseMostAccurate, Algorithms.Sum.SumMostAccurate, thresholdParallel);
         }
 
         /// <summary>
