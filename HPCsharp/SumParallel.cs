@@ -71,13 +71,20 @@
 //       minimal and the outer loops happens less often, amortized over the 256 times loop. This method should also work well for ushort. Uint won't need it.
 // TODO: Benchmark the above improved SSE .Sum() implementation inside CPU cache only, by doing many loops accross
 //       an array that fits into the cache completely, to see how much faster it really runs when not being
-//       limited by speed of system memory.
+//       limited by speed of system memory. This may change how we do Functional programming efficiently in the future!
 // TODO: Apply the new SSE worst-case optimization for ulong[].Sum() to BigInteger as well, as this will speedup even more than Decimal in the worst-case.
 // TODO: Document in the Readme that .Sum() is a next higher level of abstraction for Sum(), since it takes care of more details internally, such as
 //       removes the need to be concerned about arithmetic overflow, as that is handled inside the HPCsharp .Sum() functions.
 // TODO: Implement .AsParallel() and .AsSafe() methods, which transform input array into whatever output .AsParallel() transforms normally to.
 //       Also develop a special data type for .AsSafe() to transform the output to, and handle this data type in HPCsharp functions. This will make it
 //       simpler for the developers to use instead of dealing with naming of functions.
+// TODO: Benchmarks of unrolled SSE .Sum() show > 2X speedup for arrays inside the cache. Create routines using this methodology and show even faster
+//       overall performance for arrays inside the cache using multi-core or single core. Single-core unrolled is running at almost 7 GigaAdds/sec for long[].
+//       Multi-core performance seems to get limited to 4 GigaAdds/sec, possibly due to being limited by memory contention. Unrolled SSE multi-core seems
+//       to perform at the same level as single SSE instruction per loop (not-unrolled). Thus, it's beneficial to use unrolled SSE, since it gains speed
+//       when the array is inside the cache, especially for single core.
+// TODO: 8-way unrolling of SIMD for long .SUM slowed things down when compared to 4-way unrolling, which provides 2X speedup over no unrolling.
+//       for small arrays that fit into L2 cache. Need to try 2-way and 3-way unroll to see if these provide even higher performance.
 
 using System.Collections.Generic;
 using System.Text;
@@ -91,6 +98,7 @@ namespace HPCsharp.ParallelAlgorithms
 {
     static public partial class Sum
     {
+        // 7.2 GigaSums/sec on 6-core dual-memory-channel CPU, using this scalar algorithm = 28 GigaBytes/sec of memory bandwidth for large arrays
         // from https://stackoverflow.com/questions/2419343/how-to-sum-up-an-array-of-integers-in-c-sharp?noredirect=1&lq=1
         public static long SumToLongExperimental(this int[] arrayToSum)
         {
@@ -542,6 +550,18 @@ namespace HPCsharp.ParallelAlgorithms
             return arrayToSum.SumSseInner(startIndex, startIndex + length - 1);
         }
 
+        public static long SumSseAndScalar(this int[] arrayToSum)
+        {
+            //return arrayToSum.SumSseInner(0, arrayToSum.Length - 1);
+            return arrayToSum.SumSseAndScalarInner(0, arrayToSum.Length - 1);
+        }
+
+        public static long SumSseAndScalar(this int[] arrayToSum, int start, int length)
+        {
+            return arrayToSum.SumSseAndScalarInner(start, start + length - 1);
+        }
+
+        // Sadly, even in-cache small arrays are not speeding up with this interleaving idea :-(
         private static long SumSseAndScalarInner(this int[] arrayToSum, int l, int r)
         {
             const int numScalarOps = 2;
@@ -574,17 +594,6 @@ namespace HPCsharp.ParallelAlgorithms
             for (i = 0; i < Vector<long>.Count; i++)
                 partialScalarSum0 += sumVectorLower[i];
             return partialScalarSum0;
-        }
-
-        private static long SumSseAndScalar(this int[] arrayToSum)
-        {
-            //return arrayToSum.SumSseInner(0, arrayToSum.Length - 1);
-            return arrayToSum.SumSseAndScalarInner(0, arrayToSum.Length - 1);
-        }
-
-        private static long SumSseAndScalar(this int[] arrayToSum, int start, int length)
-        {
-            return arrayToSum.SumSseAndScalarInner(start, start + length - 1);
         }
 
         /// <summary>
@@ -680,6 +689,83 @@ namespace HPCsharp.ParallelAlgorithms
             {
                 overallSum = checked(overallSum + sumVector[i]);
             }
+            return overallSum;
+        }
+
+        private static long SumSse2(this long[] arrayToSum)
+        {
+            return arrayToSum.SumSseInner2(0, arrayToSum.Length - 1);
+        }
+
+        private static long SumSse2(this long[] arrayToSum, int start, int length)
+        {
+            return arrayToSum.SumSseInner2(start, start + length - 1);
+        }
+
+        private static long SumSseInner2(this long[] arrayToSum, int l, int r)
+        {
+            var sumVector = new Vector<long>();
+            int concurrentAmount = 4;
+            int sseIndexEnd = l + ((r - l + 1) / (Vector<long>.Count * concurrentAmount)) * (Vector<long>.Count * concurrentAmount);
+            int offset1 = Vector<long>.Count;
+            int offset2 = Vector<long>.Count * 2;
+            int offset3 = Vector<long>.Count * 3;
+            int i;
+            int increment = Vector<long>.Count * concurrentAmount;
+            for (i = l; i < sseIndexEnd; i += increment)
+            {
+                sumVector += new Vector<long>(arrayToSum, i);
+                sumVector += new Vector<long>(arrayToSum, i + offset1);
+                sumVector += new Vector<long>(arrayToSum, i + offset2);
+                sumVector += new Vector<long>(arrayToSum, i + offset3);
+            }
+            long overallSum = 0;
+            for (; i <= r; i++)
+                overallSum += arrayToSum[i];
+            for (i = 0; i < Vector<long>.Count; i++)
+                overallSum += sumVector[i];
+            return overallSum;
+        }
+
+        private static long SumSse3(this long[] arrayToSum)
+        {
+            return arrayToSum.SumSseInner3(0, arrayToSum.Length - 1);
+        }
+
+        private static long SumSse3(this long[] arrayToSum, int start, int length)
+        {
+            return arrayToSum.SumSseInner3(start, start + length - 1);
+        }
+        // More than 2X faster on my 6-core laptop when the array is inside the cache. Single-core runs at nearly 7 GigaAdds/sec, but multi-core isn't performing well
+        // 8-way unrolling slowed performance way down. Wonder if 2 or 3-way unroll will provide a higher speedup?!
+        private static long SumSseInner3(this long[] arrayToSum, int l, int r)
+        {
+            var sumVector0 = new Vector<long>();
+            var sumVector1 = new Vector<long>();
+            var sumVector2 = new Vector<long>();
+            var sumVector3 = new Vector<long>();
+            int concurrentAmount = 4;
+            int sseIndexEnd = l + ((r - l + 1) / (Vector<long>.Count * concurrentAmount)) * (Vector<long>.Count * concurrentAmount);
+            int offset1 = Vector<long>.Count;
+            int offset2 = Vector<long>.Count * 2;
+            int offset3 = Vector<long>.Count * 3;
+            int i, j, k, m;
+            int increment = Vector<long>.Count * concurrentAmount;
+            for (i = l, j = l + offset1, k = l + offset2, m = l + offset3; i < sseIndexEnd; i += increment, j += increment, k += increment, m += increment)
+            {
+                sumVector0 += new Vector<long>(arrayToSum, i);
+                sumVector1 += new Vector<long>(arrayToSum, j);
+                sumVector2 += new Vector<long>(arrayToSum, k);
+                sumVector3 += new Vector<long>(arrayToSum, m);
+            }
+            long overallSum = 0;
+            for (; i <= r; i++)
+                overallSum += arrayToSum[i];
+            sumVector0 += sumVector1;
+            sumVector0 += sumVector2;
+            sumVector0 += sumVector3;
+            for (i = 0; i < Vector<long>.Count; i++)
+                overallSum += sumVector0[i];
             return overallSum;
         }
 
@@ -970,82 +1056,6 @@ namespace HPCsharp.ParallelAlgorithms
                 overallSum = overallSum + arrayToSum[i];
             for (i = 0; i < Vector<long>.Count; i++)
                 overallSum = overallSum + sumVector[i];
-            return overallSum;
-        }
-
-        private static long SumSse2(this long[] arrayToSum)
-        {
-            return arrayToSum.SumSseInner2(0, arrayToSum.Length - 1);
-        }
-
-        private static long SumSse2(this long[] arrayToSum, int start, int length)
-        {
-            return arrayToSum.SumSseInner2(start, start + length - 1);
-        }
-
-        private static long SumSseInner2(this long[] arrayToSum, int l, int r)
-        {
-            var sumVector = new Vector<long>();
-            int concurrentAmount = 4;
-            int sseIndexEnd = l + ((r - l + 1) / (Vector<long>.Count * concurrentAmount)) * (Vector<long>.Count * concurrentAmount);
-            int offset1 = Vector<long>.Count;
-            int offset2 = Vector<long>.Count * 2;
-            int offset3 = Vector<long>.Count * 3;
-            int i;
-            int increment = Vector<long>.Count * concurrentAmount;
-            for (i = l; i < sseIndexEnd; i += increment)
-            {
-                sumVector += new Vector<long>(arrayToSum, i);
-                sumVector += new Vector<long>(arrayToSum, i + offset1);
-                sumVector += new Vector<long>(arrayToSum, i + offset2);
-                sumVector += new Vector<long>(arrayToSum, i + offset3);
-            }
-            long overallSum = 0;
-            for (; i <= r; i++)
-                overallSum += arrayToSum[i];
-            for (i = 0; i < Vector<long>.Count; i++)
-                overallSum += sumVector[i];
-            return overallSum;
-        }
-
-        private static long SumSse3(this long[] arrayToSum)
-        {
-            return arrayToSum.SumSseInner3(0, arrayToSum.Length - 1);
-        }
-
-        private static long SumSse3(this long[] arrayToSum, int start, int length)
-        {
-            return arrayToSum.SumSseInner3(start, start + length - 1);
-        }
-        // About 5% faster on my quad-core laptop
-        private static long SumSseInner3(this long[] arrayToSum, int l, int r)
-        {
-            var sumVector0 = new Vector<long>();
-            var sumVector1 = new Vector<long>();
-            var sumVector2 = new Vector<long>();
-            var sumVector3 = new Vector<long>();
-            int concurrentAmount = 4;
-            int sseIndexEnd = l + ((r - l + 1) / (Vector<long>.Count * concurrentAmount)) * (Vector<long>.Count * concurrentAmount);
-            int offset1 = Vector<long>.Count;
-            int offset2 = Vector<long>.Count * 2;
-            int offset3 = Vector<long>.Count * 3;
-            int i, j, k, m;
-            int increment = Vector<long>.Count * concurrentAmount;
-            for (i = l, j = l + offset1, k = l + offset2, m = l + offset3; i < sseIndexEnd; i += increment, j += increment, k += increment, m += increment)
-            {
-                sumVector0 += new Vector<long>(arrayToSum, i);
-                sumVector1 += new Vector<long>(arrayToSum, j);
-                sumVector2 += new Vector<long>(arrayToSum, k);
-                sumVector3 += new Vector<long>(arrayToSum, m);
-            }
-            long overallSum = 0;
-            for (; i <= r; i++)
-                overallSum += arrayToSum[i];
-            sumVector0 += sumVector1;
-            sumVector0 += sumVector2;
-            sumVector0 += sumVector3;
-            for (i = 0; i < Vector<long>.Count; i++)
-                overallSum += sumVector0[i];
             return overallSum;
         }
 
