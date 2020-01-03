@@ -1,6 +1,10 @@
 ﻿// TODO: Develop algorithms, including hybrid sorting that take advantage of CPU caches well by operating on small enough chunks which fit into cache well and use
 //       cache properties well. These operations can then be combined/composed/cascaded well, possibly by specifying how to combine these atomic blocks of operations
 //       or interleave these operations to fully utilize computational and cache bandwidth resources the CPU has to offer.
+//       This could bring at least 2X speedup, as summation by itself is at least 2X faster in-cache than in-system-memory.
+//       This could lead a shift from functional programming to micro-functional programming, where small kernel functions are combined, with a loop
+//       over a larger array on the outermost loop - i.e. instead of myArray.functionA().FunctionB().FunctionC() it would be
+//       for loop over the array { fewElementsOfArray.FunctionA().FunctionB().FunctionC() }
 // TODO: Write a blog about the need to reduce system memory latency: to not leave algorithms behind, to raise performance
 // TODO: Write a blog about the need to improve random access time to system memory, as a way to raise performance (not just cache random accesss time)
 // TODO: Write a blog about the loss of performance when using SIMD/SSE with several nested if statements, because of the need to execute all of the branches on all of the SIMD data items.
