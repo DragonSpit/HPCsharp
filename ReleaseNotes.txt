@@ -1,3 +1,8 @@
+Version 3.8.0
+Improved the interface on Radix Sort which uses an array of keys and items to be more of functional-style, returning a tuple of sorted arrays of keys and items.
+Implemented Parallel Merge Sort that Rick requested, which uses arrays of keys and items (each of generic type).
+Reduced the amount of code for .Sum() implementations by using the new Divide-and-Conquer generic functions in many more cases. Blog on usage: https://duvanenko.tech.blog/2019/12/25/parallel-divide-and-conquer-abstraction-in-c/
+
 Version 3.7.2
 Added divide-and-conquer generic function abstraction: serial and parallel versions, which makes parallel programming simpler.
 It's used inside HPCsharp. Blog on usage: https://duvanenko.tech.blog/2019/12/25/parallel-divide-and-conquer-abstraction-in-c/
