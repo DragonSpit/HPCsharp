@@ -78,6 +78,53 @@ namespace HPCsharp
         }
 
         /// <summary>
+        /// Divide-and-Conquer Merge of two ranges of source array src[ p1 .. r1 ] and src[ p2 .. r2 ] into destination array starting at index p3.
+        /// </summary>
+        /// <typeparam name="T">data type of each array element</typeparam>
+        /// <param name="srcKeys">source array of keys used for sorting</param>
+        /// <param name="srcItems">source array of items that will be sorted along with keys</param>
+        /// <param name="p1">starting index of the first  segment, inclusive</param>
+        /// <param name="r1">ending   index of the first  segment, inclusive</param>
+        /// <param name="p2">starting index of the second segment, inclusive</param>
+        /// <param name="r2">ending   index of the second segment, inclusive</param>
+        /// <param name="dstKeys">destination array of sorted keys</param>
+        /// <param name="dstItems">destination array of sorted items</param>
+        /// <param name="p3">starting index of the result</param>
+        /// <param name="comparer">method to compare array elements</param>
+        internal static void MergeInnerPar<T1, T2>(T1[] srcKeys, T2[] srcItems, Int32 p1, Int32 r1, Int32 p2, Int32 r2, T1[] dstKeys, T2[] dstItems, Int32 p3, IComparer<T1> comparer = null)
+        {
+            //Console.WriteLine("merge: #1 " + p1 + " " + r1 + " " + p2 + " " + r2);
+            Int32 length1 = r1 - p1 + 1;
+            Int32 length2 = r2 - p2 + 1;
+            if (length1 < length2)
+            {
+                Algorithm.Swap(ref p1, ref p2);
+                Algorithm.Swap(ref r1, ref r2);
+                Algorithm.Swap(ref length1, ref length2);
+            }
+            if (length1 == 0) return;
+            if ((length1 + length2) <= MergeParallelArrayThreshold)
+            {
+                //Console.WriteLine("merge: #3 " + p1 + " " + length1 + " " + p2 + " " + length2 + " " + p3);
+                HPCsharp.Algorithm.Merge<T1, T2>(srcKeys, srcItems, p1, length1,
+                                                 srcKeys, srcItems, p2, length2,
+                                                 dstKeys, dstItems, p3, comparer);
+            }
+            else
+            {
+                Int32 q1 = (p1 + r1) / 2;
+                Int32 q2 = Algorithm.BinarySearch(srcKeys[q1], srcKeys, p2, r2, comparer);
+                Int32 q3 = p3 + (q1 - p1) + (q2 - p2);
+                dstKeys[ q3] = srcKeys[ q1];
+                dstItems[q3] = srcItems[q1];
+                Parallel.Invoke(
+                    () => { MergeInnerPar<T1, T2>(srcKeys, srcItems, p1,     q1 - 1, p2, q2 - 1, dstKeys, dstItems, p3,     comparer); },
+                    () => { MergeInnerPar<T1, T2>(srcKeys, srcItems, q1 + 1, r1,     q2, r2,     dstKeys, dstItems, q3 + 1, comparer); }
+                );
+            }
+        }
+
+        /// <summary>
         /// Smaller than threshold will use non-parallel algorithm to merge arrays
         /// </summary>
         static Int32 MergeParallelListThreshold { get; set; } = 64000;

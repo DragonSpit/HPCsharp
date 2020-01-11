@@ -269,6 +269,54 @@ namespace HPCsharp
         /// <summary>
         /// Merge two sorted Array segments, placing the result into a destination Array, starting at an index.
         /// </summary>
+        /// <param name="aKeys">first source Array to be merged</param>
+        /// <param name="aStart">starting index of the first sorted Array, inclusive</param>
+        /// <param name="aLength">length of the first sorted segment</param>
+        /// <param name="bKeys">second source Array to be merged</param>
+        /// <param name="bStart">starting index of the second sorted Array, inclusive</param>
+        /// <param name="bLength">length of the second sorted segment</param>
+        /// <param name="dstKeys">destination Array where the result of two merged Arrays is to be placed</param>
+        /// <param name="dstStart">starting index within the destination Array where the merged sorted Array is to be placed</param>
+        /// <param name="comparer">optional method to compare array elements</param>
+        static public void Merge<T1, T2>(T1[] aKeys,   T2[] aItems,   Int32 aStart, Int32 aLength,
+                                         T1[] bKeys,   T2[] bItems,   Int32 bStart, Int32 bLength,
+                                         T1[] dstKeys, T2[] dstItems, Int32 dstStart,
+                                         IComparer<T1> comparer = null)
+        {
+            var equalityComparer = comparer ?? Comparer<T1>.Default;
+            Int32 aEnd = aStart + aLength - 1;
+            Int32 bEnd = bStart + bLength - 1;
+
+            while (aStart <= aEnd && bStart <= bEnd)
+            {
+                if (equalityComparer.Compare(aKeys[aStart], bKeys[bStart]) <= 0)        // if elements are equal, then a[] element is output
+                {
+                    dstKeys[ dstStart  ] = aKeys[ aStart  ];
+                    dstItems[dstStart++] = aItems[aStart++];
+                }
+                else
+                {
+                    dstKeys[ dstStart  ] = bKeys[ bStart  ];
+                    dstItems[dstStart++] = bItems[bStart++];
+                }
+            }
+
+            //Array.Copy(a, aStart, dst, dstStart, aEnd - aStart + 1);
+            while (aStart <= aEnd)
+            {
+                dstKeys[ dstStart  ] = aKeys[ aStart  ];    // copy(a[aStart, aEnd] to dst[dstStart]
+                dstItems[dstStart++] = aItems[aStart++];
+            }
+            //Array.Copy(b, bStart, dst, dstStart, bEnd - bStart + 1);
+            while (bStart <= bEnd)
+            {
+                dstKeys[ dstStart  ] = bKeys[ bStart  ];
+                dstItems[dstStart++] = bItems[bStart++];
+            }
+        }
+        /// <summary>
+        /// Merge two sorted Array segments, placing the result into a destination Array, starting at an index.
+        /// </summary>
         /// <param name="a">first source Array to be merged</param>
         /// <param name="aStart">starting index of the first sorted Array, inclusive</param>
         /// <param name="aLength">length of the first sorted segment</param>

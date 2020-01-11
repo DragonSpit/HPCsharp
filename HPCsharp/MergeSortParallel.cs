@@ -41,6 +41,7 @@ namespace HPCsharp
         /// Arrays or Lists smaller than this value will not be copied using a parallel copy
         /// </summary>
         public static Int32 SortMergeParallelInsertionThreshold { get; set; } = 16;
+
         /// <summary>
         /// Parallel Merge Sort that is not-in-place
         /// </summary>
@@ -81,6 +82,49 @@ namespace HPCsharp
             // reverse direction of srcToDst for the next level of recursion
             if (srcToDst) MergeInnerPar<T>(src, l, m, m + 1, r, dst, l, comparer);
             else          MergeInnerPar<T>(dst, l, m, m + 1, r, src, l, comparer);
+        }
+
+        /// <summary>
+        /// Parallel Merge Sort that is not-in-place
+        /// </summary>
+        /// <typeparam name="T1">data type of each key element</typeparam>
+        /// <param name="srcKeys">source array</param>
+        /// <param name="l">left  index of the source array, inclusive</param>
+        /// <param name="r">right index of the source array, inclusive</param>
+        /// <param name="dstKeys">destination array</param>
+        /// <param name="srcToDst">true => destination array will hold the sorted array; false => source array will hold the sorted array</param>
+        /// <param name="comparer">method to compare array elements</param>
+        private static void SortMergeInnerPar<T1, T2>(this T1[] srcKeys, T2[] srcItems, Int32 l, Int32 r, T1[] dstKeys, T2[] dstItems, bool srcToDst = true, IComparer<T1> comparer = null)
+        {
+            //Console.WriteLine("merge sort: #1 " + l + " " + r);
+            if (r == l)
+            {    // termination/base case of sorting a single element
+                if (srcToDst) dstKeys[l] = srcKeys[l];    // copy the single element from src to dst
+                return;
+            }
+            // TODO: This threshold may not be needed as C# sort already does it
+            if ((r - l) <= SortMergeParallelInsertionThreshold)
+            {
+                HPCsharp.Algorithm.InsertionSort<T1, T2>(srcKeys, srcItems, l, r - l + 1, comparer);  // want to do dstToSrc, can just do it in-place, just sort the src, no need to copy
+                if (srcToDst)
+                    for (int i = l; i <= r; i++) dstKeys[i] = srcKeys[i];	            // copy from src to dst, when the result needs to be in dst
+                return;
+            }
+            else if ((r - l) <= SortMergeParallelThreshold)
+            {
+                Array.Sort<T1, T2>(srcKeys, srcItems, l, r - l + 1, comparer);            // not a stable sort
+                if (srcToDst)
+                    for (int i = l; i <= r; i++) dstKeys[i] = srcKeys[i];	// copy from src to dst, when the result needs to be in dst
+                return;
+            }
+            int m = ((r + l) / 2);
+            Parallel.Invoke(
+                () => { SortMergeInnerPar<T1, T2>(srcKeys, srcItems, l,     m, dstKeys, dstItems, !srcToDst, comparer); },      // reverse direction of srcToDst for the next level of recursion
+                () => { SortMergeInnerPar<T1, T2>(srcKeys, srcItems, m + 1, r, dstKeys, dstItems, !srcToDst, comparer); }
+            );
+            // reverse direction of srcToDst for the next level of recursion
+            if (srcToDst) MergeInnerPar<T1, T2>(srcKeys, srcItems, l, m, m + 1, r, dstKeys, dstItems, l, comparer);
+            else          MergeInnerPar<T1, T2>(dstKeys, dstItems, l, m, m + 1, r, srcKeys, srcItems, l, comparer);
         }
 
         /// <summary>
@@ -203,6 +247,38 @@ namespace HPCsharp
             src.SortMergeInnerPar<T>(startIndex, startIndex + length - 1, dst, false, comparer);
         }
         /// <summary>
+        /// In-place Parallel Merge Sort of array of keys and an array of items.
+        /// Allocates a temporary array of the same size as the keys array and another as the items array.
+        /// </summary>
+        /// <typeparam name="T1">data type of each array element</typeparam>
+        /// <typeparam name="T2">type for items array</typeparam>
+        /// <param name="keys">source/destination array</param>
+        /// <param name="items">array of items to be sorted by keys</param>
+        /// <param name="comparer">method to compare keys</param>
+        public static void SortMergeInPlacePar<T1, T2>(this T1[] keys, T2[] items, IComparer<T1> comparer = null)
+        {
+            T1[] dstKeys  = new T1[ keys.Length];
+            T2[] dstItems = new T2[items.Length];
+            SortMergeInnerPar<T1, T2>(keys, items, 0, keys.Length - 1, dstKeys, dstItems, false, comparer);
+        }
+        /// <summary>
+        /// In-place Parallel Merge Sort. Takes a range of the src array, and sorts just that range.
+        /// Allocates a temporary array of the same size as the src array.
+        /// </summary>
+        /// <typeparam name="T1">type for keys array</typeparam>
+        /// <typeparam name="T2">type for items array</typeparam>
+        /// <param name="keys">array of keys used to sort by</param>
+        /// <param name="items">array of items to be sorted by keys</param>
+        /// <param name="startIndex">index within the src array where sorting starts</param>
+        /// <param name="length">number of elements starting with startIndex to be sorted</param>
+        /// <param name="comparer">comparer used to compare two array elements of type T</param>
+        static public void SortMergeInPlacePar<T1, T2>(this T1[] keys, T2[] items, int startIndex, int length, IComparer<T1> comparer = null)
+        {
+            T1[] dstKeys  = new T1[ keys.Length];
+            T2[] dstItems = new T2[items.Length];
+            SortMergeInnerPar<T1, T2>(keys, items, startIndex, startIndex + length - 1, dstKeys, dstItems, false, comparer);
+        }
+        /// <summary>
         /// In-place Parallel Merge Sort (stable). Takes a range of the src array, and sorts just that range.
         /// Allocates a temporary array of the same size as the src array.
         /// </summary>
@@ -229,7 +305,7 @@ namespace HPCsharp
             T[] dst = new T[array.Length];
             SortMergeInnerPar<T>(array, 0, array.Length - 1, dst, false, comparer);
         }
-        /// <summary>
+         /// <summary>
         /// In-place Parallel Merge Sort (stable).
         /// Allocates a temporary array of the same size as the src array.
         /// </summary>
