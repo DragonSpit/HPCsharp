@@ -99,7 +99,11 @@ namespace HPCsharp
             //Console.WriteLine("merge sort: #1 " + l + " " + r);
             if (r == l)
             {    // termination/base case of sorting a single element
-                if (srcToDst) dstKeys[l] = srcKeys[l];    // copy the single element from src to dst
+                if (srcToDst)
+                {
+                    dstKeys[ l] = srcKeys[ l];    // copy the single element from src to dst
+                    dstItems[l] = srcItems[l];
+                }
                 return;
             }
             // TODO: This threshold may not be needed as C# sort already does it
@@ -107,14 +111,22 @@ namespace HPCsharp
             {
                 HPCsharp.Algorithm.InsertionSort<T1, T2>(srcKeys, srcItems, l, r - l + 1, comparer);  // want to do dstToSrc, can just do it in-place, just sort the src, no need to copy
                 if (srcToDst)
-                    for (int i = l; i <= r; i++) dstKeys[i] = srcKeys[i];	            // copy from src to dst, when the result needs to be in dst
+                    for (int i = l; i <= r; i++)
+                    {
+                        dstKeys[ i] = srcKeys[ i];                // copy from src to dst, when the result needs to be in dst
+                        dstItems[i] = srcItems[i];
+                    }
                 return;
             }
             else if ((r - l) <= SortMergeParallelThreshold)
             {
                 Array.Sort<T1, T2>(srcKeys, srcItems, l, r - l + 1, comparer);            // not a stable sort
                 if (srcToDst)
-                    for (int i = l; i <= r; i++) dstKeys[i] = srcKeys[i];	// copy from src to dst, when the result needs to be in dst
+                    for (int i = l; i <= r; i++)
+                    {
+                        dstKeys[ i] = srcKeys[ i];    // copy from src to dst, when the result needs to be in dst
+                        dstItems[i] = srcItems[i];
+                    }
                 return;
             }
             int m = ((r + l) / 2);

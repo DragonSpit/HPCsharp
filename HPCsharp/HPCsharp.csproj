@@ -8,7 +8,7 @@
     <Description>Parallel high performance cross-platform C#/.NET algorithms. 20+ algorithms with familiar interfaces and examples. Multi-core and data parallel (SIMD/SSE). Open source and free. See project Readme, blog, and videos...</Description>
     <Copyright>© 2018 FooState</Copyright>
     <PackageLicenseUrl>https://github.com/DragonSpit/HPCsharp/blob/master/LICENSE</PackageLicenseUrl>
-    <PackageReleaseNotes>Reduced the amount of code for .Sum() implementations by using the new Divide-and-Conquer generic functions in many more cases. Blog on usage: https://duvanenko.tech.blog/2019/12/25/parallel-divide-and-conquer-abstraction-in-c/</PackageReleaseNotes>
+    <PackageReleaseNotes>Improved the interface on Radix Sort which uses an array of keys and items to be more of functional-style, returning a tuple of sorted arrays of keys and items. Implemented Parallel Merge Sort that Rick requested, which uses arrays of keys and items (each of generic type). Reduced the amount of code for .Sum() implementations by using the new Divide-and-Conquer generic functions in many more cases. Blog on usage: https://duvanenko.tech.blog/2019/12/25/parallel-divide-and-conquer-abstraction-in-c/</PackageReleaseNotes>
     <PackageId>HPCsharp</PackageId>
     <PackageTags>high perfromance algorithms, C#, high performance, high performance computing, HPC, algorithm, algorithms, Linq, parallel, parallel algorithm</PackageTags>
     <PackageIconUrl>https://foostate.com/images/default_lib_icon_64.png</PackageIconUrl>
@@ -17,9 +17,9 @@
     <PackageProjectUrl>https://github.com/DragonSpit/HPCsharp</PackageProjectUrl>
     <RepositoryUrl>https://github.com/DragonSpit/HPCsharp</RepositoryUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <AssemblyVersion>3.7.3.0</AssemblyVersion>
-    <FileVersion>3.7.3.0</FileVersion>
-    <Version>3.7.3</Version>
+    <AssemblyVersion>3.8.1.0</AssemblyVersion>
+    <FileVersion>3.8.1.0</FileVersion>
+    <Version>3.8.1</Version>
     <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
