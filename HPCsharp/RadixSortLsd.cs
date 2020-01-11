@@ -60,6 +60,8 @@
 //       the case of indexes being only as large as the array size. This optimization is worthwhile since it helps more than one special case.
 // TODO: Optimize floating-point Radix Sort by minimize flipping by doing flipping once at the beginning and at the end.
 // TODO: Implement LSD Radix sort for the larger memory array support of C# that I found on StackOverflow.
+// TODO: Implement Rick's request on HPCsharp github repo for support of double[] keys, separate from the array being sorted, also with swapped arguments
+//       to match Array.Sort(array1, array2) interface. These functions also need to be updated to the latest highest performance versions.
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -1585,19 +1587,18 @@ namespace HPCsharp
             return sortedList;
         }
         /// <summary>
-        /// Sort an array of user defined class containing an unsigned integer Key, using Radix Sorting algorithm. Linear time sort algorithm.
+        /// Sort an array of user defined class based of a separate array of unsigned integer Keys, using Radix Sorting algorithm.
+        /// Linear time sort algorithm.
         /// </summary>
         /// <param name="inputArray">input array of type T</param>
         /// <param name="inKeys">input array of keys (unsigned integers) to be sorted on</param>
-        /// <param name="outSortedKeys">sorted array of keys (unsigned integers)</param>
-        /// <returns>sorted array of user defined class</returns>
-        public static T[] SortRadix<T>(this T[] inputArray, UInt32[] inKeys, ref UInt32[] outSortedKeys)
+        /// <returns>Tuple consisting of a sorted array of user defined class and a sorted array of unsigned integer keys (UInt32)</returns>
+        public static Tuple<T[], UInt32[]> SortRadix<T>(this T[] inputArray, UInt32[] inKeys)
         {
             int numberOfBins = 256;
             int Log2ofPowerOfTwoRadix = 8;
+            UInt32[] outSortedKeys = new UInt32[inputArray.Length];
             T[] outputArray = new T[inputArray.Length];
-            if (outSortedKeys == null || outSortedKeys.Length != inputArray.Length)
-                outSortedKeys = new UInt32[inputArray.Length];
             uint[] count = new uint[numberOfBins];
             bool outputArrayHasResult = false;
 
@@ -1637,7 +1638,6 @@ namespace HPCsharp
                 UInt32[] tmpKeys = inKeys;   // swap input and output key arrays
                 inKeys = outSortedKeys;
                 outSortedKeys = tmpKeys;
-
             }
             if (outputArrayHasResult)
                 for (uint current = 0; current < inputArray.Length; current++)    // copy from output array into the input array
@@ -1646,22 +1646,21 @@ namespace HPCsharp
                     inKeys[current] = outSortedKeys[current];
                 }
 
-            return inputArray;
+            return new Tuple<T[], UInt32[]>(inputArray, outSortedKeys);
         }
         /// <summary>
-        /// Sort an array of user defined class containing an unsigned 64-bit integer Key, using Radix Sorting algorithm. Linear time sort algorithm.
+        /// Sort an array of user defined class based of a separate array of unsigned long integer Keys, using Radix Sorting algorithm.
+        /// Linear time sort algorithm.
         /// </summary>
         /// <param name="inputArray">input array of type T</param>
         /// <param name="inKeys">input array of keys (unsigned integers) to be sorted on</param>
-        /// <param name="outSortedKeys">sorted array of keys (unsigned integers)</param>
-        /// <returns>sorted array of user defined class</returns>
-        public static T[] SortRadix<T>(this T[] inputArray, UInt64[] inKeys, ref UInt64[] outSortedKeys)
+        /// <returns>Tuple consisting of a sorted array of user defined class and a sorted array of unsigned long keys (UInt64)</returns>
+        public static Tuple<T[], UInt64[]> SortRadix<T>(this T[] inputArray, UInt64[] inKeys)
         {
             int numberOfBins = 256;
             int Log2ofPowerOfTwoRadix = 8;
+            UInt64[] outSortedKeys = new UInt64[inputArray.Length];
             T[] outputArray = new T[inputArray.Length];
-            if (outSortedKeys == null || outSortedKeys.Length != inputArray.Length)
-                outSortedKeys = new UInt64[inputArray.Length];
             uint[] count = new uint[numberOfBins];
             bool outputArrayHasResult = false;
 
@@ -1701,7 +1700,6 @@ namespace HPCsharp
                 UInt64[] tmpKeys = inKeys;   // swap input and output key arrays
                 inKeys = outSortedKeys;
                 outSortedKeys = tmpKeys;
-
             }
             if (outputArrayHasResult)
                 for (uint current = 0; current < inputArray.Length; current++)    // copy from output array into the input array
@@ -1710,36 +1708,37 @@ namespace HPCsharp
                     inKeys[current] = outSortedKeys[current];
                 }
 
-            return inputArray;
+            return new Tuple<T[], UInt64[]>(inputArray, outSortedKeys);
         }
         /// <summary>
-        /// Sort a List of user defined class containing an unsigned integer Key, using Radix Sorting algorithm. Linear time sort algorithm.
+        /// Sort a List of user defined class based of a separate array of unsigned integer Keys, using Radix Sorting algorithm.
+        /// Linear time sort algorithm.
         /// </summary>
         /// <param name="inputList">input List of type T</param>
         /// <param name="inKeys">input array of keys (unsigned integers) to be sorted on</param>
-        /// <param name="outSortedKeys">sorted array of keys (unsigned integers)</param>
-        /// <returns>sorted List of user defined class</returns>
-        public static List<T> SortRadix<T>(this List<T> inputList, UInt32[] inKeys, ref UInt32[] outSortedKeys)
+        /// <returns>Tuple consisting of a sorted List of user defined class and a sorted array of unsigned integer keys (UInt32)</returns>
+        public static Tuple<List<T>, UInt32[]> SortRadix<T>(this List<T> inputList, UInt32[] inKeys)
         {
             var srcCopy = inputList.ToArray();
-            var sortedArray = srcCopy.SortRadix(inKeys, ref outSortedKeys);
-            var sortedList = new List<T>(sortedArray);
-            return sortedList;
+            var sortedArrayAndKeys = srcCopy.SortRadix(inKeys);
+            var sortedList = new List<T>(sortedArrayAndKeys.Item1);
+            return new Tuple<List<T>, UInt32[]>(sortedList, sortedArrayAndKeys.Item2);
         }
         /// <summary>
-        /// Sort an array of user defined class containing an unsigned 64-bit integer Key, using Radix Sorting algorithm. Linear time sort algorithm.
+        /// Sort a List of user defined class based of a separate array of unsigned long integer Keys, using Radix Sorting algorithm.
+        /// Linear time sort algorithm.
         /// </summary>
         /// <param name="inputList">input List of type T</param>
         /// <param name="inKeys">input array of keys (unsigned integers) to be sorted on</param>
-        /// <param name="outSortedKeys">sorted array of keys (unsigned integers)</param>
         /// <returns>sorted List of user defined class</returns>
-        public static List<T> SortRadix<T>(this List<T> inputList, UInt64[] inKeys, ref UInt64[] outSortedKeys)
+        public static Tuple<List<T>, UInt64[]> SortRadix<T>(this List<T> inputList, UInt64[] inKeys)
         {
             var srcCopy = inputList.ToArray();
-            var sortedArray = srcCopy.SortRadix(inKeys, ref outSortedKeys);
-            var sortedList = new List<T>(sortedArray);
-            return sortedList;
+            var sortedArrayAndKeys = srcCopy.SortRadix(inKeys);
+            var sortedList = new List<T>(sortedArrayAndKeys.Item1);
+            return new Tuple<List<T>, UInt64[]>(sortedList, sortedArrayAndKeys.Item2);
         }
+
         public enum SortOrder
         {
             Ascending,
