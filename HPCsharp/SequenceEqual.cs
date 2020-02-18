@@ -6,6 +6,7 @@
 // TODO: Create a more general SequenceOperate() where a function is passed in that returns a bool for example which operates across the arrays, and then another function that works
 //       along the array to combine the results of each from the previous step. MapReduce - the user would pass in a Map function and a Reduce function. Linq has some functionality
 //       but may not work across multiple arrays (need to verify).
+// TODO: Create a sequence equals that understands "sorting stability" and does an equals on stable or unstable sorted arrays.
 using System;
 using System.Collections;
 using System.Collections.Generic;

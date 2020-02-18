@@ -285,7 +285,7 @@ namespace HPCsharp
     class CustomData
     {
         public uint current;
-        public uint r;
+        public uint q;
         public uint bitMask;
         public int shiftRightAmount;
     }
@@ -295,7 +295,7 @@ namespace HPCsharp
         /// <summary>
         /// Minimal amount of work to be performed in parallel
         /// </summary>
-        public static UInt32 SortRadixParallelWorkQuanta { get; set; } = 8 * 1024;
+        public static UInt32 SortRadixParallelWorkQuanta { get; set; } = 64 * 1024;
         ///// <summary>
         ///// Number of tasks that will run in parallel within the Parallel Radix Sort algorithm
         ///// </summary>
@@ -329,26 +329,25 @@ namespace HPCsharp
             while (bitMask != 0)    // end processing digits when all the mask bits have been processed and shifted out, leaving no bits set in the bitMask
             {
                 for (uint r = 0; r < numWorkItems; r++)
-                    for (uint c = 0; c < numberOfBins; c++)
-                        count[r][c] = 0;
+                    for (uint b = 0; b < numberOfBins; b++)
+                        count[r][b] = 0;
                 for (uint current = 0; current < inputArray.Length; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
                 {
                     uint r = current / SortRadixParallelWorkQuanta;
                     count[r][ExtractDigit(inputArray[current], bitMask, shiftRightAmount)]++;
                 }
-                for (uint c = 0; c < numberOfBins; c++)     // for each column, which is a bin, create startOfBin for each work item, but relative to zero
+                for (uint b = 0; b < numberOfBins; b++)     // for each bin, create startOfBin for each work item (work quanta), but relative to zero
                 {
-                    startOfBin[0][c] = 0;
-                    for (uint r = 1; r < numWorkItems; r++) // Victor J. Duvanenko https://github.com/DragonSpit/HPCsharp
-                        startOfBin[r][c] = (uint)(startOfBin[r - 1][c] + count[r - 1][c]);
+                    startOfBin[0][b] = 0;
+                    for (uint r = 1; r < numWorkItems; r++)
+                        startOfBin[r][b] = (uint)(startOfBin[r - 1][b] + count[r - 1][b]);
                 }
-                for (uint c = 1; c < numberOfBins; c++)     // adjust each item within each bin by the offset of previous bin and that bins size
+                for (uint b = 1; b < numberOfBins; b++)     // adjust each item within each bin by the offset of previous bin and that bins size
                 {
-                    uint sizeOfPreviouBin = startOfBin[numWorkItems - 1][c - 1] + count[numWorkItems - 1][c - 1];
+                    uint sizeOfPrevBin = startOfBin[numWorkItems - 1][b - 1] + count[numWorkItems - 1][b - 1];
                     for (uint r = 0; r < numWorkItems; r++)
-                        startOfBin[r][c] += sizeOfPreviouBin;
+                        startOfBin[r][b] += sizeOfPrevBin;
                 }
-
 #if false
                 for (uint current = 0; current < inputArray.Length; current++)
                 {
@@ -359,24 +358,24 @@ namespace HPCsharp
 #if true
                 // The last work item may not have the full parallelWorkQuanta of items to process
                 Task[] taskArray = new Task[numWorkItems - 1];
-                for (uint r = 0; r < numWorkItems - 1; r++)
+                for (uint q = 0; q < numWorkItems - 1; q++)
                 {
-                    uint current = r * SortRadixParallelWorkQuanta;
-                    taskArray[r] = Task.Factory.StartNew((Object obj) => {
+                    uint current = q * SortRadixParallelWorkQuanta;
+                    taskArray[q] = Task.Factory.StartNew((Object obj) => {
                             CustomData data = obj as CustomData;
                             if (data == null)
                                 return;
                             uint currIndex = data.current;
-                            uint rLoc = data.r;
-                            uint[] startOfBinLoc = startOfBin[rLoc];
+                            uint qLoc = data.q;
+                            uint[] startOfBinLoc = startOfBin[qLoc];
                             //Console.WriteLine("current = {0}, r = {1}, bitMask = {2}, shiftRightAmount = {3}", currIndex, rLoc, data.bitMask, data.shiftRightAmount);
                             for (uint i = 0; i < SortRadixParallelWorkQuanta; i++)
                             {
-                                outputArray[startOfBinLoc[ExtractDigit(inputArray[currIndex], data.bitMask, data.shiftRightAmount)]++] = inputArray[currIndex];
+                                outputArray[startOfBinLoc[(inputArray[currIndex] & data.bitMask) >> data.shiftRightAmount]++] = inputArray[currIndex];
                                 currIndex++;
                             }
                         },
-                        new CustomData() { current = current, r = r, bitMask = bitMask, shiftRightAmount = shiftRightAmount }
+                        new CustomData() { current = current, q = q, bitMask = bitMask, shiftRightAmount = shiftRightAmount }
                     );
                 }
                 Task.WaitAll(taskArray);
@@ -416,6 +415,133 @@ namespace HPCsharp
 
             return inputArray;
         }
+
+        // Brought Histogram outside of the main loop, to separate into two phases: Histogram/counting and permutation
+        public static uint[] SortRadixPar2(this uint[] inputArray)
+        {
+            uint numberOfBins = 256;
+            int Log2ofPowerOfTwoRadix = 8;
+            int numDigits = 4;
+            uint[] outputArray = new uint[inputArray.Length];
+            bool outputArrayHasResult = false;
+
+            // TODO: the following calculation seems wrong whenever the division is even, as we would generate an additional work item that is empty
+            //uint numWorkItems = (uint)inputArray.Length / SortRadixParallelWorkQuanta + 1;
+            uint numberOfQuantas = (inputArray.Length % SortRadixParallelWorkQuanta) == 0 ? (uint)(inputArray.Length / SortRadixParallelWorkQuanta)
+                                                                                          : (uint)(inputArray.Length / SortRadixParallelWorkQuanta + 1);
+
+            // TODO: This histogram operation can be done in parallel to speed it up
+            uint[][][] count = Algorithm.HistogramByteComponentsAcrossWorkQuantas(inputArray, SortRadixParallelWorkQuanta);
+
+            uint[][][] startOfBin = new uint[numberOfQuantas][][];     // start of bin for each parallel work item
+            for (int q = 0; q < numberOfQuantas; q++)
+            {
+                startOfBin[q] = new uint[numDigits][];
+                for (int d = 0; d < numDigits; d++)
+                    startOfBin[q][d] = new uint[numberOfBins];
+            }
+
+            for (int d = 0; d < numDigits; d++)             // for each bin, create startOfBin for each work quanta, but relative to zero for quanta[0] & bin[0]
+                for (uint b = 0; b < numberOfBins; b++)     // because all bin[0]'s will come before all bin[1]'s and so on... and each bin is split into pieces associated with each work quanta
+                {
+                    startOfBin[0][d][b] = 0;
+                    for (int q = 1; q < numberOfQuantas; q++)
+                        startOfBin[q][d][b] = startOfBin[q - 1][d][b] + count[q - 1][d][b];
+                }
+
+            for (int d = 0; d < numDigits; d++)
+                for (uint b = 1; b < numberOfBins; b++)     // adjust each item within each bin by the offset of previous bin and that bin's size
+                {
+                    uint sizeOfPrevBin = startOfBin[numberOfQuantas - 1][d][b - 1] + count[numberOfQuantas - 1][d][b - 1];
+                    for (uint q = 0; q < numberOfQuantas; q++)
+                        startOfBin[q][d][b] += sizeOfPrevBin;
+                }
+            //for (uint q = 0; q < numberOfQuantas; q++)
+            //    for (int d = 0; d < numDigits; d++)
+            //    {
+            //        Console.WriteLine("q = {0}   d = {1}", q, d);
+            //        for (uint b = 0; b < numberOfBins; b++)
+            //            Console.Write("{0}, ", startOfBin[q][d][b]);
+            //        Console.WriteLine();
+            //    }
+
+            // Use TPL ideas from https://docs.microsoft.com/en-us/dotnet/standard/parallel-programming/task-based-asynchronous-programming
+
+            uint bitMask = 255;
+            int shiftRightAmount = 0;
+            uint digit = 0;
+
+            while (bitMask != 0)    // end processing digits when all the mask bits have been processed and shifted out, leaving no bits set in the bitMask
+            {
+#if false
+                for (uint current = 0; current < inputArray.Length; current++)
+                {
+                    uint r = current / SortRadixParallelWorkQuanta;
+                    outputArray[startOfBin[r, ExtractDigit(inputArray[current], bitMask, shiftRightAmount)]++] = inputArray[current];
+                }
+#else
+#if true
+                // The last work item may not have the full parallelWorkQuanta of items to process
+                Task[] taskArray = new Task[numberOfQuantas - 1];
+                for (uint q = 0; q < numberOfQuantas - 1; q++)
+                {
+                    uint current = q * SortRadixParallelWorkQuanta;
+                    taskArray[q] = Task.Factory.StartNew((Object obj) => {
+                        CustomData data = obj as CustomData;
+                        if (data == null)
+                            return;
+                        uint currIndex = data.current;
+                        uint qLoc = data.q;
+                        uint[] startOfBinLoc = startOfBin[qLoc][digit];
+                        Console.WriteLine("current = {0}, q = {1}, bitMask = {2}, shiftRightAmount = {3}", currIndex, qLoc, data.bitMask, data.shiftRightAmount);
+                        for (uint i = 0; i < SortRadixParallelWorkQuanta; i++)
+                        {
+                            outputArray[startOfBinLoc[(inputArray[currIndex] & data.bitMask) >> data.shiftRightAmount]++] = inputArray[currIndex];
+                            currIndex++;
+                        }
+                    },
+                        new CustomData() { current = current, q = q, bitMask = bitMask, shiftRightAmount = shiftRightAmount }
+                    );
+                }
+                Task.WaitAll(taskArray);
+#else
+                // The last work item may not have the full parallelWorkQuanta of items to process
+                for (uint r = 0; r < numWorkItems - 1; r++)
+                {
+                    uint current = r * SortRadixParallelWorkQuanta;
+                    for (uint i = 0; i < SortRadixParallelWorkQuanta; i++)
+                    {
+                        outputArray[startOfBin[r, ExtractDigit(inputArray[current], bitMask, shiftRightAmount)]++] = inputArray[current];
+                        current++;
+                    }
+                }
+#endif
+                // The last iteration, which may not have the full parallelWorkQuanta of items to process
+                uint currentLast = (numberOfQuantas - 1) * SortRadixParallelWorkQuanta;
+                uint numItems = (uint)inputArray.Length % SortRadixParallelWorkQuanta;
+                for (uint i = 0; i < numItems; i++)
+                {
+                    outputArray[startOfBin[(numberOfQuantas - 1)][digit][ExtractDigit(inputArray[currentLast], bitMask, shiftRightAmount)]++] = inputArray[currentLast];
+                    currentLast++;
+                }
+#endif
+
+                bitMask <<= Log2ofPowerOfTwoRadix;
+                digit++;
+                shiftRightAmount += Log2ofPowerOfTwoRadix;
+                outputArrayHasResult = !outputArrayHasResult;
+
+                uint[] tmp = inputArray;       // swap input and output arrays
+                inputArray = outputArray;
+                outputArray = tmp;
+            }
+            if (outputArrayHasResult)
+                for (uint current = 0; current < inputArray.Length; current++)    // copy from output array into the input array
+                    inputArray[current] = outputArray[current];
+
+            return inputArray;
+        }
+
         private static void DoRadixSortLsdParallel(uint current, uint[] outputArray, uint[,] startOfBin, uint r, uint[] inputArray, uint bitMask, int shiftRightAmount)
         {
             for (uint i = 0; i < SortRadixParallelWorkQuanta; i++)

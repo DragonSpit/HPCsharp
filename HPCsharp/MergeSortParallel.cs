@@ -16,6 +16,8 @@
 //       as that should help Radix Sort.
 // TODO: Add the ability to limit the recursion depth to limit parallelism, as is done in http://dzmitryhuba.blogspot.com/2010/10/parallel-merge-sort.html this may help control parallelism better
 //       than Microsoft does and possibly limit oversubscription.
+// TODO: For sort of two arrays (one keys and one items), a potentially faster method would be to have keys to not only hold a key at each location, but also
+//       an index, and then sort these keys/indexes pairs. Once the key/index array has been sorted, do a single pass of moving the items into their final locations.
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;

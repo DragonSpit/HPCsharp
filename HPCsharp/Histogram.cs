@@ -109,6 +109,65 @@ namespace HPCsharp
             return count;
         }
 
+        public static uint[][][] HistogramByteComponentsAcrossWorkQuantas(uint[] inArray, uint workQuanta)
+        {
+            const int numberOfBins = 256;
+            const int numberOfDigits = sizeof(uint);
+            uint numberOfQuantas = (inArray.Length % workQuanta) == 0 ? (uint)(inArray.Length / workQuanta) : (uint)(inArray.Length / workQuanta + 1);
+            //Console.WriteLine("Histogram: inArray.Length = {0}, workQuanta = {1}, numberOfQuantas = {2}", inArray.Length, workQuanta, numberOfQuantas);
+
+            uint[][][] count = new uint[numberOfQuantas][][];          // count for each parallel work item
+            for (int i = 0; i < numberOfQuantas; i++)
+            {
+                count[i] = new uint[numberOfDigits][];
+                for (int d = 0; d < numberOfDigits; d++)
+                    count[i][d] = new uint[numberOfBins];
+            }
+            uint[][][] startOfBin = new uint[numberOfQuantas][][];     // start of bin for each parallel work item
+            for (int i = 0; i < numberOfQuantas; i++)
+            {
+                startOfBin[i] = new uint[numberOfDigits][];
+                for (int d = 0; d < numberOfDigits; d++)
+                    startOfBin[i][d] = new uint[numberOfBins];
+            }
+
+            uint numberOfFullQuantas = (uint)(inArray.Length / workQuanta);
+            int currIndex = 0;
+            var union = new UInt32ByteUnion();
+            uint q = 0;
+            for (; q < numberOfFullQuantas; q++)
+            {
+                for (uint j = 0; j < workQuanta; j++)
+                {
+                    union.integer = inArray[currIndex++];
+                    count[q][0][union.byte0]++;
+                    count[q][1][union.byte1]++;
+                    count[q][2][union.byte2]++;
+                    count[q][3][union.byte3]++;
+                }
+            }
+            // Last work quanta may be a partial one, whenever array length doesn't divide evenly by work quanta
+            for (; currIndex < inArray.Length; currIndex++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
+            {
+                union.integer = inArray[currIndex++];
+                count[q][0][union.byte0]++;
+                count[q][1][union.byte1]++;
+                count[q][2][union.byte2]++;
+                count[q][3][union.byte3]++;
+            }
+
+            //for (q = 0; q < numberOfQuantas; q++)
+            //    for (int d = 0; d < numberOfDigits; d++)
+            //    {
+            //        Console.WriteLine("q = {0}   d = {1}", q, d);
+            //        for (uint b = 0; b < numberOfBins; b++)
+            //            Console.Write("{0}, ", count[q][d][b]);
+            //        Console.WriteLine();
+            //    }
+
+            return count;
+        }
+
         public static uint[][] HistogramByteComponents<T>(T[] inArray, Int32 l, Int32 r, Func<T, UInt32> getKey)
         {
             const int numberOfBins = 256;
