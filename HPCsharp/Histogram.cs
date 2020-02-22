@@ -123,13 +123,6 @@ namespace HPCsharp
                 for (int d = 0; d < numberOfDigits; d++)
                     count[i][d] = new uint[numberOfBins];
             }
-            uint[][][] startOfBin = new uint[numberOfQuantas][][];     // start of bin for each parallel work item
-            for (int i = 0; i < numberOfQuantas; i++)
-            {
-                startOfBin[i] = new uint[numberOfDigits][];
-                for (int d = 0; d < numberOfDigits; d++)
-                    startOfBin[i][d] = new uint[numberOfBins];
-            }
 
             uint numberOfFullQuantas = (uint)(inArray.Length / workQuanta);
             int currIndex = 0;
@@ -147,7 +140,7 @@ namespace HPCsharp
                 }
             }
             // Last work quanta may be a partial one, whenever array length doesn't divide evenly by work quanta
-            for (; currIndex < inArray.Length; currIndex++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
+            for (; currIndex < inArray.Length;)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
             {
                 union.integer = inArray[currIndex++];
                 count[q][0][union.byte0]++;
@@ -156,12 +149,12 @@ namespace HPCsharp
                 count[q][3][union.byte3]++;
             }
 
-            //for (q = 0; q < numberOfQuantas; q++)
-            //    for (int d = 0; d < numberOfDigits; d++)
+            //for (int d = 0; d < numberOfDigits; d++)
+            //    for (q = 0; q < numberOfQuantas; q++)
             //    {
-            //        Console.WriteLine("q = {0}   d = {1}", q, d);
+            //        Console.WriteLine("h: q = {0}   d = {1}", q, d);
             //        for (uint b = 0; b < numberOfBins; b++)
-            //            Console.Write("{0}, ", count[q][d][b]);
+            //            Console.Write("{0} ", count[q][d][b]);
             //        Console.WriteLine();
             //    }
 
