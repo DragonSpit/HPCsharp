@@ -58,13 +58,13 @@ in performance, and ***O***(e), with slight performance reduction. Implements pa
 - Faster summation at full accuracy of ulong[] array to Decimal and BigInteger: SIMD/SSE, single and multi-core
 - Developed checked SIMD/SSE addition in C#, unsigned and signed, for much higher performance
 
-The table below compares performance (in GigaAdds/second) of Linq.AsParallel().Sum() and HPCsharp.SumSsePar() - both use multi-core, with
+The table below compares performance (in GigaAdds/second) of Linq.AsParallel().Sum() and HPCsharp.SumSsePar() - both use multi-core (6 of them), with
 HPCsharp also using SIMD/SSE data parallel instructions on each core to gain additional performance:
 
 *Library*|*sbyte*|*byte*|*short*|*ushort*|*int*|*uint*|*long*|*ulong*|*float*|*double*|*decimal*|*BigInteger*
 --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ---
-Linq | n/a | n/a | n/a | n/a |0.9\*|n/a|0.9\*|n/a|0.9|0.9|0.10|0.011\*\*
-HPC# |7.6|8.0|8.0|8.2|5.0|5.3|2.9\*|2.7|5.1|2.9|0.14|0.036
+Linq | n/a | n/a | n/a | n/a |1.5\*|n/a|1.7\*|n/a|1.8|2.1|0.38|0.016\*\*
+HPC# |21|21|15|15|8.4|8.1|4.1\*|4.1|8.3|4.2|0.5|0.075
 
 \* overflow exception is possible\
 \*\* Linq doesn't implement BigInteger.Sum(), used .Aggregate() instead, which doesn't speed-up with .AsParallel()
