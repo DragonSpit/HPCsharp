@@ -54,22 +54,16 @@ namespace HPCsharp.ParallelAlgorithms
             var averageVector  = new Vector<double>(average);
             var sumVectorLower = new Vector<double>();
             var sumVectorUpper = new Vector<double>();
-            var subVectorLower = new Vector<double>();
-            var subVectorUpper = new Vector<double>();
-            var longLower = new Vector<long>();
-            var longUpper = new Vector<long>();
             int sseIndexEnd = l + ((r - l + 1) / Vector<int>.Count) * Vector<int>.Count;
             int i;
             for (i = l; i < sseIndexEnd; i += Vector<int>.Count)
             {
                 var inVector = new Vector<int>(arrayToSum, i);
-                Vector.Widen(inVector, out longLower, out longUpper);
-                subVectorLower = Vector.ConvertToDouble(longLower) - averageVector;
-                subVectorUpper = Vector.ConvertToDouble(longUpper) - averageVector;
-                subVectorLower *= subVectorLower;
-                subVectorUpper *= subVectorUpper;
-                sumVectorLower += subVectorLower;
-                sumVectorUpper += subVectorUpper;
+                Vector.Widen(inVector, out Vector<long> longLower, out Vector<long> longUpper);
+                var subVectorLower = Vector.ConvertToDouble(longLower) - averageVector;
+                var subVectorUpper = Vector.ConvertToDouble(longUpper) - averageVector;
+                sumVectorLower += subVectorLower * subVectorLower;
+                sumVectorUpper += subVectorUpper * subVectorUpper;
             }
             double overallSum = 0;
             for (; i <= r; i++)
@@ -90,6 +84,37 @@ namespace HPCsharp.ParallelAlgorithms
             return Math.Sqrt(values.AsParallel().Average(v => Math.Pow(v - avg, 2)));
         }
         /// <summary>
+        /// Summation of float[] array, using a double accumulator for higher accuracy, using data parallel SIMD/SSE instructions for higher performance on a single core.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <param name="startIndex">index of the starting element for the summation</param>
+        /// <param name="length">number of array elements to sum up</param>
+        /// <returns>double sum</returns>
+        public static double SumForDeviationToDoubleSse(this long[] arrayToSum, double average, int startIndex, int length)
+        {
+            return arrayToSum.SumForDeviationSseDoubleInner(average, startIndex, startIndex + length - 1);
+        }
+
+        private static double SumForDeviationSseDoubleInner(this long[] arrayToSum, double average, int l, int r)
+        {
+            var averageVector = new Vector<double>(average);
+            var sumVector     = new Vector<double>();
+            int sseIndexEnd = l + ((r - l + 1) / Vector<long>.Count) * Vector<long>.Count;
+            int i;
+            for (i = l; i < sseIndexEnd; i += Vector<long>.Count)
+            {
+                var inVector = new Vector<long>(arrayToSum, i);
+                var subVector = Vector.ConvertToDouble(inVector) - averageVector;
+                sumVector += subVector * subVector;
+            }
+            double overallSum = 0;
+            for (; i <= r; i++)
+                overallSum += arrayToSum[i];
+            for (i = 0; i < Vector<double>.Count; i++)
+                overallSum += sumVector[i];
+            return overallSum;
+        }
+        /// <summary>
         /// Standard deviation of an array of integers.
         /// </summary>
         /// <param name="values">An array to sum up</param>
@@ -100,6 +125,42 @@ namespace HPCsharp.ParallelAlgorithms
             return Math.Sqrt(values.AsParallel().Average(v => Math.Pow(v - avg, 2)));
         }
         /// <summary>
+        /// Summation of float[] array, using a double accumulator for higher accuracy, using data parallel SIMD/SSE instructions for higher performance on a single core.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <param name="startIndex">index of the starting element for the summation</param>
+        /// <param name="length">number of array elements to sum up</param>
+        /// <returns>double sum</returns>
+        public static double SumForDeviationToDoubleSse(this float[] arrayToSum, double average, int startIndex, int length)
+        {
+            return arrayToSum.SumForDeviationSseDoubleInner(average, startIndex, startIndex + length - 1);
+        }
+
+        private static double SumForDeviationSseDoubleInner(this float[] arrayToSum, double average, int l, int r)
+        {
+            var averageVector  = new Vector<double>(average);
+            var sumVectorLower = new Vector<double>();
+            var sumVectorUpper = new Vector<double>();
+            int sseIndexEnd = l + ((r - l + 1) / Vector<float>.Count) * Vector<float>.Count;
+            int i;
+            for (i = l; i < sseIndexEnd; i += Vector<float>.Count)
+            {
+                var inVector = new Vector<float>(arrayToSum, i);
+                Vector.Widen(inVector, out Vector<double> doubleLower, out Vector<double> doubleUpper);
+                var subVectorLower = doubleLower - averageVector;
+                var subVectorUpper = doubleUpper - averageVector;
+                sumVectorLower += subVectorLower * subVectorLower;
+                sumVectorUpper += subVectorUpper * subVectorUpper;
+            }
+            double overallSum = 0;
+            for (; i <= r; i++)
+                overallSum += arrayToSum[i];
+            sumVectorLower += sumVectorUpper;
+            for (i = 0; i < Vector<double>.Count; i++)
+                overallSum += sumVectorLower[i];
+            return overallSum;
+        }
+        /// <summary>
         /// Standard deviation of an array of integers.
         /// </summary>
         /// <param name="values">An array to sum up</param>
@@ -108,6 +169,37 @@ namespace HPCsharp.ParallelAlgorithms
         {
             double avg = values.AsParallel().Average();
             return Math.Sqrt(values.AsParallel().Average(v => Math.Pow(v - avg, 2)));
+        }
+        /// <summary>
+        /// Summation of float[] array, using a double accumulator for higher accuracy, using data parallel SIMD/SSE instructions for higher performance on a single core.
+        /// </summary>
+        /// <param name="arrayToSum">An array to sum up</param>
+        /// <param name="startIndex">index of the starting element for the summation</param>
+        /// <param name="length">number of array elements to sum up</param>
+        /// <returns>double sum</returns>
+        public static double SumForDeviationToDoubleSse(this double[] arrayToSum, double average, int startIndex, int length)
+        {
+            return arrayToSum.SumForDeviationSseDoubleInner(average, startIndex, startIndex + length - 1);
+        }
+
+        private static double SumForDeviationSseDoubleInner(this double[] arrayToSum, double average, int l, int r)
+        {
+            var averageVector = new Vector<double>(average);
+            var sumVector     = new Vector<double>();
+            int sseIndexEnd = l + ((r - l + 1) / Vector<double>.Count) * Vector<double>.Count;
+            int i;
+            for (i = l; i < sseIndexEnd; i += Vector<double>.Count)
+            {
+                var inVector = new Vector<double>(arrayToSum, i);
+                var subVector = inVector - averageVector;
+                sumVector += subVector * subVector;
+            }
+            double overallSum = 0;
+            for (; i <= r; i++)
+                overallSum += arrayToSum[i];
+            for (i = 0; i < Vector<double>.Count; i++)
+                overallSum += sumVector[i];
+            return overallSum;
         }
     }
 }
