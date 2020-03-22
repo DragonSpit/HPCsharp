@@ -89,7 +89,9 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>standard deviation as a double</returns>
         public static double StandardDeviationSse(this long[] values)
         {
-            decimal sum = HPCsharp.ParallelAlgorithms.Sum.SumToDecimalSseFasterPar(values);     // SSE, no exceptions and full accuracy
+            // TODO: Need to find this 2X result bug in the below algorithm!
+            //decimal sum = HPCsharp.ParallelAlgorithms.Sum.SumToDecimalSseFasterPar(values);     // SSE, no exceptions and full accuracy
+            double sum = values.Sum(v => (double)v);
             double avg = (double)sum / values.Length;
             return Math.Sqrt(values.SumForDeviationToDoubleSse(0, values.Length, avg) / (values.Length - 1));
         }
@@ -100,7 +102,9 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>standard deviation as a double</returns>
         public static double StandardDeviationSsePar(this long[] values)
         {
-            decimal sum = HPCsharp.ParallelAlgorithms.Sum.SumToDecimalSseFasterPar(values);     // multi-core, SSE, no exceptions and full accuracy
+            // TODO: Need to find this 2X result bug in the below algorithm!
+            //decimal sum = HPCsharp.ParallelAlgorithms.Sum.SumToDecimalSseFasterPar(values);   // multi-core, SSE, no exceptions and full accuracy
+            decimal sum = HPCsharp.ParallelAlgorithms.Sum.SumToDecimalPar(values);              // multi-core,      no exceptions and full accuracy
             double avg = (double)sum / values.Length;
             return Math.Sqrt(values.SumForStdDeviationSsePar(avg) / (values.Length - 1));
         }
@@ -117,7 +121,7 @@ namespace HPCsharp.ParallelAlgorithms
         private static double SumForDeviationSseDoubleInner(this long[] arrayToSum, int l, int r, double average)
         {
             var averageVector = new Vector<double>(average);
-            var sumVector = new Vector<double>();
+            var sumVector     = new Vector<double>();
             int sseIndexEnd = l + ((r - l + 1) / Vector<long>.Count) * Vector<long>.Count;
             int i;
             for (i = l; i < sseIndexEnd; i += Vector<long>.Count)
@@ -140,7 +144,9 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>standard deviation as a double</returns>
         public static double StandardDeviationSse(this ulong[] values)
         {
-            decimal sum = HPCsharp.ParallelAlgorithms.Sum.SumToDecimalSseEvenFasterPar(values);     // SSE, no exceptions and full accuracy
+            // TODO: Find the 2X result bug in the SseEvenFaster version of this algorithm
+            //decimal sum = HPCsharp.ParallelAlgorithms.Sum.SumToDecimalSseEvenFasterPar(values);     // SSE, no exceptions and full accuracy
+            decimal sum = HPCsharp.ParallelAlgorithms.Sum.SumToDecimalFasterPar(values);     // SSE, no exceptions and full accuracy
             double avg = (double)sum / values.Length;
             return Math.Sqrt(values.SumForDeviationToDoubleSse(0, values.Length, avg) / (values.Length - 1));
         }
@@ -151,7 +157,9 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>standard deviation as a double</returns>
         public static double StandardDeviationSsePar(this ulong[] values)
         {
-            decimal sum = HPCsharp.ParallelAlgorithms.Sum.SumToDecimalSseEvenFasterPar(values);     // multi-core, SSE, no exceptions and full accuracy
+            // TODO: Find the 2X result bug in the SseEvenFaster version of this algorithm
+            //decimal sum = HPCsharp.ParallelAlgorithms.Sum.SumToDecimalSseEvenFasterPar(values);     // SSE, no exceptions and full accuracy
+            decimal sum = HPCsharp.ParallelAlgorithms.Sum.SumToDecimalFasterPar(values);     // multi-core, SSE, no exceptions and full accuracy
             double avg = (double)sum / values.Length;
             return Math.Sqrt(values.SumForStdDeviationSsePar(avg) / (values.Length - 1));
         }
@@ -232,7 +240,7 @@ namespace HPCsharp.ParallelAlgorithms
             float overallSum = 0;
             for (; i <= r; i++)
                 overallSum += (arrayToSum[i] - average) * (arrayToSum[i] - average);
-            for (i = 0; i < Vector<double>.Count; i++)
+            for (i = 0; i < Vector<float>.Count; i++)
                 overallSum += sumVector[i];
             return overallSum;
         }
