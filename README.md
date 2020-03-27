@@ -49,8 +49,7 @@ HPCsharp improves .Sum() of numeric arrays in the following ways:
 - Simpler to use: no overflow exceptions to deal with, for all integer data types
 - 25X faster ulong[] array summation, than an equivalent Linq summation without overflow. 3X faster when overflow exceptions are not a concern
 - 5X faster int[] summation without overflow exceptions
-- Summation of all signed integer data types
-- Summation of all unsigned integer data types
+- Summation of all signed and unsigned integer data types
 - Two higher precision floating-point summation options, reducing error from ***O***(eN) downto ***O***(elgN) without reduction
 in performance, and ***O***(e), with slight performance reduction. Implements pairwise and Kahan/Neumaier summation algorithms
 - Implements many algorithms using multi-core and data parallel SIMD/SSE processor instructions
@@ -64,7 +63,7 @@ HPCsharp also using SIMD/SSE data parallel instructions on each core to gain add
 *Library*|*sbyte*|*byte*|*short*|*ushort*|*int*|*uint*|*long*|*ulong*|*float*|*double*|*decimal*|*BigInteger*
 --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ---
 Linq | n/a | n/a | n/a | n/a |1.5\*|n/a|1.7\*|n/a|1.8|2.1|0.38|0.016\*\*
-HPC# |21|21|15|15|8.4|8.1|4.1\*|4.1|8.3|4.2|0.5|0.075
+HPC# |21|21|15|15|8.4|8.1|3.4|4.1|8.3|4.2|0.5|0.075
 
 \* overflow exception is possible\
 \*\* Linq doesn't implement BigInteger.Sum(), used .Aggregate() instead, which doesn't speed-up with .AsParallel()
