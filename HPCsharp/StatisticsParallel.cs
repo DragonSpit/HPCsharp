@@ -89,9 +89,7 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>standard deviation as a double</returns>
         public static double StandardDeviationSse(this long[] values)
         {
-            // TODO: Need to find this 2X result bug in the below algorithm!
-            //decimal sum = HPCsharp.ParallelAlgorithms.Sum.SumToDecimalSseFasterPar(values);     // SSE, no exceptions and full accuracy
-            double sum = values.Sum(v => (double)v);
+            decimal sum = HPCsharp.ParallelAlgorithms.Sum.SumToDecimalSseFasterPar(values);     // multi-car, SSE, no exceptions and full accuracy
             double avg = (double)sum / values.Length;
             return Math.Sqrt(values.SumForDeviationToDoubleSse(0, values.Length, avg) / (values.Length - 1));
         }
@@ -102,9 +100,7 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>standard deviation as a double</returns>
         public static double StandardDeviationSsePar(this long[] values)
         {
-            // TODO: Need to find this 2X result bug in the below algorithm!
-            //decimal sum = HPCsharp.ParallelAlgorithms.Sum.SumToDecimalSseFasterPar(values);   // multi-core, SSE, no exceptions and full accuracy
-            decimal sum = HPCsharp.ParallelAlgorithms.Sum.SumToDecimalPar(values);              // multi-core,      no exceptions and full accuracy
+            decimal sum = HPCsharp.ParallelAlgorithms.Sum.SumToDecimalSseFasterPar(values);   // multi-core, SSE, no exceptions and full accuracy
             double avg = (double)sum / values.Length;
             return Math.Sqrt(values.SumForStdDeviationSsePar(avg) / (values.Length - 1));
         }
@@ -144,9 +140,7 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>standard deviation as a double</returns>
         public static double StandardDeviationSse(this ulong[] values)
         {
-            // TODO: Find the 2X result bug in the SseEvenFaster version of this algorithm
-            //decimal sum = HPCsharp.ParallelAlgorithms.Sum.SumToDecimalSseEvenFasterPar(values);     // SSE, no exceptions and full accuracy
-            decimal sum = HPCsharp.ParallelAlgorithms.Sum.SumToDecimalFasterPar(values);     // SSE, no exceptions and full accuracy
+            decimal sum  = HPCsharp.ParallelAlgorithms.Sum.SumToDecimalSseEvenFasterPar(values);     // multi-core, SSE, no exceptions and full accuracy
             double avg = (double)sum / values.Length;
             return Math.Sqrt(values.SumForDeviationToDoubleSse(0, values.Length, avg) / (values.Length - 1));
         }
@@ -157,9 +151,7 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>standard deviation as a double</returns>
         public static double StandardDeviationSsePar(this ulong[] values)
         {
-            // TODO: Find the 2X result bug in the SseEvenFaster version of this algorithm
-            //decimal sum = HPCsharp.ParallelAlgorithms.Sum.SumToDecimalSseEvenFasterPar(values);     // SSE, no exceptions and full accuracy
-            decimal sum = HPCsharp.ParallelAlgorithms.Sum.SumToDecimalFasterPar(values);     // multi-core, SSE, no exceptions and full accuracy
+            decimal sum = HPCsharp.ParallelAlgorithms.Sum.SumToDecimalSseEvenFasterPar(values);   // multi-core, SSE, no exceptions and full accuracy
             double avg = (double)sum / values.Length;
             return Math.Sqrt(values.SumForStdDeviationSsePar(avg) / (values.Length - 1));
         }
@@ -506,21 +498,21 @@ namespace HPCsharp.ParallelAlgorithms
 
             if (degreeOfParallelism == 1)
             {
-                resultLeft = DivideAndConquerTwoTypesParLR(arrayToProcess, left,     mid,   average, baseCase, reduce, thresholdPar);
+                resultLeft  = DivideAndConquerTwoTypesParLR(arrayToProcess, left,     mid,  average, baseCase, reduce, thresholdPar);
                 resultRight = DivideAndConquerTwoTypesParLR(arrayToProcess, mid + 1, right, average, baseCase, reduce, thresholdPar);
             }
             else if (degreeOfParallelism > 1)
             {
                 var options = new ParallelOptions { MaxDegreeOfParallelism = degreeOfParallelism };
                 Parallel.Invoke(options,
-                    () => { resultLeft = DivideAndConquerTwoTypesParLR(arrayToProcess, left,     mid,   average, baseCase, reduce, thresholdPar); },
+                    () => { resultLeft  = DivideAndConquerTwoTypesParLR(arrayToProcess, left,     mid,  average, baseCase, reduce, thresholdPar); },
                     () => { resultRight = DivideAndConquerTwoTypesParLR(arrayToProcess, mid + 1, right, average, baseCase, reduce, thresholdPar); }
                 );
             }
             else
             {
                 Parallel.Invoke(
-                    () => { resultLeft = DivideAndConquerTwoTypesParLR(arrayToProcess, left,     mid,   average, baseCase, reduce, thresholdPar); },
+                    () => { resultLeft  = DivideAndConquerTwoTypesParLR(arrayToProcess, left,     mid,  average, baseCase, reduce, thresholdPar); },
                     () => { resultRight = DivideAndConquerTwoTypesParLR(arrayToProcess, mid + 1, right, average, baseCase, reduce, thresholdPar); }
                 );
             }
