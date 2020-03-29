@@ -20,6 +20,7 @@ Fill | 4 | 10 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | |
 Histogram | 14 | 35 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Byte, N-bit components of numeric arrays
 [Insertion Sort](#Insertion-Sort) | 1 | 2 | | | :heavy_check_mark: | :heavy_check_mark: | Generic IComparer\<T\>
 [Max, Min](#Min-and-Max) | 2 | 12 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | Generic IComparer\<T\>
+[Mean Absolute Deviation](#Mean Absolute Deviation) | 3 | 6 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | float[] and double[]
 [Merge](#Merge) | 2 | 18 | | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | Generic IComparer\<T\>
 Multi-way Merge | 1 | | | | :heavy_check_mark: | |
 [Merge Sort](#Merge-Sort) | 2 | 25 | | :heavy_check_mark: | :heavy_check_mark: | | Generic, Stable or not, whole or partial
@@ -27,6 +28,7 @@ Priority Queue | 2 | 15 | | | :heavy_check_mark: | |
 [Radix Sort (LSD)](#LSD-Radix-Sort) | 6 | 40 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Numeric arrays, user defined types, Stable
 Radix Sort (MSD) | 4 | 24| :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Numeric arrays, user defined types, In-place
 Sequence Equal | 2 | 19 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | 
+[Std Deviation](#Standard Deviation) | 7 | 12 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Avoids arithmetic overflow exception
 [Sum](#Better-Sum-in-Many-Ways) | 7 | 214 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Numeric arrays. [Better in many ways](https://duvanenko.tech.blog/2019/04/23/better-sum-in-c/)
 Swap | 4 | 4 | | | :heavy_check_mark: | | Generic swap variations
 [Zero Array Detect](#Zero-Array-Detect) | 3 | 13 | :heavy_check_mark: | | :heavy_check_mark: | | Detect if byte array is all zeroes 
@@ -89,6 +91,29 @@ For more details, see several blogs on various aspects:
 - [Faster Checked Addition in C# (Part 2)](https://duvanenko.tech.blog/2019/09/23/faster-checked-addition-in-c-part-2/ "Faster Checked Addition in C# (Part 2)")
 - [Checked SIMD/SSE Addition in C#](https://duvanenko.tech.blog/2019/07/20/checked-data-parallel-arithmetic-in-c/ "Checked SIMD/SSE Addition in C#")
 - [Video of Checked SIMD/SSE/multi-core Addition in C#](https://www.youtube.com/watch?v=hNqE1Ghwbv4 "Checked SIMD/SSE/multi-core Addition in C#")
+
+## Standard Deviation
+Accelerated and safer implementation of standard deviation for integer type arrays, float and double arrays. Accelerated by using
+multi-core and SSE data parallel instructions. Avoids arithmetic overflow exceptions for integer data types, using the same methods as HPCsharp's .Sum(). The following benchmarks ran on 6-core i7-9750H processor:
+
+*Library*|*int*|*long*|*ulong*|*float*|*double*
+--- | --- | --- | --- | --- | --- | --- 
+Linq |0.5\*|0.5\*|n/a|0.5|0.5
+HPC# |3.4|1.8|2.0|4.0|2.1
+
+The following benchmarks ran on 14-core Xeon W-2175 processor:
+
+*Library*|*int*|*long*|*ulong*|*float*|*floatToDouble*|*double*
+--- | --- | --- | --- | --- | --- | --- 
+Linq |0.44\*|0.29\*|n/a|0.6|0.5|0.5
+HPC# |4.9|2.2|2.0|3.6|6.5|5.9|3.7
+
+## Mean Absolute Deviation
+Another useful measure of variability within a dataset is Mean Absolute Deviation. It is related to
+standard deviation, using absolute value of the difference between the average value of the data set and-Conquer
+each data value, eliminating warping of the data.
+
+https://duvanenko.tech.blog/2020/03/22/how-standard-deviation-measures-warped-data/
 
 ## Divide-and-Conquer
 Provides parallel and serial generic functions, which support multi-core and single-core divide-and-conquer algorithm.
