@@ -65,17 +65,18 @@ HPCsharp also using SIMD/SSE data parallel instructions on each core to gain add
 *Library*|*sbyte*|*byte*|*short*|*ushort*|*int*|*uint*|*long*|*ulong*
 --- | --- | --- | --- | --- | --- | --- | --- | ---
 array.Sum() | n/a | n/a | n/a | n/a |1.5\*|n/a|1.7\*|n/a
-array.Sum(v => (long)v) | ? | n/a | ? | n/a |1.5\*|n/a|1.7\*|n/a
-array.Sum(v => (ulong)v) | n/a | ? | n/a | ? |1.5\*| ? |1.7\*|n/a
-array.Sum(v => (decimal)v) | n/a | n/a | n/a | n/a |1.5\*|n/a|1.7\*| ?
+array.Sum(v => (long)v) | ? | | ? | | ? | | ? | 
+array.Sum(v => (ulong)v) | | ? | | ? | | ? | | 
+array.Sum(v => (decimal)v) | | | | | | | ? | ?
 HPC# |21|21|15|15|8.4|8.1|3.4|4.1
 
 \* arithmetic overflow exception is possible\
+n/a not available
 
 *Library*|*float*|*double*|*decimal*|*BigInteger*
 --- | --- | --- | --- | ---
 array.Sum() |1.8|2.1|0.38|0.016\*\*
-array.Sum(v => (double)v) |1.8|||
+array.Sum(v => (double)v) | ? |||
 HPC# |8.3|4.2|0.5|0.075
 
 \*\* Linq doesn't implement BigInteger.Sum(), used .Aggregate() instead, which doesn't speed-up with .AsParallel()
