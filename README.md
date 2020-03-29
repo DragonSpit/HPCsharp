@@ -67,7 +67,7 @@ HPCsharp also using SIMD/SSE data parallel instructions on each core to gain add
 Linq | n/a | n/a | n/a | n/a |1.5\*|n/a|1.7\*|n/a|1.8|2.1|0.38|0.016\*\*
 HPC# |21|21|15|15|8.4|8.1|3.4|4.1|8.3|4.2|0.5|0.075
 
-\* overflow exception is possible\
+\* arithmetic overflow exception is possible\
 \*\* Linq doesn't implement BigInteger.Sum(), used .Aggregate() instead, which doesn't speed-up with .AsParallel()
 
 All HPCsharp integer summations (unsigned and signed) including long[] and ulong[] arrays, do not throw overflow exceptions,
@@ -97,9 +97,11 @@ Accelerated and safer implementation of standard deviation for integer type arra
 multi-core and SSE data parallel instructions. Avoids arithmetic overflow exceptions for integer data types, using the same methods as HPCsharp's .Sum(). The following benchmarks ran on 6-core i7-9750H processor:
 
 *Library*|*int*|*long*|*ulong*|*float*|*double*
---- | --- | --- | --- | --- | --- | --- 
+--- | --- | --- | --- | --- | --- 
 Linq |0.5\*|0.5\*|n/a|0.5|0.5
 HPC# |3.4|1.8|2.0|4.0|2.1
+
+\* arithmetic overflow exception is possible\
 
 The following benchmarks ran on 14-core Xeon W-2175 processor:
 
@@ -107,6 +109,8 @@ The following benchmarks ran on 14-core Xeon W-2175 processor:
 --- | --- | --- | --- | --- | --- | --- 
 Linq |0.44\*|0.29\*|n/a|0.6|0.5|0.5
 HPC# |4.9|2.2|2.0|3.6|6.5|5.9|3.7
+
+\* arithmetic overflow exception is possible\
 
 ## Mean Absolute Deviation
 Another useful measure of variability within a dataset is Mean Absolute Deviation. It is related to
