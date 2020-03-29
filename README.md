@@ -95,15 +95,15 @@ For more details, see several blogs on various aspects:
 ## Standard Deviation
 Accelerated and safer implementation of standard deviation for integer type arrays, float and double arrays. Accelerated by using multi-core and SSE data parallel instructions. Avoids arithmetic overflow exceptions for integer data types, using the same methods as HPCsharp's .Sum(). The following benchmarks ran on 6-core i7-9750H processor:
 
-*Library*|*intToLong*|*longToDecimal*|*ulongToDecimal*|*float*|*floatToDouble|*double*
+*Library*|*intToLong*|*longToDecimal*|*ulongToDecimal*|*float*|*floatToDouble*|*double*
 --- | --- | --- | --- | --- | --- | ---
 Linq |0.33|0.21|0.2|0.48|0.47|0.48
 HPC# |3.3|1.9|2.0|4.0|3.8|2.0
 
 The above benchmarks of Linq code were implemented in the following way:
 ```
-intArray.Average(v => (long)v); \
-or \
+intArray.Average(v => (long)v);
+or
 longArray.Average(v => (decimal)v);
 ```
 to ensure that no arithmetic overflow exception is possible, to make a fair comparison to HPCsharp implementations.
@@ -114,6 +114,8 @@ The following benchmarks ran on 14-core Xeon W-2175 processor:
 --- | --- | --- | --- | --- | --- | --- 
 Linq |0.44|0.29|0.26|0.6|0.5|0.5
 HPC# |4.9|2.2|3.6|6.5|5.9|3.7
+
+https://duvanenko.tech.blog/2020/03/22/parallel-standard-deviation/
 
 ## Mean Absolute Deviation
 Another useful measure of variability within a dataset is Mean Absolute Deviation. It is related to
