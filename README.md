@@ -59,16 +59,14 @@ in performance, and ***O***(e), with slight performance reduction. Implements pa
 - Faster summation at full accuracy of ulong[] array to Decimal and BigInteger: SIMD/SSE, single and multi-core
 - Developed checked SIMD/SSE addition in C#, unsigned and signed, for much higher performance
 
-The table below compares performance (in GigaAdds/second) of Linq.AsParallel().Sum() and HPCsharp.SumSsePar() - both use multi-core (6 of them), with
-HPCsharp also using SIMD/SSE data parallel instructions on each core to gain additional performance:
+The table below compares performance (in GigaAdds/second) of Linq.AsParallel().Sum() and HPCsharp.SumSsePar() - both use multi-core (6 of them), with HPCsharp also using SIMD/SSE data parallel instructions on each core to gain additional performance:
 
 *Library*|*sbyte*|*byte*|*short*|*ushort*|*int*|*uint*|*long*|*ulong*
 --- | --- | --- | --- | --- | --- | --- | --- | ---
 array.Sum() | n/a | n/a | n/a | n/a |1.5\*|n/a|1.7\*|n/a
-array.Sum(v => (long)v) | ? | | ? | | ? | | ? | 
-array.Sum(v => (ulong)v) | | ? | | ? | | ? | | 
-array.Sum(v => (decimal)v) | | | | | | | ? | ?
-HPC# |21|21|15|15|8.4|8.1|3.4|4.1
+array.Sum(v => (long)v) |0.72|0.76|0.75|0.76|0.7| | | 
+array.Sum(v => (decimal)v) | | | | | |0.35|0.31|0.29
+HPC# |20|20|15|15|7.8|7.9|3.7|3.9
 
 \* arithmetic overflow exception is possible\
 n/a not available
