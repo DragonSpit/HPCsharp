@@ -49,7 +49,7 @@ its full performance. Keep this behavior of the C# JIT compiler in mind as you u
 ## Better Sum in Many Ways
 HPCsharp improves .Sum() of numeric arrays in the following ways:
 - Simpler to use: no overflow exceptions to deal with, for all integer data types
-- 25X faster ulong[] array summation, than an equivalent Linq summation without overflow. 3X faster when overflow exceptions are not a concern
+- 13X faster ulong[] array summation, than an equivalent Linq summation without overflow. 3X faster when overflow exceptions are not a concern
 - 5X faster int[] summation without overflow exceptions
 - Summation of all signed and unsigned integer data types
 - Two higher precision floating-point summation options, reducing error from ***O***(eN) downto ***O***(elgN) without reduction in performance, and ***O***(e), with slight performance reduction. Implements pairwise and Kahan/Neumaier summation algorithms
@@ -63,18 +63,19 @@ The table below compares performance (in GigaAdds/second) of Linq.AsParallel().S
 *Library*|*sbyte*|*byte*|*short*|*ushort*|*int*|*uint*|*long*|*ulong*
 --- | --- | --- | --- | --- | --- | --- | --- | ---
 array.Sum() | n/a | n/a | n/a | n/a |1.5\*|n/a|1.7\*|n/a
-array.Sum(v => (long)v) |0.72|0.76|0.75|0.76|0.7| | | 
+array.Sum(v => (long)v) |0.72|0.76|0.75|0.76|0.7|0.7| | 
 array.Sum(v => (decimal)v) | | | | | |0.35|0.31|0.29
 HPC# |20|20|15|15|7.8|7.9|3.7|3.9
 
 \* arithmetic overflow exception is possible\
 n/a not available
 
-*Library*|*float*|*double*|*decimal*|*BigInteger*
---- | --- | --- | --- | ---
-array.Sum() |1.8|2.1|0.38|0.016\*\*
-array.Sum(v => (double)v) | ? |||
-HPC# |8.3|4.2|0.5|0.075
+*Library*|*float*|*floatToDouble*|*double*|*decimal*|*BigInteger*
+--- | --- | --- | --- | --- | ---
+array.Sum() |1.8| |2.1|0.38|0.016\*\*
+array.Sum(v => (double)v) | 0.66 | | | |
+HPC# |8.3|7.9|4.2|0.5|0.075
+HPC# Kahan |6.7|5.9|3.6| |
 
 \*\* Linq doesn't implement BigInteger.Sum(), used .Aggregate() instead, which doesn't speed-up with .AsParallel()
 
