@@ -62,12 +62,22 @@ in performance, and ***O***(e), with slight performance reduction. Implements pa
 The table below compares performance (in GigaAdds/second) of Linq.AsParallel().Sum() and HPCsharp.SumSsePar() - both use multi-core (6 of them), with
 HPCsharp also using SIMD/SSE data parallel instructions on each core to gain additional performance:
 
-*Library*|*sbyte*|*byte*|*short*|*ushort*|*int*|*uint*|*long*|*ulong*|*float*|*double*|*decimal*|*BigInteger*
---- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ---
-Linq | n/a | n/a | n/a | n/a |1.5\*|n/a|1.7\*|n/a|1.8|2.1|0.38|0.016\*\*
-HPC# |21|21|15|15|8.4|8.1|3.4|4.1|8.3|4.2|0.5|0.075
+*Library*|*sbyte*|*byte*|*short*|*ushort*|*int*|*uint*|*long*|*ulong*
+--- | --- | --- | --- | --- | --- | --- | --- | ---
+array.Sum() | n/a | n/a | n/a | n/a |1.5\*|n/a|1.7\*|n/a
+array.Sum(v => (long)v) | ? | n/a | ? | n/a |1.5\*|n/a|1.7\*|n/a
+array.Sum(v => (ulong)v) | n/a | ? | n/a | ? |1.5\*| ? |1.7\*|n/a
+array.Sum(v => (decimal)v) | n/a | n/a | n/a | n/a |1.5\*|n/a|1.7\*| ?
+HPC# |21|21|15|15|8.4|8.1|3.4|4.1
 
 \* arithmetic overflow exception is possible\
+
+*Library*|*float*|*double*|*decimal*|*BigInteger*
+--- | --- | --- | --- | ---
+array.Sum() |1.8|2.1|0.38|0.016\*\*
+array.Sum(v => (double)v) |1.8|||
+HPC# |8.3|4.2|0.5|0.075
+
 \*\* Linq doesn't implement BigInteger.Sum(), used .Aggregate() instead, which doesn't speed-up with .AsParallel()
 
 All HPCsharp integer summations (unsigned and signed) including long[] and ulong[] arrays, do not throw overflow exceptions,
@@ -102,9 +112,9 @@ HPC# |3.3|1.9|2.0|4.0|3.8|2.0
 
 The above benchmarks of Linq code were implemented in the following way:
 ```
-intArray.Average(v => (long)v);
+intArray.Average(v => (long)v);     // intToLong
 or
-longArray.Average(v => (decimal)v);
+longArray.Average(v => (decimal)v); // longToDecimal
 ```
 to ensure that no arithmetic overflow exception is possible, to make a fair comparison to HPCsharp implementations.
 
