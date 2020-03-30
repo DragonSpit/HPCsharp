@@ -78,7 +78,7 @@ HPC# |8.3|7.9|4.2|0.5|0.075
 HPC# pair-wise \* |8.3|7.9|4.2| |
 HPC# Kahan |6.7|5.9|3.6| |
 
-\*\* Linq doesn't implement BigInteger.Sum(), used .Aggregate() instead, which doesn't speed-up with .AsParallel()
+\*\* Linq doesn't implement BigInteger.Sum(), used .Aggregate() instead, which doesn't speed-up with .AsParallel()\
 \* HPCsharp implements pair-wise floating-point parallel (multi-core) by default, since it uses divide-and-conquer algorithm for multi-core implementation.
 
 All HPCsharp integer summations (unsigned and signed) including long[] and ulong[] arrays, do not throw overflow exceptions, while producing a perfectly accurate result. This simplifies usage, while providing high performance.
