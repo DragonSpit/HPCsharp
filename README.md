@@ -75,17 +75,15 @@ n/a not available
 array.Sum() |1.8| |2.1|0.38|0.016\*\*
 array.Sum(v => (double)v) | |0.66| | |
 HPC# |8.3|7.9|4.2|0.5|0.075
-HPC# pair-wise |8.3|7.9|4.2| |
+HPC# pair-wise \* |8.3|7.9|4.2| |
 HPC# Kahan |6.7|5.9|3.6| |
 
 \*\* Linq doesn't implement BigInteger.Sum(), used .Aggregate() instead, which doesn't speed-up with .AsParallel()
+\* HPCsharp implements pair-wise floating-point parallel (multi-core) by default, since it uses divide-and-conquer algorithm for multi-core implementation.
 
 All HPCsharp integer summations (unsigned and signed) including long[] and ulong[] arrays, do not throw overflow exceptions, while producing a perfectly accurate result. This simplifies usage, while providing high performance.
 
 HPCsharp ulong[] array summation implements a full accuracy algorithm using integer only arithmetic to provide maximum performance. It detects and deals with arithmetic overflow internally, without using exceptions, using integer only computation. HPCsharp also uses SIMD/SSE data parallel instructions to get maximum performance out of each core, and uses multi-core to run even faster.
-
-HPCsharp implements pair-wise floating-point parallel (multi-core) by default, since it uses divide-and-conquer algorithm
-for multi-core implementation.
 
 For more details, see several blogs on various aspects:
 - [Better C# .Sum() in Many Ways](https://duvanenko.tech.blog/2019/04/23/better-sum-in-c/ "Better C# .Sum() in Many Ways")
