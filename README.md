@@ -48,15 +48,17 @@ its full performance. Keep this behavior of the C# JIT compiler in mind as you u
 
 ## Better Sum in Many Ways
 HPCsharp improves .Sum() of numeric arrays in the following ways:
-- Simpler to use: no overflow exceptions to deal with, for all integer data types
-- 13X faster ulong[] array summation, than an equivalent Linq summation without overflow. 3X faster when overflow exceptions are not a concern
-- 5X faster int[] summation without overflow exceptions
-- Summation of all signed and unsigned integer data types
-- Two higher precision floating-point summation options, reducing error from ***O***(eN) downto ***O***(elgN) without reduction in performance, and ***O***(e), with slight performance reduction. Implements pairwise and Kahan/Neumaier summation algorithms
-- Implements most algorithms using multi-core and data parallel SIMD/SSE processor instructions
-- Summation of BigInteger array: single and multi-core
-- Faster summation at full accuracy of ulong[] array to Decimal and BigInteger: SIMD/SSE, single and multi-core
-- Developed checked SIMD/SSE addition in C#, unsigned and signed, for much higher performance
+- Adds support for the missing signed integer data types: sbyte and short
+- Adds support for all unsigned integer data types: byte, ushort, uint, and ulong
+- Simplified use: no arithmetic overflow exceptions to deal with, for all integer data types
+- SIMD/SSE implementations for all integer and floating-point data types, to boost performance several times per processor core, as well as multi-core to use all the cores
+- Adds support for BigInteger: single-core and multi-core
+- New checked SIMD/SSE addition in C#, unsigned and signed, for much higher performance
+- Extended precision ulong[] and long[] summation for a full precision to a Decimal and BigInteger result, using integer computation only: SIMD/SSE, single-core and multi-core
+- Reduced error from ***O***(eN) downto ***O***(elgN) for float and double arrays by performing pair-wise summation
+- Reduced error further down to ***O***(e) by implementing Kahan summation for float and double arrays, with slight
+performance reduction, implemented in SIMD/SSE and multi-core
+- GigaAdds/sec performance for all processor native data types
 
 The table below compares performance (in GigaAdds/second) of Linq.AsParallel().Sum() and HPCsharp.SumSsePar() - both use multi-core (6 of them), with HPCsharp also using SIMD/SSE data parallel instructions on each core to gain additional performance:
 
