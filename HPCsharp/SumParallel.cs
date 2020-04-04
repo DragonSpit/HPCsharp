@@ -208,7 +208,7 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>ulong sum</returns>
         public static ulong SumToUlongSse(this byte[] arrayToSum)
         {
-            return arrayToSum.SumSseInner(0, arrayToSum.Length - 1);
+            return arrayToSum.SumSseInnerFaster(0, arrayToSum.Length - 1);
         }
 
         /// <summary>
@@ -221,7 +221,7 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>ulong sum</returns>
         public static ulong SumToUlongSse(this byte[] arrayToSum, int startIndex, int length)
         {
-            return arrayToSum.SumSseInner(startIndex, startIndex + length - 1);
+            return arrayToSum.SumSseInnerFaster(startIndex, startIndex + length - 1);
         }
 
         private static ulong SumSseInner(this byte[] arrayToSum, int l, int r)
@@ -281,6 +281,52 @@ namespace HPCsharp.ParallelAlgorithms
             sumVector000 += sumVector100;
             for (i = 0; i < Vector<long>.Count; i++)
                 overallSum += sumVector000[i];
+            return overallSum;
+        }
+
+        private static ulong SumSseInnerFaster(this byte[] arrayToSum, int l, int r)
+        {
+            var sumVector      = new Vector<ulong>();
+            var ulong0 = new Vector<ulong>();
+            var ulong1 = new Vector<ulong>();
+            var ushortLow0     = new Vector<ushort>();
+            var ushortHigh0    = new Vector<ushort>();
+            var uint0 = new Vector<uint>();
+            var uint1 = new Vector<uint>();
+            var uint2 = new Vector<uint>();
+            var uint3 = new Vector<uint>();
+
+            int sseIndexEnd = l + ((r - l + 1) / (256 * Vector<byte>.Count)) * (256 * Vector<byte>.Count);
+
+            int incr = Vector<byte>.Count;
+            int i;
+            for (i = l; i < sseIndexEnd; )
+            {
+                var ushortSumLow0  = new Vector<ushort>();
+                var ushortSumHigh0 = new Vector<ushort>();
+                for (int j = 0; j < 256; j++, i += incr)
+                {
+                    var inVector0 = new Vector<byte>(arrayToSum, i);
+                    Vector.Widen(inVector0, out ushortLow0, out ushortHigh0);
+                    ushortSumLow0  += ushortLow0;
+                    ushortSumHigh0 += ushortHigh0;
+                }
+                Vector.Widen(ushortSumLow0,  out uint0, out uint1);
+                uint0 += uint1;
+                Vector.Widen(ushortSumHigh0, out uint2, out uint3);
+                uint0 += uint2;
+                uint0 += uint3;
+
+                Vector.Widen(uint0, out ulong0, out ulong1);
+                sumVector += ulong0;
+                sumVector += ulong1;
+            }
+
+            ulong overallSum = 0;
+            for (; i <= r; i++)
+                overallSum += arrayToSum[i];
+            for (i = 0; i < Vector<ulong>.Count; i++)
+                overallSum += sumVector[i];
             return overallSum;
         }
 
