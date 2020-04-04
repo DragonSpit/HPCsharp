@@ -67,8 +67,8 @@ The table below compares performance (in GigaAdds/second) of Linq.AsParallel().S
 array.Sum() | n/a | n/a | n/a | n/a |1.5\*|n/a|1.7\*|n/a
 array.Sum(v => (long)v) |0.72|0.76|0.75|0.76|0.7|0.7| | 
 array.Sum(v => (decimal)v) | | | | | |0.35|0.31|0.29
-HPC# (6-core) |20|20|15|15|7.8|7.9|3.7|3.9
-HPC# (14-core) |18|17|17|18|14|14|3.2|7.1
+HPC# (6-core) |33|20|15|15|7.8|7.9|3.7|3.9
+HPC# (14-core) |63|17|17|18|14|14|3.2|7.1
 
 \* arithmetic overflow exception is possible\
 n/a not available
