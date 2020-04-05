@@ -63,7 +63,7 @@ performance reduction, implemented in SIMD/SSE and multi-core
 The table below compares performance (in GigaAdds/second) of Linq.AsParallel().Sum() and HPCsharp.SumSsePar() - both use multi-core (6 or 14 of them), with HPCsharp also using SIMD/SSE data parallel instructions on each core to gain additional performance:
 
 *Library*|*sbyte*|*byte*|*short*|*ushort*|*int*|*uint*|*long*|*ulong*| Details
---- | --- | --- | --- | --- | --- | --- | --- | --- |
+--- | --- | --- | --- | --- | --- | --- | --- | --- | ---
 array.Sum() | n/a | n/a | n/a | n/a |1.5\*|n/a|1.7\*|n/a|
 array.Sum(v => (long)v) |0.72|0.76|0.75|0.76|0.7|0.7| | |
 array.Sum(v => (decimal)v) | | | | | |0.35|0.31|0.29|
