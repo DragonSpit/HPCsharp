@@ -64,12 +64,12 @@ The table below compares performance (in GigaAdds/second) of Linq.AsParallel().S
 
 *Library*|*sbyte*|*byte*|*short*|*ushort*|*int*|*uint*|*long*|*ulong*| Details
 --- | --- | --- | --- | --- | --- | --- | --- | --- | ---
-array.Sum() | n/a | n/a | n/a | n/a |1.5\*|n/a|1.7\*|n/a|
-array.Sum(v => (long)v) |0.72|0.76|0.75|0.76|0.7|0.7| | |
-array.Sum(v => (decimal)v) | | | | | |0.35|0.31|0.29|
+array.Sum() | n/a | n/a | n/a | n/a |1.5\*|n/a|1.7\*|n/a| using 6 cores
+array.Sum(v => (long)v) |0.72|0.76|0.75|0.76|0.7|0.7| | | using 6 cores
+array.Sum(v => (decimal)v) | | | | | |0.35|0.31|0.29| using 6 cores
 Parallel.ForEach((long)v)  | | | | |7.4| | | | using 6 cores
 HPC# (6-core) |33|31|16|16|8|8|3.7|4| using 2 cores
-HPC# (14-core) |63|17|17|18|14|14|3.2|7.1|
+HPC# (14-core) |63|63|16|22|14|14|3.2|7.1|
 
 \* arithmetic overflow exception is possible\
 n/a not available
