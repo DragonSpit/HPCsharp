@@ -87,6 +87,8 @@
 //       for small arrays that fit into L2 cache. Need to try 2-way and 3-way unroll to see if these provide even higher performance.
 // TODO: Write a blog comparing SumToLongParFor(intToLong) with HPCsharp using only two cores versus this one with 2 thru 6 cores, since HCPsharp uses SIMD/SSE.
 //       Great comparison versus Lambda's too, since Lambda's have function call overhead per array element. This would be a great blog on its own - Prefer ParallelFor to Lambda's for Performance.
+// TODO: Try using the same overflow detection developed to ulong[].Sum for byte[].Sum, ushort[].Sum and uint[].Sum for SSE, as this may end up raising performance by up to 2X
+//       for these algorithms, due to doing 2X number of additions. Try it on uint[].Sum first to see if there is a performance benefit
 
 using System.Collections.Generic;
 using System.Text;
@@ -228,6 +230,57 @@ namespace HPCsharp.ParallelAlgorithms
                 Vector.Widen(ushortSumLow0,  out var uint0, out var uint1);
                 uint0 += uint1;
                 Vector.Widen(ushortSumHigh0, out var uint2, out var uint3);
+                uint0 += uint2;
+                uint0 += uint3;
+
+                Vector.Widen(uint0, out var ulong0, out var ulong1);
+                sumVector += ulong0;
+                sumVector += ulong1;
+            }
+
+            ulong overallSum = 0;
+            for (; i <= r; i++)
+                overallSum += arrayToSum[i];
+            for (i = 0; i < Vector<ulong>.Count; i++)
+                overallSum += sumVector[i];
+            return overallSum;
+        }
+
+        private static ulong SumSseInnerUnrolled(this byte[] arrayToSum, int l, int r)
+        {
+            var sumVector = new Vector<ulong>();
+
+            int sseIndexEnd = l + ((r - l + 1) / (256 * Vector<byte>.Count)) * (256 * Vector<byte>.Count);
+
+            int incr = Vector<byte>.Count;
+            int incrTimes2 = 2 * Vector<byte>.Count;
+            int i;
+            for (i = l; i < sseIndexEnd;)
+            {
+                var ushortSum00 = new Vector<ushort>();
+                var ushortSum01 = new Vector<ushort>();
+                var ushortSum10 = new Vector<ushort>();
+                var ushortSum11 = new Vector<ushort>();
+                for (int j = 0; j < 256; j += 2, i += incrTimes2)
+                {
+                    var inVector0 = new Vector<byte>(arrayToSum, i);
+                    var inVector1 = new Vector<byte>(arrayToSum, i + incr);
+                    Vector.Widen(inVector0, out var ushort00, out var ushort01);
+                    Vector.Widen(inVector1, out var ushort10, out var ushort11);
+                    ushortSum00 += ushort00;
+                    ushortSum01 += ushort01;
+                    ushortSum10 += ushort10;
+                    ushortSum11 += ushort11;
+                }
+                Vector.Widen(ushortSum00, out var uint0, out var uint1);
+                uint0 += uint1;
+                Vector.Widen(ushortSum01, out var uint2, out var uint3);
+                uint0 += uint2;
+                uint0 += uint3;
+                Vector.Widen(ushortSum10, out uint2, out uint3);
+                uint0 += uint2;
+                uint0 += uint3;
+                Vector.Widen(ushortSum11, out uint2, out uint3);
                 uint0 += uint2;
                 uint0 += uint3;
 
@@ -578,16 +631,14 @@ namespace HPCsharp.ParallelAlgorithms
         {
             var sumVectorLower = new Vector<ulong>();
             var sumVectorUpper = new Vector<ulong>();
-            var longLower      = new Vector<ulong>();
-            var longUpper      = new Vector<ulong>();
             int sseIndexEnd = l + ((r - l + 1) / Vector<uint>.Count) * Vector<uint>.Count;
             int i;
             for (i = l; i < sseIndexEnd; i += Vector<int>.Count)
             {
                 var inVector = new Vector<uint>(arrayToSum, i);
-                Vector.Widen(inVector, out longLower, out longUpper);
-                sumVectorLower += longLower;
-                sumVectorUpper += longUpper;
+                Vector.Widen(inVector, out var ulongLower, out var ulongUpper);
+                sumVectorLower += ulongLower;
+                sumVectorUpper += ulongUpper;
             }
             ulong overallSum = 0;
             for (; i <= r; i++)
