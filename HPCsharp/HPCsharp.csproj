@@ -1,16 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
     <Authors>Victor J. Duvanenko</Authors>
     <Company>FooState</Company>
     <Product>HPCsharp</Product>
     <Description>Parallel high performance cross-platform C#/.NET algorithms. 20+ algorithms with familiar interfaces and examples. Multi-core and data parallel (SIMD/SSE). Open source and free. See project Readme, blog, and videos...</Description>
     <Copyright>© 2018 FooState</Copyright>
     <PackageLicenseUrl>https://github.com/DragonSpit/HPCsharp/blob/master/LICENSE</PackageLicenseUrl>
-    <PackageReleaseNotes>Fixed a bug in multi-core SSE .Sum() of long[] and ulong[]. Added multi-core standard deviation of ulong[] and long[], which also uses SSE data parallel instructions on each core, while avoiding arithmetic overflow exceptions during the two summations in the formula. See the following blogs supporting this release: 
-https://duvanenko.tech.blog/2020/03/22/parallel-standard-deviation/
-https://duvanenko.tech.blog/2020/03/22/how-standard-deviation-measures-warped-data/</PackageReleaseNotes>
+    <PackageReleaseNotes>Include .NET Standard 2.0 and 2.1 for full performance for .NET Core 3.0 and 3.1 (Windows and Linux), as well as every .NET Framework version</PackageReleaseNotes>
     <PackageId>HPCsharp</PackageId>
     <PackageTags>high perfromance algorithms, C#, high performance, high performance computing, HPC, algorithm, algorithms, Linq, parallel, parallel algorithm</PackageTags>
     <PackageIconUrl>https://foostate.com/images/default_lib_icon_64.png</PackageIconUrl>
@@ -19,9 +17,9 @@ https://duvanenko.tech.blog/2020/03/22/how-standard-deviation-measures-warped-da
     <PackageProjectUrl>https://github.com/DragonSpit/HPCsharp</PackageProjectUrl>
     <RepositoryUrl>https://github.com/DragonSpit/HPCsharp</RepositoryUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <AssemblyVersion>3.9.3.0</AssemblyVersion>
-    <FileVersion>3.9.3.0</FileVersion>
-    <Version>3.9.3</Version>
+    <AssemblyVersion>3.10.0.0</AssemblyVersion>
+    <FileVersion>3.10.0.0</FileVersion>
+    <Version>3.10.0</Version>
     <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 

@@ -13,7 +13,9 @@
 //       each element to a double or decimal to get around overflow exception, this will result in severe performance drop, which when compared to HPCsharp is most likely 100X slower if not more. Good idea for a blog! To walk them thru
 // TODO: Implement Mean Absolute Deviation for float[] which uses doubles (ToDouble version).
 // TODO: Implement other data types for Mean Absolute Deviation: int, uint, long, ulong
-// TODO: Implement StdDeviation for uint[]
+// TODO: Implement StdDeviation for uint[], byte[], sbyte[], short[], short[], and possibly Decimal[]
+// TODO: To improve testing for Kahan summation based standard deviation and mean absolute deviation, create a unit test which is scalar and uses Kahan summation (already part of HPCsharp) and compare to that
+//       "golden" implementation
 using System.Collections.Generic;
 using System.Text;
 using System.Numerics;
