@@ -150,6 +150,11 @@ namespace HPCsharp
         {
             return DivideAndConquerTwoTypesParLR(arrayToProcess, start, start + length - 1, baseCase, reduce, thresholdPar, degreeOfParallelism);
         }
+        public static T2 DivideAndConquerTwoTypesPar2<T, T2>(this T[] arrayToProcess, int start, int length, Func<T[], int, int, T2> baseCase,
+                                                            Func<T2, T2, T2> reduce, int thresholdPar = 16 * 1024, int degreeOfParallelism = 0)
+        {
+            return DivideAndConquerTwoTypesParLR2(arrayToProcess, start, start + length - 1, baseCase, reduce, thresholdPar, degreeOfParallelism);
+        }
         /// Note that the baseCase function is on (start, length) interface and not (left, right) because the pulic divide-and-conquer function has that interface
         internal static T2 DivideAndConquerTwoTypesParLR<T, T2>(this T[] arrayToProcess, int left, int right, Func<T[], int, int, T2> baseCase, Func<T2, T2, T2> reduce,
                                                                int thresholdPar = 16 * 1024, int degreeOfParallelism = 0)
@@ -167,21 +172,59 @@ namespace HPCsharp
 
             if (degreeOfParallelism == 1)
             {
-                resultLeft  = DivideAndConquerTwoTypesParLR(arrayToProcess, left,    mid,   baseCase, reduce, thresholdPar);
+                resultLeft  = DivideAndConquerTwoTypesParLR(arrayToProcess, left,    mid,   baseCase, reduce, thresholdPar, degreeOfParallelism);
+                resultRight = DivideAndConquerTwoTypesParLR(arrayToProcess, mid + 1, right, baseCase, reduce, thresholdPar, degreeOfParallelism);
+            }
+            else if (degreeOfParallelism > 1)
+            {
+                var options = new ParallelOptions { MaxDegreeOfParallelism = degreeOfParallelism };
+                Parallel.Invoke(options,
+                    () => { resultLeft  = DivideAndConquerTwoTypesParLR(arrayToProcess, left,    mid,   baseCase, reduce, thresholdPar, degreeOfParallelism); },
+                    () => { resultRight = DivideAndConquerTwoTypesParLR(arrayToProcess, mid + 1, right, baseCase, reduce, thresholdPar, degreeOfParallelism); }
+                );
+            }
+            else
+            {
+                Parallel.Invoke(
+                    () => { resultLeft  = DivideAndConquerTwoTypesParLR(arrayToProcess, left,    mid,   baseCase, reduce, thresholdPar, degreeOfParallelism); },
+                    () => { resultRight = DivideAndConquerTwoTypesParLR(arrayToProcess, mid + 1, right, baseCase, reduce, thresholdPar, degreeOfParallelism); }
+                );
+            }
+
+            return reduce(resultLeft, resultRight);
+        }
+        /// Note that the baseCase function is on (start, length) interface and not (left, right) because the pulic divide-and-conquer function has that interface
+        internal static T2 DivideAndConquerTwoTypesParLR2<T, T2>(this T[] arrayToProcess, int left, int right, Func<T[], int, int, T2> baseCase, Func<T2, T2, T2> reduce,
+                                                               int thresholdPar = 16 * 1024, int degreeOfParallelism = 0)
+        {
+            T2 resultLeft = (T2)Convert.ChangeType(default(T), typeof(T2));
+
+            if (left > right)
+                return resultLeft;
+            if ((right - left + 1) <= thresholdPar)
+                return baseCase(arrayToProcess, left, right - left + 1);    // Not (left, rigtht), but (start, length) instead for the baseCase function
+
+            int mid = ((right + left) / 2 ) & 0x7ffffff0;       // set mid-point on cache boundary (16 elements of 4 bytes each = 64 bytes)
+
+            T2 resultRight = (T2)Convert.ChangeType(default(T), typeof(T2));
+
+            if (degreeOfParallelism == 1)
+            {
+                resultLeft = DivideAndConquerTwoTypesParLR(arrayToProcess, left, mid, baseCase, reduce, thresholdPar);
                 resultRight = DivideAndConquerTwoTypesParLR(arrayToProcess, mid + 1, right, baseCase, reduce, thresholdPar);
             }
             else if (degreeOfParallelism > 1)
             {
                 var options = new ParallelOptions { MaxDegreeOfParallelism = degreeOfParallelism };
                 Parallel.Invoke(options,
-                    () => { resultLeft  = DivideAndConquerTwoTypesParLR(arrayToProcess, left,    mid,   baseCase, reduce, thresholdPar); },
+                    () => { resultLeft = DivideAndConquerTwoTypesParLR(arrayToProcess, left, mid, baseCase, reduce, thresholdPar); },
                     () => { resultRight = DivideAndConquerTwoTypesParLR(arrayToProcess, mid + 1, right, baseCase, reduce, thresholdPar); }
                 );
             }
             else
             {
                 Parallel.Invoke(
-                    () => { resultLeft  = DivideAndConquerTwoTypesParLR(arrayToProcess, left,    mid,   baseCase, reduce, thresholdPar); },
+                    () => { resultLeft = DivideAndConquerTwoTypesParLR(arrayToProcess, left, mid, baseCase, reduce, thresholdPar); },
                     () => { resultRight = DivideAndConquerTwoTypesParLR(arrayToProcess, mid + 1, right, baseCase, reduce, thresholdPar); }
                 );
             }
