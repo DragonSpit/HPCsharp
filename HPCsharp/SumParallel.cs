@@ -87,8 +87,6 @@
 //       for small arrays that fit into L2 cache. Need to try 2-way and 3-way unroll to see if these provide even higher performance.
 // TODO: Write a blog comparing SumToLongParFor(intToLong) with HPCsharp using only two cores versus this one with 2 thru 6 cores, since HCPsharp uses SIMD/SSE.
 //       Great comparison versus Lambda's too, since Lambda's have function call overhead per array element. This would be a great blog on its own - Prefer ParallelFor to Lambda's for Performance.
-// TODO: Try using the same overflow detection developed to ulong[].Sum for byte[].Sum, ushort[].Sum and uint[].Sum for SSE, as this may end up raising performance by up to 2X
-//       for these algorithms, due to doing 2X number of additions. Try it on uint[].Sum first to see if there is a performance benefit
 
 using System.Collections.Generic;
 using System.Text;
@@ -1743,6 +1741,27 @@ namespace HPCsharp.ParallelAlgorithms
         public static ulong SumToUlongSsePar(this byte[] arrayToSum, int thresholdParallel = 16 * 1024, int degreeOfParallelism = 0)
         {
             return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, 0, arrayToSum.Length, SumToUlongSse, (x, y) => x + y, thresholdParallel, degreeOfParallelism);
+        }
+
+        public static ulong SumToUlongSseParFor(this byte[] arrayToSum, int degreeOfParallelism = 0)
+        {
+            var concurrentSums = new ConcurrentBag<ulong>();
+            ulong sum = 0;
+
+            int maxDegreeOfPar = degreeOfParallelism <= 0 ? Environment.ProcessorCount : degreeOfParallelism;
+            var options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfPar };
+
+            Parallel.ForEach(Partitioner.Create(0, arrayToSum.Length), options, range =>
+            {
+                ulong localSum = SumSseInner(arrayToSum, range.Item1, range.Item2 - 1);
+                concurrentSums.Add(localSum);
+            });
+
+            var sumsArray = concurrentSums.ToArray();
+            for(int i = 0; i < sumsArray.Length; i++)
+                sum += sumsArray[i];
+
+            return sum;
         }
 
         /// <summary>
