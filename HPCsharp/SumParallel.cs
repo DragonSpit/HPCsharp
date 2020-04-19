@@ -87,6 +87,8 @@
 //       for small arrays that fit into L2 cache. Need to try 2-way and 3-way unroll to see if these provide even higher performance.
 // TODO: Write a blog comparing SumToLongParFor(intToLong) with HPCsharp using only two cores versus this one with 2 thru 6 cores, since HCPsharp uses SIMD/SSE.
 //       Great comparison versus Lambda's too, since Lambda's have function call overhead per array element. This would be a great blog on its own - Prefer ParallelFor to Lambda's for Performance.
+// TODO: Offer my better implementation of parallelFor.Sum() on stackoverflow that sums up integers using no interlocked.Add but uses concurrent bag instead
+//       and convert it to Array.Sum() for int and long data types. Point them to HPCsharp for other data types and SSE implementation with no arithmetic overflow.
 
 using System.Collections.Generic;
 using System.Text;
@@ -100,26 +102,6 @@ namespace HPCsharp.ParallelAlgorithms
 {
     static public partial class Sum
     {
-        // 7.8 GigaAdds/sec on 6-core dual-memory-channel CPU, using this scalar algorithm = 31 GigaBytes/sec of memory bandwidth for large arrays
-        // from https://stackoverflow.com/questions/2419343/how-to-sum-up-an-array-of-integers-in-c-sharp?noredirect=1&lq=1
-        public static long SumToLongParFor(this int[] arrayToSum, int degreeOfParallelism = 0)
-        {
-            long sum = 0;
-
-            int maxDegreeOfPar = degreeOfParallelism == 0 ? Environment.ProcessorCount : degreeOfParallelism;
-            var options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfPar };
-
-            Parallel.ForEach(Partitioner.Create(0, arrayToSum.Length), options, range =>
-            {
-                long localSum = 0;
-                for (int i = range.Item1; i < range.Item2; i++)
-                {
-                    localSum += arrayToSum[i];
-                }
-                Interlocked.Add(ref sum, localSum);
-            });
-            return sum;
-        }
         /// <summary>
         /// Summation of sbyte[] array, which uses a long accumulator for perfect accuracy, using data parallel SIMD/SSE instructions for higher performance on a single core.
         /// Will not throw overflow exception.
@@ -1742,11 +1724,305 @@ namespace HPCsharp.ParallelAlgorithms
         {
             return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, 0, arrayToSum.Length, SumToUlongSse, (x, y) => x + y, thresholdParallel, degreeOfParallelism);
         }
+#if false
+        public static ulong SumToUlongSseParInvoke(this byte[] arrayToSum, int degreeOfParallelism = 0)
+        {
+            int maxDegreeOfPar = degreeOfParallelism <= 0 ? Environment.ProcessorCount : degreeOfParallelism;
+            var options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfPar };
+            int quanta = arrayToSum / maxDegreeOfPar;
+
+            var list = new List<Task>();
+            for (var i = 0; i < 10; ++i)
+            {
+                var i2 = i;
+                var t = new Task(() =>
+                {
+                    Thread.Sleep(100);
+                    Console.WriteLine(i2);
+                });
+                list.Add(t);
+                t.Start();
+            }
+
+            var concurrentSums = new ConcurrentBag<ulong>();
+
+
+            Parallel.ForEach(Partitioner.Create(0, arrayToSum.Length), options, range =>
+            {
+                ulong localSum = SumSseInner(arrayToSum, range.Item1, range.Item2 - 1);
+                concurrentSums.Add(localSum);
+            });
+
+            Parallel.Invoke(
+                () => { SortMergeInnerPar<T>(src, l, m, dst, !srcToDst, comparer); },
+                () => { SortMergeInnerPar<T>(src, m + 1, r, dst, !srcToDst, comparer); }
+            );
+            var options = new ParallelOptions { MaxDegreeOfParallelism = degreeOfParallelism };
+
+            List<Action> technicallyRedundant = new List<Action>();
+            technicallyRedundant.Add(() => { concurrentSums.Add(SumSseInner(arrayToSum, range.Item1, range.Item2 - 1)); });
+            technicallyRedundant.Add(() => { Console.WriteLine("Action 2"); });
+            
+            Parallel.Invoke(options,
+                () => { resultLeft = DivideAndConquerTwoTypesParLR(arrayToProcess, left, mid, baseCase, reduce, thresholdPar, degreeOfParallelism); },
+                () => { resultRight = DivideAndConquerTwoTypesParLR(arrayToProcess, mid + 1, right, baseCase, reduce, thresholdPar, degreeOfParallelism); }
+            );
+
+            ulong sum = 0;
+            var sumsArray = concurrentSums.ToArray();
+            for (int i = 0; i < sumsArray.Length; i++)
+                sum += sumsArray[i];
+
+            return sum;
+        }
+#endif
+        public static ulong SumToUlongParFor(this byte[] arrayToSum, int degreeOfParallelism = 0)
+        {
+            var concurrentSums = new ConcurrentBag<ulong>();
+
+            int maxDegreeOfPar = degreeOfParallelism <= 0 ? Environment.ProcessorCount : degreeOfParallelism;
+            var options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfPar };
+
+            Parallel.ForEach(Partitioner.Create(0, arrayToSum.Length), options, range =>
+            {
+                //Console.WriteLine("Partition: start = {0}   end = {1}", range.Item1, range.Item2);
+                ulong localSum = 0;
+                for (int i = range.Item1; i < range.Item2; i++)
+                    localSum += arrayToSum[i];
+                concurrentSums.Add(localSum);
+            });
+
+            ulong sum = 0;
+            var sumsArray = concurrentSums.ToArray();
+            for (int i = 0; i < sumsArray.Length; i++)
+                sum += sumsArray[i];
+
+            return sum;
+        }
+
+        public static ulong SumToUlongParFor(this ushort[] arrayToSum, int degreeOfParallelism = 0)
+        {
+            var concurrentSums = new ConcurrentBag<ulong>();
+
+            int maxDegreeOfPar = degreeOfParallelism <= 0 ? Environment.ProcessorCount : degreeOfParallelism;
+            var options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfPar };
+
+            Parallel.ForEach(Partitioner.Create(0, arrayToSum.Length), options, range =>
+            {
+                ulong localSum = 0;
+                for (int i = range.Item1; i < range.Item2; i++)
+                    localSum += arrayToSum[i];
+                concurrentSums.Add(localSum);
+            });
+
+            ulong sum = 0;
+            var sumsArray = concurrentSums.ToArray();
+            for (int i = 0; i < sumsArray.Length; i++)
+                sum += sumsArray[i];
+
+            return sum;
+        }
+
+        public static ulong SumToUlongParFor(this uint[] arrayToSum, int degreeOfParallelism = 0)
+        {
+            var concurrentSums = new ConcurrentBag<ulong>();
+
+            int maxDegreeOfPar = degreeOfParallelism <= 0 ? Environment.ProcessorCount : degreeOfParallelism;
+            var options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfPar };
+
+            Parallel.ForEach(Partitioner.Create(0, arrayToSum.Length), options, range =>
+            {
+                ulong localSum = 0;
+                for (int i = range.Item1; i < range.Item2; i++)
+                    localSum += arrayToSum[i];
+                concurrentSums.Add(localSum);
+            });
+
+            ulong sum = 0;
+            var sumsArray = concurrentSums.ToArray();
+            for (int i = 0; i < sumsArray.Length; i++)
+                sum += sumsArray[i];
+
+            return sum;
+        }
+
+        public static long SumToLongParFor(this sbyte[] arrayToSum, int degreeOfParallelism = 0)
+        {
+            var concurrentSums = new ConcurrentBag<long>();
+
+            int maxDegreeOfPar = degreeOfParallelism <= 0 ? Environment.ProcessorCount : degreeOfParallelism;
+            var options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfPar };
+
+            Parallel.ForEach(Partitioner.Create(0, arrayToSum.Length), options, range =>
+            {
+                long localSum = 0;
+                for (int i = range.Item1; i < range.Item2; i++)
+                    localSum += arrayToSum[i];
+                concurrentSums.Add(localSum);
+            });
+
+            long sum = 0;
+            var sumsArray = concurrentSums.ToArray();
+            for (int i = 0; i < sumsArray.Length; i++)
+                sum += sumsArray[i];
+
+            return sum;
+        }
+
+        public static long SumToLongParFor(this short[] arrayToSum, int degreeOfParallelism = 0)
+        {
+            var concurrentSums = new ConcurrentBag<long>();
+
+            int maxDegreeOfPar = degreeOfParallelism <= 0 ? Environment.ProcessorCount : degreeOfParallelism;
+            var options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfPar };
+
+            Parallel.ForEach(Partitioner.Create(0, arrayToSum.Length), options, range =>
+            {
+                long localSum = 0;
+                for (int i = range.Item1; i < range.Item2; i++)
+                    localSum += arrayToSum[i];
+                concurrentSums.Add(localSum);
+            });
+
+            long sum = 0;
+            var sumsArray = concurrentSums.ToArray();
+            for (int i = 0; i < sumsArray.Length; i++)
+                sum += sumsArray[i];
+
+            return sum;
+        }
+
+        public static long SumToLongParFor(this int[] arrayToSum, int degreeOfParallelism = 0)
+        {
+            var concurrentSums = new ConcurrentBag<long>();
+
+            int maxDegreeOfPar = degreeOfParallelism <= 0 ? Environment.ProcessorCount : degreeOfParallelism;
+            var options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfPar };
+
+            Parallel.ForEach(Partitioner.Create(0, arrayToSum.Length), options, range =>
+            {
+                long localSum = 0;
+                for (int i = range.Item1; i < range.Item2; i++)
+                    localSum += arrayToSum[i];
+                concurrentSums.Add(localSum);
+            });
+
+            long sum = 0;
+            var sumsArray = concurrentSums.ToArray();
+            for (int i = 0; i < sumsArray.Length; i++)
+                sum += sumsArray[i];
+
+            return sum;
+        }
+        // 7.8 GigaAdds/sec on 6-core dual-memory-channel CPU, using this scalar algorithm = 31 GigaBytes/sec of memory bandwidth for large arrays
+        // from https://stackoverflow.com/questions/2419343/how-to-sum-up-an-array-of-integers-in-c-sharp?noredirect=1&lq=1
+        private static long SumToLongParForInterlocked(this int[] arrayToSum, int degreeOfParallelism = 0)
+        {
+            long sum = 0;
+
+            int maxDegreeOfPar = degreeOfParallelism <= 0 ? Environment.ProcessorCount : degreeOfParallelism;
+            var options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfPar };
+
+            Parallel.ForEach(Partitioner.Create(0, arrayToSum.Length), options, range =>
+            {
+                long localSum = 0;
+                for (int i = range.Item1; i < range.Item2; i++)
+                {
+                    localSum += arrayToSum[i];
+                }
+                Interlocked.Add(ref sum, localSum);
+            });
+            return sum;
+        }
+
+        public static long SumToLongSseParFor(this sbyte[] arrayToSum, int degreeOfParallelism = 0)
+        {
+            var concurrentSums = new ConcurrentBag<long>();
+
+            int maxDegreeOfPar = degreeOfParallelism <= 0 ? Environment.ProcessorCount : degreeOfParallelism;
+            var options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfPar };
+
+            Parallel.ForEach(Partitioner.Create(0, arrayToSum.Length), options, range =>
+            {
+                long localSum = SumSseInner(arrayToSum, range.Item1, range.Item2 - 1);
+                concurrentSums.Add(localSum);
+            });
+
+            long sum = 0;
+            var sumsArray = concurrentSums.ToArray();
+            for (int i = 0; i < sumsArray.Length; i++)
+                sum += sumsArray[i];
+
+            return sum;
+        }
+
+        public static long SumToLongSseParFor(this short[] arrayToSum, int degreeOfParallelism = 0)
+        {
+            var concurrentSums = new ConcurrentBag<long>();
+
+            int maxDegreeOfPar = degreeOfParallelism <= 0 ? Environment.ProcessorCount : degreeOfParallelism;
+            var options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfPar };
+
+            Parallel.ForEach(Partitioner.Create(0, arrayToSum.Length), options, range =>
+            {
+                long localSum = SumSseInner(arrayToSum, range.Item1, range.Item2 - 1);
+                concurrentSums.Add(localSum);
+            });
+
+            long sum = 0;
+            var sumsArray = concurrentSums.ToArray();
+            for (int i = 0; i < sumsArray.Length; i++)
+                sum += sumsArray[i];
+
+            return sum;
+        }
+
+        public static long SumToLongSseParFor(this int[] arrayToSum, int degreeOfParallelism = 0)
+        {
+            var concurrentSums = new ConcurrentBag<long>();
+
+            int maxDegreeOfPar = degreeOfParallelism <= 0 ? Environment.ProcessorCount : degreeOfParallelism;
+            var options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfPar };
+
+            Parallel.ForEach(Partitioner.Create(0, arrayToSum.Length), options, range =>
+            {
+                long localSum = SumSseInner(arrayToSum, range.Item1, range.Item2 - 1);
+                concurrentSums.Add(localSum);
+            });
+
+            long sum = 0;
+            var sumsArray = concurrentSums.ToArray();
+            for (int i = 0; i < sumsArray.Length; i++)
+                sum += sumsArray[i];
+
+            return sum;
+        }
 
         public static ulong SumToUlongSseParFor(this byte[] arrayToSum, int degreeOfParallelism = 0)
         {
             var concurrentSums = new ConcurrentBag<ulong>();
+
+            int maxDegreeOfPar = degreeOfParallelism <= 0 ? Environment.ProcessorCount : degreeOfParallelism;
+            var options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfPar };
+
+            Parallel.ForEach(Partitioner.Create(0, arrayToSum.Length), options, range =>
+            {
+                //Console.WriteLine("Partition: start = {0}   end = {1}", range.Item1, range.Item2);
+                ulong localSum = SumSseInner(arrayToSum, range.Item1, range.Item2 - 1);
+                concurrentSums.Add(localSum);
+            });
+
             ulong sum = 0;
+            var sumsArray = concurrentSums.ToArray();
+            for(int i = 0; i < sumsArray.Length; i++)
+                sum += sumsArray[i];
+
+            return sum;
+        }
+
+        public static ulong SumToUlongSseParFor(this ushort[] arrayToSum, int degreeOfParallelism = 0)
+        {
+            var concurrentSums = new ConcurrentBag<ulong>();
 
             int maxDegreeOfPar = degreeOfParallelism <= 0 ? Environment.ProcessorCount : degreeOfParallelism;
             var options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfPar };
@@ -1757,8 +2033,30 @@ namespace HPCsharp.ParallelAlgorithms
                 concurrentSums.Add(localSum);
             });
 
+            ulong sum = 0;
             var sumsArray = concurrentSums.ToArray();
-            for(int i = 0; i < sumsArray.Length; i++)
+            for (int i = 0; i < sumsArray.Length; i++)
+                sum += sumsArray[i];
+
+            return sum;
+        }
+
+        public static ulong SumToUlongSseParFor(this uint[] arrayToSum, int degreeOfParallelism = 0)
+        {
+            var concurrentSums = new ConcurrentBag<ulong>();
+
+            int maxDegreeOfPar = degreeOfParallelism <= 0 ? Environment.ProcessorCount : degreeOfParallelism;
+            var options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfPar };
+
+            Parallel.ForEach(Partitioner.Create(0, arrayToSum.Length), options, range =>
+            {
+                ulong localSum = SumSseInner(arrayToSum, range.Item1, range.Item2 - 1);
+                concurrentSums.Add(localSum);
+            });
+
+            ulong sum = 0;
+            var sumsArray = concurrentSums.ToArray();
+            for (int i = 0; i < sumsArray.Length; i++)
                 sum += sumsArray[i];
 
             return sum;
