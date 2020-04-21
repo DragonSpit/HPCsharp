@@ -190,7 +190,7 @@ namespace HPCsharp.ParallelAlgorithms
 
         private static ulong SumSseInner(this byte[] arrayToSum, int l, int r)
         {
-            var sumVector      = new Vector<ulong>();
+            var sumVector = new Vector<ulong>();
 
             int sseIndexEnd = l + ((r - l + 1) / (256 * Vector<byte>.Count)) * (256 * Vector<byte>.Count);
 
@@ -1724,58 +1724,73 @@ namespace HPCsharp.ParallelAlgorithms
         {
             return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, 0, arrayToSum.Length, SumToUlongSse, (x, y) => x + y, thresholdParallel, degreeOfParallelism);
         }
-#if false
+
         public static ulong SumToUlongSseParInvoke(this byte[] arrayToSum, int degreeOfParallelism = 0)
         {
             int maxDegreeOfPar = degreeOfParallelism <= 0 ? Environment.ProcessorCount : degreeOfParallelism;
             var options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfPar };
-            int quanta = arrayToSum / maxDegreeOfPar;
-
-            var list = new List<Task>();
-            for (var i = 0; i < 10; ++i)
-            {
-                var i2 = i;
-                var t = new Task(() =>
-                {
-                    Thread.Sleep(100);
-                    Console.WriteLine(i2);
-                });
-                list.Add(t);
-                t.Start();
-            }
+            // TODO: Need to deal with small arrays and small quantas, possibly 0
+            int quanta = ((arrayToSum.Length / maxDegreeOfPar) / 64) * 64;
 
             var concurrentSums = new ConcurrentBag<ulong>();
+            var startIndexList = new List<int>();
+            var lengthList = new List<int>();
 
-
-            Parallel.ForEach(Partitioner.Create(0, arrayToSum.Length), options, range =>
+            //ulong sumGolden = 0;
+            //ulong sumLocal = 0;
+            var listOfActions = new List<Action>();
+            int startIndex = 0;
+            int i = 0;
+            for (i = 0; i < (maxDegreeOfPar - 1); i++, startIndex += quanta)
             {
-                ulong localSum = SumSseInner(arrayToSum, range.Item1, range.Item2 - 1);
-                concurrentSums.Add(localSum);
-            });
+                //sumGolden = 0;
+                //for (int j = 0; j < quanta; j++)
+                //    sumGolden += arrayToSum[startIndex + j];
+                //sumLocal = SumToUlongSse(arrayToSum, startIndex, quanta);
+                //Console.WriteLine("quanta = {0}   startIndex = {1}   sumGolden = {2}  sumLocal = {3}", quanta, startIndex, sumGolden, sumLocal);
+                Int32 startIndexLoc1 = new Int32();
+                startIndexLoc1 = startIndex;
+                startIndexList.Add(startIndexLoc1);
+                Int32 quantaLoc1 = new Int32();
+                quantaLoc1 = quanta;
+                lengthList.Add(quantaLoc1);
+                listOfActions.Add(() => {
+                    ulong sumOfAction = SumToUlongSse(arrayToSum, startIndexLoc1, quantaLoc1);
+                    //Console.WriteLine("Action: sum = {0}   startIndex = {1}   length = {2}", sumOfAction, startIndex, quanta);
+                    concurrentSums.Add(sumOfAction);
+                });
+            }
+            //sumGolden = 0;
+            //for (int j = 0; j < quanta; j++)
+            //    sumGolden += arrayToSum[startIndex + j];
+            //sumLocal = Algorithms.Sum.SumToUlong(arrayToSum, startIndex, arrayToSum.Length - startIndex);
+            //Console.WriteLine("quanta = {0}   startIndex = {1}  length = {2}   sumGolden = {3}  sumLocal = {4}", quanta, startIndex, arrayToSum.Length - startIndex, sumGolden, sumLocal);
+            //Console.WriteLine("quanta = {0}   startIndex = {1}  length = {2}", quanta, startIndex, arrayToSum.Length - startIndex);
+            Int32 startIndexLoc = new Int32();
+            startIndexLoc = startIndex;
+            startIndexList.Add(startIndexLoc);
+            Int32 quantaLoc = new Int32();
+            quantaLoc = arrayToSum.Length - startIndex;
+            lengthList.Add(quantaLoc);
+            listOfActions.Add(() => {
+                ulong sumOfLastAction = SumToUlongSse(arrayToSum, startIndexLoc, quantaLoc);
+                //Console.WriteLine("Last Action: sum = {0}   startIndex = {1}   length = {2}", sumOfLastAction, startIndex, arrayToSum.Length - startIndex);
+                concurrentSums.Add(sumOfLastAction);
+            });       // the rest
 
-            Parallel.Invoke(
-                () => { SortMergeInnerPar<T>(src, l, m, dst, !srcToDst, comparer); },
-                () => { SortMergeInnerPar<T>(src, m + 1, r, dst, !srcToDst, comparer); }
-            );
-            var options = new ParallelOptions { MaxDegreeOfParallelism = degreeOfParallelism };
-
-            List<Action> technicallyRedundant = new List<Action>();
-            technicallyRedundant.Add(() => { concurrentSums.Add(SumSseInner(arrayToSum, range.Item1, range.Item2 - 1)); });
-            technicallyRedundant.Add(() => { Console.WriteLine("Action 2"); });
-            
-            Parallel.Invoke(options,
-                () => { resultLeft = DivideAndConquerTwoTypesParLR(arrayToProcess, left, mid, baseCase, reduce, thresholdPar, degreeOfParallelism); },
-                () => { resultRight = DivideAndConquerTwoTypesParLR(arrayToProcess, mid + 1, right, baseCase, reduce, thresholdPar, degreeOfParallelism); }
-            );
+            Parallel.Invoke(options, listOfActions.ToArray());
 
             ulong sum = 0;
             var sumsArray = concurrentSums.ToArray();
-            for (int i = 0; i < sumsArray.Length; i++)
-                sum += sumsArray[i];
+            for (int k = 0; k < sumsArray.Length; k++)
+            {
+                Console.WriteLine("concurrentBag[{0}] = {1}", k, sumsArray[k]);
+                sum += sumsArray[k];
+            }
 
             return sum;
         }
-#endif
+
         public static ulong SumToUlongParFor(this byte[] arrayToSum, int degreeOfParallelism = 0)
         {
             var concurrentSums = new ConcurrentBag<ulong>();
