@@ -35,7 +35,7 @@ namespace HPCsharp
         public static int[] HistogramOneByteComponentSse(long[] inArray, Int32 l, Int32 r, int shiftRightAmount)
         {
             const int numberOfBins = 256;
-            const ulong byteMask = numberOfBins - 1;
+            //const ulong byteMask = numberOfBins - 1;
             int[] count = new int[numberOfBins];
             int[] byteIndex = new int[Vector<long>.Count];
             int sseIndexEnd = l + ((r - l + 1) / Vector<long>.Count) * Vector<long>.Count;
