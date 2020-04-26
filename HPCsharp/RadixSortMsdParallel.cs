@@ -39,7 +39,7 @@ namespace HPCsharp
         private static void RadixSortMsdLongParInner(long[] a, int first, int length, int shiftRightAmount, Action<long[], int, int> baseCaseInPlaceSort)
         {
             int last = first + length - 1;
-            const long bitMask = PowerOfTwoRadix - 1;
+            //const long bitMask = PowerOfTwoRadix - 1;
             const byte halfOfPowerOfTwoRadix = PowerOfTwoRadix / 2;
             //Stopwatch stopwatch = new Stopwatch();
             //long frequency = Stopwatch.Frequency;
@@ -147,7 +147,7 @@ namespace HPCsharp
                 return;
             }
             int last = first + length - 1;
-            const ulong bitMask = PowerOfTwoRadix - 1;
+            //const ulong bitMask = PowerOfTwoRadix - 1;
             const byte halfOfPowerOfTwoRadix = PowerOfTwoRadix / 2;
 
             var count = HistogramOneByteComponentPar(a, first, last, shiftRightAmount);

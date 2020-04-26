@@ -483,7 +483,7 @@ namespace HPCsharp
         private static void RadixSortMsdLongInner(long[] a, int first, int length, int shiftRightAmount, Action<long[], int, int> baseCaseInPlaceSort)
         {
             int last = first + length - 1;
-            const long bitMask = PowerOfTwoRadix - 1;
+            //const long bitMask = PowerOfTwoRadix - 1;
             const byte halfOfPowerOfTwoRadix = PowerOfTwoRadix / 2;
             //Stopwatch stopwatch = new Stopwatch();
             //long frequency = Stopwatch.Frequency;

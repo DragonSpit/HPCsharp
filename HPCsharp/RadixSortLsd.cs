@@ -735,7 +735,7 @@ namespace HPCsharp
                 startOfBin[i] = new int[numberOfBins];
             bool outputArrayHasResult = false;
 
-            const ulong bitMask = numberOfBins - 1;
+            //const ulong bitMask = numberOfBins - 1;
             const ulong halfOfPowerOfTwoRadix = PowerOfTwoRadix / 2;
             int shiftRightAmount = 0;
 
