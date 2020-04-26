@@ -30,15 +30,16 @@ namespace HPCsharp.Algorithms
             double avg = values.Average();
             return Math.Sqrt(values.Average(v => Math.Pow(v - avg, 2)));
         }
-    }
 
-    static public partial class StatisticsExperimental
-    {
-        // Computes a similar value to Standard Deviation, but simpler/faster to compute, since no squaring per element and Square Root. Uses absolute value instead, which has a discontinuity and can't be integrated
-        // Which means that it could be computed entirely using integer computation. Plus, no squarint means the resulting function is linear and doesn't warp the input data
-        public static double StandardDeviation_NonStandardMethod(this int[] values)
+        /// <summary>
+        /// Mean absolute deviation of an array of integers.
+        /// </summary>
+        /// <param name="values">An array to sum up</param>
+        /// <returns>result as a double</returns>
+        public static double MeanAbsoluteDeviation(this int[] values)
         {
-            double avg = values.Average();
+            long sum = Sum.SumToLong(values);
+            double avg = (double)sum / values.Length;
             return values.Average(v => Math.Abs(v - avg));
         }
     }
