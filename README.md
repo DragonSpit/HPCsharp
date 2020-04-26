@@ -69,7 +69,7 @@ array.Sum(v => (long)v) |0.72|0.76|0.75|0.76|0.7|0.7| | | using 6 cores
 array.Sum(v => (decimal)v) | | | | | |0.35|0.31|0.29| using 6 cores
 Parallel.ForEach((long)v)  |5.9| | | |7.4| | | | using 6 cores
 Parallel.ForEach((long)v)  ||1.0| | |0.7| | | | Raspberry Pi 4, 4-core ARM
-HPC# (6-core) |33|31|16|16|8|8|3.7|4| using 2 cores
+HPC# (6-core) |33|33|16|16|8|8|3.7|4| using 2 cores
 HPC# (14-core) |63|63|16|22|14|14|3.2|7.1|
 HPC# (32-core) |100|||||||| AMD EPYC 7502P w/ 8-channel DDR4 3200
 
