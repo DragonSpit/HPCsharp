@@ -1,6 +1,8 @@
 ﻿// TODO: Create a single multi-merge generic algorithm (inner) where the 2-way merge is passed in as a function parameter (serial or parallel)
 //       The trouble is where does this generic algorithm live, ParallelAlgorithm or Algorithm class? Maybe we should have a single class
 // TODO: For Divide-and-Conquer parallel merge split the array on cache line boundaries to eliminate sharing of cache lines between threads.
+// TODO: Port my C++ parallel in-place merge algorithm from (https://www.drdobbs.com/parallel/parallel-in-place-merge/240008783?pgno=1) to C#,
+//       as a user requested a truly in-place version, and it would be good to see how well it performs on 6, 14, and 32-core CPUs with 2, 4, 8 memory channels.
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -80,7 +82,8 @@ namespace HPCsharp
         /// <summary>
         /// Divide-and-Conquer Merge of two ranges of source array src[ p1 .. r1 ] and src[ p2 .. r2 ] into destination array starting at index p3.
         /// </summary>
-        /// <typeparam name="T">data type of each array element</typeparam>
+        /// <typeparam name="T1">data type of each key element</typeparam>
+        /// <typeparam name="T2">data type of each array element</typeparam>
         /// <param name="srcKeys">source array of keys used for sorting</param>
         /// <param name="srcItems">source array of items that will be sorted along with keys</param>
         /// <param name="p1">starting index of the first  segment, inclusive</param>

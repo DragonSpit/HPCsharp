@@ -4,6 +4,10 @@
 // TODO: Expose all of the thresholds for users to be able to conrol. These can just be a List of thresholds that match up with the list of algorithms - i.e. a pair of algorithm and threshold.
 //       Thresholds could be allowed to be negative or zero disable the associated algorithm.
 // TODO: Test whether Merge is also stable, so that we don't have to resort to DivideAndConquerMerge for stability and give up performance in the process.
+// TODO: Wonder if getting rid off the comparer function would speed up Merge Sort substantially, because C# is calling this function per element with all of the
+//       overhead of the function call. Yes, having a comparison function provides the flexibility of handling any data type and comparing any field within that
+//       data type, as well as ascending/decending selection by the user. However, we could setup special cases for sorting arrays of common data types much faster
+//       by eliminating the comparison function, or detecting when it's null and seeing if the resulting hard-coded merge implementation would be much faster.
 using System;
 using System.Collections.Generic;
 using HPCsharp.ParallelAlgorithms;
