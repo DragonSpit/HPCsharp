@@ -425,10 +425,66 @@ namespace HPCsharp.ParallelAlgorithms
         }
 
         /// <summary>
+        /// Mean absolute deviation of an array of integers. Uses SSE data-parallel instruction within each core.
+        /// </summary>
+        /// <param name="values">An array to sum up</param>
+        /// <returns>result as a double</returns>
+        public static double MeanAbsoluteDeviationSse(this int[] values)
+        {
+            long sum = Sum.SumToLongSse(values);     // SSE, no exceptions and full accuracy
+            double avg = (double)sum / values.Length;
+            return values.SumForMeanDeviationSse(0, values.Length, avg) / values.Length;
+        }
+        /// <summary>
+        /// Mean absolute deviation of an array of integers. Uses multiple processor cores and SSE instruction within each core for multiple types of parallellism.
+        /// </summary>
+        /// <param name="values">An array to sum up</param>
+        /// <returns>result as a double</returns>
+        public static double MeanAbsoluteDeviationSsePar(this int[] values)
+        {
+            long sum = Sum.SumToLongSsePar(values);     // multi-core, SSE, no exceptions and full accuracy
+            double avg = (double)sum / values.Length;
+            return values.SumForMeanDeviationSsePar(avg) / values.Length;
+        }
+
+        private static double SumForMeanDeviationSse(this int[] arrayToSum, int startIndex, int length, double average)
+        {
+            return arrayToSum.SumForMeanDeviationSseInner(startIndex, startIndex + length - 1, (float)average);
+        }
+        private static double SumForMeanDeviationSsePar(this int[] arrayToSum, double average, int thresholdParallel = 16 * 1024)
+        {
+            return DivideAndConquerTwoTypesPar<int, double>(arrayToSum, 0, arrayToSum.Length, average, SumForMeanDeviationSse, (x, y) => x + y, thresholdParallel);
+        }
+
+        private static double SumForMeanDeviationSseInner(this int[] arrayToSum, int l, int r, double average)
+        {
+            var averageVector = new Vector<double>(average);
+            var sumVector     = new Vector<double>();
+            int sseIndexEnd = l + ((r - l + 1) / Vector<int>.Count) * Vector<int>.Count;
+            int i;
+            for (i = l; i < sseIndexEnd; i += Vector<int>.Count)
+            {
+                var inVector = new Vector<int>(arrayToSum, i);
+                Vector.Widen(inVector, out var longLower, out var longUpper);
+                var doubleLower = Vector.ConvertToDouble(longLower);
+                var doubleUpper = Vector.ConvertToDouble(longUpper);
+                sumVector += Vector.Abs(doubleLower - averageVector);
+                sumVector += Vector.Abs(doubleUpper - averageVector);
+            }
+            double overallSum = 0;
+            for (; i <= r; i++)
+                overallSum += Math.Abs(arrayToSum[i] - average);
+            for (i = 0; i < Vector<int>.Count; i++)
+                overallSum += sumVector[i];
+            return overallSum;
+        }
+
+
+        /// <summary>
         /// Mean absolute deviation of an array of floats. Uses SSE data-parallel instruction within each core.
         /// </summary>
         /// <param name="values">An array to sum up</param>
-        /// <returns>standard deviation as a double</returns>
+        /// <returns>result as a float</returns>
         public static float MeanAbsoluteDeviationSse(this float[] values)
         {
             float sum = Sum.SumSse(values);     // SSE, no exceptions and full accuracy
@@ -439,7 +495,7 @@ namespace HPCsharp.ParallelAlgorithms
         /// Mean absolute deviation of an array of floats. Uses multiple processor cores and SSE instruction within each core for multiple types of parallellism.
         /// </summary>
         /// <param name="values">An array to sum up</param>
-        /// <returns>standard deviation as a double</returns>
+        /// <returns>result as a float</returns>
         public static float MeanAbsoluteDeviationSsePar(this float[] values)
         {
             float sum = Sum.SumSsePar(values);     // multi-core, SSE, no exceptions and full accuracy
@@ -490,7 +546,7 @@ namespace HPCsharp.ParallelAlgorithms
         /// Mean absolute deviation of an array of floats, with all computations using double. Uses multiple processor cores and SSE instruction within each core for multiple types of parallellism.
         /// </summary>
         /// <param name="values">An array to sum up</param>
-        /// <returns>standard deviation as a double</returns>
+        /// <returns>result as a double</returns>
         public static double MeanAbsoluteDeviationToDoubleSsePar(this float[] values)
         {
             double sum = Sum.SumToDoubleSsePar(values);
@@ -534,7 +590,7 @@ namespace HPCsharp.ParallelAlgorithms
         /// Mean absolute deviation of an array of doubles. Uses SSE data-parallel instruction within each core.
         /// </summary>
         /// <param name="values">An array to sum up</param>
-        /// <returns>standard deviation as a double</returns>
+        /// <returns>result as a double</returns>
         public static double MeanAbsoluteDeviationSse(this double[] values)
         {
             double sum = Sum.SumSse(values);     // SSE, no exceptions and full accuracy
@@ -545,7 +601,7 @@ namespace HPCsharp.ParallelAlgorithms
         /// Mean absolute deviation of an array of doubles. Uses multiple processor cores and SSE instruction within each core for multiple types of parallellism.
         /// </summary>
         /// <param name="values">An array to sum up</param>
-        /// <returns>standard deviation as a double</returns>
+        /// <returns>result as a double</returns>
         public static double MeanAbsoluteDeviationSsePar(this double[] values)
         {
             double sum = Sum.SumSsePar(values);     // multi-core, SSE, no exceptions and full accuracy
@@ -585,7 +641,7 @@ namespace HPCsharp.ParallelAlgorithms
         /// Mean absolute deviation of an array of ints.
         /// </summary>
         /// <param name="values">An array of ints as input data</param>
-        /// <returns>mean absolute deviation as a double</returns>
+        /// <returns>result as a double</returns>
         private static double MeanAbsoluteDeviationTestPar(this int[] values)
         {
             double avg = (double)values.Sum() / values.Length;
