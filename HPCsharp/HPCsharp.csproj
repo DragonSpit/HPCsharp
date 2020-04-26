@@ -8,7 +8,7 @@
     <Description>Parallel high performance cross-platform C#/.NET algorithms. 20+ algorithms with familiar interfaces and examples. Multi-core and data parallel (SIMD/SSE). Open source and free. See project Readme, blog, and videos...</Description>
     <Copyright>© 2018 FooState</Copyright>
     <PackageLicenseUrl>https://github.com/DragonSpit/HPCsharp/blob/master/LICENSE</PackageLicenseUrl>
-    <PackageReleaseNotes>Added degree of parallelism control for multi-core SSE .Sum(), since these use all of memory bandwidth with only a few cores.</PackageReleaseNotes>
+    <PackageReleaseNotes>Imrpoved control over the degree of parallelism for SSE .Sum() versions by using Parallel.ForEach instead of Divide-and-Conquer where the degree of parallelism did not control the number of cores as expected and used either one core or all cores. Benchmarked .Sum() on Raspberry Pi 4 - see Readme .Sum() table for performance details. Benchmarked on 32-core AMD EPYC CPU with 8 channels of memory on Linux, which reached 100 GigaAdds/sec</PackageReleaseNotes>
     <PackageId>HPCsharp</PackageId>
     <PackageTags>high perfromance algorithms, C#, high performance, high performance computing, HPC, algorithm, algorithms, Linq, parallel, parallel algorithm</PackageTags>
     <PackageIconUrl>https://foostate.com/images/default_lib_icon_64.png</PackageIconUrl>
@@ -17,9 +17,9 @@
     <PackageProjectUrl>https://github.com/DragonSpit/HPCsharp</PackageProjectUrl>
     <RepositoryUrl>https://github.com/DragonSpit/HPCsharp</RepositoryUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <AssemblyVersion>3.10.1.0</AssemblyVersion>
-    <FileVersion>3.10.1.0</FileVersion>
-    <Version>3.10.1</Version>
+    <AssemblyVersion>3.11.0.0</AssemblyVersion>
+    <FileVersion>3.11.0.0</FileVersion>
+    <Version>3.11.0</Version>
     <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
