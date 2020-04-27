@@ -7,6 +7,8 @@
 //       Radix Sort this operation runs many more times than in LSD Radix Sort (where it runs only once for all the digits). Thus, optimizing its performance is more critical here.
 // TODO: Make sure to inline Swap() in routines that John is using.
 // TODO: Benchmark MSD Radix Sort parallel with and without SSE AddTo usage in the Histogram function.
+// TODO: Implement MSD Radix Sort (in-place) in chunks of an array. Then use our parallel in-place Merge (port from C++ Dr. Dobbs paper), to produce a fully in-place
+//       hybrid algorithm (can we then make it stable too? Also, in my Dr. Dobbs papers?)
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

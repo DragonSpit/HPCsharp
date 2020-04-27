@@ -87,8 +87,9 @@
 //       for small arrays that fit into L2 cache. Need to try 2-way and 3-way unroll to see if these provide even higher performance.
 // TODO: Write a blog comparing SumToLongParFor(intToLong) with HPCsharp using only two cores versus this one with 2 thru 6 cores, since HCPsharp uses SIMD/SSE.
 //       Great comparison versus Lambda's too, since Lambda's have function call overhead per array element. This would be a great blog on its own - Prefer ParallelFor to Lambda's for Performance.
-// TODO: Offer my better implementation of parallelFor.Sum() on stackoverflow that sums up integers using no interlocked.Add but uses concurrent bag instead
-//       and convert it to Array.Sum() for int and long data types. Point them to HPCsharp for other data types and SSE implementation with no arithmetic overflow.
+// TODO: Perform a random search of the best split of arrays for multi-core performance. Is it on cache-line boundaries, page boundaries, or relatively prime to
+//       each other in some way. Another approach is to study why some array sizes and thus their splits perform better than others and see if there is a patterns
+//       Maybe the first place to check is if the top performers are consistenly top performing.
 
 using System.Collections.Generic;
 using System.Text;
@@ -549,6 +550,7 @@ namespace HPCsharp.ParallelAlgorithms
         }
 
         // Sadly, even in-cache small arrays are not speeding up with this interleaving idea :-(
+        // Yeah, sadly it's about 15% slower
         private static long SumSseAndScalarInner(this int[] arrayToSum, int l, int r)
         {
             const int numScalarOps = 2;
@@ -2850,7 +2852,7 @@ namespace HPCsharp.ParallelAlgorithms
         /// </summary>
         /// <param name="arrayToSum">An array to sum up</param>
         /// <returns>ulong sum</returns>
-        public static ulong SumSsePar(this ulong[] arrayToSum, int thresholdParallel = 16 * 1024, int degreeOfParallelism = 0)
+        private static ulong SumSseParDac(this ulong[] arrayToSum, int thresholdParallel = 16 * 1024, int degreeOfParallelism = 0)
         {
             return AlgorithmPatterns.DivideAndConquerPar(arrayToSum, 0, arrayToSum.Length, SumSse, (x, y) => x + y, thresholdParallel, degreeOfParallelism);
         }
@@ -2862,7 +2864,7 @@ namespace HPCsharp.ParallelAlgorithms
         /// <param name="startIndex">index of the starting element for the summation</param>
         /// <param name="length">number of array elements to sum up</param>
         /// <returns>ulong sum</returns>
-        public static ulong SumSsePar(this ulong[] arrayToSum, int startIndex, int length, int thresholdParallel = 16 * 1024, int degreeOfParallelism = 0)
+        private static ulong SumSseParDac(this ulong[] arrayToSum, int startIndex, int length, int thresholdParallel = 16 * 1024, int degreeOfParallelism = 0)
         {
             return AlgorithmPatterns.DivideAndConquerPar(arrayToSum, startIndex, length, SumSse, (x, y) => x + y, thresholdParallel, degreeOfParallelism);
         }
