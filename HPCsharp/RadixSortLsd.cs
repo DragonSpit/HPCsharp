@@ -233,6 +233,22 @@ namespace HPCsharp
         }
 
         [StructLayout(LayoutKind.Explicit)]
+        internal struct Int32ByteUnion
+        {
+            [FieldOffset(0)]
+            public byte byte0;
+            [FieldOffset(1)]
+            public byte byte1;
+            [FieldOffset(2)]
+            public byte byte2;
+            [FieldOffset(3)]
+            public byte byte3;
+
+            [FieldOffset(0)]
+            public Int32 integer;
+        }
+
+        [StructLayout(LayoutKind.Explicit)]
         internal struct UInt32ByteUnion
         {
             [FieldOffset(0)]
@@ -589,6 +605,60 @@ namespace HPCsharp
             }
         }
         /// <summary>
+        /// Sort an array of integers using Radix Sorting algorithm (least significant digit variation - LSD)
+        /// This algorithm is not in-place. This algorithm is stable.
+        /// </summary>
+        /// <param name="inputArray">array of integers to be sorted</param>
+        /// <returns>sorted array of integers</returns>
+        public static int[] SortRadix(this int[] inputArray)
+        {
+            const int bitsPerDigit = 8;
+            const uint numberOfBins = 1 << bitsPerDigit;
+            uint numberOfDigits = (sizeof(uint) * 8 + bitsPerDigit - 1) / bitsPerDigit;
+            int d;
+            var outputArray = new int[inputArray.Length];
+
+            int[][] startOfBin = new int[numberOfDigits][];
+            for (int i = 0; i < numberOfDigits; i++)
+                startOfBin[i] = new int[numberOfBins];
+            bool outputArrayHasResult = false;
+
+            const uint bitMask = numberOfBins - 1;
+            const uint halfOfPowerOfTwoRadix = PowerOfTwoRadix / 2;
+            int shiftRightAmount = 0;
+
+            uint[][] count = HistogramByteComponents(inputArray, 0, inputArray.Length - 1);
+
+            for (d = 0; d < numberOfDigits; d++)
+            {
+                startOfBin[d][0] = 0;
+                for (uint i = 1; i < numberOfBins; i++)
+                    startOfBin[d][i] = startOfBin[d][i - 1] + (int)count[d][i - 1];
+            }
+
+            d = 0;
+            while (d < numberOfDigits)
+            {
+                int[] startOfBinLoc = startOfBin[d];
+
+                if (d != 3)
+                    for (uint current = 0; current < inputArray.Length; current++)
+                        outputArray[startOfBinLoc[((uint)inputArray[current] >> shiftRightAmount) & bitMask]++] = inputArray[current];
+                else
+                    for (uint current = 0; current < inputArray.Length; current++)
+                        outputArray[startOfBinLoc[((uint)inputArray[current] >> shiftRightAmount) ^ halfOfPowerOfTwoRadix]++] = inputArray[current];
+
+                shiftRightAmount += bitsPerDigit;
+                outputArrayHasResult = !outputArrayHasResult;
+                d++;
+
+                int[] tmp = inputArray;       // swap input and output arrays
+                inputArray = outputArray;
+                outputArray = tmp;
+            }
+            return outputArrayHasResult ? outputArray : inputArray;
+        }
+        /// <summary>
         /// Sort an array of signed long integers using Radix Sorting algorithm (least significant digit variation - LSD)
         /// This algorithm is not in-place. This algorithm is stable.
         /// </summary>
@@ -599,7 +669,7 @@ namespace HPCsharp
             const int bitsPerDigit = 8;
             const uint numberOfBins = 1 << bitsPerDigit;
             uint numberOfDigits = (sizeof(ulong) * 8 + bitsPerDigit - 1) / bitsPerDigit;
-            int d = 0;
+            int d;
             var outputArray = new long[inputArray.Length];
 
             int[][] startOfBin = new int[numberOfDigits][];

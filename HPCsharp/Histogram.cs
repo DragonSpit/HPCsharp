@@ -114,7 +114,7 @@ namespace HPCsharp
             const int numberOfBins = 256;
             const int numberOfDigits = sizeof(uint);
             uint numberOfQuantas = (inArray.Length % workQuanta) == 0 ? (uint)(inArray.Length / workQuanta) : (uint)(inArray.Length / workQuanta + 1);
-            //Console.WriteLine("Histogram: inArray.Length = {0}, workQuanta = {1}, numberOfQuantas = {2}", inArray.Length, workQuanta, numberOfQuantas);
+            Console.WriteLine("Histogram: inArray.Length = {0}, workQuanta = {1}, numberOfQuantas = {2}", inArray.Length, workQuanta, numberOfQuantas);
 
             uint[][][] count = new uint[numberOfQuantas][][];          // count for each parallel work item
             for (int i = 0; i < numberOfQuantas; i++)
@@ -149,14 +149,108 @@ namespace HPCsharp
                 count[q][3][union.byte3]++;
             }
 
-            //for (int d = 0; d < numberOfDigits; d++)
-            //    for (q = 0; q < numberOfQuantas; q++)
-            //    {
-            //        Console.WriteLine("h: q = {0}   d = {1}", q, d);
-            //        for (uint b = 0; b < numberOfBins; b++)
-            //            Console.Write("{0} ", count[q][d][b]);
-            //        Console.WriteLine();
-            //    }
+            for (int d = 0; d < numberOfDigits; d++)
+                for (q = 0; q < numberOfQuantas; q++)
+                {
+                    Console.WriteLine("h: q = {0}   d = {1}", q, d);
+                    for (uint b = 0; b < numberOfBins; b++)
+                        Console.Write("{0} ", count[q][d][b]);
+                    Console.WriteLine();
+                }
+
+            return count;
+        }
+
+        public static uint[][] HistogramByteComponentsAcrossWorkQuantas1(uint[] inArray, uint workQuanta, uint whichByte)
+        {
+            const int numberOfBins = 256;
+            uint numberOfQuantas = (inArray.Length % workQuanta) == 0 ? (uint)(inArray.Length / workQuanta) : (uint)(inArray.Length / workQuanta + 1);
+            //Console.WriteLine("Histogram: inArray.Length = {0}, workQuanta = {1}, numberOfQuantas = {2}, whichByte = {3}", inArray.Length, workQuanta, numberOfQuantas, whichByte);
+
+            uint[][] count = new uint[numberOfQuantas][];          // count for each parallel work item
+            for (int i = 0; i < numberOfQuantas; i++)
+                count[i] = new uint[numberOfBins];
+
+            uint numberOfFullQuantas = (uint)(inArray.Length / workQuanta);
+            int currIndex = 0;
+            var union = new UInt32ByteUnion();
+            uint q = 0;
+            if (whichByte == 0)
+            {
+                for (; q < numberOfFullQuantas; q++)
+                {
+                    for (uint j = 0; j < workQuanta; j++)
+                    {
+                        union.integer = inArray[currIndex++];
+                        count[q][union.byte0]++;
+                    }
+                }
+                // Last work quanta may be a partial one, whenever array length doesn't divide evenly by work quanta
+                for (; currIndex < inArray.Length;)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
+                {
+                    union.integer = inArray[currIndex++];
+                    count[q][union.byte0]++;
+                }
+            }
+            else if (whichByte == 1)
+            {
+                for (; q < numberOfFullQuantas; q++)
+                {
+                    for (uint j = 0; j < workQuanta; j++)
+                    {
+                        union.integer = inArray[currIndex++];
+                        count[q][union.byte1]++;
+                    }
+                }
+                // Last work quanta may be a partial one, whenever array length doesn't divide evenly by work quanta
+                for (; currIndex < inArray.Length;)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
+                {
+                    union.integer = inArray[currIndex++];
+                    count[q][union.byte1]++;
+                }
+            }
+            else if (whichByte == 2)
+            {
+                for (; q < numberOfFullQuantas; q++)
+                {
+                    for (uint j = 0; j < workQuanta; j++)
+                    {
+                        union.integer = inArray[currIndex++];
+                        count[q][union.byte2]++;
+                    }
+                }
+                // Last work quanta may be a partial one, whenever array length doesn't divide evenly by work quanta
+                for (; currIndex < inArray.Length;)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
+                {
+                    union.integer = inArray[currIndex++];
+                    count[q][union.byte2]++;
+                }
+            }
+            else
+            {
+                for (; q < numberOfFullQuantas; q++)
+                {
+                    for (uint j = 0; j < workQuanta; j++)
+                    {
+                        union.integer = inArray[currIndex++];
+                        count[q][union.byte3]++;
+                    }
+                }
+                // Last work quanta may be a partial one, whenever array length doesn't divide evenly by work quanta
+                for (; currIndex < inArray.Length;)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
+                {
+                    union.integer = inArray[currIndex++];
+                    count[q][union.byte3]++;
+                }
+            }
+
+            //for (q = 0; q < numberOfQuantas; q++)
+            //{
+            //    Console.WriteLine("h: q = {0}", q);
+            //    for (uint b = 0; b < numberOfBins; b++)
+            //        Console.Write("{0} ", count[q][b]);
+            //    Console.WriteLine();
+            //}
 
             return count;
         }
@@ -332,6 +426,26 @@ namespace HPCsharp
                 count[5][union.byte5]++;
                 count[6][union.byte6]++;
                 count[7][union.byte7]++;
+            }
+            return count;
+        }
+
+        public static uint[][] HistogramByteComponents(int[] inArray, Int32 l, Int32 r)
+        {
+            const int numberOfBins = 256;
+            const int numberOfDigits = sizeof(ulong);
+            uint[][] count = new uint[numberOfDigits][];
+            for (int i = 0; i < numberOfDigits; i++)
+                count[i] = new uint[numberOfBins];
+
+            var union = new Int32ByteUnion();
+            for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
+            {
+                union.integer = inArray[current];
+                count[0][union.byte0]++;
+                count[1][union.byte1]++;
+                count[2][union.byte2]++;
+                count[3][((uint)inArray[current] >> 24) ^ 128]++;
             }
             return count;
         }
