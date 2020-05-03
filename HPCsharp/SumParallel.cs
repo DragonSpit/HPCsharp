@@ -538,6 +538,98 @@ namespace HPCsharp.ParallelAlgorithms
             return arrayToSum.SumSseInner(startIndex, startIndex + length - 1);
         }
 
+        public static long SumSseAndScalarSingleStream(this int[] arrayToSum)
+        {
+            //return arrayToSum.SumSseInner(0, arrayToSum.Length - 1);
+            return arrayToSum.SumSseAndScalarSingleStreamInner(0, arrayToSum.Length - 1);
+        }
+
+        public static long SumSseAndScalarSingleStream(this int[] arrayToSum, int start, int length)
+        {
+            return arrayToSum.SumSseAndScalarSingleStreamInner(start, start + length - 1);
+        }
+
+        // 256-bit vector means eight 32-bit, which is the minimal size scalar needs to do
+        // and then some number of vectors as well.
+        private static long SumSseAndScalarSingleStreamInner(this int[] arrayToSum, int l, int r)
+        {
+            //const int numScalarOps = 2;
+            var sumVectorLower0 = new Vector<long>();
+            var sumVectorUpper0 = new Vector<long>();
+            var sumVectorLower1 = new Vector<long>();
+            var sumVectorUpper1 = new Vector<long>();
+            var sumVectorLower2 = new Vector<long>();
+            var sumVectorUpper2 = new Vector<long>();
+            var sumVectorLower3 = new Vector<long>();
+            var sumVectorUpper3 = new Vector<long>();
+            var longLower0 = new Vector<long>();
+            var longUpper0 = new Vector<long>();
+            var longLower1 = new Vector<long>();
+            var longUpper1 = new Vector<long>();
+            var longLower2 = new Vector<long>();
+            var longUpper2 = new Vector<long>();
+            var longLower3 = new Vector<long>();
+            var longUpper3 = new Vector<long>();
+            int sseIndexEnd = l + ((r - l + 1) / (5 * Vector<int>.Count)) * Vector<int>.Count;
+            //int numFullVectors = lengthForVector / Vector<int>.Count;
+            long partialScalarSum0 = 0;
+            long partialScalarSum1 = 0;
+            long partialScalarSum2 = 0;
+            long partialScalarSum3 = 0;
+            int i = l;
+            //int scalarIndex = l + numFullVectors * Vector<int>.Count;
+            //int sseIndexEnd = scalarIndex;
+            //System.Console.WriteLine("{0}, {1}, {2}, {3}, {4}, {5}", arrayToSum.Length, Vector<int>.Count, lengthForVector, numFullVectors, scalarIndex, sseIndexEnd);
+            for (; i < sseIndexEnd; )
+            {
+                var inVector0 = new Vector<int>(arrayToSum, i);
+                i += Vector<int>.Count;
+                Vector.Widen(inVector0, out longLower0, out longUpper0);
+                var inVector1 = new Vector<int>(arrayToSum, i);
+                i += Vector<int>.Count;
+                Vector.Widen(inVector1, out longLower1, out longUpper1);
+                var inVector2 = new Vector<int>(arrayToSum, i);
+                i += Vector<int>.Count;
+                Vector.Widen(inVector2, out longLower2, out longUpper2);
+                var inVector3 = new Vector<int>(arrayToSum, i);
+                i += Vector<int>.Count;
+                Vector.Widen(inVector3, out longLower3, out longUpper3);
+                // Vector number of bits / 32-bits = number of scalar additions need to perform - i.e. one Vector's worth of scalar work
+                partialScalarSum0 += arrayToSum[i++];
+                sumVectorLower0 += longLower0;
+                partialScalarSum1 += arrayToSum[i++];
+                sumVectorUpper0 += longUpper0;
+                partialScalarSum2 += arrayToSum[i++];
+                sumVectorLower1 += longLower1;
+                partialScalarSum3 += arrayToSum[i++];
+                sumVectorUpper1 += longUpper1;
+                partialScalarSum0 += arrayToSum[i++];
+                sumVectorLower2 += longLower2;
+                partialScalarSum1 += arrayToSum[i++];
+                sumVectorUpper2 += longUpper2;
+                partialScalarSum2 += arrayToSum[i++];
+                sumVectorLower3 += longLower3;
+                partialScalarSum3 += arrayToSum[i++];
+                sumVectorUpper3 += longUpper3;
+            }
+            //System.Console.WriteLine("{0}", scalarIndex);
+            for (; i <= r; i++)
+                partialScalarSum0 += arrayToSum[i];
+            partialScalarSum0 += partialScalarSum1;
+            partialScalarSum0 += partialScalarSum2;
+            partialScalarSum0 += partialScalarSum3;
+            sumVectorLower0 += sumVectorUpper0;
+            sumVectorLower1 += sumVectorUpper1;
+            sumVectorLower2 += sumVectorUpper2;
+            sumVectorLower3 += sumVectorUpper3;
+            sumVectorLower0 += sumVectorLower1;
+            sumVectorLower0 += sumVectorLower2;
+            sumVectorLower0 += sumVectorLower3;
+            for (i = 0; i < Vector<long>.Count; i++)
+                partialScalarSum0 += sumVectorLower0[i];
+            return partialScalarSum0;
+        }
+
         public static long SumSseAndScalar(this int[] arrayToSum)
         {
             //return arrayToSum.SumSseInner(0, arrayToSum.Length - 1);
@@ -548,12 +640,11 @@ namespace HPCsharp.ParallelAlgorithms
         {
             return arrayToSum.SumSseAndScalarInner(start, start + length - 1);
         }
-
         // Sadly, even in-cache small arrays are not speeding up with this interleaving idea :-(
         // Yeah, sadly it's about 15% slower
         private static long SumSseAndScalarInner(this int[] arrayToSum, int l, int r)
         {
-            const int numScalarOps = 2;
+            const int numScalarOps = 1;
             var sumVectorLower = new Vector<long>();
             var sumVectorUpper = new Vector<long>();
             var longLower      = new Vector<long>();
@@ -561,7 +652,7 @@ namespace HPCsharp.ParallelAlgorithms
             int lengthForVector = (r - l + 1) / (Vector<int>.Count + numScalarOps) * Vector<int>.Count;
             int numFullVectors = lengthForVector / Vector<int>.Count;
             long partialScalarSum0 = 0;
-            long partialScalarSum1 = 0;
+            //long partialScalarSum1 = 0;
             int i = l;
             int scalarIndex = l + numFullVectors * Vector<int>.Count;
             int sseIndexEnd = scalarIndex;
@@ -571,17 +662,97 @@ namespace HPCsharp.ParallelAlgorithms
                 var inVector = new Vector<int>(arrayToSum, i);
                 Vector.Widen(inVector, out longLower, out longUpper);
                 partialScalarSum0 += arrayToSum[scalarIndex++];          // interleave SSE and Scaler operations
-                sumVectorLower += longLower;
-                partialScalarSum1 += arrayToSum[scalarIndex++];
-                sumVectorUpper += longUpper;
+                sumVectorLower    += longLower;
+                //partialScalarSum1 += arrayToSum[scalarIndex++];
+                sumVectorUpper    += longUpper;
             }
             //System.Console.WriteLine("{0}", scalarIndex);
             for (i = scalarIndex; i <= r; i++)
                 partialScalarSum0 += arrayToSum[i];
-            partialScalarSum0 += partialScalarSum1;
+            //partialScalarSum0 += partialScalarSum1;
             sumVectorLower += sumVectorUpper;
             for (i = 0; i < Vector<long>.Count; i++)
                 partialScalarSum0 += sumVectorLower[i];
+            return partialScalarSum0;
+        }
+
+        public static ulong SumSseAndScalarSingleStream(this ulong[] arrayToSum)
+        {
+            //return arrayToSum.SumSseInner(0, arrayToSum.Length - 1);
+            return arrayToSum.SumSseAndScalarSingleStreamInner(0, arrayToSum.Length - 1);
+        }
+
+        public static ulong SumSseAndScalarSingleStream(this ulong[] arrayToSum, int start, int length)
+        {
+            return arrayToSum.SumSseAndScalarSingleStreamInner(start, start + length - 1);
+        }
+
+        // 256-bit vector means eight 32-bit, which is the minimal size scalar needs to do
+        // and then some number of vectors as well.
+        // Sadly, this idea also doesn't seem to work and slows down performance.
+        private static ulong SumSseAndScalarSingleStreamInner(this ulong[] arrayToSum, int l, int r)
+        {
+            //const int numScalarOps = 2;
+            var sumVector0 = new Vector<ulong>();
+            //var sumVector1 = new Vector<ulong>();
+            //var sumVector2 = new Vector<ulong>();
+            //var sumVector3 = new Vector<ulong>();
+            int sseIndexEnd = l + ((r - l + 1) / (1 * Vector<ulong>.Count)) * Vector<ulong>.Count;
+            //int numFullVectors = lengthForVector / Vector<int>.Count;
+            ulong partialScalarSum0 = 0;
+            //ulong partialScalarSum1 = 0;
+            //ulong partialScalarSum2 = 0;
+            //ulong partialScalarSum3 = 0;
+            int i = l;
+            //int j = l + (4 * Vector<ulong>.Count);
+            //int j = l + 1 * Vector<ulong>.Count;
+            //int k = l + 2 * Vector<ulong>.Count;
+            //int m = l + 3 * Vector<ulong>.Count;
+            int increment = 1 * Vector<ulong>.Count;
+            //int scalarIndex = l + numFullVectors * Vector<int>.Count;
+            //int sseIndexEnd = scalarIndex;
+            //System.Console.WriteLine("{0}, {1}, {2}, {3}, {4}, {5}", arrayToSum.Length, Vector<int>.Count, lengthForVector, numFullVectors, scalarIndex, sseIndexEnd);
+            for (; i < sseIndexEnd; i += increment)
+            {
+                sumVector0 += new Vector<ulong>(arrayToSum, i);
+                //sumVector1 += new Vector<ulong>(arrayToSum, j);
+                //sumVector2 += new Vector<ulong>(arrayToSum, k);
+                //sumVector3 += new Vector<ulong>(arrayToSum, m);
+
+                //var inVector0 = new Vector<ulong>(arrayToSum, i);
+                //i += Vector<ulong>.Count;
+                //var inVector1 = new Vector<ulong>(arrayToSum, j);
+                //i += Vector<ulong>.Count;
+                //var inVector2 = new Vector<ulong>(arrayToSum, k);
+                //i += Vector<ulong>.Count;
+                //var inVector3 = new Vector<ulong>(arrayToSum, m);
+                //i += Vector<ulong>.Count;
+                // Vector number of bits / 32-bits = number of scalar additions need to perform - i.e. one Vector's worth of scalar work
+                //partialScalarSum0 += arrayToSum[j++];
+                //sumVector0        += inVector0;
+                //partialScalarSum1 += arrayToSum[j++];
+                //sumVector1        += inVector1;
+                //partialScalarSum2 += arrayToSum[j++];
+                //sumVector2        += inVector2;
+                //partialScalarSum3 += arrayToSum[j++];
+                //sumVector3        += inVector3;
+                //i += increment;
+                //j += increment;
+                //k += increment;
+                //m += increment;
+                //j += 4 * Vector<ulong>.Count;
+            }
+            //System.Console.WriteLine("{0}", scalarIndex);
+            for (; i <= r; i++)
+                partialScalarSum0 += arrayToSum[i];
+            //partialScalarSum0 += partialScalarSum1;
+            //partialScalarSum0 += partialScalarSum2;
+            //partialScalarSum0 += partialScalarSum3;
+            //sumVector0 += sumVector1;
+            //sumVector0 += sumVector2;
+            //sumVector0 += sumVector3;
+            for (i = 0; i < Vector<ulong>.Count; i++)
+                partialScalarSum0 += sumVector0[i];
             return partialScalarSum0;
         }
 
