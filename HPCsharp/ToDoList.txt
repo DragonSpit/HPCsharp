@@ -1,4 +1,5 @@
-﻿// TODO: Develop algorithms, including hybrid sorting that take advantage of CPU caches well by operating on small enough chunks which fit into cache well and use
+﻿// TODO: Add scalar and parallel Select algorithm: http://rosettacode.org/wiki/Quickselect_algorithm#C.23 (for scalar code)
+// TODO: Develop algorithms, including hybrid sorting that take advantage of CPU caches well by operating on small enough chunks which fit into cache well and use
 //       cache properties well. These operations can then be combined/composed/cascaded well, possibly by specifying how to combine these atomic blocks of operations
 //       or interleave these operations to fully utilize computational and cache bandwidth resources the CPU has to offer.
 //       This could bring at least 2X speedup, as summation by itself is at least 2X faster in-cache than in-system-memory.
