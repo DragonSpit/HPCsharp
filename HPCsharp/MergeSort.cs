@@ -10,6 +10,7 @@
 //       by eliminating the comparison function, or detecting when it's null and seeing if the resulting hard-coded merge implementation would be much faster.
 using System;
 using System.Collections.Generic;
+using System.Xml.Schema;
 using HPCsharp.ParallelAlgorithms;
 
 namespace HPCsharp
@@ -69,7 +70,8 @@ namespace HPCsharp
         }
 
         /// <summary>
-        /// Take the source array, sort it using the Merge Sort algorithm, and return a sorted array of full length
+        /// Take the source array, sort it using the Merge Sort algorithm, and return a sorted array of full length.
+        /// Not in-place algorithm.
         /// </summary>
         /// <typeparam name="T">array of type T</typeparam>
         /// <param name="source">source array</param>
@@ -86,6 +88,7 @@ namespace HPCsharp
 
         /// <summary>
         /// Take a segment of the source array, and sort it in place using the Merge Sort algorithm
+        /// This algorithm is not in-place, allocating an array of the same size as the input array. The interface is in-place.
         /// </summary>
         /// <typeparam name="T">array of type T</typeparam>
         /// <param name="array">source array</param>
@@ -101,6 +104,7 @@ namespace HPCsharp
 
         /// <summary>
         /// Take the source array, and sort all of it in place using the Merge Sort algorithm
+        /// This algorithm is not in-place, allocating an array of the same size as the input array. The interface is in-place.
         /// </summary>
         /// <typeparam name="T">array of type T</typeparam>
         /// <param name="array">source and result array</param>
@@ -194,6 +198,49 @@ namespace HPCsharp
 
             SortMergeParallel<T>(src, 0, src.Count - 1, dst, false);
 #endif
+        }
+
+        public static void MergeSortInPlace<T>(T[] arr, IComparer<T> comparer = null)
+        {
+            MergeSortInPlace<T>(arr, 0, arr.Length, comparer);
+        }
+
+        // Shows how simple a sequential algorithm is
+        // Listing One
+        public static void MergeSortInPlace<T>(T[] arr, int startIndex, int length, IComparer<T> comparer = null)
+        {
+            if (length <= 1) return;
+            int endIndex = startIndex + length;
+            int midIndex = ((endIndex + startIndex) / 2);
+            MergeSortInPlace(arr, startIndex,   midIndex, comparer);                         // recursive call left  half
+            MergeSortInPlace(arr, midIndex + 1, endIndex, comparer);                         // recursive call right half
+            MergeDivideAndConquerInPlace(arr, startIndex, midIndex, endIndex, comparer);     // merge the results
+        }
+
+        public static void MergeSortInPlaceHybrid<T>(T[] arr, IComparer<T> comparer = null, int threshold = 32)
+        {
+            MergeSortInPlaceHybridInner<T>(arr, 0, arr.Length - 1, comparer, threshold);
+        }
+
+        public static void MergeSortInPlaceHybrid<T>(T[] arr, int startIndex, int length, IComparer<T> comparer = null, int threshold = 32)
+        {
+            MergeSortInPlaceHybridInner<T>(arr, startIndex, length - 1, comparer, threshold);
+        }
+        // start and end indexes are inclusive
+        private static void MergeSortInPlaceHybridInner<T>(T[] arr, int startIndex, int endIndex, IComparer<T> comparer = null, int threshold = 32)
+        {
+            //Console.WriteLine("merge sort: start = {0}, length = {1}", startIndex, length);
+            int length = endIndex - startIndex + 1;
+            if (length <= 1) return;
+            if (length <= threshold)
+            {
+                Algorithm.InsertionSort(arr, startIndex, length, comparer);
+                return;
+            }
+            int midIndex = (endIndex + startIndex) / 2;
+            MergeSortInPlaceHybridInner(arr, startIndex,   midIndex, comparer, threshold);  // recursive call left  half
+            MergeSortInPlaceHybridInner(arr, midIndex + 1, endIndex, comparer, threshold);  // recursive call right half
+            MergeDivideAndConquerInPlace(arr, startIndex, midIndex, endIndex);              // merge the results
         }
     }
 }

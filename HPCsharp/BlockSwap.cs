@@ -1,4 +1,7 @@
-﻿using System;
+﻿// TODO: Parallelize block-swap algorithm to speedup in-place merge, possibly using SSE with instruction to reverse order within an SSE Vector
+//       Or, maybe SSE rotation/reverse order can be avoided, knowing that we'll be rotating it back in the following pass.
+// TODO: Inline manually Swap function into Reversal
+using System;
 using System.Collections.Generic;
 using System.Text;
 

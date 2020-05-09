@@ -585,5 +585,59 @@ namespace HPCsharp
             return dst;
         }
 
+        public static void MergeSortInPlaceHybridPar<T>(T[] arr, int startIndex, int length, IComparer<T> comparer = null, int threshold = 32)
+        {
+            if (length <= 0) return;
+            int endIndex = startIndex + length;
+            if ((endIndex - startIndex) <= threshold)
+            {
+                Algorithm.InsertionSort(arr, startIndex, length, comparer);
+                return;
+            }
+            int midIndex = ((endIndex + startIndex) / 2);
+            Parallel.Invoke(
+                () => { MergeSortInPlaceHybridPar<T>(arr, startIndex,   midIndex, comparer, threshold); },  // recursive call left  half
+                () => { MergeSortInPlaceHybridPar<T>(arr, midIndex + 1, endIndex, comparer, threshold); }   // recursive call right half
+            );
+
+            Algorithm.MergeDivideAndConquerInPlace(arr, startIndex, midIndex, endIndex);                    // merge the results
+        }
+
+        //private static void SortMergeHybridWithRadixInnerUintPar(this uint[] src, Int32 l, Int32 r, uint[] dst, bool srcToDst)
+        //{
+        //    if (r == l)
+        //    {    // termination/base case of sorting a single element
+        //        if (srcToDst) dst[l] = src[l];    // copy the single element from src to dst
+        //        return;
+        //    }
+        //    // TODO: This threshold may not be needed as C# sort already does it
+        //    if ((r - l) <= SortMergeParallelInsertionThreshold)
+        //    {
+        //        HPCsharp.Algorithm.InsertionSort<T>(src, l, r - l + 1, null);  // want to do dstToSrc, can just do it in-place, just sort the src, no need to copy
+        //        if (srcToDst)
+        //            for (int i = l; i <= r; i++) dst[i] = src[i];	// copy from src to dst, when the result needs to be in dst
+        //        return;
+        //    }
+        //    //else if ((r - l) <= SortMergeParallelThreshold)
+        //    //{
+        //    //    Array.Sort<T>(src, l, r - l + 1, comparer);     // not a stable sort
+        //    //    if (srcToDst)
+        //    //        for (int i = l; i <= r; i++) dst[i] = src[i];	// copy from src to dst, when the result needs to be in dst
+        //    //    return;
+        //    //}
+        //    else if ((r - l) <= SortMergeParallelThreshold)
+        //    {
+        //        HPCsharp.Algorithm.SortRadix(src, l, r - l + 1, dst);
+        //    }
+        //    int m = ((r + l) / 2);
+        //    Parallel.Invoke(
+        //        () => { SortMergeInnerPar<T>(src, l,     m, dst, !srcToDst, null); },      // reverse direction of srcToDst for the next level of recursion
+        //        () => { SortMergeInnerPar<T>(src, m + 1, r, dst, !srcToDst, null); }
+        //    );
+        //    // reverse direction of srcToDst for the next level of recursion
+        //    if (srcToDst) MergeInnerPar<T>(src, l, m, m + 1, r, dst, l, null);
+        //    else          MergeInnerPar<T>(dst, l, m, m + 1, r, src, l, null);
+        //}
+
     }
 }
