@@ -18,10 +18,19 @@ namespace HPCsharp
             array[indexB] = temp;
         }
 
-        public static void Swap<T>(this T[] array, int indexA, int indexB, int length)
+        public static void Swap<T>(this T[] array, int indexA, int indexB, int length, bool reverse = false)
         {
-            while (length-- > 0)
-                Swap(array, indexA++, indexB++);
+            if (!reverse)
+            {
+                while (length-- > 0)
+                    Swap(array, indexA++, indexB++);
+            }
+            else
+            {
+                int currIndexB = indexB + length - 1;
+                while (length-- > 0)
+                    Swap(array, indexA++, currIndexB--);
+            }
         }
 
         public static void Swap<T>(ref T B, T[] array, int indexA)
@@ -43,7 +52,6 @@ namespace HPCsharp
         {
             for(; l < r; l++, r--)
             {
-                // inArray.Swap(l++, r--);
                 T temp   = array[l];
                 array[l] = array[r];
                 array[r] = temp;
@@ -53,9 +61,9 @@ namespace HPCsharp
         // Swaps two sequential subarrays ranges a[ l .. m ] and a[ m + 1 .. r ]
         public static void BlockSwapReversal<T>(T[] array, int l, int m, int r)
         {
-            array.Reversal(l, m);
+            array.Reversal(l,     m);
             array.Reversal(m + 1, r);
-            array.Reversal(l, r);
+            array.Reversal(l,     r);
         }
 
         public static void BlockSwapReversalReverseOrder<T>(T[] array, int l, int m, int r)
