@@ -1,12 +1,11 @@
-If you like HPCsharp, give it a star or donate to help us keep more good stuff coming.\
+If you like HPCsharp, give it a star and donate to help us keep more good stuff coming.\
 Give us feedback and let us know where else could use additional performance.
 
 [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=LDD8L7UPAC7QL)
 
 # High Performance Computing in C# (HPCsharp)
 
-High performance cross-platform C# generic algorithms. Community driven to raise C# performance. Familiar interfaces,
-similar to standard C# algorithms and Linq. Free, open source, on nuget.org
+High performance C# generic algorithms. Runs on Windows and Linux. Community driven to raise C# performance. Familiar interfaces, similar to standard C# algorithms and Linq. Free, open source, on nuget.org
 
 *Algorithm*|*\**|*\*\**|*SSE*|*Multi-Core*|*Array*|*List*|*Details*
 --- | --- | --- | --- | :---: | :---: | --- | :--
@@ -270,7 +269,7 @@ int[] arrayDestination2 = listSource.ToArrayPar();  // HPCsharp parallel/multi-c
 ```
 The following table shows performance (in GigaInt/sec) for copy functions:
 
-*Method*|*ToArray()*|*ToArray().AsParallel()*|*ToArrayPar()*|*Paged-in*|*Description*
+*Method*|*ToArray()*|*AsParallel().ToArray()*|*ToArrayPar()*|*Paged-in*|*Description*
 --- | --- | --- | --- | --- | ---
 Parallel ToArray|0.4|0.09|1.2|  No | Returns new Array
 
@@ -283,17 +282,15 @@ listSource.CopyToPar(arrayDestination);  // HPCsharp parallel/multi-core/faster 
 ```
 The following table shows performance (in GigaInt/sec) for copy functions:
 
-*Method*|*CopyTo()*|*CopyTo().AsParallel()*|*CopyToPar()*|*Paged-in*|*Description*
+*Method*|*CopyTo()*|*ToArray().CopyTo()*|*CopyToPar()*|*Paged-in*|*Description*
 --- | --- | --- | --- | --- | ---
 Parallel CopyTo|0.4| |1.3|  No | Copies to new Array
 Parallel CopyTo|2.4| |2.9| Yes | Copies to existing Array
 
 HPCsharp provides parallel (multi-core) versions of List.ToArray() and List.CopyTo() functions,
 with exactly the same interfaces. Parallel Array.ToArray() and Array.CopyTo() are also available.
-These parallel functions are 3 times faster when the destination is new array - i.e. allocated but never touched - a common use case
-shown in the first source code case above.
-When a destination array has been used before and has been paged into system memory, these parallel functions are 10-20% faster.
-These parallel copy functions provide a generic interface, handling any data type.
+These parallel functions are 3 times faster when the destination is a new array - i.e. allocated but never touched - a common use case shown in the first source code case above.
+When a destination array has been used before and has been paged into system memory, these parallel functions are 10-20% faster. These parallel copy functions provide a generic interface, handling any data type.
 
 For more details, seee blog https://duvanenko.tech.blog/2019/08/19/faster-copying-in-c/
 
