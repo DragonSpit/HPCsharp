@@ -12,7 +12,7 @@ High performance C# generic algorithms. Runs on Windows and Linux. Community dri
 [Add](#Add) | 2 | 14 | :heavy_check_mark: |:heavy_check_mark: | :heavy_check_mark: | | Adds two arrays element-wise
 [Binary Search](#Binary-Search) | 1 | 2 | | | :heavy_check_mark: | :heavy_check_mark: | Generic IComparer\<T\>
 [Block Swap](#Block-Swap) | 4 | 5 | | | :heavy_check_mark: | | Generic
-[Parallel Copy](#Parallel-Copy) | 1 | 11 | | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | List.ToArray() and Array.Copy() parallel generic
+[Parallel Copy](#Parallel-Copy) | 1 | 11 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | List.ToArray() and Array.Copy() parallel generic
 [Counting Sort](#Counting-Sort) | 3 | 14 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | byte, ushort, sbyte, short arrays. Ludicrous speed!
 [Divide-and-Conquer](#Divide-and-Conquer) | 2 | 4 | | :heavy_check_mark: | :heavy_check_mark: | | Generic serial and parallel abstraction
 Fill | 4 | 10 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Numeric arrays
@@ -280,7 +280,7 @@ int[] arrayDestination = new int[4];
 listSource.CopyTo(arrayDestination);	 // C# standard List to Array copy
 listSource.CopyToPar(arrayDestination);  // HPCsharp parallel/multi-core/faster copy
 ```
-The following table shows performance (in GigaInt/sec) for copy functions:
+The following table shows performance (in GigaInt32/sec) for copy functions:
 
 *Method*|*CopyTo()*|*ToArray().CopyTo()*|*CopyToPar()*|*Paged-in*|*Description*
 --- | --- | --- | --- | --- | ---
