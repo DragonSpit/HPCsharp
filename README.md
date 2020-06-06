@@ -156,13 +156,16 @@ LSD Radix Sort is a linear time ***O***(N), stable sorting algorithm.
  
 *Algorithm*|*Collection*|*Distribution*|*vs .Sort*|*vs Linq*|*vs Linq.AsParallel*|*MegaInts/sec*|*Data Type*
 --- | --- | --- | --- | --- | --- | --- | ---
-Radix Sort|Array, List|Random|5X-8X|14X-35X|4X-9X|82|UInt32
+Radix Sort|Array, List|Random|5X-8X|14X-35X|4X-9X|98|UInt32
 Radix Sort|Array, List|Presorted|0.3X-0.6X|3X-5X|1X-3X|48|UInt32
 Radix Sort|Array, List|Constant|1.3X-1.8X|5X-8X|2X-3X|50|UInt32
 
 LSD Radix Sort runs on a single core, whereas Linq.AsParallel ran on all the cores.
 Only slower when sorting presorted Array or List, but faster for random and constant distributions,
 even faster than parallel Linq.OrderBy.AsParallel.
+
+Parallel LSD Radix Sort, uses multiple cores for the first phase (the counting phase) of the algorithm,
+bringing performance up to 125 MegaInt32/sec, bringing performance higher than .Sort() for random, presorted and constant distributions.
 
 Radix Sort has been extended to sort user defined classes based on a UInt32 or UInt64 key within the class. Radix Sort is currently using only a single core.
 
@@ -267,11 +270,12 @@ var listSource = new List<int> { 5, 7, 16, 3 };
 int[] arrayDestination1 = listSource.ToArray();	    // C# standard conversion
 int[] arrayDestination2 = listSource.ToArrayPar();  // HPCsharp parallel/multi-core/faster conversion
 ```
-The following table shows performance (in GigaInt/sec) for copy functions:
+The following table shows performance (in Billion Int32's per second) for copy functions:
 
-*Method*|*ToArray()*|*AsParallel().ToArray()*|*ToArrayPar()*|*Paged-in*|*Description*
---- | --- | --- | --- | --- | ---
-Parallel ToArray|0.4|0.09|1.2|  No | Returns new Array
+*Machine*|*ToArray()*|*AsParallel().ToArray()*|*ToArrayPar()*|*Memory Channels*|*Description*
+--- | --- | --- | --- | --- | --- | ---
+6-core i7   |0.58|0.08|2.6| 2 | Returns a new Array
+14-core Xeon|0.58|0.58|1.2| 4 | Returns a new Array
 
 ```
 var listSource = new List<int> { 5, 7, 16, 3 };
@@ -282,10 +286,10 @@ listSource.CopyToPar(arrayDestination);  // HPCsharp parallel/multi-core/faster 
 ```
 The following table shows performance (in GigaInt32/sec) for copy functions:
 
-*Method*|*CopyTo()*|*ToArray().CopyTo()*|*CopyToPar()*|*Paged-in*|*Description*
+*Machine*|*CopyTo()*|*CopyToPar()*|*Paged-in*|*Memory Channels*|*Description*
 --- | --- | --- | --- | --- | ---
-Parallel CopyTo|0.4| |1.3|  No | Copies to new Array
-Parallel CopyTo|2.4| |2.9| Yes | Copies to existing Array
+6-core i7 |0.4|1.3|  No | 2 | Copies to a new Array
+6-core i7 |2.4|2.9| Yes | 2 | Copies to an existing Array
 
 HPCsharp provides parallel (multi-core) versions of List.ToArray() and List.CopyTo() functions,
 with exactly the same interfaces. Parallel Array.ToArray() and Array.CopyTo() are also available.
