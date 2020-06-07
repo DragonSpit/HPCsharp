@@ -1,4 +1,11 @@
-﻿// TODO: Add scalar and parallel Select algorithm: http://rosettacode.org/wiki/Quickselect_algorithm#C.23 (for scalar code)
+﻿// TODO: Consider making a podcast on HPCsharp and algorithm performance topics, since it's quite a bit simpler to create than videos.
+// TODO: Determine the minimum work quanta where doing work by more than one core/worker uses less time than doing the same amount of work by a single core/worker.
+//       Also, determine when doing work by more than one core/worker uses less than N-percent (e.g. 5% or less) of overhead - i.e. the cost of parallelism is negligible.
+// TODO: Start a document/paper with all of these parallel factors that matter, such as this minimum work quanta, paged in or not of memory, aligned or unaligned scalar
+//       and SIMD/SSE size items from memory.
+// TODO: Figure out how to have HPCsharp support .AsParallel() construct and .WithDegreeOfParallelism() also. This would make usage much simpler of many HPCsharp functions.
+// TODO: Add support for .AsParallel() and WithDegreeOfParallelism(), to simplify the interface for all parallel implementations
+// TODO: Add scalar and parallel Select algorithm: http://rosettacode.org/wiki/Quickselect_algorithm#C.23 (for scalar code)
 // TODO: Develop algorithms, including hybrid sorting that take advantage of CPU caches well by operating on small enough chunks which fit into cache well and use
 //       cache properties well. These operations can then be combined/composed/cascaded well, possibly by specifying how to combine these atomic blocks of operations
 //       or interleave these operations to fully utilize computational and cache bandwidth resources the CPU has to offer.
