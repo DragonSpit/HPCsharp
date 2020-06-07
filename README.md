@@ -274,8 +274,9 @@ The following table shows performance (in Billion Int32's per second) for copy f
 
 *Machine*|*ToArray()*|*AsParallel().ToArray()*|*ToArrayPar()*|*Memory Channels*|*Description*
 --- | --- | --- | --- | --- | ---
-6-core i7   |0.58|0.08|2.6| 2 | Returns a new Array
-14-core Xeon|0.58|0.58|1.2| 4 | Returns a new Array
+6-core i7   |0.6|0.1|2.6| 2 | Returns a new Array
+14-core Xeon|0.6|0.6|1.2| 4 | Returns a new Array
+32-core AMD |0.8|0.8|3.6| 8 | Returns a new Array
 
 ```
 var listSource = new List<int> { 5, 7, 16, 3 };
