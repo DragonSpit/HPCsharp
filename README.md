@@ -273,7 +273,7 @@ int[] arrayDestination2 = listSource.ToArrayPar();  // HPCsharp parallel/multi-c
 The following table shows performance (in Billion Int32's per second) for copy functions:
 
 *Machine*|*ToArray()*|*AsParallel().ToArray()*|*ToArrayPar()*|*Memory Channels*|*Description*
---- | --- | --- | --- | --- | --- | ---
+--- | --- | --- | --- | --- | ---
 6-core i7   |0.58|0.08|2.6| 2 | Returns a new Array
 14-core Xeon|0.58|0.58|1.2| 4 | Returns a new Array
 
