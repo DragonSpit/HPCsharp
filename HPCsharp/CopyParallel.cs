@@ -12,11 +12,18 @@
 //       How about List.ToArrayPar() and then create a new List out of that array
 // TODO: Answer https://stackoverflow.com/questions/5099604/any-faster-way-of-copying-arrays-in-c?noredirect=1&lq=1
 // TODO: Add support for .AsParallel() and WithDegreeOfParallelism(), to simplify the interface for all parallel implementations
+// TODO: If .ToArrayPar() works for List.ToArrayPar() and it speeds it up, that would be amazing and something that everyone benefits from, everywhere in our code.
+// TODO: We may need to determine work quanta size and then use Min(Array.Length/workQuanta, numberOfCores) number of cores to keep performance from dropping when going parallel.
+//       This is a nice ramp-up from scalar to fully parallel concept, where performance should not drop off as the Array size gets smaller.
+// TODO: Parallelize List.ToList() copy and compare performance to List<Int32> copy = new List<Int32>(original); constructor copying. Can List be constructed from an Array? Is it faster
+//       to copy a List.ToArray() and then Array.ToList(), if such operations exist?
+// TODO: See if List.CopyTo() can be implemented faster using the same methodology.
 
 // Performance details:
 // Notes: When benchmarking "not pageInDstArray" you will see occasionally (and somewhat regularly) performance spike to a much higher level. Theory: these data points are where
 // the previously allocated array is being re-used and has already been created and has been paged into system memory, raising the performance to the paged-in benchmark level.
 // SSE implementation when run on all cores tops out lower than scalar. But does it ramp up faster?
+// TODO: Develop graphs of scalar versus SSE/SIMD copy to see if SSE ramps up faster and allows to use fewer cores, but tops out lower than scalar.
 
 using System;
 using System.Threading.Tasks;
@@ -27,7 +34,7 @@ using System.Numerics;
 
 namespace HPCsharp.ParallelAlgorithms
 {
-    static public partial class ArrayHpc
+    static public partial class Copy
     {
         /// <summary>
         /// Copy elements from the source array to the destination array, using multiple processor cores.
@@ -39,15 +46,17 @@ namespace HPCsharp.ParallelAlgorithms
         /// <param name="dst">destination array</param>
         /// <param name="dstStart">destination array starting index</param>
         /// <param name="length">number of array elements to copy</param>
-        /// <param name="degreeOfParallelism">number of cores to use. Setting to 0 means use all available cores</param>
-        /// <param name="parallelThreshold">array size larger than this threshold will use multiple cores</param>
-        public static void CopyPar<T>(this T[] src, Int32 srcStart, T[] dst, Int32 dstStart, Int32 length, ushort degreeOfParallelism = 0, Int32 parallelThreshold = 8 * 1024)
+        /// <param name="parSettings">minWorkQuanta = number of array elements efficient to process per core; degreeOfParallelism = maximum number of CPU cores that will be used</param>
+        public static void CopyPar<T>(this T[] src, Int32 srcStart, T[] dst, Int32 dstStart, Int32 length, (Int32 minWorkQuanta, Int32 degreeOfParallelism)? parSettings = null)
         {
             if (length <= 0)      // zero elements to copy
                 return;
             if (length > (src.Length - srcStart) || length > (dst.Length - dstStart))
                 throw new ArgumentOutOfRangeException();
-            if (length < parallelThreshold || degreeOfParallelism == 1)
+
+            (Int32 minWorkQuanta, Int32 degreeOfParallelism) = parSettings ?? (16 * 1024, 0);      // default values for parallelThreshold and degreeOfParallelism
+
+            if (length < minWorkQuanta || degreeOfParallelism == 1)
             {
                 Array.Copy(src, srcStart, dst, dstStart, length);
                 return;
@@ -72,13 +81,17 @@ namespace HPCsharp.ParallelAlgorithms
         /// <param name="src">source array</param>
         /// <param name="dst">destination array</param>
         /// <param name="length">number of array elements to copy</param>
-        /// <param name="degreeOfParallelism">number of cores to use. Setting to 0 means use all available cores</param>
-        /// <param name="parallelThreshold">array size larger than this threshold will use multiple cores</param>
-        public static void CopyPar<T>(this T[] src, T[] dst, Int32 length, ushort degreeOfParallelism = 0, Int32 parallelThreshold = 8 * 1024)
+        /// <param name="parSettings">minWorkQuanta = number of array elements efficient to process per core; degreeOfParallelism = maximum number of CPU cores that will be used</param>
+        public static void CopyPar<T>(this T[] src, T[] dst, Int32 length, (Int32 minWorkQuanta, Int32 degreeOfParallelism)? parSettings = null)
         {
+            if (length <= 0)      // zero elements to copy
+                return;
             if (length > src.Length || length > dst.Length)
                 throw new ArgumentOutOfRangeException();
-            CopyPar<T>(src, 0, dst, 0, length, degreeOfParallelism, parallelThreshold);
+
+            (Int32 minWorkQuanta, Int32 degreeOfParallelism) = parSettings ?? (16 * 1024, 0);      // default values for parallelThreshold and degreeOfParallelism
+
+            CopyPar<T>(src, 0, dst, 0, length, (minWorkQuanta, degreeOfParallelism));
         }
         /// <summary>
         /// Copy elements from the source array to the destination array, using multiple processor cores.
@@ -87,12 +100,15 @@ namespace HPCsharp.ParallelAlgorithms
         /// <typeparam name="T">data type of each array element</typeparam>
         /// <param name="src">source array</param>
         /// <param name="dst">destination array</param>
-        /// <param name="parallelThreshold">array size larger than this threshold will use multiple cores</param>
-        public static void CopyPar<T>(this T[] src, T[] dst, ushort degreeOfParallelism = 0, Int32 parallelThreshold = 8 * 1024)
+        /// <param name="parSettings">minWorkQuanta = number of array elements efficient to process per core; degreeOfParallelism = maximum number of CPU cores that will be used</param>
+        public static void CopyPar<T>(this T[] src, T[] dst, (Int32 minWorkQuanta, Int32 degreeOfParallelism)? parSettings = null)
         {
             if (src.Length > dst.Length)
                 throw new ArgumentOutOfRangeException();
-            CopyPar<T>(src, 0, dst, 0, src.Length, degreeOfParallelism, parallelThreshold);
+
+            (Int32 minWorkQuanta, Int32 degreeOfParallelism) = parSettings ?? (16 * 1024, 0);      // default values for parallelThreshold and degreeOfParallelism
+
+            CopyPar<T>(src, 0, dst, 0, src.Length, (minWorkQuanta, degreeOfParallelism));
         }
         /// <summary>
         /// Copy elements from the source array to the destination array, starting at an index within the destination, using multiple processor cores.
@@ -101,11 +117,17 @@ namespace HPCsharp.ParallelAlgorithms
         /// <typeparam name="T">data type of each array element</typeparam>
         /// <param name="src">source array</param>
         /// <param name="dst">destination array</param>
-        /// <param name="startDstIndex">starting index of the destination array</param>
-        /// <param name="parallelThreshold">array size larger than this threshold will use multiple cores</param>
-        private static void CopyToPar<T>(this T[] src, T[] dst, Int32 startDstIndex, ushort degreeOfParallelism = 0, Int32 parallelThreshold = 8 * 1024)
+        /// <param name="dstStart">starting index of the destination array</param>
+        /// <param name="parSettings">minWorkQuanta = number of array elements efficient to process per core; degreeOfParallelism = maximum number of CPU cores that will be used</param>
+        // Note: Private because of a conflict between several overloaded functions. Need to resolve.
+        public static void CopyToPar<T>(this T[] src, T[] dst, Int32 dstStart, (Int32 minWorkQuanta, Int32 degreeOfParallelism)? parSettings = null)
         {
-            CopyPar<T>(src, 0, dst, startDstIndex, src.Length, degreeOfParallelism, parallelThreshold);
+            if (src.Length > (dst.Length - dstStart))
+                throw new ArgumentOutOfRangeException();
+
+            (Int32 minWorkQuanta, Int32 degreeOfParallelism) = parSettings ?? (16 * 1024, 0);      // default values for parallelThreshold and degreeOfParallelism
+
+            CopyPar<T>(src, 0, dst, dstStart, src.Length, (minWorkQuanta, degreeOfParallelism));
         }
         /// <summary>
         /// Copy elements from the source array of integers to the destination array, using a single core with data parallel SIMD/SSE instructions.
@@ -118,6 +140,11 @@ namespace HPCsharp.ParallelAlgorithms
         /// <param name="length">number of array elements to copy</param>
         public static void CopySse(this int[] src, Int32 srcStart, int[] dst, Int32 dstStart, Int32 length)
         {
+            if (length <= 0)      // zero elements to copy
+                return;
+            if (length > (src.Length - srcStart) || length > (dst.Length - dstStart))
+                throw new ArgumentOutOfRangeException();
+
             int sseSrcIndexEnd = srcStart + (length / Vector<int>.Count) * Vector<int>.Count;
             int i, j;
             for (i = srcStart, j = dstStart; i < sseSrcIndexEnd; i += Vector<int>.Count, j += Vector<int>.Count)
@@ -138,13 +165,17 @@ namespace HPCsharp.ParallelAlgorithms
         /// <param name="dst">destination array</param>
         /// <param name="dstStart">destination array starting index</param>
         /// <param name="length">number of array elements to copy</param>
-        /// <param name="degreeOfParallelism">number of cores to use. Setting to 0 means use all available cores</param>
-        /// <param name="parallelThreshold">array size larger than this threshold will use multiple cores</param>
-        public static void CopySsePar(this int[] src, Int32 srcStart, int[] dst, Int32 dstStart, Int32 length, int degreeOfParallelism = 0, Int32 parallelThreshold = 8 * 1024)
+        /// <param name="parSettings">minWorkQuanta = number of array elements efficient to process per core; degreeOfParallelism = maximum number of CPU cores that will be used</param>
+        public static void CopySsePar(this int[] src, Int32 srcStart, int[] dst, Int32 dstStart, Int32 length, (Int32 minWorkQuanta, Int32 degreeOfParallelism)? parSettings = null)
         {
             if (length <= 0)      // zero elements to copy
                 return;
-            if (length < parallelThreshold || degreeOfParallelism == 1)
+            if (length > (src.Length - srcStart) || length > (dst.Length - dstStart))
+                throw new ArgumentOutOfRangeException();
+
+            (Int32 minWorkQuanta, Int32 degreeOfParallelism) = parSettings ?? (16 * 1024, 0);      // default values for parallelThreshold and degreeOfParallelism
+
+            if (length < minWorkQuanta || degreeOfParallelism == 1)
             {
                 CopySse(src, srcStart, dst, dstStart, length);
                 return;
@@ -178,6 +209,9 @@ namespace HPCsharp.ParallelAlgorithms
         {
             if (length <= 0)      // zero elements to copy
                 return;
+            if (length > (src.Length - srcStart) || length > (dst.Length - dstStart))
+                throw new ArgumentOutOfRangeException();
+
             if (length < parallelThreshold)
             {
                 Array.Copy(src, srcStart, dst, dstStart, length);
@@ -199,16 +233,19 @@ namespace HPCsharp.ParallelAlgorithms
         /// <typeparam name="T">data type of each element</typeparam>
         /// <param name="src">source array</param>
         /// <param name="srcStart">source array starting index</param>
-        /// <param name="dstStart">destination array starting index</param>
         /// <param name="length">number of array elements to copy</param>
-        /// <param name="degreeOfParallelism">number of cores to use. Setting to 0 means use all available cores</param>
-        /// <param name="parallelThreshold">array size larger than this threshold will use multiple cores</param>
-        public static T[] ToArrayPar<T>(this T[] src, Int32 srcStart, Int32 dstStart, Int32 length, ushort degreeOfParallelism = 0, Int32 parallelThreshold = 8 * 1024)
+        /// <param name="parSettings">minWorkQuanta = number of array elements efficient to process per core; degreeOfParallelism = maximum number of CPU cores that will be used</param>
+        public static T[] ToArrayPar<T>(this T[] src, Int32 srcStart, Int32 length, (Int32 minWorkQuanta, Int32 degreeOfParallelism)? parSettings = null)
         {
-            if (length > (src.Length - srcStart) || length > (src.Length - dstStart))
+            if (length <= 0)      // zero elements to copy
+                return new T[0];
+            if (length > (src.Length - srcStart))
                 throw new ArgumentOutOfRangeException();
-            T[] dst = new T[src.Length];
-            CopyPar<T>(src, srcStart, dst, dstStart, length, degreeOfParallelism, parallelThreshold);
+
+            (Int32 minWorkQuanta, Int32 degreeOfParallelism) = parSettings ?? (16 * 1024, 0);      // default values for parallelThreshold and degreeOfParallelism
+
+            T[] dst = new T[length];
+            CopyPar<T>(src, srcStart, dst, 0, length, (minWorkQuanta, degreeOfParallelism));
             return dst;
         }
         /// <summary>
@@ -219,14 +256,18 @@ namespace HPCsharp.ParallelAlgorithms
         /// <typeparam name="T">data type of each array element</typeparam>
         /// <param name="src">source array</param>
         /// <param name="length">number of array elements to copy</param>
-        /// <param name="degreeOfParallelism">number of cores to use. Setting to 0 means use all available cores</param>
-        /// <param name="parallelThreshold">array size larger than this threshold will use multiple cores</param>
-        public static T[] ToArrayPar<T>(this T[] src, Int32 length, ushort degreeOfParallelism = 0, Int32 parallelThreshold = 8 * 1024)
+        /// <param name="parSettings">minWorkQuanta = number of array elements efficient to process per core; degreeOfParallelism = maximum number of CPU cores that will be used</param>
+        public static T[] ToArrayPar<T>(this T[] src, Int32 length, (Int32 minWorkQuanta, Int32 degreeOfParallelism)? parSettings = null)
         {
+            if (length <= 0)      // zero elements to copy
+                return new T[0];
             if (length > src.Length)
                 throw new ArgumentOutOfRangeException();
+
+            (Int32 minWorkQuanta, Int32 degreeOfParallelism) = parSettings ?? (16 * 1024, 0);      // default values for parallelThreshold and degreeOfParallelism
+
             T[] dst = new T[src.Length];
-            CopyPar<T>(src, 0, dst, 0, length, degreeOfParallelism, parallelThreshold);
+            CopyPar<T>(src, 0, dst, 0, length, (minWorkQuanta, degreeOfParallelism));
             return dst;
         }
         /// <summary>
@@ -235,12 +276,13 @@ namespace HPCsharp.ParallelAlgorithms
         /// </summary>
         /// <typeparam name="T">data type of each array element</typeparam>
         /// <param name="src">source array</param>
-        /// <param name="degreeOfParallelism">number of cores to use. Setting to 0 means use all available cores</param>
-        /// <param name="parallelThreshold">array size larger than this threshold will use multiple cores</param>
-        public static T[] ToArrayPar<T>(this T[] src, ushort degreeOfParallelism = 0, Int32 parallelThreshold = 8 * 1024)
+        /// <param name="parSettings">minWorkQuanta = number of array elements efficient to process per core; degreeOfParallelism = maximum number of CPU cores that will be used</param>
+        public static T[] ToArrayPar<T>(this T[] src, (Int32 minWorkQuanta, Int32 degreeOfParallelism)? parSettings = null)
         {
+            (Int32 minWorkQuanta, Int32 degreeOfParallelism) = parSettings ?? (16 * 1024, 0);      // default values for parallelThreshold and degreeOfParallelism
+
             T[] dst = new T[src.Length];
-            CopyPar<T>(src, 0, dst, 0, src.Length, degreeOfParallelism, parallelThreshold);
+            CopyPar<T>(src, 0, dst, 0, src.Length, (minWorkQuanta, degreeOfParallelism));
             return dst;
         }
     }
