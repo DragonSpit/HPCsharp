@@ -1,5 +1,4 @@
-﻿// TODO: Strengthen argument value and combinations error checking
-// TODO: These need to handle thresholds well, to allow developers to use them any time for any size of List without having to benchmark.
+﻿// TODO: These need to handle thresholds well, to allow developers to use them any time for any size of List without having to benchmark.
 //       We may need to determine work quanta size and then possibly use Min(Array.Length/workQuanta, numberOfCores) number of cores to keep performance from dropping when going parallel.
 // TODO: We may need to determine work quanta size and then use Min(Array.Length/workQuanta, numberOfCores) number of cores to keep performance from dropping when going parallel.
 //       This is a nice ramp-up from scalar to fully parallel concept, where performance should not drop off as the Array size gets smaller. Show with benchmark data
