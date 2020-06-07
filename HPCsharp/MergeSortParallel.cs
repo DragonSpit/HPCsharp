@@ -18,6 +18,12 @@
 //       than Microsoft does and possibly limit oversubscription.
 // TODO: For sort of two arrays (one keys and one items), a potentially faster method would be to have keys to not only hold a key at each location, but also
 //       an index, and then sort these keys/indexes pairs. Once the key/index array has been sorted, do a single pass of moving the items into their final locations.
+// TODO: Once in-place parallel merge sort is working, implement an adaptive parallel in-place merge sort algorithm, which tries to allocate memory to use not-in-place algorithm
+//       first catches an out of memory exception and performs in-place merge sort algorithm in that case - same as C++ STL implementation idea, but parallel for merge sort.
+// TODO: Develop several in-place parallel hybrid sort algorithms: in-place parallel merge using Array.Sort as the base case, in-place parallel merge using in-place MSD Radix Sort as
+//       the base case with the base size such that it fits within L2 cache of the CPU.
+// TODO: Determine which of the three BlockSwap algorithms uses the least amount of memory bandwidth, as this may be the most important
+//       factor for allowing parallel scalability. Test each of these algorithms to compare parallel scalability.
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -585,32 +591,34 @@ namespace HPCsharp
             return dst;
         }
 
-        public static void MergeSortInPlaceHybridPar<T>(T[] arr, IComparer<T> comparer = null, int threshold = 32)
+        public static void MergeSortInPlaceHybridPar<T>(T[] arr, IComparer<T> comparer = null, int threshold = 16 * 1024)
         {
             MergeSortInPlaceHybridParInner<T>(arr, 0, arr.Length - 1, comparer, threshold);
         }
 
-        public static void MergeSortInPlaceHybridPar<T>(T[] arr, int startIndex, int length, IComparer<T> comparer = null, int threshold = 32)
+        public static void MergeSortInPlaceHybridPar<T>(T[] arr, int startIndex, int length, IComparer<T> comparer = null, int threshold = 16 * 1024)
         {
             MergeSortInPlaceHybridParInner<T>(arr, startIndex, length - 1, comparer, threshold);
         }
         // start and end indexes are inclusive
-        private static void MergeSortInPlaceHybridParInner<T>(T[] arr, int startIndex, int endIndex, IComparer<T> comparer = null, int threshold = 32)
+        private static void MergeSortInPlaceHybridParInner<T>(T[] arr, int startIndex, int endIndex, IComparer<T> comparer = null, int threshold = 16 * 1024)
         {
             //Console.WriteLine("merge sort: start = {0}, length = {1}", startIndex, length);
             int length = endIndex - startIndex + 1;
             if (length <= 1) return;
             if (length <= threshold)
             {
-                Algorithm.InsertionSort(arr, startIndex, length, comparer);
+                Array.Sort(arr, startIndex, length, comparer);
                 return;
             }
             int midIndex = (endIndex + startIndex) / 2;
-            Parallel.Invoke(
-                () => { MergeSortInPlaceHybridParInner<T>(arr, startIndex,   midIndex, comparer, threshold); },  // recursive call left  half
-                () => { MergeSortInPlaceHybridParInner<T>(arr, midIndex + 1, endIndex, comparer, threshold); }   // recursive call right half
-            );
-            Algorithm.MergeDivideAndConquerInPlace(arr, startIndex, midIndex, endIndex);                         // merge the results
+            MergeSortInPlaceHybridParInner<T>(arr, startIndex,   midIndex, comparer, threshold);   // recursive call left  half
+            MergeSortInPlaceHybridParInner<T>(arr, midIndex + 1, endIndex, comparer, threshold);   // recursive call right half
+            //Parallel.Invoke(
+            //    () => { MergeSortInPlaceHybridParInner<T>(arr, startIndex,   midIndex, comparer, threshold); },  // recursive call left  half
+            //    () => { MergeSortInPlaceHybridParInner<T>(arr, midIndex + 1, endIndex, comparer, threshold); }   // recursive call right half
+            //);
+            MergeDivideAndConquerInPlacePar(arr, startIndex, midIndex, endIndex, comparer, 16 * 1024 * 1024, 1024 * 1024 * 1024);     // merge the results
         }
 
         //private static void SortMergeHybridWithRadixInnerUintPar(this uint[] src, Int32 l, Int32 r, uint[] dst, bool srcToDst)

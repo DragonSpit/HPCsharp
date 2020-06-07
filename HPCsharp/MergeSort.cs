@@ -240,7 +240,63 @@ namespace HPCsharp
             int midIndex = (endIndex + startIndex) / 2;
             MergeSortInPlaceHybridInner(arr, startIndex,   midIndex, comparer, threshold);  // recursive call left  half
             MergeSortInPlaceHybridInner(arr, midIndex + 1, endIndex, comparer, threshold);  // recursive call right half
-            MergeDivideAndConquerInPlace(arr, startIndex, midIndex, endIndex);              // merge the results
+            MergeDivideAndConquerInPlace(arr, startIndex, midIndex, endIndex, comparer);    // merge the results
         }
+
+        public static void MergeSortInPlaceHybrid2<T>(T[] arr, IComparer<T> comparer = null, int buffLength = 1024, int threshold = 32)
+        {
+            T[] buff = new T[buffLength];
+            MergeSortInPlaceHybridInner2<T>(arr, 0, arr.Length - 1, buff, comparer, threshold);
+        }
+
+        public static void MergeSortInPlaceHybrid2<T>(T[] arr, int startIndex, int length, IComparer<T> comparer = null, int buffLength = 1024, int threshold = 32)
+        {
+            T[] buff = new T[buffLength];
+            MergeSortInPlaceHybridInner2<T>(arr, startIndex, length - 1, buff, comparer, threshold);
+        }
+        // start and end indexes are inclusive
+        private static void MergeSortInPlaceHybridInner2<T>(T[] arr, int startIndex, int endIndex, T[] buff, IComparer<T> comparer = null, int threshold = 32)
+        {
+            //Console.WriteLine("merge sort: start = {0}, length = {1}", startIndex, length);
+            int length = endIndex - startIndex + 1;
+            if (length <= 1) return;
+            if (length <= threshold)
+            {
+                Algorithm.InsertionSort(arr, startIndex, length, comparer);
+                return;
+            }
+            int midIndex = (endIndex + startIndex) / 2;
+            MergeSortInPlaceHybridInner(arr, startIndex,   midIndex, comparer, threshold);        // recursive call left  half
+            MergeSortInPlaceHybridInner(arr, midIndex + 1, endIndex, comparer, threshold);        // recursive call right half
+            MergeDivideAndConquerInPlace2(arr, startIndex, midIndex, endIndex, buff, comparer);   // merge the results
+        }
+
+        public static void MergeSortInPlaceHybrid3<T>(T[] arr, IComparer<T> comparer = null, int threshold = 16 * 1024)
+        {
+            MergeSortInPlaceHybridInner3<T>(arr, 0, arr.Length - 1, comparer, threshold);
+        }
+
+        public static void MergeSortInPlaceHybrid3<T>(T[] arr, int startIndex, int length, IComparer<T> comparer = null, int threshold = 16 * 1024)
+        {
+            MergeSortInPlaceHybridInner3<T>(arr, startIndex, length - 1, comparer, threshold);
+        }
+        // start and end indexes are inclusive
+        private static void MergeSortInPlaceHybridInner3<T>(T[] arr, int startIndex, int endIndex, IComparer<T> comparer = null, int threshold = 16 * 1024)
+        {
+            //Console.WriteLine("merge sort: start = {0}, length = {1}", startIndex, length);
+            int length = endIndex - startIndex + 1;
+            if (length <= 1) return;
+            if (length <= threshold)
+            {
+                //Console.WriteLine("length = {0}", length);
+                Array.Sort(arr, startIndex, length, comparer);
+                return;
+            }
+            int midIndex = (endIndex + startIndex) / 2;
+            MergeSortInPlaceHybridInner3(arr, startIndex,   midIndex, comparer, threshold);   // recursive call left  half
+            MergeSortInPlaceHybridInner3(arr, midIndex + 1, endIndex, comparer, threshold);   // recursive call right half
+            MergeDivideAndConquerInPlace(arr, startIndex,  midIndex, endIndex, comparer);    // merge the results
+        }
+
     }
 }

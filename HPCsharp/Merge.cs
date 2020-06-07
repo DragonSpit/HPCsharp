@@ -737,7 +737,7 @@ namespace HPCsharp
         }
 
         // Merge two ranges of source array T[ l .. m, m+1 .. r ] in-place.
-        // Based on not-in-place algorithm in 3rd ed. of "Introduction to Algorithms" p. 798-802
+        // Based on not-in-place algorithm in 3rd ed. of "Introduction to Algorithms" p. 798-802, extending it to be in-place
         // and my Dr. Dobb's paper https://www.drdobbs.com/parallel/parallel-in-place-merge/240008783
         public static void MergeDivideAndConquerInPlace<T>(T[] arr, int startIndex, int midIndex, int endIndex, IComparer<T> comparer = null)
         {
@@ -763,6 +763,44 @@ namespace HPCsharp
                 Algorithm.BlockSwapReversal(arr, q2, midIndex, q1);
                 MergeDivideAndConquerInPlace(arr, startIndex, q2 - 1, q3 - 1,   comparer);        // note that q3 is now in its final place and no longer participates in further processing
                 MergeDivideAndConquerInPlace(arr, q3 + 1,     q1,     endIndex, comparer);
+            }
+        }
+
+        // Merge two ranges of source array T[ l .. m, m+1 .. r ] in-place.
+        // Based on not-in-place algorithm in 3rd ed. of "Introduction to Algorithms" p. 798-802, extending it to be in-place
+        // and my Dr. Dobb's paper https://www.drdobbs.com/parallel/parallel-in-place-merge/240008783
+        private static void MergeDivideAndConquerInPlace2<T>(T[] arr, int startIndex, int midIndex, int endIndex, T[] buff, IComparer<T> comparer = null)
+        {
+            //Console.WriteLine("merge: start = {0}, mid = {1}, end = {2}", startIndex, midIndex, endIndex);
+            int length1 = midIndex - startIndex + 1;
+            int length2 = endIndex - midIndex;
+            if (length1 <= 0 || length2 <= 0)
+                return;
+            if ((length1 + length2) <= buff.Length)
+            {
+                Merge(arr, startIndex,   length1,
+                      arr, midIndex + 1, length2,
+                      buff, 0, comparer);            // in Dr. Dobb's Journal paper
+                Array.Copy(buff, arr, length1 + length2);
+                return;
+            }
+            if (length1 >= length2)
+            {
+                int q1 = (startIndex + midIndex) / 2;           // q1 is mid-point of the larger segment. length1 >= length2 > 0
+                int q2 = Algorithm.BinarySearch(arr[q1], arr, midIndex + 1, endIndex, comparer);  // q2 is q1 partitioning element within the smaller sub-array (and q2 itself is part of the sub-array that does not move)
+                int q3 = q1 + (q2 - midIndex - 1);
+                Algorithm.BlockSwapReversal(arr, q1, midIndex, q2 - 1);
+                MergeDivideAndConquerInPlace2(arr, startIndex, q1 - 1, q3 - 1,   buff, comparer);  // note that q3 is now in its final place and no longer participates in further processing
+                MergeDivideAndConquerInPlace2(arr, q3 + 1,     q2 - 1, endIndex, buff, comparer);
+            }
+            else
+            {   // length1 < length2
+                int q1 = (midIndex + 1 + endIndex) / 2;         // q1 is mid-point of the larger segment.  length2 > length1 > 0
+                int q2 = Algorithm.BinarySearch(arr[q1], arr, startIndex, midIndex, comparer);    // q2 is q1 partitioning element within the smaller sub-array (and q2 itself is part of the sub-array that does not move)
+                int q3 = q2 + (q1 - midIndex - 1);
+                Algorithm.BlockSwapReversal(arr, q2, midIndex, q1);
+                MergeDivideAndConquerInPlace2(arr, startIndex, q2 - 1, q3 - 1,   buff, comparer);  // note that q3 is now in its final place and no longer participates in further processing
+                MergeDivideAndConquerInPlace2(arr, q3 + 1,     q1,     endIndex, buff, comparer);
             }
         }
     }

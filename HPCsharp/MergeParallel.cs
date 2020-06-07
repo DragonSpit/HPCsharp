@@ -3,8 +3,10 @@
 // TODO: For Divide-and-Conquer parallel merge split the array on cache line boundaries to eliminate sharing of cache lines between threads.
 // TODO: Port my C++ parallel in-place merge algorithm from (https://www.drdobbs.com/parallel/parallel-in-place-merge/240008783?pgno=1) to C#,
 //       as a user requested a truly in-place version, and it would be good to see how well it performs on 6, 14, and 32-core CPUs with 2, 4, 8 memory channels.
+// TODO: Parallelize Algorithm.BlockSwapReversal(arr, q1, midIndex, q2 - 1); to use SSE/SIMD instructions and to use as few cores as necessary to use full memory bandwidth.
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using HPCsharp.ParallelAlgorithms;
 
@@ -124,6 +126,55 @@ namespace HPCsharp
                     () => { MergeInnerPar<T1, T2>(srcKeys, srcItems, p1,     q1 - 1, p2, q2 - 1, dstKeys, dstItems, p3,     comparer); },
                     () => { MergeInnerPar<T1, T2>(srcKeys, srcItems, q1 + 1, r1,     q2, r2,     dstKeys, dstItems, q3 + 1, comparer); }
                 );
+            }
+        }
+        // Merge two ranges of source array T[ l .. m, m+1 .. r ] in-place.
+        // Based on not-in-place algorithm in 3rd ed. of "Introduction to Algorithms" p. 798-802, extending it to be in-place
+        // and my Dr. Dobb's paper https://www.drdobbs.com/parallel/parallel-in-place-merge/240008783
+        public static void MergeDivideAndConquerInPlacePar<T>(T[] arr, int startIndex, int midIndex, int endIndex, IComparer<T> comparer = null, int threshold0 = 16 * 1024, int threshold1 = 16 * 1024)
+        {
+            //Console.WriteLine("merge: start = {0}, mid = {1}, end = {2}", startIndex, midIndex, endIndex);
+            int length1 = midIndex - startIndex + 1;
+            int length2 = endIndex - midIndex;
+            if (length1 >= length2)
+            {
+                if (length2 <= 0) return;                       // if the smaller segment has zero elements, then nothing to merge
+                int q1 = (startIndex + midIndex) / 2;           // q1 is mid-point of the larger segment. length1 >= length2 > 0
+                int q2 = Algorithm.BinarySearch(arr[q1], arr, midIndex + 1, endIndex, comparer);  // q2 is q1 partitioning element within the smaller sub-array (and q2 itself is part of the sub-array that does not move)
+                int q3 = q1 + (q2 - midIndex - 1);
+                BlockSwapReversalPar(arr, q1, midIndex, q2 - 1, threshold0);
+                if (arr.Length < threshold1)
+                {
+                    MergeDivideAndConquerInPlacePar(arr, startIndex, q1 - 1, q3 - 1,   comparer);
+                    MergeDivideAndConquerInPlacePar(arr, q3 + 1,     q2 - 1, endIndex, comparer);
+                }
+                else
+                {
+                    Parallel.Invoke(
+                        () => { MergeDivideAndConquerInPlacePar(arr, startIndex, q1 - 1, q3 - 1,   comparer); },   // note that q3 is now in its final place and no longer participates in further processing
+                        () => { MergeDivideAndConquerInPlacePar(arr, q3 + 1,     q2 - 1, endIndex, comparer); }
+                    );
+                }
+            }
+            else
+            {   // length1 < length2
+                if (length1 <= 0) return;                       // if the smaller segment has zero elements, then nothing to merge
+                int q1 = (midIndex + 1 + endIndex) / 2;         // q1 is mid-point of the larger segment.  length2 > length1 > 0
+                int q2 = Algorithm.BinarySearch(arr[q1], arr, startIndex, midIndex, comparer);    // q2 is q1 partitioning element within the smaller sub-array (and q2 itself is part of the sub-array that does not move)
+                int q3 = q2 + (q1 - midIndex - 1);
+                BlockSwapReversalPar(arr, q2, midIndex, q1, threshold0);
+                if (arr.Length < threshold1)
+                {
+                    MergeDivideAndConquerInPlacePar(arr, startIndex, q2 - 1, q3 - 1, comparer);
+                    MergeDivideAndConquerInPlacePar(arr, q3 + 1, q1, endIndex, comparer);
+                }
+                else
+                {
+                    Parallel.Invoke(
+                        () => { MergeDivideAndConquerInPlacePar(arr, startIndex, q2 - 1, q3 - 1,   comparer); },   // note that q3 is now in its final place and no longer participates in further processing
+                        () => { MergeDivideAndConquerInPlacePar(arr, q3 + 1,     q1,     endIndex, comparer); }
+                    );
+                }
             }
         }
 
