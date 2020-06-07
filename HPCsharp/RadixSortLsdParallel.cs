@@ -5,6 +5,8 @@
 // TODO: To speedup parallel Counting/Histogram, create a single dimension array instead of a jagged one, which will have an optimal layout within L1 cache with counts
 //       not interfering with each other.
 // TODO: Parallelize user-defined-type extraction of counts and input keys in the histogram and benchmark
+// TODO: Add handling of an input array of size zero to all sorting algorithms, where an output array of zero length is returned, if not in-place
+// TODO: In parallel LSD Radix Sort, optimize this division out by using nested loops, as division even integer is slow
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -157,7 +159,114 @@ namespace HPCsharp
 
             return inputArray;
         }
+        /// <summary>
+        /// Parallel Sort an array of signed integers using Radix Sorting algorithm (least significant digit variation - LSD)
+        /// This algorithm is stable, but not in-place.
+        /// </summary>
+        /// <param name="inputArray">array of signed long integers to be sorted</param>
+        /// <returns>sorted array of signed long integers</returns>
+        public static int[] SortRadixPar(this int[] inputArray)
+        {
+            const int bitsPerDigit = 8;
+            const uint numberOfBins = 1 << bitsPerDigit;
+            const uint numberOfDigits = (sizeof(uint) * 8 + bitsPerDigit - 1) / bitsPerDigit;
+            int d = 0;
+            var outputArray = new int[inputArray.Length];
 
+            uint[][] startOfBin = new uint[numberOfDigits][];
+            for (int i = 0; i < numberOfDigits; i++)
+                startOfBin[i] = new uint[numberOfBins];
+            bool outputArrayHasResult = false;
+
+            const uint bitMask = numberOfBins - 1;
+            const uint halfOfPowerOfTwoRadix = PowerOfTwoRadix / 2;
+            int shiftRightAmount = 0;
+
+            uint[][] count = HistogramByteComponentsPar(inputArray, 0, inputArray.Length - 1);
+
+            for (d = 0; d < numberOfDigits; d++)
+            {
+                startOfBin[d][0] = 0;
+                for (uint i = 1; i < numberOfBins; i++)
+                    startOfBin[d][i] = startOfBin[d][i - 1] + count[d][i - 1];
+            }
+
+            d = 0;
+            while (d < numberOfDigits)
+            {
+                uint[] startOfBinLoc = startOfBin[d];
+
+                if (d != 3)
+                    for (uint current = 0; current < inputArray.Length; current++)
+                        outputArray[startOfBinLoc[((uint)inputArray[current] >> shiftRightAmount) & bitMask]++] = inputArray[current];
+                else
+                    for (uint current = 0; current < inputArray.Length; current++)
+                        outputArray[startOfBinLoc[((uint)inputArray[current] >> shiftRightAmount) ^ halfOfPowerOfTwoRadix]++] = inputArray[current];
+
+                shiftRightAmount += bitsPerDigit;
+                outputArrayHasResult = !outputArrayHasResult;
+                d++;
+
+                int[] tmp = inputArray;       // swap input and output arrays
+                inputArray = outputArray;
+                outputArray = tmp;
+            }
+            return outputArrayHasResult ? outputArray : inputArray;
+        }
+        /// <summary>
+        /// Parallel Sort an array of signed integers using Radix Sorting algorithm (least significant digit variation - LSD)
+        /// This algorithm is stable, but not in-place.
+        /// </summary>
+        /// <param name="inputArray">array of signed long integers to be sorted</param>
+        /// <returns>sorted array of signed long integers</returns>
+        public static int[] SortRadixSsePar(this int[] inputArray)
+        {
+            const int bitsPerDigit = 8;
+            const uint numberOfBins = 1 << bitsPerDigit;
+            const uint numberOfDigits = (sizeof(uint) * 8 + bitsPerDigit - 1) / bitsPerDigit;
+            int d = 0;
+            var outputArray = new int[inputArray.Length];
+
+            uint[][] startOfBin = new uint[numberOfDigits][];
+            for (int i = 0; i < numberOfDigits; i++)
+                startOfBin[i] = new uint[numberOfBins];
+            bool outputArrayHasResult = false;
+
+            const uint bitMask = numberOfBins - 1;
+            const uint halfOfPowerOfTwoRadix = PowerOfTwoRadix / 2;
+            int shiftRightAmount = 0;
+
+            uint[][] count = HistogramByteComponentsSsePar(inputArray, 0, inputArray.Length - 1);
+
+            for (d = 0; d < numberOfDigits; d++)
+            {
+                startOfBin[d][0] = 0;
+                for (uint i = 1; i < numberOfBins; i++)
+                    startOfBin[d][i] = startOfBin[d][i - 1] + count[d][i - 1];
+            }
+
+            d = 0;
+            while (d < numberOfDigits)
+            {
+                uint[] startOfBinLoc = startOfBin[d];
+
+                if (d != 3)
+                    for (uint current = 0; current < inputArray.Length; current++)
+                        outputArray[startOfBinLoc[((uint)inputArray[current] >> shiftRightAmount) & bitMask]++] = inputArray[current];
+                else
+                    for (uint current = 0; current < inputArray.Length; current++)
+                        outputArray[startOfBinLoc[((uint)inputArray[current] >> shiftRightAmount) ^ halfOfPowerOfTwoRadix]++] = inputArray[current];
+
+                shiftRightAmount += bitsPerDigit;
+                outputArrayHasResult = !outputArrayHasResult;
+                d++;
+
+                int[] tmp = inputArray;       // swap input and output arrays
+                inputArray = outputArray;
+                outputArray = tmp;
+            }
+            return outputArrayHasResult ? outputArray : inputArray;
+        }
         /// <summary>
         /// Parallel Sort an array of signed long integers using Radix Sorting algorithm (least significant digit variation - LSD)
         /// This algorithm is stable, but not in-place.
@@ -333,7 +442,7 @@ namespace HPCsharp
                         count[r][b] = 0;
                 for (uint current = 0; current < inputArray.Length; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
                 {
-                    uint r = current / SortRadixParallelWorkQuanta;
+                    uint r = current / SortRadixParallelWorkQuanta;             // TODO: Optimize this division out by using nested loops, as division even integer is slow
                     count[r][ExtractDigit(inputArray[current], bitMask, shiftRightAmount)]++;
                 }
                 for (uint b = 0; b < numberOfBins; b++)     // for each bin, create startOfBin for each work item (work quanta), but relative to zero
@@ -425,6 +534,9 @@ namespace HPCsharp
             uint[] outputArray = new uint[inputArray.Length];
             bool outputArrayHasResult = false;
 
+            if (inputArray.Length == 0)
+                return outputArray;
+
             // TODO: the following calculation seems wrong whenever the division is even, as we would generate an additional work item that is empty
             //uint numWorkItems = (uint)inputArray.Length / SortRadixParallelWorkQuanta + 1;
             uint numberOfQuantas = (inputArray.Length % SortRadixParallelWorkQuanta) == 0 ? (uint)(inputArray.Length / SortRadixParallelWorkQuanta)
@@ -452,18 +564,18 @@ namespace HPCsharp
             for (int d = 0; d < numDigits; d++)
                 for (uint b = 1; b < numberOfBins; b++)     // adjust each item within each bin by the offset of previous bin and that bin's size
                 {
-                    uint sizeOfPrevBin = startOfBin[numberOfQuantas - 1][d][b - 1] + count[numberOfQuantas - 1][d][b - 1];
+                    uint startOfThisBin = startOfBin[numberOfQuantas - 1][d][b - 1] + count[numberOfQuantas - 1][d][b - 1];
                     for (uint q = 0; q < numberOfQuantas; q++)
-                        startOfBin[q][d][b] += sizeOfPrevBin;
+                        startOfBin[q][d][b] += startOfThisBin;
                 }
-            //for (uint q = 0; q < numberOfQuantas; q++)
-            //    for (int d = 0; d < numDigits; d++)
-            //    {
-            //        Console.WriteLine("q = {0}   d = {1}", q, d);
-            //        for (uint b = 0; b < numberOfBins; b++)
-            //            Console.Write("{0}, ", startOfBin[q][d][b]);
-            //        Console.WriteLine();
-            //    }
+                //for (int d = 0; d < numDigits; d++)
+                //    for (uint q = 0; q < numberOfQuantas; q++)
+                //    {
+                //        Console.WriteLine("s: q = {0}   d = {1}", q, d);
+                //        for (uint b = 0; b < numberOfBins; b++)
+                //            Console.Write("{0}, ", startOfBin[q][d][b]);
+                //        Console.WriteLine();
+                //    }
 
             // Use TPL ideas from https://docs.microsoft.com/en-us/dotnet/standard/parallel-programming/task-based-asynchronous-programming
 
@@ -493,7 +605,7 @@ namespace HPCsharp
                         uint currIndex = data.current;
                         uint qLoc = data.q;
                         uint[] startOfBinLoc = startOfBin[qLoc][digit];
-                        Console.WriteLine("current = {0}, q = {1}, bitMask = {2}, shiftRightAmount = {3}", currIndex, qLoc, data.bitMask, data.shiftRightAmount);
+                        //Console.WriteLine("current = {0}, q = {1}, bitMask = {2}, shiftRightAmount = {3}", currIndex, qLoc, data.bitMask, data.shiftRightAmount);
                         for (uint i = 0; i < SortRadixParallelWorkQuanta; i++)
                         {
                             outputArray[startOfBinLoc[(inputArray[currIndex] & data.bitMask) >> data.shiftRightAmount]++] = inputArray[currIndex];
@@ -517,7 +629,7 @@ namespace HPCsharp
                 }
 #endif
                 // The last iteration, which may not have the full parallelWorkQuanta of items to process
-                uint currentLast = (numberOfQuantas - 1) * SortRadixParallelWorkQuanta;
+                uint currentLast = numberOfQuantas > 0 ? (numberOfQuantas - 1) * SortRadixParallelWorkQuanta : 0;
                 uint numItems = (uint)inputArray.Length % SortRadixParallelWorkQuanta;
                 for (uint i = 0; i < numItems; i++)
                 {
