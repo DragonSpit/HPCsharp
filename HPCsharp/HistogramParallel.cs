@@ -228,6 +228,89 @@ namespace HPCsharp
             return countLeft;
         }
 
+        public static uint[][] HistogramByteComponentsPar(int[] inArray, Int32 l, Int32 r)
+        {
+            const int numberOfBins = 256;
+            const int numberOfDigits = sizeof(uint);
+            uint[][] countLeft = new uint[numberOfDigits][];
+            for (int i = 0; i < numberOfDigits; i++)
+                countLeft[i] = new uint[numberOfBins];
+
+            if (l > r)      // zero elements to compare
+                return countLeft;
+            if ((r - l + 1) <= ThresholdByteCount)
+            {
+                var union = new Algorithm.Int32ByteUnion();
+                for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
+                {
+                    union.integer = inArray[current];
+                    countLeft[0][union.byte0]++;
+                    countLeft[1][union.byte1]++;
+                    countLeft[2][union.byte2]++;
+                    countLeft[3][((uint)inArray[current] >> 24) ^ 128]++;
+                }
+                return countLeft;
+            }
+
+            int m = (r + l) / 2;
+
+            uint[][] countRight = new uint[numberOfDigits][];
+            for (int i = 0; i < numberOfDigits; i++)
+                countRight[i] = new uint[numberOfBins];
+
+            Parallel.Invoke(
+                () => { countLeft  = HistogramByteComponentsPar(inArray, l,     m); },
+                () => { countRight = HistogramByteComponentsPar(inArray, m + 1, r); }
+            );
+            // Combine left and right results
+            for (int i = 0; i < numberOfDigits; i++)
+                for (int j = 0; j < numberOfBins; j++)
+                    countLeft[i][j] += countRight[i][j];
+
+            return countLeft;
+        }
+
+        public static uint[][] HistogramByteComponentsSsePar(int[] inArray, Int32 l, Int32 r)
+        {
+            const int numberOfBins = 256;
+            const int numberOfDigits = sizeof(uint);
+            uint[][] countLeft = new uint[numberOfDigits][];
+            for (int i = 0; i < numberOfDigits; i++)
+                countLeft[i] = new uint[numberOfBins];
+
+            if (l > r)      // zero elements to compare
+                return countLeft;
+            if ((r - l + 1) <= ThresholdByteCount)
+            {
+                var union = new Algorithm.Int32ByteUnion();
+                for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
+                {
+                    union.integer = inArray[current];
+                    countLeft[0][union.byte0]++;
+                    countLeft[1][union.byte1]++;
+                    countLeft[2][union.byte2]++;
+                    countLeft[3][((uint)inArray[current] >> 24) ^ 128]++;
+                }
+                return countLeft;
+            }
+
+            int m = (r + l) / 2;
+
+            uint[][] countRight = new uint[numberOfDigits][];
+            for (int i = 0; i < numberOfDigits; i++)
+                countRight[i] = new uint[numberOfBins];
+
+            Parallel.Invoke(
+                () => { countLeft  = HistogramByteComponentsSsePar(inArray, l,     m); },
+                () => { countRight = HistogramByteComponentsSsePar(inArray, m + 1, r); }
+            );
+            // Combine left and right results
+            for (int i = 0; i < numberOfDigits; i++)
+                Addition.AddToSse(countLeft[i], countRight[i]);
+
+            return countLeft;
+        }
+
         public static uint[][] HistogramByteComponentsPar(ulong[] inArray, Int32 l, Int32 r)
         {
             const int numberOfBins = 256;
@@ -355,8 +438,8 @@ namespace HPCsharp
                 countRight[i] = new uint[numberOfBins];
 
             Parallel.Invoke(
-                () => { countLeft  = HistogramByteComponentsPar(inArray, l,     m); },
-                () => { countRight = HistogramByteComponentsPar(inArray, m + 1, r); }
+                () => { countLeft  = HistogramByteComponentsSsePar(inArray, l,     m); },
+                () => { countRight = HistogramByteComponentsSsePar(inArray, m + 1, r); }
             );
             // Combine left and right results
             for (int i = 0; i < numberOfDigits; i++)
