@@ -1,5 +1,6 @@
 ﻿// TODO: Implement a cache-aligned divide-and-conquer split. This is useful and fundamental when writing to cache lines, otherwise false sharing causes performance, and cache line boundary
 //       divide-and-conquer is needed to improve consistency of performance - i.e. reduce veriability in performance. However, for algorithms such as .Sum() which only read from memory, this is not needed.
+// TODO: Either figure out how to control the degree of parallelism or remove it from the interface since currently it only works for all cores or one.
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -26,7 +27,7 @@ namespace HPCsharp
         /// baseCase function is on (start, length) interface and not (left, right) because the pulic divide-and-conquer function has that interface
         internal static T DivideAndConquerLR<T>(this T[] arrayToProcess, int left, int right, Func<T[], int, int, T> baseCase, Func<T, T, T> reduce, int threshold = 16 * 1024)
         {
-            T resultLeft = default(T);
+            T resultLeft = default;
 
             if (left > right)
                 return resultLeft;
@@ -35,7 +36,7 @@ namespace HPCsharp
 
             int mid = (right + left) / 2;
 
-            T resultRight = default(T);
+            T resultRight = default;
 
             resultLeft  = DivideAndConquerLR(arrayToProcess, left,    mid,   baseCase, reduce, threshold);
             resultRight = DivideAndConquerLR(arrayToProcess, mid + 1, right, baseCase, reduce, threshold);
@@ -99,7 +100,7 @@ namespace HPCsharp
         internal static T DivideAndConquerParLR<T>(this T[] arrayToProcess, int left, int right, Func<T[], int, int, T> baseCase, Func<T, T, T> reduce, int thresholdPar = 16 * 1024,
                                                    int degreeOfParallelism = 0)
         {
-            T resultLeft = default(T);
+            T resultLeft = default;
 
             if (left > right)
                 return resultLeft;
@@ -108,7 +109,7 @@ namespace HPCsharp
 
             int mid = (right + left) / 2;
 
-            T resultRight = default(T);
+            T resultRight = default;
 
             if (degreeOfParallelism == 1)
             {

@@ -858,7 +858,7 @@ namespace HPCsharp
                             if ((f2i.uinteger & 0x80000000U) == 0)
                                 digit = (f2i.uinteger >> shiftRightAmount) ^ halfOfPowerOfTwoRadix;     // positive values => flip just the sign bit
                             else
-                                digit = (f2i.uinteger ^ 0xFFFFFFFFU) >> shiftRightAmount;                // negative values => flip the whole value including the sign bit
+                                digit = (f2i.uinteger ^ 0xFFFFFFFFU) >> shiftRightAmount;               // negative values => flip the whole value including the sign bit
                             if (endOfBin[digit] != _current)
                             {
                                 float temp = a[_current];            // inlining Swap() increased performance about 5-10%
