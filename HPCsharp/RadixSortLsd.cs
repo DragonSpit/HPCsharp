@@ -62,6 +62,8 @@
 // TODO: Implement LSD Radix sort for the larger memory array support of C# that I found on StackOverflow.
 // TODO: Implement Rick's request on HPCsharp github repo for support of double[] keys, separate from the array being sorted, also with swapped arguments
 //       to match Array.Sort(array1, array2) interface. These functions also need to be updated to the latest highest performance versions.
+// TODO: Implement ascending/descending options for all LSD Radix Sort algorithms, like is done for the byte[] case, as this can be done without any performance penalties. Show that
+//       Array.Sort has performance penalties due to the need to create a lambda function to reverse the comparison. 
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -603,6 +605,18 @@ namespace HPCsharp
                     }
                     break;
             }
+        }
+        /// <summary>
+        /// Sort an array of integers using Radix Sorting algorithm (least significant digit variation - LSD)
+        /// This algorithm is not in-place. This algorithm is stable.
+        /// </summary>
+        /// <param name="inputArray">array of integers to be sorted</param>
+        /// <returns>sorted array of integers</returns>
+        public static int[] SortRadix2(this int[] inputArray, bool ascending = true)
+        {
+            var sortedArray = inputArray.SortRadix();
+            sortedArray.Reversal(0, sortedArray.Length - 1);
+            return sortedArray;
         }
         /// <summary>
         /// Sort an array of integers using Radix Sorting algorithm (least significant digit variation - LSD)
