@@ -3,6 +3,12 @@
 // TODO: Parallelize block-swap algorithms to see if there is a benefit, now that unit testing and benchmarking in C# is in place
 //       Try simple things first like scalar parallelism of reversal algorithms middle stage of reversal by running the two portions reversal
 //       in parallel to see if it speeds up at all.
+// TODO: Consider implementing in-place array rotation, such as possibly this (https://www.geeksforgeeks.org/block-swap-algorithm-for-array-rotation/)
+//       and do a parallel version as well.
+// TODO: Add another termination condition to Gries-Mills block swap algorithm of one of the array portions being a single element, and handle that case
+//       with a simple array rotation (if it's worthwhile).
+// TODO: Combine Reversal and Gries-Mills algorithms, to eliminate rotation of the smaller half of the array, when it pays off, since now the other
+//       half has to be "fixed". There may be certain ratios between halves that work well using one algorithm versus another.
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -23,13 +29,21 @@ namespace HPCsharp
             if (!reverse)
             {
                 while (length-- > 0)
-                    Swap(array, indexA++, indexB++);
+                {
+                    T temp = array[indexA];                 // inlining Swap() increases performance by 25%
+                    array[indexA++] = array[indexB];
+                    array[indexB++] = temp;
+                }
             }
             else
             {
                 int currIndexB = indexB + length - 1;
                 while (length-- > 0)
-                    Swap(array, indexA++, currIndexB--);
+                {
+                    T temp = array[indexA];                 // inlining Swap() increases performance by 25%
+                    array[indexA++] = array[currIndexB];
+                    array[currIndexB--] = temp;
+                }
             }
         }
 
@@ -81,6 +95,7 @@ namespace HPCsharp
             if (rotdist == 0 || rotdist == n) return;
             int p, i = p = rotdist;
             int j = n - p;
+            p += l;
             while (i != j)
             {
                 if (i > j)
