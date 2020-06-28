@@ -18,6 +18,8 @@
 // TODO: Parallelize List.ToList() copy and compare performance to List<Int32> copy = new List<Int32>(original); constructor copying. Can List be constructed from an Array? Is it faster
 //       to copy a List.ToArray() and then Array.ToList(), if such operations exist?
 // TODO: See if List.CopyTo() can be implemented faster using the same methodology.
+// TODO: Document that HPCsharp.ToArray() is more flexible for List and Array than C# standard functions, allowing developers to take a section of the source List
+//       or an array and create a destination Array out of it in one step, and in parallel. Document in Readme and in the Blog.
 
 // Performance details:
 // Notes: When benchmarking "not pageInDstArray" you will see occasionally (and somewhat regularly) performance spike to a much higher level. Theory: these data points are where
