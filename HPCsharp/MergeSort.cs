@@ -19,6 +19,8 @@
 //       would provide. It is also generic and in-place, which is enormously useful (and already implemented). This definitely needs to be tested and optimized
 //       on 14-core and 32-core CPUs.
 // TODO: Fix inconsistent parallel threshold settings
+// TODO: Fix List sorting that is currently hidden because it's not truly in-place. Either make it truly in-place or call it not-in-place
+// TODO: See if the experimental hidden algorithm is worthwhile
 using System;
 using System.Collections.Generic;
 using System.Xml.Schema;
@@ -206,7 +208,7 @@ namespace HPCsharp
         /// <param name="length">number of elements starting with startIndex to be sorted</param>
         /// <param name="comparer">comparer used to compare two List elements of type T</param>
         /// <returns>returns an array of length specified</returns>
-        static public void SortMergeInPlace<T>(ref List<T> list, int startIndex, int length, IComparer<T> comparer = null)
+        static private void SortMergeInPlace<T>(ref List<T> list, int startIndex, int length, IComparer<T> comparer = null)
         {
             //T[] srcCopy = list.ToArrayPar();
             //srcCopy.SortMergeInPlace(startIndex, length, dst, comparer);
@@ -220,7 +222,7 @@ namespace HPCsharp
         /// <typeparam name="T">data type of each List element</typeparam>
         /// <param name="list">source/destination List</param>
         /// <param name="comparer">method to compare List elements</param>
-        public static void SortMergeInPlace<T>(ref List<T> list, IComparer<T> comparer = null)
+        private static void SortMergeInPlace<T>(ref List<T> list, IComparer<T> comparer = null)
         {
 #if true
             T[] srcCopy = list.ToArrayPar();
@@ -241,14 +243,14 @@ namespace HPCsharp
 #endif
         }
 
-        public static void MergeSortInPlace<T>(T[] arr, IComparer<T> comparer = null)
+        private static void MergeSortInPlace<T>(T[] arr, IComparer<T> comparer = null)
         {
             MergeSortInPlace<T>(arr, 0, arr.Length, comparer);
         }
 
         // Shows how simple a sequential algorithm is
         // Listing One
-        public static void MergeSortInPlace<T>(T[] arr, int startIndex, int length, IComparer<T> comparer = null)
+        private static void MergeSortInPlace<T>(T[] arr, int startIndex, int length, IComparer<T> comparer = null)
         {
             if (length <= 1) return;
             int endIndex = startIndex + length;
@@ -258,13 +260,13 @@ namespace HPCsharp
             MergeDivideAndConquerInPlace(arr, startIndex, midIndex, endIndex, comparer);     // merge the results
         }
 
-        public static void MergeSortInPlaceHybrid2<T>(T[] arr, IComparer<T> comparer = null, int buffLength = 1024, int threshold = 32)
+        private static void MergeSortInPlaceHybrid2<T>(T[] arr, IComparer<T> comparer = null, int buffLength = 1024, int threshold = 32)
         {
             T[] buff = new T[buffLength];
             MergeSortInPlaceHybridInner2<T>(arr, 0, arr.Length - 1, buff, comparer, threshold);
         }
 
-        public static void MergeSortInPlaceHybrid2<T>(T[] arr, int startIndex, int length, IComparer<T> comparer = null, int buffLength = 1024, int threshold = 32)
+        private static void MergeSortInPlaceHybrid2<T>(T[] arr, int startIndex, int length, IComparer<T> comparer = null, int buffLength = 1024, int threshold = 32)
         {
             T[] buff = new T[buffLength];
             MergeSortInPlaceHybridInner2<T>(arr, startIndex, length - 1, buff, comparer, threshold);
