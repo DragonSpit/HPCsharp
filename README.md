@@ -183,30 +183,29 @@ Faster than Linq.OrderBy and Linq.OrderBy.AsParallel
 
 ## Merge Sort
 
-Parallel Merge Sort uses multiple CPU cores to accelerate performance. On a 4-core laptop,
-sorting an array of Int32's, performance in Millions of Int32's per second is:
-
-*Algorithm*|*Collection*|*Distribution*|*vs .Sort*|*vs Linq*|*vs Linq.AsParallel*|*MegaInts/sec*
---- | --- | --- | --- | --- | --- | ---
-Parallel Merge Sort|Array|Random|3X|12X|5X|25
-Parallel Merge Sort|Array|Presorted|2X|22X|13X|110
-Parallel Merge Sort|Array|Constant|2X|15X|9X|74
-
+Parallel Merge Sort uses multiple CPU cores to accelerate performance.
 On variety of machines, sorting an array of Int32's, performance in Millions of Int32's per second is:
 
 *Algorithm*|*Random*|*Presorted*|*Constant*|*Description*
 --- | --- | --- | --- | ---
 .Sort |10|70|32| single-core on 6-core laptop
-.Sort |||| single-core on 14-core Xeon
-.Sort |||| single-core on 32-core AMD EPYC
-Linq | | | | single-core
-Linq.AsParallel | | | | 6-core laptop
+.Sort |13|105|53| single-core on 14-core Xeon
+.Sort | | | | single-core on 32-core AMD EPYC
+Linq |2.1|6.3|6.3| single-core on 6 core laptop
+Linq |2.3|7.7|8.0| single-core on 14 core laptop
+Linq | | | | single-core on 32 core laptop
+HPC# .SortMerge |6|19|18| single-core on 6 core laptop
+HPC# .SortMerge |7|24|22| single-core on 14 core laptop
+HPC# .SortMerge | | | | single-core on 32 core laptop
+Linq.AsParallel |6.5|13|13| 6-core laptop
+Linq.AsParallel |8|14|14| 14-core Xeon
+Linq.AsParallel | | | | 32-core AMD EPYC
 HPC# .SortMergePar |56|220|132| 6-core laptop
 HPC# .SortMergePar |77|412|260| 14-core Intel Xeon
 HPC# .SortMergePar |104|428|286| 32-core AMD EPYC
 
-Parallel Merge Sort is not stable, just like Array.Sort. Faster than Array.Sort and List.Sort across all distributions.
-Substantially faster than Linq.OrderBy and Linq.OrderBy.AsParallel
+Parallel Merge Sort is not stable, just like Array.Sort. Faster than Array.Sort and List.Sort across all distributions, and
+substantially faster than Linq.OrderBy and Linq.OrderBy.AsParallel
 
 **_28-core (56-threads) AWS c5.18xlarge_**
 
