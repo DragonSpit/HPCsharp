@@ -203,6 +203,8 @@ Parallel Merge Sort uses multiple CPU cores to accelerate performance, which sca
 cores and the number of memory channels.
 On variety of machines, sorting an array of Int32's, performance in Millions of Int32's per second is:
 
+*Algorithm*|*Random*|*Presorted*|*Constant*|*Description*
+--- | --- | --- | --- | ---
 Linq.AsParallel |6.5|13|13| 6-core laptop
 Linq.AsParallel |8|14|14| 14-core Xeon
 Linq.AsParallel | | | | 32-core AMD EPYC
