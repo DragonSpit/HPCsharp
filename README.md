@@ -183,8 +183,9 @@ Faster than Linq.OrderBy and Linq.OrderBy.AsParallel
 
 ## Merge Sort
 
-Parallel Merge Sort uses multiple CPU cores to accelerate performance.
-On variety of machines, sorting an array of Int32's, performance in Millions of Int32's per second is:
+Merge Sort provides a performance boost comparing with Linq.OrderBy when running on a single core,
+but is not competitive with Array.Sort().
+On a single core on variety of machines, sorting an array of Int32's, performance in Millions of Int32's per second is:
 
 *Algorithm*|*Random*|*Presorted*|*Constant*|*Description*
 --- | --- | --- | --- | ---
@@ -197,6 +198,11 @@ Linq | | | | single-core on 32 core laptop
 HPC# .SortMerge |6|19|18| single-core on 6 core laptop
 HPC# .SortMerge |7|24|22| single-core on 14 core laptop
 HPC# .SortMerge | | | | single-core on 32 core laptop
+
+Parallel Merge Sort uses multiple CPU cores to accelerate performance, which scales well with the number of
+cores and the number of memory channels.
+On variety of machines, sorting an array of Int32's, performance in Millions of Int32's per second is:
+
 Linq.AsParallel |6.5|13|13| 6-core laptop
 Linq.AsParallel |8|14|14| 14-core Xeon
 Linq.AsParallel | | | | 32-core AMD EPYC
@@ -204,8 +210,9 @@ HPC# .SortMergePar |56|220|132| 6-core laptop
 HPC# .SortMergePar |77|412|260| 14-core Intel Xeon
 HPC# .SortMergePar |104|428|286| 32-core AMD EPYC
 
-Parallel Merge Sort is not stable, just like Array.Sort. Faster than Array.Sort and List.Sort across all distributions, and
-substantially faster than Linq.OrderBy and Linq.OrderBy.AsParallel
+HPCsharp's Parallel Merge Sort is not stable, just like Array.Sort. Faster than Array.Sort and List.Sort across all distributions, and
+substantially faster than Linq.OrderBy and Linq.OrderBy.AsParallel, which doesn't scale well as the number of cores increases. HPCsharp'safer
+Parallel Merge Sort scales very well with the number of cores, for all distributions.
 
 **_28-core (56-threads) AWS c5.18xlarge_**
 
