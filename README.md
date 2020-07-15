@@ -212,7 +212,8 @@ HPC# .SortMergePar |56|220|132| 6-core laptop
 HPC# .SortMergePar |77|412|260| 14-core Intel Xeon
 HPC# .SortMergePar |293|893|760| 32-core AMD EPYC
 
-HPCsharp's Parallel Merge Sort is not stable, just like Array.Sort. Faster than Array.Sort and List.Sort across all distributions, and
+HPCsharp's Parallel Merge Sort is not stable, just like Array.Sort.
+The version benchmarked above is the not-in-place one. Faster than Array.Sort and List.Sort across all distributions, and
 substantially faster than Linq.OrderBy and Linq.OrderBy.AsParallel, which doesn't scale well as the number of cores increases. HPCsharp's
 Parallel Merge Sort scales very well with the number of cores, for all distributions providing higher performance than Array.Sort() and
 Linq.OrderBy and Linq.OrderBy.AsParallel.
