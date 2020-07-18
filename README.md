@@ -189,7 +189,7 @@ On a single core on variety of machines, sorting an array of Int32's, performanc
 
 *Algorithm*|*Random*|*Presorted*|*Constant*|*Description*
 --- | --- | --- | --- | ---
-.Sort |10|70|32| single-core on 6-core laptop
+.Sort |11|70|32| single-core on 6-core laptop
 .Sort |13|105|53| single-core on 14-core Xeon
 .Sort |9|58|46| single-core on 32-core AMD EPYC
 Linq |2.1|6.3|6.3| single-core on 6 core laptop
@@ -208,7 +208,7 @@ On variety of machines, sorting an array of Int32's, performance in Millions of 
 Linq.AsParallel |6.5|13|13| 6-core laptop
 Linq.AsParallel |8|14|14| 14-core Xeon
 Linq.AsParallel | | | | 32-core AMD EPYC
-HPC# .SortMergePar |56|220|132| 6-core laptop
+HPC# .SortMergePar |66|230|154| 6-core laptop
 HPC# .SortMergePar |77|412|260| 14-core Intel Xeon
 HPC# .SortMergePar |293|893|760| 32-core AMD EPYC
 
