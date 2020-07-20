@@ -4,6 +4,8 @@
 // TODO: Port my C++ parallel in-place merge algorithm from (https://www.drdobbs.com/parallel/parallel-in-place-merge/240008783?pgno=1) to C#,
 //       as a user requested a truly in-place version, and it would be good to see how well it performs on 6, 14, and 32-core CPUs with 2, 4, 8 memory channels.
 // TODO: Parallelize Algorithm.BlockSwapReversal(arr, q1, midIndex, q2 - 1); to use SSE/SIMD instructions and to use as few cores as necessary to use full memory bandwidth.
+// TODO: Benchmark in-place versus not-in-place Merge and parallel Merge. Develop an adaptive in-place/not-in-place Merge and Parallel Merge if there is a large performance difference,
+//       and use it inside Parallel Merge Sort and serial Merge Sort
 using System;
 using System.Collections.Generic;
 using System.Linq;

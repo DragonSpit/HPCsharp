@@ -8,7 +8,7 @@
     <Description>Parallel high performance cross-platform C#/.NET algorithms. 20+ algorithms with familiar interfaces and examples. Multi-core and data parallel (SIMD/SSE). Open source and free. See project Readme, blog, and videos...</Description>
     <Copyright>© 2018 FooState</Copyright>
     <PackageLicenseUrl>https://github.com/DragonSpit/HPCsharp/blob/master/LICENSE</PackageLicenseUrl>
-    <PackageReleaseNotes>Improved performance of in-place merge and in-place merge sort. Implemented in-place merge sort to use not-in-place algorithm if it's able to allocate memory for a work buffer, and true in-place, which is slower, when it's not able to allocate a work buffer. Fixed a bug in Gries-Mills Block Swap algorithm for when starting index is non-zero.</PackageReleaseNotes>
+    <PackageReleaseNotes>Improved Parallel Merge Sort interfaces to be more consistent. Added adaptive in-place version, which uses the not-in-place faster version if it's able to allocate a working array, and a purely in-place when it can't - similar to how C++ STL algorithms work. Pure in-place Parallel Merge Sort is also available. Improved performance also, which scales well on 14-core and 32-core: see Readme.</PackageReleaseNotes>
     <PackageId>HPCsharp</PackageId>
     <PackageTags>high perfromance algorithms, C#, high performance, high performance computing, HPC, algorithm, algorithms, Linq, parallel, parallel algorithm</PackageTags>
     <PackageIconUrl>https://foostate.com/images/default_lib_icon_64.png</PackageIconUrl>
@@ -17,9 +17,9 @@
     <PackageProjectUrl>https://github.com/DragonSpit/HPCsharp</PackageProjectUrl>
     <RepositoryUrl>https://github.com/DragonSpit/HPCsharp</RepositoryUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <AssemblyVersion>3.12.2.0</AssemblyVersion>
-    <FileVersion>3.12.2.0</FileVersion>
-    <Version>3.12.2</Version>
+    <AssemblyVersion>3.12.3.0</AssemblyVersion>
+    <FileVersion>3.12.3.0</FileVersion>
+    <Version>3.12.3</Version>
     <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
