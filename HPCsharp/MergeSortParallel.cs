@@ -28,6 +28,10 @@
 //       for not-in-place version. This idea may provide 25% performance improvement, as seen from benchmarks when memory allocator re-uses the array.
 // TODO: See if threshold for Insertion Sort can be removed, since .Sort() already uses it and has its own threshold internally for it.
 // TODO: Eliminate copy operation in the versions of Parallel Merge sort where the startIndex and length are specified, to reduce the memory footprint.
+// TODO: Improve efficiency and memory usage size of the Adaptive Merge Sort for a sub-array by allocating the destination of the size of the sub-array, and for
+//       the source sub-array and parallel copying the source. Determine when it is advantageous versus creating the destination array that is as big as the source array,
+//       for the not-in-place part of the algorithm. It would mean two smaller allocations, where both need to succeed to be able to proceed.
+// TODO: Figure out why in-place Merge Sort (pure) uses such a large parallel threshold. This seems like a really large threshold, to where currently parallel version will never happen
 
 using System;
 using System.Collections.Generic;
@@ -191,7 +195,7 @@ namespace HPCsharp
         /// <typeparam name="T">data type of each array element</typeparam>
         /// <param name="src">source array</param>
         /// <param name="comparer">method to compare array elements</param>
-        /// <param name ="parallelThreshold">arrays larger than this value will be sorted using multiple cores</param>
+        /// <param name="parallelThreshold">arrays larger than this value will be sorted using multiple cores</param>
         /// <returns>returns a newly allocated sorted array</returns>
         public static T[] SortMergePar<T>(this T[] src, IComparer<T> comparer = null, Int32 parallelThreshold = 24 * 1024)
         {
@@ -210,7 +214,7 @@ namespace HPCsharp
         /// <param name="startIndex">index within the src array where sorting starts</param>
         /// <param name="length">number of elements starting with startIndex to be sorted</param>
         /// <param name="comparer">comparer used to compare two array elements of type T</param>
-        /// <param name ="parallelThreshold">arrays larger than this value will be sorted using multiple cores</param>
+        /// <param name="parallelThreshold">arrays larger than this value will be sorted using multiple cores</param>
         /// <returns>returns a sorted array of length specified</returns>
         static public T[] SortMergePar<T>(this T[] src, int startIndex, int length, IComparer<T> comparer = null, Int32 parallelThreshold = 24 * 1024)
         {
@@ -231,7 +235,7 @@ namespace HPCsharp
         /// <typeparam name="T">data type of each array element</typeparam>
         /// <param name="src">source array</param>
         /// <param name="comparer">method to compare array elements</param>
-        /// <param name ="parallelThreshold">arrays larger than this value will be sorted using multiple cores</param>
+        /// <param name="parallelThreshold">arrays larger than this value will be sorted using multiple cores</param>
         /// <returns>returns a sorted array of length specified</returns>
         public static T[] SortMergeStablePar<T>(this T[] src, IComparer<T> comparer = null, Int32 parallelThreshold = 24 * 1024)
         {
@@ -250,12 +254,12 @@ namespace HPCsharp
         /// <param name="startIndex">index within the src array where sorting starts</param>
         /// <param name="length">number of elements starting with startIndex to be sorted</param>
         /// <param name="comparer">comparer used to compare two array elements of type T</param>
-        /// <param name ="parallelThreshold">arrays larger than this value will be sorted using multiple cores</param>
+        /// <param name="parallelThreshold">arrays larger than this value will be sorted using multiple cores</param>
         /// <returns>returns an array of length specified</returns>
         static public T[] SortMergeStablePar<T>(this T[] src, int startIndex, int length, IComparer<T> comparer = null, Int32 parallelThreshold = 8 * 1024)
         {
             T[] srcTrimmed = new T[length];
-            T[] dst = new T[length];
+            T[] dst        = new T[length];
             if ((parallelThreshold * Environment.ProcessorCount) < src.Length)
                 parallelThreshold = src.Length / Environment.ProcessorCount;
 
@@ -265,33 +269,6 @@ namespace HPCsharp
             return dst;
         }
         /// <summary>
-        /// Adaptive in-place Parallel Merge Sort. Takes a range of the src array, and sorts just that range.
-        /// If memory is available, allocates a temporary array of the same size as the src array, and uses a faster not-in-place Merge Sort.
-        /// Otherwise, uses a purely in-place but slower Parallel Merge Sort.
-        /// </summary>
-        /// <typeparam name="T">array of type T</typeparam>
-        /// <param name="src">source array</param>
-        /// <param name="startIndex">index within the src array where sorting starts</param>
-        /// <param name="length">number of elements starting with startIndex to be sorted</param>
-        /// <param name="comparer">comparer used to compare two array elements of type T</param>
-        /// <param name ="parallelThreshold">arrays larger than this value will be sorted using multiple cores</param>
-        /// <returns>returns an array of length specified</returns>
-        static public void SortMergeInPlacePar<T>(this T[] src, int startIndex, int length, IComparer<T> comparer = null, Int32 parallelThreshold = 24 * 1024)
-        {
-            try
-            {
-                T[] dst = new T[src.Length];
-                if ((parallelThreshold * Environment.ProcessorCount) < src.Length)
-                    parallelThreshold = src.Length / Environment.ProcessorCount;
-
-                src.SortMergeInnerPar<T>(startIndex, startIndex + length - 1, dst, false, comparer, parallelThreshold);
-            }
-            catch (System.OutOfMemoryException)
-            {
-                src.SortMergeInPlacePureInnerPar<T>(startIndex, startIndex + length - 1, comparer, parallelThreshold);
-            }
-        }
-        /// <summary>
         /// Adaptive in-place Parallel Merge Sort.
         /// If memory is available, allocates a temporary array of the same size as the src array, and uses a faster not-in-place Merge Sort.
         /// Otherwise, uses a purely in-place but slower Parallel Merge Sort.
@@ -299,7 +276,7 @@ namespace HPCsharp
         /// <typeparam name="T">array of type T</typeparam>
         /// <param name="src">source array</param>
         /// <param name="comparer">comparer used to compare two array elements of type T</param>
-        /// <param name ="parallelThreshold">arrays larger than this value will be sorted using multiple cores</param>
+        /// <param name="parallelThreshold">arrays larger than this value will be sorted using multiple cores</param>
         static public void SortMergeInPlacePar<T>(this T[] src, IComparer<T> comparer = null, Int32 parallelThreshold = 24 * 1024)
         {
             try
@@ -316,27 +293,51 @@ namespace HPCsharp
             }
         }
         /// <summary>
-        /// Purely in-place Parallel Merge Sort, but not an in-place algorithm. Takes a range of the src array, and sorts just that range.
-        /// Allocates a temporary array of the same size as the src array.
-        /// </summary>
-        /// <typeparam name="T">array of type T</typeparam>
-        /// <param name="src">source array</param>
-        /// <param name="comparer">comparer used to compare two array elements of type T</param>
-        /// <param name ="parallelThreshold">arrays larger than this value will be sorted using multiple cores</param>
-        public static void SortMergeInPlacePurePar<T>(this T[] src, IComparer<T> comparer = null, int parallelThreshold = 16 * 1024)
-        {
-            SortMergeInPlacePureInnerPar<T>(src, 0, src.Length - 1, comparer, parallelThreshold);
-        }
-        /// <summary>
-        /// Purely in-place Parallel Merge Sort, but not an in-place algorithm. Takes a range of the src array, and sorts just that range.
-        /// Allocates a temporary array of the same size as the src array.
+        /// Adaptive in-place Parallel Merge Sort. Takes a range of the src array, and sorts just that range.
+        /// If memory is available, allocates a temporary array of the same size as the src array, and uses a faster not-in-place Merge Sort.
+        /// Otherwise, uses a purely in-place but slower Parallel Merge Sort.
         /// </summary>
         /// <typeparam name="T">array of type T</typeparam>
         /// <param name="src">source array</param>
         /// <param name="startIndex">index within the src array where sorting starts</param>
         /// <param name="length">number of elements starting with startIndex to be sorted</param>
         /// <param name="comparer">comparer used to compare two array elements of type T</param>
-        /// <param name ="parallelThreshold">arrays larger than this value will be sorted using multiple cores</param>
+        /// <param name="parallelThreshold">arrays larger than this value will be sorted using multiple cores</param>
+        static public void SortMergeInPlacePar<T>(this T[] src, int startIndex, int length, IComparer<T> comparer = null, Int32 parallelThreshold = 24 * 1024)
+        {
+            try
+            {
+                T[] dst = new T[src.Length];
+                if ((parallelThreshold * Environment.ProcessorCount) < src.Length)
+                    parallelThreshold = src.Length / Environment.ProcessorCount;
+
+                src.SortMergeInnerPar<T>(startIndex, startIndex + length - 1, dst, false, comparer, parallelThreshold);
+            }
+            catch (System.OutOfMemoryException)
+            {
+                src.SortMergeInPlacePureInnerPar<T>(startIndex, startIndex + length - 1, comparer, parallelThreshold);
+            }
+        }
+        /// <summary>
+        /// Purely in-place Parallel Merge Sort, but not an in-place algorithm. Takes a range of the src array, and sorts just that range.
+        /// </summary>
+        /// <typeparam name="T">array of type T</typeparam>
+        /// <param name="src">source array</param>
+        /// <param name="comparer">comparer used to compare two array elements of type T</param>
+        /// <param name="parallelThreshold">arrays larger than this value will be sorted using multiple cores</param>
+        public static void SortMergeInPlacePurePar<T>(this T[] src, IComparer<T> comparer = null, int parallelThreshold = 16 * 1024)
+        {
+            SortMergeInPlacePureInnerPar<T>(src, 0, src.Length - 1, comparer, parallelThreshold);
+        }
+        /// <summary>
+        /// Purely in-place Parallel Merge Sort, but not an in-place algorithm. Takes a range of the src array, and sorts just that range.
+        /// </summary>
+        /// <typeparam name="T">array of type T</typeparam>
+        /// <param name="src">source array</param>
+        /// <param name="startIndex">index within the src array where sorting starts</param>
+        /// <param name="length">number of elements starting with startIndex to be sorted</param>
+        /// <param name="comparer">comparer used to compare two array elements of type T</param>
+        /// <param name="parallelThreshold">arrays larger than this value will be sorted using multiple cores</param>
         public static void SortMergeInPlacePurePar<T>(this T[] src, int startIndex, int length, IComparer<T> comparer = null, int parallelThreshold = 16 * 1024)
         {
             SortMergeInPlacePureInnerPar<T>(src, startIndex, length - 1, comparer, parallelThreshold);
@@ -357,6 +358,7 @@ namespace HPCsharp
                 () => { SortMergeInPlacePureInnerPar<T>(src, startIndex,   midIndex, comparer, parallelThreshold); },  // recursive call left  half
                 () => { SortMergeInPlacePureInnerPar<T>(src, midIndex + 1, endIndex, comparer, parallelThreshold); }   // recursive call right half
             );
+            // TODO: This seems like a really large threshold, to where currently parallel version will never happen
             MergeDivideAndConquerInPlacePar(src, startIndex, midIndex, endIndex, comparer, 16 * 1024 * 1024, 1024 * 1024 * 1024);     // merge the results
         }
         /// <summary>
@@ -368,7 +370,7 @@ namespace HPCsharp
         /// <param name="keys">source/destination array</param>
         /// <param name="items">array of items to be sorted by keys</param>
         /// <param name="comparer">method to compare keys</param>
-        /// <param name ="parallelThreshold">arrays larger than this value will be sorted using multiple cores</param>
+        /// <param name="parallelThreshold">arrays larger than this value will be sorted using multiple cores</param>
         public static void SortMergeInPlacePar<T1, T2>(this T1[] keys, T2[] items, IComparer<T1> comparer = null, Int32 parallelThreshold = 24 * 1024)
         {
             T1[] dstKeys  = new T1[ keys.Length];
@@ -380,7 +382,7 @@ namespace HPCsharp
         }
         /// <summary>
         /// In-place interface Parallel Merge Sort. Takes a range of the src array, and sorts just that range.
-        /// Allocates a temporary array of the same size as the src array.
+        /// Allocates a temporary array of the same size as the src array for keys and items.
         /// </summary>
         /// <typeparam name="T1">type for keys array</typeparam>
         /// <typeparam name="T2">type for items array</typeparam>
@@ -389,7 +391,7 @@ namespace HPCsharp
         /// <param name="startIndex">index within the src array where sorting starts</param>
         /// <param name="length">number of elements starting with startIndex to be sorted</param>
         /// <param name="comparer">comparer used to compare two array elements of type T</param>
-        /// <param name ="parallelThreshold">arrays larger than this value will be sorted using multiple cores</param>
+        /// <param name="parallelThreshold">arrays larger than this value will be sorted using multiple cores</param>
         static public void SortMergeInPlacePar<T1, T2>(this T1[] keys, T2[] items, int startIndex, int length, IComparer<T1> comparer = null, Int32 parallelThreshold = 24 * 1024)
         {
             T1[] dstKeys  = new T1[ keys.Length];
@@ -400,30 +402,13 @@ namespace HPCsharp
             SortMergeInnerPar<T1, T2>(keys, items, startIndex, startIndex + length - 1, dstKeys, dstItems, false, comparer, parallelThreshold);
         }
         /// <summary>
-        /// In-place interface Parallel Merge Sort (stable). Takes a range of the src array, and sorts just that range.
-        /// Allocates a temporary array of the same size as the src array.
-        /// </summary>
-        /// <typeparam name="T">array of type T</typeparam>
-        /// <param name="array">source/destination array</param>
-        /// <param name="startIndex">index within the src array where sorting starts</param>
-        /// <param name="length">number of elements starting with startIndex to be sorted</param>
-        /// <param name="comparer">comparer used to compare two array elements of type T</param>
-        /// <returns>returns an array of length specified</returns>
-        static public void SortMergeInPlaceStablePar<T>(this T[] array, int startIndex, int length, IComparer<T> comparer = null, Int32 parallelThreshold = 8 * 1024)
-        {
-            T[] dst = new T[array.Length];
-            if ((parallelThreshold * Environment.ProcessorCount) < array.Length)
-                parallelThreshold = array.Length / Environment.ProcessorCount;
-
-            array.SortMergeStableInnerPar<T>(startIndex, startIndex + length - 1, dst, false, comparer, parallelThreshold);
-        }
-        /// <summary>
         /// In-place interface Parallel Merge Sort (stable).
         /// Allocates a temporary array of the same size as the src array.
         /// </summary>
         /// <typeparam name="T">data type of each array element</typeparam>
         /// <param name="array">source/destination array</param>
         /// <param name="comparer">method to compare array elements</param>
+        /// <param name="parallelThreshold">arrays larger than this value will be sorted using multiple cores</param>
         public static void SortMergeInPlaceStablePar<T>(this T[] array, IComparer<T> comparer = null, Int32 parallelThreshold = 24 * 1024)
         {
             T[] dst = new T[array.Length];
@@ -433,12 +418,31 @@ namespace HPCsharp
             SortMergeStableInnerPar<T>(array, 0, array.Length - 1, dst, false, comparer, parallelThreshold);
         }
         /// <summary>
+        /// In-place interface Parallel Merge Sort (stable). Takes a range of the src array, and sorts just that range.
+        /// Allocates a temporary array of the same size as the src array for keys and items.
+        /// </summary>
+        /// <typeparam name="T">array of type T</typeparam>
+        /// <param name="array">source/destination array</param>
+        /// <param name="startIndex">index within the src array where sorting starts</param>
+        /// <param name="length">number of elements starting with startIndex to be sorted</param>
+        /// <param name="comparer">comparer used to compare two array elements of type T</param>
+        /// <param name="parallelThreshold">arrays larger than this value will be sorted using multiple cores</param>
+        static public void SortMergeInPlaceStablePar<T>(this T[] array, int startIndex, int length, IComparer<T> comparer = null, Int32 parallelThreshold = 8 * 1024)
+        {
+            T[] dst = new T[array.Length];
+            if ((parallelThreshold * Environment.ProcessorCount) < array.Length)
+                parallelThreshold = array.Length / Environment.ProcessorCount;
+
+            array.SortMergeStableInnerPar<T>(startIndex, startIndex + length - 1, dst, false, comparer, parallelThreshold);
+        }
+        /// <summary>
         /// Parallel Merge Sort. Not in-place algorithm.
         /// Allocates the resulting array and returns it.
         /// </summary>
         /// <typeparam name="T">data type of each array element</typeparam>
         /// <param name="src">source array</param>
         /// <param name="comparer">method to compare List elements</param>
+        /// <param name="parallelThreshold">arrays larger than this value will be sorted using multiple cores</param>
         public static List<T> SortMergePar<T>(this List<T> src, IComparer<T> comparer = null, Int32 parallelThreshold = 24 * 1024)
         {
             T[] srcCopy = src.ToArrayPar();
@@ -456,6 +460,8 @@ namespace HPCsharp
         /// <typeparam name="T">data type of each array element</typeparam>
         /// <param name="src">source array</param>
         /// <param name="comparer">method to compare List elements</param>
+        /// <param name="parallelThreshold">arrays larger than this value will be sorted using multiple cores</param>
+        /// <returns>returns a List of same length as the source</returns>
         public static List<T> SortMergeStablePar<T>(this List<T> src, IComparer<T> comparer = null, Int32 parallelThreshold = 8 * 1024)
         {
             T[] srcCopy = src.ToArrayPar();
@@ -475,7 +481,8 @@ namespace HPCsharp
         /// <param name="startIndex">index within the src array where sorting starts</param>
         /// <param name="length">number of elements starting with startIndex to be sorted</param>
         /// <param name="comparer">comparer used to compare two array elements of type T</param>
-        /// <returns>returns an array of length specified</returns>
+        /// <param name="parallelThreshold">arrays larger than this value will be sorted using multiple cores</param>
+        /// <returns>returns an array of the legth specified</returns>
         static public List<T> SortMergePar<T>(this List<T> src, int startIndex, int length, IComparer<T> comparer = null, Int32 parallelThreshold = 24 * 1024)
         {
             T[] srcTrimmed = src.ToArrayPar(startIndex, length);
@@ -495,6 +502,7 @@ namespace HPCsharp
         /// <param name="startIndex">index within the src array where sorting starts</param>
         /// <param name="length">number of elements starting with startIndex to be sorted</param>
         /// <param name="comparer">comparer used to compare two array elements of type T</param>
+        /// <param name="parallelThreshold">arrays larger than this value will be sorted using multiple cores</param>
         /// <returns>returns an array of length specified</returns>
         static public List<T> SortMergeStablePar<T>(this List<T> src, int startIndex, int length, IComparer<T> comparer = null, Int32 parallelThreshold = 8 * 1024)
         {
@@ -515,6 +523,7 @@ namespace HPCsharp
         /// <param name="startIndex">index within the src List where sorting starts</param>
         /// <param name="length">number of elements starting with startIndex to be sorted</param>
         /// <param name="comparer">comparer used to compare two List elements of type T</param>
+        /// <param name="parallelThreshold">arrays larger than this value will be sorted using multiple cores</param>
         /// <returns>returns an array of length specified</returns>
         static public void SortMergeInPlacePar<T>(ref List<T> list, int startIndex, int length, IComparer<T> comparer = null, Int32 parallelThreshold = 24 * 1024)
         {
@@ -533,6 +542,7 @@ namespace HPCsharp
         /// <param name="startIndex">index within the src List where sorting starts</param>
         /// <param name="length">number of elements starting with startIndex to be sorted</param>
         /// <param name="comparer">comparer used to compare two List elements of type T</param>
+        /// <param name="parallelThreshold">arrays larger than this value will be sorted using multiple cores</param>
         /// <returns>returns an array of length specified</returns>
         static public void SortMergeInPlaceStablePar<T>(ref List<T> list, int startIndex, int length, IComparer<T> comparer = null, Int32 parallelThreshold = 8 * 1024)
         {
@@ -550,6 +560,7 @@ namespace HPCsharp
         /// <typeparam name="T">data type of each List element</typeparam>
         /// <param name="list">source/destination List</param>
         /// <param name="comparer">method to compare List elements</param>
+        /// <param name="parallelThreshold">arrays larger than this value will be sorted using multiple cores</param>
         public static void SortMergeInPlacePar<T>(ref List<T> list, IComparer<T> comparer = null, Int32 parallelThreshold = 24 * 1024)
         {
             T[] srcCopy = list.ToArrayPar();
@@ -566,6 +577,7 @@ namespace HPCsharp
         /// <typeparam name="T">data type of each List element</typeparam>
         /// <param name="list">source/destination List</param>
         /// <param name="comparer">method to compare List elements</param>
+        /// <param name="parallelThreshold">arrays larger than this value will be sorted using multiple cores</param>
         public static void SortMergeInPlaceStablePar<T>(ref List<T> list, IComparer<T> comparer = null, Int32 parallelThreshold = 8 * 1024)
         {
             T[] srcCopy = list.ToArrayPar();
@@ -657,6 +669,7 @@ namespace HPCsharp
         /// <param name="startIndex">index within the src array where sorting starts</param>
         /// <param name="length">number of elements starting with startIndex to be sorted</param>
         /// <param name="comparer">comparer used to compare two array elements of type T</param>
+        /// <param name="parallelThreshold">arrays larger than this value will be sorted using multiple cores</param>
         /// <returns>returns an array of length specified</returns>
         public static T[] SortMergeHybridWithRadixPar<T>(this T[] src, int startIndex, int length, Func<T, UInt32> getKey, IComparer<T> comparer = null, Int32 parallelThreshold = 24 * 1024)
         {
