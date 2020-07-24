@@ -229,6 +229,24 @@ namespace HPCsharp
             return dst;
         }
         /// <summary>
+        /// Parallel Merge Sort. The user provides a pre-allocated destination, which provides higher performance if it has already been paged in (e.g. re-used).
+        /// Modifies the original source array.
+        /// </summary>
+        /// <typeparam name="T">data type of each array element</typeparam>
+        /// <param name="src">source array</param>
+        /// <param name="dst">destination array</param>
+        /// <param name="comparer">method to compare array elements</param>
+        /// <param name="parallelThreshold">arrays larger than this value will be sorted using multiple cores</param>
+        public static void SortMergePar<T>(this T[] src, T[] dst, IComparer<T> comparer = null, Int32 parallelThreshold = 24 * 1024)
+        {
+            if (dst.Length != src.Length)
+                throw new ArgumentException("Destination array must be the same length as the source array");
+            if ((parallelThreshold * Environment.ProcessorCount) < src.Length)
+                parallelThreshold = src.Length / Environment.ProcessorCount;
+
+            src.SortMergeInnerPar<T>(0, src.Length - 1, dst, true, comparer, parallelThreshold);
+        }
+        /// <summary>
         /// Parallel Stable Merge Sort. Allocates the resulting sorted array and returns it.
         /// Modifies the original source array.
         /// </summary>
@@ -267,6 +285,24 @@ namespace HPCsharp
 
             srcTrimmed.SortMergeStableInnerPar<T>(0, length - 1, dst, true, comparer, parallelThreshold);
             return dst;
+        }
+        /// <summary>
+        /// Parallel Stable Merge Sort. The user provides a pre-allocated destination, which provides higher performance if it has already been paged in (e.g. re-used).
+        /// Modifies the original source array.
+        /// </summary>
+        /// <typeparam name="T">data type of each array element</typeparam>
+        /// <param name="src">source array</param>
+        /// <param name="dst">destination array</param>
+        /// <param name="comparer">method to compare array elements</param>
+        /// <param name="parallelThreshold">arrays larger than this value will be sorted using multiple cores</param>
+        public static void SortMergeStablePar<T>(this T[] src, T[] dst, IComparer<T> comparer = null, Int32 parallelThreshold = 24 * 1024)
+        {
+            if (dst.Length != src.Length)
+                throw new ArgumentException("Destination array must be the same length as the source array");
+            if ((parallelThreshold * Environment.ProcessorCount) < src.Length)
+                parallelThreshold = src.Length / Environment.ProcessorCount;
+
+            src.SortMergeStableInnerPar<T>(0, src.Length - 1, dst, true, comparer, parallelThreshold);
         }
         /// <summary>
         /// Adaptive in-place Parallel Merge Sort.
