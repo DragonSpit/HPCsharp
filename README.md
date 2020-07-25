@@ -194,10 +194,10 @@ On a single core on variety of machines, sorting an array of Int32's, performanc
 .Sort |9|58|46| single-core on 32-core AMD EPYC
 Linq |2.1|6.3|6.3| single-core on 6 core laptop
 Linq |2.3|7.7|8.0| single-core on 14 core laptop
-Linq | | | | single-core on 32 core laptop
+Linq |1.1|5.5|5.4| single-core on 32 core laptop
 HPC# .SortMerge |6|19|18| single-core on 6 core laptop
 HPC# .SortMerge |7|24|22| single-core on 14 core laptop
-HPC# .SortMerge | | | | single-core on 32 core laptop
+HPC# .SortMerge |5|16|15| single-core on 32 core laptop
 
 Parallel Merge Sort uses multiple CPU cores to accelerate performance, which scales well with the number of
 cores and the number of memory channels.
@@ -207,7 +207,7 @@ On variety of machines, sorting an array of Int32's, performance in Millions of 
 --- | --- | --- | --- | ---
 Linq.AsParallel |6.5|13|13| 6-core laptop
 Linq.AsParallel |8|14|14| 14-core Xeon
-Linq.AsParallel | | | | 32-core AMD EPYC
+Linq.AsParallel |7|16|15| 32-core AMD EPYC
 HPC# .SortMergePar |66|230|154| 6-core laptop
 HPC# .SortMergePar |77|412|260| 14-core Intel Xeon
 HPC# .SortMergePar |293|893|760| 32-core AMD EPYC
