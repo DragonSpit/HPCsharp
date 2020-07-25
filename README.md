@@ -192,22 +192,22 @@ On a single core on variety of machines, sorting an array of Int32's, performanc
 .Sort |11|70|32| single-core on 6-core laptop
 .Sort |13|105|53| single-core on 14-core Xeon
 .Sort |9|58|46| single-core on 32-core AMD EPYC
-Linq |2.1|6.3|6.3| single-core on 6 core laptop
-Linq |2.3|7.7|8.0| single-core on 14 core laptop
-Linq |1.1|5.5|5.4| single-core on 32 core laptop
+Linq.OrderBy |2.1|6.3|6.3| single-core on 6 core laptop
+Linq.OrderBy |2.3|7.7|8.0| single-core on 14 core laptop
+Linq.OrderBy |1.1|5.5|5.4| single-core on 32 core laptop
 HPC# .SortMerge |6|19|18| single-core on 6 core laptop
 HPC# .SortMerge |7|24|22| single-core on 14 core laptop
 HPC# .SortMerge |5|16|15| single-core on 32 core laptop
 
 Parallel Merge Sort uses multiple CPU cores to accelerate performance, which scales well with the number of
-cores and the number of memory channels.
+cores and the number of memory channels. C# Array.Sort does not support parallel sorting.
 On variety of machines, sorting an array of Int32's, performance in Millions of Int32's per second is:
 
 *Algorithm*|*Random*|*Presorted*|*Constant*|*Description*
 --- | --- | --- | --- | ---
-Linq.AsParallel |6.5|13|13| 6-core laptop
-Linq.AsParallel |8|14|14| 14-core Xeon
-Linq.AsParallel |7|16|15| 32-core AMD EPYC
+Linq.AsParallel.OrderBy |6.5|13|13| 6-core laptop
+Linq.AsParallel.OrderBy |8|14|14| 14-core Xeon
+Linq.AsParallel.OrderBy |7|16|15| 32-core AMD EPYC
 HPC# .SortMergePar |66|230|154| 6-core laptop
 HPC# .SortMergePar |77|412|260| 14-core Intel Xeon
 HPC# .SortMergePar |293|893|760| 32-core AMD EPYC
