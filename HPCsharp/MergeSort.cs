@@ -54,11 +54,11 @@ namespace HPCsharp
             int length1 = m - l + 1;
             int length2 = r - (m + 1) + 1;
 
-            SortMergeInner(src, l, m, dst, !srcToDst, comparer);		// reverse direction of srcToDst for the next level of recursion
+            SortMergeInner(src, l,     m, dst, !srcToDst, comparer);		// reverse direction of srcToDst for the next level of recursion
             SortMergeInner(src, m + 1, r, dst, !srcToDst, comparer);
 
             if (srcToDst) Merge(src, l, length1, m + 1, length2, dst, l, comparer);
-            else Merge(dst, l, length1, m + 1, length2, src, l, comparer);
+            else          Merge(dst, l, length1, m + 1, length2, src, l, comparer);
         }
 
         /// <summary>

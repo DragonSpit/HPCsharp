@@ -1557,16 +1557,15 @@ namespace HPCsharp
 
             while (bitMask != 0)    // end processing digits when all the mask bits have been processed and shifted out, leaving no bits set in the bitMask
             {
+                // TODO: This can be optimized by changing to the two phase strategy of counting in a single-pass for all the digits
                 for (uint i = 0; i < numberOfBins; i++)
                     count[i] = 0;
                 for (int current = start; current < (start + length); current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
                     count[ExtractDigit(getKey(inputArray[current]), bitMask, shiftRightAmount)]++;
 
-                startOfBin[0] = 0;
+                startOfBin[0] = (uint)start;
                 for (uint i = 1; i < numberOfBins; i++)
                     startOfBin[i] = startOfBin[i - 1] + count[i - 1];
-                for (uint i = 1; i < numberOfBins; i++)
-                    startOfBin[i] += (uint)start;
 
                 for (int current = start; current < (start + length); current++)
                     outputArray[startOfBin[ExtractDigit(getKey(inputArray[current]), bitMask, shiftRightAmount)]++] = inputArray[current];
