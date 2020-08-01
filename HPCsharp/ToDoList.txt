@@ -1,5 +1,6 @@
-﻿// TODO: Add InitLibrary() call, which will figure out details about the machine we are running on: number of physical and virtual cores, number of memory channels, etc.
-//       Otherwise common assumptions will be setup as defaults, which are dangerous long term.
+﻿// TODO: Add a blog entry for which language is fastest at multi-core sorting, and possibly include GPUs.
+// TODO: Add InitLibrary() call, which will figure out details about the machine we are running on: number of physical and virtual cores, number of memory channels, etc.
+//       Otherwise common assumptions will be setup as defaults, which are dangerous long term. Create a namespace for SystemAttributes with variety of values.s
 // TODO: Implement Heap Sort, since it's in-place and efficient for medium size arrays. It's use as a termination base case for some divide-and-conquer algorithms
 //       should provide a potentially substantial speedup over Insertion Sort, since Heap Sort would terminate at a much larger array size threshold, since its O(nlgn)
 //       vs Insertion Sort being O(N^2), which would reduce the number of recursion levels - important especially for in-place sort algorithms.
