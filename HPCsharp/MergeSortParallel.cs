@@ -603,16 +603,18 @@ namespace HPCsharp
                     for (int i = l; i <= r; i++) dst[i] = src[i];	// copy from src to dst, when the result needs to be in dst
                 return;
             }
-            //else if ((r - l) <= SortMergeParallelThreshold)
+            //else if ((r - l) <= parallelThreshold)
             //{
             //    Array.Sort<T>(src, l, r - l + 1, comparer);     // not a stable sort
             //    if (srcToDst)
             //        for (int i = l; i <= r; i++) dst[i] = src[i];	// copy from src to dst, when the result needs to be in dst
             //    return;
             //}
-            else if ((r - l) <= parallelThreshold)
+            else if (((r - l) <= parallelThreshold) && srcToDst)
             {
+                // TODO: this version of the algorithm isn't the fastest two phase version
                 HPCsharp.Algorithm.SortRadix<T>(src, l, r - l + 1, dst, getKey);
+                return;
             }
             int m = ((r + l) / 2);
             Parallel.Invoke(
@@ -620,8 +622,8 @@ namespace HPCsharp
                 () => { SortMergeHybridWithRadixInnerPar<T>(src, m + 1, r, dst, !srcToDst, getKey, comparer, parallelThreshold); }
             );
             // reverse direction of srcToDst for the next level of recursion
-            if (srcToDst) MergeInnerPar<T>(src, l, m, m + 1, r, dst, l, comparer);
-            else          MergeInnerPar<T>(dst, l, m, m + 1, r, src, l, comparer);
+            if (srcToDst) MergeInnerPar<T>(dst, l, m, m + 1, r, src, l, comparer);
+            else          MergeInnerPar<T>(src, l, m, m + 1, r, dst, l, comparer);
         }
 
         private static void SortMergeHybridWithRadixInnerPar<T>(this T[] src, Int32 l, Int32 r, T[] dst, bool srcToDst, IComparer<T> comparer = null, Int32 parallelThreshold = 24 * 1024)
@@ -661,6 +663,23 @@ namespace HPCsharp
             else          MergeInnerPar<T>(dst, l, m, m + 1, r, src, l, comparer);
         }
         /// <summary>
+        /// Parallel Merge Sort, which uses Radix Sort as the recursion base-case.
+        /// Not in-place algorithm.
+        /// </summary>
+        /// <typeparam name="T">array of type T</typeparam>
+        /// <param name="src">source array</param>
+        /// <param name="comparer">comparer used to compare two array elements of type T</param>
+        /// <param name="parallelThreshold">arrays larger than this value will be sorted using multiple cores</param>
+        /// <returns>returns an array of length specified</returns>
+        public static void SortMergeHybridWithRadixPar<T>(this T[] src, Func<T, UInt32> getKey, IComparer<T> comparer = null, Int32 parallelThreshold = 24 * 1024)
+        {
+            T[] workBuffer = new T[src.Length];
+            //if ((parallelThreshold * Environment.ProcessorCount) < src.Length)
+            //    parallelThreshold = src.Length / Environment.ProcessorCount;
+
+            src.SortMergeHybridWithRadixInnerPar<T>(0, src.Length - 1, workBuffer, true, getKey, comparer, parallelThreshold);
+        }
+        /// <summary>
         /// Parallel Merge Sort. Takes a range of the src array, sorts it, and then returns just the sorted range.
         /// Not in-place algorithm.
         /// </summary>
@@ -682,7 +701,7 @@ namespace HPCsharp
 
             srcTrimmed.SortMergeHybridWithRadixInnerPar<T>(0, length - 1, dst, true, getKey, comparer, parallelThreshold);
 
-            return dst;
+            return srcTrimmed;
         }
     }
 }
