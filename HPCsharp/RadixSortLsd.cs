@@ -1019,7 +1019,7 @@ namespace HPCsharp
         /// Sort an List of unsigned integers using Radix Sorting algorithm (least significant digit variation)
         /// </summary>
         /// <param name="inputArray"></param>
-        /// <returns>array of unsigned integers</returns>
+        /// <returns>sorted List of unsigned integers</returns>
         public static List<uint> SortRadix(this List<uint> inputArray)
         {
             var srcCopy = inputArray.ToArray();
@@ -1028,27 +1028,27 @@ namespace HPCsharp
             return sortedList;
         }
         /// <summary>
-        /// Sort an array of unsigned integers using Radix Sorting algorithm (least significant digit variation)
+        /// Sort an array of unsigned integers using Radix Sorting algorithm (least significant digit variation).
+        /// Derandomizes memory writes for more consistent performance across various input data distributions.
         /// </summary>
         /// <param name="inputArray"></param>
-        /// <returns>array of unsigned integers</returns>
-        public static uint[] SortRadix4(this uint[] inputArray)
+        /// <returns>sorted array of unsigned integers</returns>
+        public static uint[] SortRadixDerandomizedWrites(this uint[] inputArray)
         {
             int numberOfBins = 256;
             int Log2ofPowerOfTwoRadix = 8;
             uint cacheLineSizeInBytes = 64 * 4;
             uint cacheLineSizeInUInt32s = cacheLineSizeInBytes / 4;  // is there sizeOf() in C#
-            uint[] cacheBuffers = new uint[numberOfBins * cacheLineSizeInUInt32s];
+            uint[] cacheBuffers       = new uint[numberOfBins * cacheLineSizeInUInt32s];
             uint[] cacheBufferIndexes = new uint[numberOfBins];
-            uint[] outputArray = new uint[inputArray.Length];
-            uint[] count = new uint[numberOfBins];
+            uint[] outputArray        = new uint[inputArray.Length];
+            uint[] count              = new uint[numberOfBins];
             bool outputArrayHasResult = false;
 
             uint bitMask = 255;
             int shiftRightAmount = 0;
 
             uint[] startOfBin = new uint[numberOfBins];
-            uint[] endOfBin = new uint[numberOfBins];
 
             while (bitMask != 0)    // end processing digits when all the mask bits have been processed and shifted out, leaving no bits set in the bitMask
             {
@@ -1060,9 +1060,9 @@ namespace HPCsharp
                 for (uint current = 0; current < inputArray.Length; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
                     count[ExtractDigit(inputArray[current], bitMask, shiftRightAmount)]++;
 
-                startOfBin[0] = endOfBin[0] = 0;
+                startOfBin[0] = 0;
                 for (uint i = 1; i < numberOfBins; i++)
-                    startOfBin[i] = endOfBin[i] = (uint)(startOfBin[i - 1] + count[i - 1]);
+                    startOfBin[i] = (uint)(startOfBin[i - 1] + count[i - 1]);
 
                 for (uint current = 0; current < inputArray.Length; current++)
                 {
@@ -1077,7 +1077,7 @@ namespace HPCsharp
                     {
                         uint index = startOfBuffer;
                         for (int i = 0; i < cacheLineSizeInUInt32s; i++)
-                            outputArray[endOfBin[whichBin]++] = cacheBuffers[index++];
+                            outputArray[startOfBin[whichBin]++] = cacheBuffers[index++];
                         cacheBuffers[startOfBuffer] = inputArray[current];
                         cacheBufferIndexes[whichBin] = 1;
                     }
@@ -1090,7 +1090,7 @@ namespace HPCsharp
                     uint index = startOfBuffer;
                     uint currentIndex = cacheBufferIndexes[whichBin];
                     for (int i = 0; i < currentIndex; i++)
-                        outputArray[endOfBin[whichBin]++] = cacheBuffers[index++];
+                        outputArray[startOfBin[whichBin]++] = cacheBuffers[index++];
                 }
 
                 bitMask <<= Log2ofPowerOfTwoRadix;
@@ -1106,6 +1106,163 @@ namespace HPCsharp
                     inputArray[current] = outputArray[current];
 
             return inputArray;
+        }
+        /// <summary>
+        /// Sort an array of unsigned integers using Radix Sorting algorithm (least significant digit variation).
+        /// Derandomizes memory writes for more consistent performance across various input data distributions.
+        /// </summary>
+        /// <param name="inputArray"></param>
+        /// <returns>sorted array of unsigned integers</returns>
+        public static uint[] SortRadixDerandomizeWrites(this uint[] inputArray, Int32 start, Int32 length)
+        {
+            int numberOfBins = 256;
+            int Log2ofPowerOfTwoRadix = 8;
+            uint cacheLineSizeInBytes = 64 * 4;
+            uint cacheLineSizeInUInt32s = cacheLineSizeInBytes / 4;  // is there sizeOf() in C#
+            uint[] cacheBuffers = new uint[numberOfBins * cacheLineSizeInUInt32s];
+            uint[] cacheBufferIndexes = new uint[numberOfBins];
+            uint[] outputArray = new uint[inputArray.Length];
+            uint[] count = new uint[numberOfBins];
+            bool outputArrayHasResult = false;
+
+            uint bitMask = 255;
+            int shiftRightAmount = 0;
+
+            uint[] startOfBin = new uint[numberOfBins];
+
+            while (bitMask != 0)    // end processing digits when all the mask bits have been processed and shifted out, leaving no bits set in the bitMask
+            {
+                for (uint i = 0; i < numberOfBins; i++)
+                {
+                    count[i] = 0;
+                    cacheBufferIndexes[i] = 0;
+                }
+                for (int current = start; current < (start + length); current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
+                    count[ExtractDigit(inputArray[current], bitMask, shiftRightAmount)]++;
+
+                startOfBin[0] = (uint)start;
+                for (uint i = 1; i < numberOfBins; i++)
+                    startOfBin[i] = (uint)(startOfBin[i - 1] + count[i - 1]);
+
+                for (int current = start; current < (start + length); current++)
+                {
+                    uint whichBin = ExtractDigit(inputArray[current], bitMask, shiftRightAmount);
+                    uint startOfBuffer = whichBin * cacheLineSizeInUInt32s;
+                    if (cacheBufferIndexes[whichBin] < cacheLineSizeInUInt32s)  // place current element into its cacheBuffer
+                    {
+                        cacheBuffers[startOfBuffer + cacheBufferIndexes[whichBin]] = inputArray[current];
+                        cacheBufferIndexes[whichBin]++;
+                    }
+                    else     // flush the buffer to system memory
+                    {
+                        uint index = startOfBuffer;
+                        for (int i = 0; i < cacheLineSizeInUInt32s; i++)
+                            outputArray[startOfBin[whichBin]++] = cacheBuffers[index++];
+                        cacheBuffers[startOfBuffer] = inputArray[current];
+                        cacheBufferIndexes[whichBin] = 1;
+                    }
+                    //outputArray[endOfBin[ExtractDigit(inputArray[current], bitMask, shiftRightAmount)]++] = inputArray[current];
+                }
+                // Flush all of the cache buffers
+                for (uint whichBin = 0; whichBin < numberOfBins; whichBin++)
+                {
+                    uint startOfBuffer = whichBin * cacheLineSizeInUInt32s;
+                    uint index = startOfBuffer;
+                    uint currentIndex = cacheBufferIndexes[whichBin];
+                    for (int i = 0; i < currentIndex; i++)
+                        outputArray[startOfBin[whichBin]++] = cacheBuffers[index++];
+                }
+
+                bitMask <<= Log2ofPowerOfTwoRadix;
+                shiftRightAmount += Log2ofPowerOfTwoRadix;
+                outputArrayHasResult = !outputArrayHasResult;
+
+                uint[] tmp = inputArray;       // swap input and output arrays
+                inputArray = outputArray;
+                outputArray = tmp;
+            }
+            if (outputArrayHasResult)
+                for (int current = start; current < (start + length); current++)    // copy from output array into the input array
+                    inputArray[current] = outputArray[current];
+
+            return inputArray;
+        }
+        /// <summary>
+        /// Sort an array of unsigned integers using Radix Sorting algorithm (least significant digit variation).
+        /// Derandomizes memory writes for more consistent performance across various input data distributions.
+        /// </summary>
+        /// <param name="inputArray"></param>
+        /// <returns>sorted array of unsigned integers</returns>
+        public static void SortRadixDerandomizedWrites<T>(this T[] inputArray, Int32 start, Int32 length, T[] dst, Func<T, UInt32> getKey)
+        {
+            int numberOfBins = 256;
+            int Log2ofPowerOfTwoRadix = 8;
+            uint cacheLineSizeInBytes = 64 * 4;
+            uint cacheLineSizeInUInt32s = cacheLineSizeInBytes / 4;  // is there sizeOf() in C#
+            T[] cacheBuffers = new T[numberOfBins * cacheLineSizeInUInt32s];
+            uint[] cacheBufferIndexes = new uint[numberOfBins];
+            uint[] count = new uint[numberOfBins];
+            bool outputArrayHasResult = false;
+
+            uint bitMask = 255;
+            int shiftRightAmount = 0;
+
+            uint[] startOfBin = new uint[numberOfBins];
+
+            while (bitMask != 0)    // end processing digits when all the mask bits have been processed and shifted out, leaving no bits set in the bitMask
+            {
+                for (uint i = 0; i < numberOfBins; i++)
+                {
+                    count[i] = 0;
+                    cacheBufferIndexes[i] = 0;
+                }
+                for (int current = start; current < (start + length); current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
+                    count[ExtractDigit(getKey(inputArray[current]), bitMask, shiftRightAmount)]++;
+
+                startOfBin[0] = (uint)start;
+                for (uint i = 1; i < numberOfBins; i++)
+                    startOfBin[i] = (uint)(startOfBin[i - 1] + count[i - 1]);
+
+                for (int current = start; current < (start + length); current++)
+                {
+                    uint whichBin = ExtractDigit(getKey(inputArray[current]), bitMask, shiftRightAmount);
+                    uint startOfBuffer = whichBin * cacheLineSizeInUInt32s;
+                    if (cacheBufferIndexes[whichBin] < cacheLineSizeInUInt32s)  // place current element into its cacheBuffer
+                    {
+                        cacheBuffers[startOfBuffer + cacheBufferIndexes[whichBin]] = inputArray[current];
+                        cacheBufferIndexes[whichBin]++;
+                    }
+                    else     // flush the buffer to system memory
+                    {
+                        uint index = startOfBuffer;
+                        for (int i = 0; i < cacheLineSizeInUInt32s; i++)
+                            dst[startOfBin[whichBin]++] = cacheBuffers[index++];
+                        cacheBuffers[startOfBuffer] = inputArray[current];
+                        cacheBufferIndexes[whichBin] = 1;
+                    }
+                    //outputArray[endOfBin[ExtractDigit(inputArray[current], bitMask, shiftRightAmount)]++] = inputArray[current];
+                }
+                // Flush all of the cache buffers
+                for (uint whichBin = 0; whichBin < numberOfBins; whichBin++)
+                {
+                    uint startOfBuffer = whichBin * cacheLineSizeInUInt32s;
+                    uint index = startOfBuffer;
+                    uint currentIndex = cacheBufferIndexes[whichBin];
+                    for (int i = 0; i < currentIndex; i++)
+                        dst[startOfBin[whichBin]++] = cacheBuffers[index++];
+                }
+
+                bitMask <<= Log2ofPowerOfTwoRadix;
+                shiftRightAmount += Log2ofPowerOfTwoRadix;
+                outputArrayHasResult = !outputArrayHasResult;
+
+                T[] tmp = inputArray;       // swap input and output arrays
+                inputArray = dst;
+                dst = tmp;
+            }
+            if (outputArrayHasResult)
+                for (int current = start; current < (start + length); current++)    // copy from output array into the input array
+                    inputArray[current] = dst[current];
         }
         /// <summary>
         /// Sort an array of user defined class containing an unsigned integer Key, using Radix Sorting algorithm. Linear time sort algorithm.
@@ -1569,57 +1726,6 @@ namespace HPCsharp
 
                 for (int current = start; current < (start + length); current++)
                     outputArray[startOfBin[ExtractDigit(getKey(inputArray[current]), bitMask, shiftRightAmount)]++] = inputArray[current];
-
-                bitMask <<= Log2ofPowerOfTwoRadix;
-                shiftRightAmount += Log2ofPowerOfTwoRadix;
-                outputArrayHasResult = !outputArrayHasResult;
-
-                T[] tmp = inputArray;       // swap input and output arrays
-                inputArray = outputArray;
-                outputArray = tmp;
-            }
-            if (!outputArrayHasResult)
-                for (int current = start; current < (start + length); current++)
-                    outputArray[current] = inputArray[current];
-        }
-        /// <summary>
-        /// Sort an array of user defined class containing an unsigned 64-bit integer Key, using Radix Sorting algorithm. Linear time sort algorithm.
-        /// Slower algorithm that allocates only 3K bytes of extra memory.
-        /// </summary>
-        /// <param name="inputArray"></param>
-        /// <param name="getKey">user provided function to extract the unsigned 64-bit key sorted on, from the user defined class</param>
-        /// <returns>sorted array of user defined class</returns>
-        public static void SortRadixNew<T>(this T[] inputArray, Int32 start, Int32 length, T[] outputArray, Func<T, UInt32> getKey)
-        {
-            int numberOfBins = 256;
-            int Log2ofPowerOfTwoRadix = 8;
-            uint[] count = new uint[numberOfBins];
-            bool outputArrayHasResult = false;
-
-            uint bitMask = 255;
-            int shiftRightAmount = 0;
-
-            uint[] startOfBin = new uint[numberOfBins];
-            uint[] endOfBin = new uint[numberOfBins];
-
-            while (bitMask != 0)    // end processing digits when all the mask bits have been processed and shifted out, leaving no bits set in the bitMask
-            {
-                for (uint i = 0; i < numberOfBins; i++)
-                    count[i] = 0;
-                for (uint current = 0; current < inputArray.Length; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
-                    count[ExtractDigit(getKey(inputArray[current]), bitMask, shiftRightAmount)]++;
-
-                startOfBin[0] = endOfBin[0] = 0;
-                for (uint i = 1; i < numberOfBins; i++)
-                    startOfBin[i] = endOfBin[i] = (uint)(startOfBin[i - 1] + count[i - 1]);
-                for (uint i = 1; i < numberOfBins; i++)
-                {
-                    startOfBin[i] += (uint)start;
-                    endOfBin[  i] += (uint)start;
-                }
-
-                for (uint current = 0; current < inputArray.Length; current++)
-                    outputArray[endOfBin[ExtractDigit(getKey(inputArray[current]), bitMask, shiftRightAmount)]++] = inputArray[current];
 
                 bitMask <<= Log2ofPowerOfTwoRadix;
                 shiftRightAmount += Log2ofPowerOfTwoRadix;
