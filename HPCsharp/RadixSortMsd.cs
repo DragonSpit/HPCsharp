@@ -379,6 +379,17 @@ namespace HPCsharp
             return arrayToBeSorted;
         }
 
+        /// <summary>
+        /// In-place Radix Sort (Most Significant Digit), not stable.
+        /// </summary>
+        /// <param name="arrayToBeSorted">array that is to be sorted in place</param>
+        public static void SortRadixMsd(this ulong[] arrayToBeSorted, Int32 start, Int32 length)
+        {
+            int shiftRightAmount = sizeof(ulong) * 8 - Log2ofPowerOfTwoRadix;
+            // InsertionSort could be passed in as another base case since it's in-place
+            RadixSortMsdULongInner(arrayToBeSorted, start, length, shiftRightAmount, Array.Sort);
+        }
+
         private static void RadixSortMsdIntInner(int[] a, int first, int length, int shiftRightAmount, Action<int[], int, int> baseCaseInPlaceSort)
         {
             int last = first + length - 1;
