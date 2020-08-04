@@ -343,23 +343,22 @@ namespace HPCsharp
             SortMergeInPlacePureInnerPar<T>(src, startIndex, length - 1, comparer, parallelThreshold);
         }
         // start and end indexes are inclusive
-        private static void SortMergeInPlacePureInnerPar<T>(this T[] src, int startIndex, int endIndex, IComparer<T> comparer = null, int parallelThreshold = 16 * 1024)
+        private static void SortMergeInPlacePureInnerPar<T>(this T[] src, int startIndex, int endIndex, IComparer<T> comparer = null, int threshold0 = 16 * 1024, int threshold1 = 16 * 1024, int threshold2 = 16 * 1024 )
         {
             //Console.WriteLine("merge sort: start = {0}, length = {1}", startIndex, length);
             int length = endIndex - startIndex + 1;
             if (length <= 1) return;
-            if (length <= parallelThreshold)
+            if (length <= threshold0)
             {
                 Array.Sort(src, startIndex, length, comparer);
                 return;
             }
             int midIndex = (endIndex + startIndex) / 2;
             Parallel.Invoke(
-                () => { SortMergeInPlacePureInnerPar<T>(src, startIndex,   midIndex, comparer, parallelThreshold); },  // recursive call left  half
-                () => { SortMergeInPlacePureInnerPar<T>(src, midIndex + 1, endIndex, comparer, parallelThreshold); }   // recursive call right half
+                () => { SortMergeInPlacePureInnerPar<T>(src, startIndex,   midIndex, comparer, threshold0, threshold1, threshold2); },  // recursive call left  half
+                () => { SortMergeInPlacePureInnerPar<T>(src, midIndex + 1, endIndex, comparer, threshold0, threshold1, threshold2); }   // recursive call right half
             );
-            // TODO: This seems like a really large threshold, to where currently parallel version will never happen
-            MergeDivideAndConquerInPlacePar(src, startIndex, midIndex, endIndex, comparer, 16 * 1024 * 1024, 1024 * 1024 * 1024);     // merge the results
+            MergeDivideAndConquerInPlacePar(src, startIndex, midIndex, endIndex, comparer, threshold1, threshold2);     // merge the results
         }
         /// <summary>
         /// In-place interface Parallel Merge Sort of array of keys and an array of items, but not an in-place algorithm.
@@ -614,6 +613,7 @@ namespace HPCsharp
             {
                 // TODO: this version of the algorithm isn't the fastest two phase version
                 HPCsharp.Algorithm.SortRadix<T>(src, l, r - l + 1, dst, getKey);
+                //HPCsharp.Algorithm.SortRadixDerandomizedWrites<T>(src, l, r - l + 1, dst, getKey);
                 return;
             }
             int m = ((r + l) / 2);
@@ -702,6 +702,38 @@ namespace HPCsharp
             srcTrimmed.SortMergeHybridWithRadixInnerPar<T>(0, length - 1, dst, true, getKey, comparer, parallelThreshold);
 
             return srcTrimmed;
+        }
+
+        private static void SortMergeHybridWithRadixInplaceInnerPar(this UInt64[] src, Int32 l, Int32 r,
+            Int32 threshold0 = 24 * 1024, Int32 threshold1 = 16 * 1024, Int32 threshold2 = 16 * 1024 )
+        {
+            if (r == l)
+                return;
+            else if ((r - l) <= threshold0)
+            {
+                Algorithm.SortRadixMsd(src, l, r - l + 1);
+                return;
+            }
+            int m = ((r + l) / 2);
+            Parallel.Invoke(
+                () => { SortMergeHybridWithRadixInplaceInnerPar(src, l,     m, threshold0, threshold1, threshold2); },      // reverse direction of srcToDst for the next level of recursion
+                () => { SortMergeHybridWithRadixInplaceInnerPar(src, m + 1, r, threshold0, threshold1, threshold2); }
+            );
+            MergeDivideAndConquerInPlacePar<ulong>(src, l, m, r, null, threshold1, threshold2);
+        }
+        /// <summary>
+        /// Parallel Merge Sort, which uses Radix Sort as the recursion base-case.
+        /// Truly in-place algorithm.
+        /// </summary>
+        /// <param name="src">source array</param>
+        /// <param name="threshold0">arrays larger than this value will be sorted using multiple cores</param>
+        /// <returns>returns an array of length specified</returns>
+        public static void SortMergeHybridWithRadixInplacePar(this ulong[] src, Int32 threshold0 = 24 * 1024, Int32 threshold1 = 16 * 1024, Int32 threshold2 = 16 * 1024)
+        {
+            //if ((parallelThreshold * Environment.ProcessorCount) < src.Length)
+            //    parallelThreshold = src.Length / Environment.ProcessorCount;
+
+            src.SortMergeHybridWithRadixInplaceInnerPar(0, src.Length - 1, threshold0, threshold1, threshold2);
         }
     }
 }
