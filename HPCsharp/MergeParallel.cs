@@ -135,7 +135,7 @@ namespace HPCsharp
         // and my Dr. Dobb's paper https://www.drdobbs.com/parallel/parallel-in-place-merge/240008783
         public static void MergeDivideAndConquerInPlacePar<T>(T[] arr, int startIndex, int midIndex, int endIndex, IComparer<T> comparer = null, int threshold0 = 16 * 1024, int threshold1 = 16 * 1024)
         {
-            //Console.WriteLine("merge: start = {0}, mid = {1}, end = {2}", startIndex, midIndex, endIndex);
+            //Console.WriteLine("MergeDivideAndConquerInPlacePar: start = {0}, mid = {1}, end = {2}", startIndex, midIndex, endIndex);
             int length1 = midIndex - startIndex + 1;
             int length2 = endIndex - midIndex;
             if (length1 >= length2)
@@ -145,7 +145,8 @@ namespace HPCsharp
                 int q2 = Algorithm.BinarySearch(arr[q1], arr, midIndex + 1, endIndex, comparer);  // q2 is q1 partitioning element within the smaller sub-array (and q2 itself is part of the sub-array that does not move)
                 int q3 = q1 + (q2 - midIndex - 1);
                 BlockSwapReversalPar(arr, q1, midIndex, q2 - 1, threshold0);
-                if (arr.Length < threshold1)
+                //Algorithm.BlockSwapReversal(arr, q1, midIndex, q2 - 1);
+                if (length1 < threshold1)
                 {
                     MergeDivideAndConquerInPlacePar(arr, startIndex, q1 - 1, q3 - 1,   comparer);
                     MergeDivideAndConquerInPlacePar(arr, q3 + 1,     q2 - 1, endIndex, comparer);
@@ -165,7 +166,8 @@ namespace HPCsharp
                 int q2 = Algorithm.BinarySearch(arr[q1], arr, startIndex, midIndex, comparer);    // q2 is q1 partitioning element within the smaller sub-array (and q2 itself is part of the sub-array that does not move)
                 int q3 = q2 + (q1 - midIndex - 1);
                 BlockSwapReversalPar(arr, q2, midIndex, q1, threshold0);
-                if (arr.Length < threshold1)
+                //Algorithm.BlockSwapReversal(arr, q2, midIndex, q1);
+                if (length1 < threshold1)
                 {
                     MergeDivideAndConquerInPlacePar(arr, startIndex, q2 - 1, q3 - 1, comparer);
                     MergeDivideAndConquerInPlacePar(arr, q3 + 1, q1, endIndex, comparer);
