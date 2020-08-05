@@ -106,7 +106,7 @@ namespace HPCsharp
 
         public static void SortMergeInPlacePure<T>(T[] arr, int startIndex, int length, IComparer<T> comparer = null, int threshold = 16 * 1024)
         {
-            SortMergeInPlacePureInner<T>(arr, startIndex, length - 1, comparer, threshold);
+            SortMergeInPlacePureInner<T>(arr, startIndex, startIndex + length - 1, comparer, threshold);
         }
 
         private static void SortMergeInPlacePureInner<T>(T[] arr, int startIndex, int endIndex, IComparer<T> comparer = null, int threshold = 16 * 1024)
