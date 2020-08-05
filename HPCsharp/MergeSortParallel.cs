@@ -340,7 +340,7 @@ namespace HPCsharp
         /// <param name="parallelThreshold">arrays larger than this value will be sorted using multiple cores</param>
         public static void SortMergeInPlacePurePar<T>(this T[] src, int startIndex, int length, IComparer<T> comparer = null, int parallelThreshold = 16 * 1024)
         {
-            SortMergeInPlacePureInnerPar<T>(src, startIndex, length - 1, comparer, parallelThreshold);
+            SortMergeInPlacePureInnerPar<T>(src, startIndex, startIndex + length - 1, comparer, parallelThreshold);
         }
         // start and end indexes are inclusive
         private static void SortMergeInPlacePureInnerPar<T>(this T[] src, int startIndex, int endIndex, IComparer<T> comparer = null, int threshold0 = 16 * 1024, int threshold1 = 16 * 1024, int threshold2 = 16 * 1024 )
