@@ -1,4 +1,5 @@
-﻿// TODO: Add a blog entry for which language is fastest at multi-core sorting, and possibly include GPUs.
+﻿// TODO: Add to the Faster Copy blog the finding of Array.Copy() being slower than a for loop to copy an array. This could also be part of a blog on how to write higher performance C# code.
+// TODO: Add a blog entry for which language is fastest at multi-core sorting, and possibly include GPUs.
 // TODO: Add InitLibrary() call, which will figure out details about the machine we are running on: number of physical and virtual cores, number of memory channels, etc.
 //       Otherwise common assumptions will be setup as defaults, which are dangerous long term. Create a namespace for SystemAttributes with variety of values.s
 // TODO: Implement Heap Sort, since it's in-place and efficient for medium size arrays. It's use as a termination base case for some divide-and-conquer algorithms

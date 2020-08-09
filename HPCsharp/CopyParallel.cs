@@ -26,6 +26,8 @@
 // the previously allocated array is being re-used and has already been created and has been paged into system memory, raising the performance to the paged-in benchmark level.
 // SSE implementation when run on all cores tops out lower than scalar. But does it ramp up faster?
 // TODO: Develop graphs of scalar versus SSE/SIMD copy to see if SSE ramps up faster and allows to use fewer cores, but tops out lower than scalar.
+// TODO: When developing Parallel Merge Sort, found that C#'s Array.Copy() is significantly slower than using a for loop, at least for integer types, while still
+//       both ways support generic arguments. This maybe something to do everywhere in HPCsharp and to write a blog about.
 
 using System;
 using System.Threading.Tasks;
