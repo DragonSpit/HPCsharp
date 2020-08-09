@@ -422,6 +422,71 @@ namespace HPCsharp
         }
         /// <summary>
         /// Sort an array of unsigned integers using Radix Sorting algorithm (least significant digit variation - LSD)
+        /// This algorithm is not in-place. This algorithm is stable.
+        /// </summary>
+        /// <param name="inOutArray">array of unsigned integers to be sorted, and where the sorted array will be returned</param>
+        /// <returns>sorted array of unsigned integers</returns>
+        public static void SortRadix(this uint[] inOutArray, int startIndex, int length, uint[] workBuffer)
+        {
+// TODO: For all Radix Sort algorithms that use dst[] argument, change it to be workBuffer instead to make it clear that it is not the destination where sorted results will be returned, as that doesn't work with reference interface, and the results is in the inputArray
+            const int bitsPerDigit = 8;
+            uint numberOfBins = 1 << bitsPerDigit;
+            uint numberOfDigits = (sizeof(uint) * 8 + bitsPerDigit - 1) / bitsPerDigit;
+            //Console.WriteLine("SortRadix: NumberOfDigits = {0}", numberOfDigits);
+            int d = 0;
+
+            uint[][] startOfBin = new uint[numberOfDigits][];
+            for (int i = 0; i < numberOfDigits; i++)
+                startOfBin[i] = new uint[numberOfBins];
+            bool outputArrayHasResult = false;
+
+            uint bitMask = numberOfBins - 1;
+            int shiftRightAmount = 0;
+
+            //Stopwatch stopwatch = new Stopwatch();
+            //long frequency = Stopwatch.Frequency;
+            ////Console.WriteLine("  Timer frequency in ticks per second = {0}", frequency);
+            //long nanosecPerTick = (1000L * 1000L * 1000L) / frequency;
+
+            //stopwatch.Restart();
+            uint[][] count = HistogramByteComponents(inOutArray, startIndex, startIndex + length - 1);
+            //stopwatch.Stop();
+            //double timeForCounting = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
+            //Console.WriteLine("Time for counting: {0}", timeForCounting);
+
+            for (d = 0; d < numberOfDigits; d++)
+            {
+                startOfBin[d][0] = (uint)startIndex;
+                for (uint i = 1; i < numberOfBins; i++)
+                    startOfBin[d][i] = startOfBin[d][i - 1] + count[d][i - 1];
+            }
+
+            d = 0;
+            while (bitMask != 0)    // end processing digits when all the mask bits have been processed and shifted out, leaving no bits set in the bitMask
+            {
+                //stopwatch.Restart();
+                uint[] startOfBinLoc = startOfBin[d];
+                for (int current = startIndex; current < (startIndex + length); current++)
+                {
+                    workBuffer[startOfBinLoc[(inOutArray[current] & bitMask) >> shiftRightAmount]++] = inOutArray[current];
+                    //Console.WriteLine("curr: {0}, index: {1}, startOfBin: {2}", current, (inputArray[current] & bitMask) >> shiftRightAmount, startOfBinLoc[(inputArray[current] & bitMask) >> shiftRightAmount]);
+                }
+                //stopwatch.Stop();
+                //double timeForPermuting = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
+                //Console.WriteLine("Time for permuting: {0}", timeForPermuting);
+
+                bitMask <<= bitsPerDigit;
+                shiftRightAmount += bitsPerDigit;
+                outputArrayHasResult = !outputArrayHasResult;
+                d++;
+
+                uint[] tmp = inOutArray;       // swap input and output arrays
+                inOutArray = workBuffer;
+                workBuffer = tmp;
+            }
+        }
+        /// <summary>
+        /// Sort an array of unsigned integers using Radix Sorting algorithm (least significant digit variation - LSD)
         /// The core algorithm is not in-place, but the interface is in-place. This algorithm is stable.
         /// </summary>
         /// <param name="inputArray">array of unsigned integers to be sorted</param>
@@ -431,53 +496,6 @@ namespace HPCsharp
             var sortedArray = SortRadix(inputArray);
             Array.Copy(sortedArray, inputArray, inputArray.Length);
         }
-
-        /// <summary>
-        /// Sort an array of unsigned long integers using Radix Sorting algorithm (least significant digit variation - LSD)
-        /// This algorithm is not in-place. This algorithm is stable.
-        /// </summary>
-        /// <param name="inputArray">array of unsigned long integers to be sorted</param>
-        /// <param name="startIndex">array index of where sorting will start</param>
-        /// <param name="length">number of array elements to sort</param>
-        /// <returns>sorted array of unsigned long integers</returns>
-        public static void SortRadix(this uint[] inputArray, int startIndex, int length, uint[] tmpArray)
-        {
-            int numberOfBins = 256;
-            int Log2ofPowerOfTwoRadix = 8;
-            int[] count       = new int[numberOfBins];
-            int[] startOfBin  = new int[numberOfBins];
-            bool tmpArrayHasResult = false;
-
-            uint bitMask = 255;
-            int shiftRightAmount = 0;
-
-            while (bitMask != 0)    // end processing digits when all the mask bits have been processed and shifted out, leaving no bits set in the bitMask
-            {
-                for (uint i = 0; i < numberOfBins; i++)
-                    count[i] = 0;
-                for (int current = startIndex; current < (startIndex + length); current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
-                    count[ExtractDigit(inputArray[current], bitMask, shiftRightAmount)]++;
-
-                startOfBin[0] = startIndex;
-                for (uint i = 1; i < numberOfBins; i++) // Victor J. Duvanenko
-                    startOfBin[i] = (startOfBin[i - 1] + count[i - 1]);
-
-                for (int current = startIndex; current < (startIndex + length); current++)
-                    tmpArray[startOfBin[ExtractDigit(inputArray[current], bitMask, shiftRightAmount)]++] = inputArray[current];
-
-                bitMask <<= Log2ofPowerOfTwoRadix;
-                shiftRightAmount += Log2ofPowerOfTwoRadix;
-                tmpArrayHasResult = !tmpArrayHasResult;
-
-                uint[] tmp = inputArray;       // swap input and tmp arrays
-                inputArray = tmpArray;
-                tmpArray = tmp;
-            }
-            uint[] tmp1 = inputArray;       // swap input and tmp arrays
-            inputArray = tmpArray;
-            tmpArray = tmp1;
-        }
-
         /// <summary>
         /// Sort an array of unsigned long integers using Radix Sorting algorithm (least significant digit variation - LSD)
         /// This algorithm is not in-place. This algorithm is stable.

@@ -48,7 +48,7 @@ namespace HPCsharp
             }
             if (length1 == 0) return;
             if ((length1 + length2) <= MergeParallelArrayThreshold)
-            {   // 8192 threshold is much better than 16 (is it for C#)
+            {
                 //Console.WriteLine("#3 " + p1 + " " + length1 + " " + p2 + " " + length2 + " " + p3);
                 HPCsharp.Algorithm.Merge<T>(src, p1, length1,
                                             src, p2, length2,
