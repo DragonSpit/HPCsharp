@@ -63,7 +63,8 @@
 // TODO: Implement Rick's request on HPCsharp github repo for support of double[] keys, separate from the array being sorted, also with swapped arguments
 //       to match Array.Sort(array1, array2) interface. These functions also need to be updated to the latest highest performance versions.
 // TODO: Implement ascending/descending options for all LSD Radix Sort algorithms, like is done for the byte[] case, as this can be done without any performance penalties. Show that
-//       Array.Sort has performance penalties due to the need to create a lambda function to reverse the comparison. 
+//       Array.Sort has performance penalties due to the need to create a lambda function to reverse the comparison.
+// TODO: Implement adaptive Radix Sort (serial and parallel) where if there is enough memory, LSD Radix Sort is used for faster performance, otherwise MSD Radix Sort kicks in when memory is tight.
 using System;
 using System.Collections.Generic;
 using System.Text;

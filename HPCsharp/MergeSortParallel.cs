@@ -31,7 +31,6 @@
 // TODO: Improve efficiency and memory usage size of the Adaptive Merge Sort for a sub-array by allocating the destination of the size of the sub-array, and for
 //       the source sub-array and parallel copying the source. Determine when it is advantageous versus creating the destination array that is as big as the source array,
 //       for the not-in-place part of the algorithm. It would mean two smaller allocations, where both need to succeed to be able to proceed.
-// TODO: Figure out why in-place Merge Sort (pure) uses such a large parallel threshold. This seems like a really large threshold, to where currently parallel version will never happen
 
 using System;
 using System.Collections.Generic;

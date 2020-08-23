@@ -10,6 +10,9 @@
 //       Offer two version of Divide-And-Conquer in-place merge "purely in-place" (no additional allocations) and "adaptive in-place" (additional allocation
 //       when memory is available). May be able to do a single allocation of a full size array and use it for merging.
 // TODO: Parallelize block-swap algorithm to speedup in-place merge, possibly using SSE with instruction to reverse order within an SSE Vector
+// TODO: For inner merge could we process a chunk at a time without comparisons for the ending conditions? When we are merging large A and B lengths, could we
+//       process M length at a time and check that A and B are still larger than M and then in that inner loop of two loops eliminate length comparisons for two
+//       segments and reduce it down to a single comparison to M. This method would pay even higher dividends for multi-way merge.
 using System;
 using System.Collections.Generic;
 

@@ -1,4 +1,8 @@
-﻿// TODO: Add to the Faster Copy blog the finding of Array.Copy() being slower than a for loop to copy an array. This could also be part of a blog on how to write higher performance C# code.
+﻿// TODO: Figure out why LSD Radix Sort is 3X slower when compiled with "g++ -O2" versus same code (is it?) using VisualStudio 2019 (same optimization switches?), since
+//       it is the same code.
+// TODO: Optimize small size sorting cases by doing a bunch of sub-array sorting and benchmarking performance. It would be very powerful to show speedup at the lower
+//       size end of the spectrum, as that would show usefulness to more users, and may require completely different optimizations and thinking.
+// TODO: Add to the Faster Copy blog the finding of Array.Copy() being slower than a for loop to copy an array. This could also be part of a blog on how to write higher performance C# code.
 // TODO: Add a blog entry for which language is fastest at multi-core sorting, and possibly include GPUs.
 // TODO: Add InitLibrary() call, which will figure out details about the machine we are running on: number of physical and virtual cores, number of memory channels, etc.
 //       Otherwise common assumptions will be setup as defaults, which are dangerous long term. Create a namespace for SystemAttributes with variety of values.s
