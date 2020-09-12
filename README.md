@@ -205,12 +205,14 @@ On variety of machines, sorting an array of Int32's, performance in Millions of 
 
 *Algorithm*|*Random*|*Presorted*|*Constant*|*Description*
 --- | --- | --- | --- | ---
-Linq.AsParallel.OrderBy |6.5|13|13| 6-core laptop
-Linq.AsParallel.OrderBy |8|14|14| 14-core Xeon
-Linq.AsParallel.OrderBy |7|16|15| 32-core AMD EPYC
-HPC# .SortMergePar |66|230|154| 6-core laptop
-HPC# .SortMergePar |77|412|260| 14-core Intel Xeon
-HPC# .SortMergePar |293|893|760| 32-core AMD EPYC
+Linq.AsParallel.OrderBy |6.5|13|13| 6-core laptop, with hyperthreading
+Linq.AsParallel.OrderBy |8|14|14| 14-core Intel Xeon, with hyperthreading
+Linq.AsParallel.OrderBy |7|16|15| 32-core AMD EPYC, with hyperthreading
+Linq.AsParallel.OrderBy |7.4|17|18| 48-core Intel Xeon, with hyperthreading
+HPC# .SortMergePar |66|230|154| 6-core laptop, with hyperthreading
+HPC# .SortMergePar |77|412|260| 14-core Intel Xeon, with hyperthreading
+HPC# .SortMergePar |293|893|760| 32-core AMD EPYC, with hyperthreading
+HPC# .SortMergePar |397|915|754| 48-core Intel Xeon, with hyperthreading
 
 HPCsharp's Parallel Merge Sort is not stable, just like Array.Sort.
 The version benchmarked above is the not-in-place one. Faster than Array.Sort and List.Sort across all distributions, and
