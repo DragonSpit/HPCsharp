@@ -13,6 +13,7 @@ namespace HPCsharpExamples
 
             // In-Place Sorting
             Array.Sort(ArrayOne);                                  // C# standard in-place Sort
+            Array.Sort(ArrayOne, 1, ArrayOne.Length - 1);          // C# standard in-place Sort
             Algorithm.SortMergeInPlace(ArrayOne);                  // HPCsharp Merge Sort (serial). Direct function call usage
             ArrayOne.SortMergeInPlace();                           // HPCsharp Merge Sort (serial). Extension method call usage
             ArrayOne.SortRadixMsd();                               // HPCsharp Radix Sort (serial)   - uint[] has not yet been implemented, but other data types exist
@@ -29,8 +30,9 @@ namespace HPCsharpExamples
 
             // Not In-Place Sorting (Parallel)
             sortedArrayOne = ArrayOne.AsParallel().OrderBy(i => i).ToArray();   // Linq Sort (parallel)
-            sortedArrayOne = ArrayOne.SortMergePar();              // HPCsharp Merge Sort (parallel)
-            sortedArrayOne = ArrayOne.SortRadixPar();              // HPCsharp Radix Sort (parallel)
+            sortedArrayOne = ArrayOne.SortMergePar();                           // HPCsharp Merge Sort (parallel)
+            sortedArrayOne = ArrayOne.SortMergePar( 1, ArrayOne.Length - 1);    // HPCsharp Merge Sort (parallel)
+            sortedArrayOne = ArrayOne.SortRadixPar();                           // HPCsharp Radix Sort (parallel)
 
             // Other Sorts
             // Insertion Sort - O(N^2) - use only for sorting fewer than 50 elements
