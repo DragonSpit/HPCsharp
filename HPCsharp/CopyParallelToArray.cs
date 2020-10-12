@@ -1,6 +1,4 @@
-﻿// TODO: These need to handle thresholds well, to allow developers to use them any time for any size of List without having to benchmark.
-//       We may need to determine work quanta size and then possibly use Min(Array.Length/workQuanta, numberOfCores) number of cores to keep performance from dropping when going parallel.
-// TODO: We may need to determine work quanta size and then use Min(Array.Length/workQuanta, numberOfCores) number of cores to keep performance from dropping when going parallel.
+﻿// TODO: We may need to determine work quanta size and then use Min(Array.Length/workQuanta, numberOfCores) number of cores to keep performance from dropping when going parallel.
 //       This is a nice ramp-up from scalar to fully parallel concept, where performance should not drop off as the Array size gets smaller. Show with benchmark data
 //       this method to always be as good as scalar for small arrays and then ramp up to being way better for large arrays, where developers have nothing to prevent them
 //       from using the parallel version everywhere and always (except for setting the Threshold/MinimumWorkQuanta value).
@@ -13,6 +11,12 @@
 // TODO: https://stackoverflow.com/questions/1105990/is-it-better-to-call-tolist-or-toarray-in-linq-queries?rq=1 contribute to this entry with everything learned
 // TODO: Contribute to https://stackoverflow.com/questions/6750447/c-toarray-performance and show performance and point to HCPsharp
 // TODO: Figure out how to support .AsParallel() by supporting ParallelQuery<List<</List>>
+// TODO: Compare performance of List to List copy to one https://stackoverflow.com/questions/1952185/how-do-i-copy-items-from-list-to-list-without-foreach which uses
+//       List<Int32> copy = new List<Int32>(original); Could we use this idea  to speed up List to List copy by making it parallel? If faster, then contribute to this
+//       stackoverflow answer
+// TODO: Check if it's faster to convert List to Array in parallel and then to create a List from an array
+// TODO: Would it be faster to page in a new Array when returning a new Array, followed by copying to it? Could we page in a new array in parallel?
+// TODO: Could we create a List from an Array in parallel? Possibly create a .CopyToPar() and/or .ToListPar() and bring parallelism to construction.
 using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -23,25 +27,6 @@ namespace HPCsharp.ParallelAlgorithms
 {
     static public partial class Copy
     {
-        private static void CopyParallelInnerDac<T>(List<T> src, Int32 srcStart, List<T> dst, Int32 dstStart, Int32 length, Int32 parallelThreshold = 16 * 1024)
-        {
-            if (length <= 0)      // zero elements to copy
-                return;
-            if (length < parallelThreshold)
-            {
-                for (Int32 i = 0; i < length; i++)
-                    dst[dstStart++] = src[srcStart++];
-                return;
-            }
-
-            int lengthFirstHalf = length / 2;
-            int lengthSecondHalf = length - lengthFirstHalf;
-            Parallel.Invoke(
-                () => { CopyParallelInnerDac<T>(src, srcStart,                   dst, dstStart,                   lengthFirstHalf,  parallelThreshold); },
-                () => { CopyParallelInnerDac<T>(src, srcStart + lengthFirstHalf, dst, dstStart + lengthFirstHalf, lengthSecondHalf, parallelThreshold); }
-            );
-            return;
-        }
 #if false
         // TODO: Keep in mind that List is different than Array and can expand in size. We may want to allow for this in our implementation to make it
         //       more thoughtful and more general and more useful
@@ -71,22 +56,41 @@ namespace HPCsharp.ParallelAlgorithms
             }
         }
 #endif
-        private static void CopyToArrayParallelInnerDac<T>(this List<T> src, Int32 srcStart, T[] dst, Int32 dstStart, Int32 length, (Int32 parallelThreshold, Int32 degreeOfParallelism)? parSettings = null)
+        private static void CopyParallelInnerDac<T>(List<T> src, Int32 srcStart, List<T> dst, Int32 dstStart, Int32 length, (Int32 minWorkQuanta, Int32 degreeOfParallelism)? parSettings = null)
         {
             if (length <= 0)      // zero elements to copy
                 return;
-            (Int32 parallelThreshold, Int32 degreeOfParallelism) = parSettings ?? (16 * 1024, 2);      // default values for parallelThreshold and degreeOfParallelism
-            if (length < parallelThreshold)
+            (Int32 minWorkQuanta, Int32 degreeOfParallelism) = parSettings ?? (128 * 1024, 2);      // default values for parallelThreshold and degreeOfParallelism
+            if (length <= minWorkQuanta || degreeOfParallelism == 1)
+            {
+                for (Int32 i = 0; i < length; i++)      // TODO: Replace with List<Int32> copy = new List<Int32>(original); if faster
+                    dst[dstStart++] = src[srcStart++];
+                return;
+            }
+
+            int lengthFirstHalf = length / 2;
+            int lengthSecondHalf = length - lengthFirstHalf;
+            Parallel.Invoke(
+                () => { CopyParallelInnerDac<T>(src, srcStart,                   dst, dstStart,                   lengthFirstHalf,  (minWorkQuanta, degreeOfParallelism)); },
+                () => { CopyParallelInnerDac<T>(src, srcStart + lengthFirstHalf, dst, dstStart + lengthFirstHalf, lengthSecondHalf, (minWorkQuanta, degreeOfParallelism)); }
+            );
+            return;
+        }
+        private static void CopyToArrayParallelInnerDac<T>(this List<T> src, Int32 srcStart, T[] dst, Int32 dstStart, Int32 length, (Int32 minWorkQuanta, Int32 degreeOfParallelism)? parSettings = null)
+        {
+            if (length <= 0)      // zero elements to copy
+                return;
+            (Int32 minWorkQuanta, Int32 degreeOfParallelism) = parSettings ?? (128 * 1024, 2);      // default values for parallelThreshold and degreeOfParallelism
+            if (length <= minWorkQuanta || degreeOfParallelism == 1)
             {
                 src.CopyTo(srcStart, dst, dstStart, length);
                 return;
             }
             int lengthFirstHalf  = length / 2;
             int lengthSecondHalf = length - lengthFirstHalf;
-            var options = new ParallelOptions { MaxDegreeOfParallelism = degreeOfParallelism };
-            Parallel.Invoke(options,
-                () => { CopyToArrayParallelInnerDac<T>(src, srcStart,                   dst, dstStart,                   lengthFirstHalf,  (parallelThreshold, degreeOfParallelism)); },
-                () => { CopyToArrayParallelInnerDac<T>(src, srcStart + lengthFirstHalf, dst, dstStart + lengthFirstHalf, lengthSecondHalf, (parallelThreshold, degreeOfParallelism)); }
+            Parallel.Invoke(
+                () => { CopyToArrayParallelInnerDac<T>(src, srcStart,                   dst, dstStart,                   lengthFirstHalf,  (minWorkQuanta, degreeOfParallelism)); },
+                () => { CopyToArrayParallelInnerDac<T>(src, srcStart + lengthFirstHalf, dst, dstStart + lengthFirstHalf, lengthSecondHalf, (minWorkQuanta, degreeOfParallelism)); }
             );
             return;
         }
@@ -109,7 +113,7 @@ namespace HPCsharp.ParallelAlgorithms
             if (length > (src.Count - srcStart) || length > (dst.Length - dstStart))
                 throw new ArgumentOutOfRangeException();
 
-            (Int32 minWorkQuanta, Int32 degreeOfParallelism) = parSettings ?? (16 * 1024, 0);      // default values for parallelThreshold and degreeOfParallelism to use all processor cores
+            (Int32 minWorkQuanta, Int32 degreeOfParallelism) = parSettings ?? (128 * 1024, 0);      // default values for parallelThreshold and degreeOfParallelism to use all processor cores
 
             if (length <= minWorkQuanta || degreeOfParallelism == 1)    // process scalar request and small enough array to be scalar, with the least amount of overhead
             {
@@ -145,9 +149,11 @@ namespace HPCsharp.ParallelAlgorithms
         /// <param name="parSettings">minWorkQuanta = number of array elements efficient to process per core; degreeOfParallelism = maximum number of CPU cores that will be used</param>
         public static T[] ToArrayPar<T>(this List<T> src, (Int32 minWorkQuanta, Int32 degreeOfParallelism)? parSettings = null)
         {
-            (Int32 minWorkQuanta, Int32 degreeOfParallelism) = parSettings ?? (16 * 1024, 0);      // default values for parallelThreshold and degreeOfParallelism
+            (Int32 minWorkQuanta, Int32 degreeOfParallelism) = parSettings ?? (128 * 1024, 0);      // default values for parallelThreshold and degreeOfParallelism
             T[] dst = new T[src.Count];
-            CopyToArrayParallelInner<T>(src, 0, dst, 0, src.Count, (minWorkQuanta, degreeOfParallelism));
+            if ((minWorkQuanta * degreeOfParallelism) < src.Count)
+                minWorkQuanta = src.Count / degreeOfParallelism;
+            CopyToArrayParallelInnerDac<T>(src, 0, dst, 0, src.Count, (minWorkQuanta, degreeOfParallelism));
             return dst;
         }
         /// <summary>
@@ -160,9 +166,11 @@ namespace HPCsharp.ParallelAlgorithms
         /// <param name="parSettings">minWorkQuanta = number of array elements efficient to process per core; degreeOfParallelism = maximum number of CPU cores that will be used</param>
         public static T[] ToArrayPar<T>(this List<T> src, Int32 srcStart, Int32 length, (Int32 minWorkQuanta, Int32 degreeOfParallelism)? parSettings = null )
         {
-            (Int32 minWorkQuanta, Int32 degreeOfParallelism) = parSettings ?? (16 * 1024, 0);      // default values for parallelThreshold and degreeOfParallelism
+            (Int32 minWorkQuanta, Int32 degreeOfParallelism) = parSettings ?? (128 * 1024, 0);      // default values for parallelThreshold and degreeOfParallelism
             T[] dst = new T[length];
-            CopyToArrayParallelInner<T>(src, srcStart, dst, 0, length, (minWorkQuanta, degreeOfParallelism));
+            if ((minWorkQuanta * degreeOfParallelism) < src.Count)
+                minWorkQuanta = src.Count / degreeOfParallelism;
+            CopyToArrayParallelInnerDac<T>(src, srcStart, dst, 0, length, (minWorkQuanta, degreeOfParallelism));
             return dst;
         }
         /// <summary>
@@ -176,9 +184,11 @@ namespace HPCsharp.ParallelAlgorithms
         /// <param name="parSettings">minWorkQuanta = number of array elements efficient to process per core; degreeOfParallelism = maximum number of CPU cores that will be used</param>
         public static T[] ToArrayPar<T>(this List<T> src, Int32 srcStart, Int32 dstStart, Int32 length, (Int32 minWorkQuanta, Int32 degreeOfParallelism)? parSettings = null)
         {
-            (Int32 minWorkQuanta, Int32 degreeOfParallelism) = parSettings ?? (16 * 1024, 0);      // default values for parallelThreshold and degreeOfParallelism
+            (Int32 minWorkQuanta, Int32 degreeOfParallelism) = parSettings ?? (128 * 1024, 0);      // default values for parallelThreshold and degreeOfParallelism
             T[] dst = new T[src.Count];
-            CopyToArrayParallelInner<T>(src, srcStart, dst, dstStart, length, (minWorkQuanta, degreeOfParallelism));
+            if ((minWorkQuanta * degreeOfParallelism) < src.Count)
+                minWorkQuanta = src.Count / degreeOfParallelism;
+            CopyToArrayParallelInnerDac<T>(src, srcStart, dst, dstStart, length, (minWorkQuanta, degreeOfParallelism));
             return dst;
         }
         /// <summary>
@@ -190,8 +200,10 @@ namespace HPCsharp.ParallelAlgorithms
         /// <param name="parSettings">minWorkQuanta = number of array elements efficient to process per core; degreeOfParallelism = maximum number of CPU cores that will be used</param>
         public static void CopyToPar<T>(this List<T> src, T[] dst, (Int32 minWorkQuanta, Int32 degreeOfParallelism)? parSettings = null)
         {
-            (Int32 minWorkQuanta, Int32 degreeOfParallelism) = parSettings ?? (16 * 1024, 0);      // default values for parallelThreshold and degreeOfParallelism
-            CopyToArrayParallelInner<T>(src, 0, dst, 0, src.Count, (minWorkQuanta, degreeOfParallelism));
+            (Int32 minWorkQuanta, Int32 degreeOfParallelism) = parSettings ?? (128 * 1024, 0);      // default values for parallelThreshold and degreeOfParallelism
+            if ((minWorkQuanta * degreeOfParallelism) < src.Count)
+                minWorkQuanta = src.Count / degreeOfParallelism;
+            CopyToArrayParallelInnerDac<T>(src, 0, dst, 0, src.Count, (minWorkQuanta, degreeOfParallelism));
         }
         /// <summary>
         /// Copy to an existing Array from a portion of source List
@@ -203,7 +215,9 @@ namespace HPCsharp.ParallelAlgorithms
         /// <param name="parSettings">minWorkQuanta = number of array elements efficient to process per core; degreeOfParallelism = maximum number of CPU cores that will be used</param>
         public static void CopyToPar<T>(this List<T> src, T[] dst, Int32 dstStart, (Int32 minWorkQuanta, Int32 degreeOfParallelism)? parSettings = null)
         {
-            (Int32 minWorkQuanta, Int32 degreeOfParallelism) = parSettings ?? (16 * 1024, 0);      // default values for parallelThreshold and degreeOfParallelism
+            (Int32 minWorkQuanta, Int32 degreeOfParallelism) = parSettings ?? (128 * 1024, 0);      // default values for parallelThreshold and degreeOfParallelism
+            if ((minWorkQuanta * degreeOfParallelism) < src.Count)
+                minWorkQuanta = src.Count / degreeOfParallelism;
             CopyToArrayParallelInner<T>(src, 0, dst, dstStart, src.Count, (minWorkQuanta, degreeOfParallelism));
         }
         /// <summary>
@@ -218,8 +232,56 @@ namespace HPCsharp.ParallelAlgorithms
         /// <param name="parSettings">minWorkQuanta = number of array elements efficient to process per core; degreeOfParallelism = maximum number of CPU cores that will be used</param>
         public static void CopyToPar<T>(this List<T> src, Int32 srcStart, T[] dst, Int32 dstStart, Int32 length, (Int32 minWorkQuanta, Int32 degreeOfParallelism)? parSettings = null)
         {
-            (Int32 minWorkQuanta, Int32 degreeOfParallelism) = parSettings ?? (16 * 1024, 0);      // default values for parallelThreshold and degreeOfParallelism
+            (Int32 minWorkQuanta, Int32 degreeOfParallelism) = parSettings ?? (128 * 1024, 0);      // default values for parallelThreshold and degreeOfParallelism
+            if ((minWorkQuanta * degreeOfParallelism) < src.Count)
+                minWorkQuanta = src.Count / degreeOfParallelism;
             CopyToArrayParallelInner<T>(src, srcStart, dst, dstStart, length, (minWorkQuanta, degreeOfParallelism));
+        }
+        /// <summary>
+        /// Copy to an existing List from the source List
+        /// </summary>
+        /// <typeparam name="T">data type of each element</typeparam>
+        /// <param name="src">source List</param>
+        /// <param name="dst">destination List</param>
+        /// <param name="parSettings">minWorkQuanta = number of List elements efficient to process per core; degreeOfParallelism = maximum number of CPU cores that will be used</param>
+        public static void CopyToPar<T>(this List<T> src, List<T> dst, (Int32 minWorkQuanta, Int32 degreeOfParallelism)? parSettings = null)
+        {
+            (Int32 minWorkQuanta, Int32 degreeOfParallelism) = parSettings ?? (128 * 1024, 0);      // default values for parallelThreshold and degreeOfParallelism
+            if ((minWorkQuanta * degreeOfParallelism) < src.Count)
+                minWorkQuanta = src.Count / degreeOfParallelism;
+            CopyParallelInnerDac<T>(src, 0, dst, 0, src.Count, (minWorkQuanta, degreeOfParallelism));
+        }
+        /// <summary>
+        /// Copy to an existing List from a portion of source List
+        /// </summary>
+        /// <typeparam name="T">data type of each element</typeparam>
+        /// <param name="src">source List</param>
+        /// <param name="dst">destination List</param>
+        /// <param name="dstStart">starting index within dst List</param>
+        /// <param name="parSettings">minWorkQuanta = number of List elements efficient to process per core; degreeOfParallelism = maximum number of CPU cores that will be used</param>
+        public static void CopyToPar<T>(this List<T> src, List<T> dst, Int32 dstStart, (Int32 minWorkQuanta, Int32 degreeOfParallelism)? parSettings = null)
+        {
+            (Int32 minWorkQuanta, Int32 degreeOfParallelism) = parSettings ?? (128 * 1024, 0);      // default values for parallelThreshold and degreeOfParallelism
+            if ((minWorkQuanta * degreeOfParallelism) < src.Count)
+                minWorkQuanta = src.Count / degreeOfParallelism;
+            CopyParallelInnerDac<T>(src, 0, dst, dstStart, src.Count, (minWorkQuanta, degreeOfParallelism));
+        }
+        /// <summary>
+        /// Copy to an existing List from a portion of source List
+        /// </summary>
+        /// <typeparam name="T">data type of each element</typeparam>
+        /// <param name="src">source List</param>
+        /// <param name="srcStart">source List starting index</param>
+        /// <param name="dst">destination List</param>
+        /// <param name="dstStart">destination List starting index</param>
+        /// <param name="length">number of List elements to copy</param>
+        /// <param name="parSettings">minWorkQuanta = number of List elements efficient to process per core; degreeOfParallelism = maximum number of CPU cores that will be used</param>
+        public static void CopyToPar<T>(this List<T> src, Int32 srcStart, List<T> dst, Int32 dstStart, Int32 length, (Int32 minWorkQuanta, Int32 degreeOfParallelism)? parSettings = null)
+        {
+            (Int32 minWorkQuanta, Int32 degreeOfParallelism) = parSettings ?? (128 * 1024, 0);      // default values for parallelThreshold and degreeOfParallelism
+            if ((minWorkQuanta * degreeOfParallelism) < src.Count)
+                minWorkQuanta = src.Count / degreeOfParallelism;
+            CopyParallelInnerDac<T>(src, srcStart, dst, dstStart, length, (minWorkQuanta, degreeOfParallelism));
         }
     }
 }
