@@ -10,6 +10,7 @@
 // TODO: Figure out which way is faster for byte component Histogram (one byte version): // ?? Which way is faster. Need to look at assembly language listing too
 // TODO: Switch from mask-shift to shift-mask which makes the mask be the same for all bytes, which may make it faster than union. Try also casting to a byte instead of masking. Look at assembly to see
 //       which is better. Time to see which is faster.
+// TODO: To support small histograms, support the count arrays to be passed in, so that the caller can allocate them potentially on the stack or re-use previously allocated ones.
 using System;
 using System.Collections.Generic;
 using System.Text;
