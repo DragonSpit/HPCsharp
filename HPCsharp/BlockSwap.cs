@@ -10,6 +10,7 @@
 // TODO: Combine Reversal and Gries-Mills algorithms, to eliminate rotation of the smaller half of the array, when it pays off, since now the other
 //       half has to be "fixed". There may be certain ratios between halves that work well using one algorithm versus another.
 // TODO: Fix a bug with Bentley's Juggling algorithm when the starting index is non-zero.
+// TODO: Use Array.Copy to copy 3X faster for those algorithms that don't reverse
 using System;
 using System.Collections.Generic;
 using System.Text;
