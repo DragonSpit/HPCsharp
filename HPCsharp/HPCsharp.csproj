@@ -19,7 +19,7 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <AssemblyVersion>3.14.0.0</AssemblyVersion>
     <FileVersion>3.14.0.0</FileVersion>
-    <Version>3.13.2</Version>
+    <Version>3.14.0</Version>
     <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
