@@ -10,7 +10,7 @@
 // TODO: Combine Reversal and Gries-Mills algorithms, to eliminate rotation of the smaller half of the array, when it pays off, since now the other
 //       half has to be "fixed". There may be certain ratios between halves that work well using one algorithm versus another.
 // TODO: Fix a bug with Bentley's Juggling algorithm when the starting index is non-zero.
-// TODO: Use Array.Copy to copy 3X faster for those algorithms that don't reverse
+// TODO: Use Array.Copy to copy 3X faster for those algorithms that don't reverse, which is as fast as SSE copy.
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -32,7 +32,7 @@ namespace HPCsharp
             {
                 while (length-- > 0)
                 {
-                    T temp = array[indexA];                 // inlining Swap() increases performance by 25%
+                    T temp          = array[indexA];                 // inlining Swap() increases performance by 25%
                     array[indexA++] = array[indexB];
                     array[indexB++] = temp;
                 }
@@ -42,8 +42,40 @@ namespace HPCsharp
                 int currIndexB = indexB + length - 1;
                 while (length-- > 0)
                 {
-                    T temp = array[indexA];                 // inlining Swap() increases performance by 25%
-                    array[indexA++] = array[currIndexB];
+                    T temp              = array[indexA];             // inlining Swap() increases performance by 25%
+                    array[indexA++]     = array[currIndexB];
+                    array[currIndexB--] = temp;
+                }
+            }
+        }
+
+        public static void SwapArray<T>(this T[] array, int indexA, int indexB, int length, bool reverse = false, int tempBufferSize = 1024)
+        {
+            T[] tempBuffer = new T[tempBufferSize];
+
+            if (!reverse)
+            {
+                while ((length - tempBufferSize) > 0)
+                {
+                    Array.Copy(array,      indexA, tempBuffer, 0,      tempBufferSize);
+                    Array.Copy(array,      indexB, array,      indexA, tempBufferSize);
+                    Array.Copy(tempBuffer, 0,      array,      indexB, tempBufferSize);
+                    length -= tempBufferSize;
+                }
+                while (length-- > 0)
+                {
+                    T temp          = array[indexA];                 // inlining Swap() increases performance by 25%
+                    array[indexA++] = array[indexB];
+                    array[indexB++] = temp;
+                }
+            }
+            else
+            {
+                int currIndexB = indexB + length - 1;
+                while (length-- > 0)
+                {
+                    T temp              = array[indexA];                 // inlining Swap() increases performance by 25%
+                    array[indexA++]     = array[currIndexB];
                     array[currIndexB--] = temp;
                 }
             }
@@ -77,9 +109,12 @@ namespace HPCsharp
         // Swaps two sequential subarrays ranges a[ l .. m ] and a[ m + 1 .. r ]
         public static void BlockSwapReversal<T>(T[] array, int l, int m, int r)
         {
-            array.Reversal(l,     m);
-            array.Reversal(m + 1, r);
-            array.Reversal(l,     r);
+            //array.Reversal(l,     m);
+            //array.Reversal(m + 1, r);
+            //array.Reversal(l,     r);
+            Array.Reverse(array, l,     m - l + 1);
+            Array.Reverse(array, m + 1, r - m    );
+            Array.Reverse(array, l,     r - l + 1);
         }
 
         public static void BlockSwapReversalReverseOrder<T>(T[] array, int l, int m, int r)
@@ -102,12 +137,12 @@ namespace HPCsharp
             {
                 if (i > j)
                 {
-                    array.Swap(p - i, p, j);
+                    array.SwapArray(p - i, p, j);
                     i -= j;
                 }
                 else
                 {
-                    array.Swap(p - i, p + j - i, i);
+                    array.SwapArray(p - i, p + j - i, i);
                     j -= i;
                 }
             }
