@@ -34,6 +34,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using HPCsharp.ParallelAlgorithms;
@@ -61,7 +62,8 @@ namespace HPCsharp
         /// <param name="srcToDst">true => destination array will hold the sorted array; false => source array will hold the sorted array</param>
         /// <param name="comparer">method to compare array elements</param>
         /// <param name ="parallelThreshold">arrays larger than this value will be sorted using multiple cores</param>
-        private static void SortMergeInnerPar<T>(this T[] src, Int32 l, Int32 r, T[] dst, bool srcToDst = true, IComparer<T> comparer = null, Int32 parallelThreshold = 24 * 1024)
+        private static void SortMergeInnerPar<T>(this T[] src, Int32 l, Int32 r, T[] dst, bool srcToDst = true, IComparer<T> comparer = null,
+                                                 Int32 parallelThreshold = 24 * 1024, Int32 parallelMergeThreshold = 128 * 1024)
         {
             if (r == l)
             {    // termination/base case of sorting a single element
@@ -73,14 +75,14 @@ namespace HPCsharp
             {
                 HPCsharp.Algorithm.InsertionSort<T>(src, l, r - l + 1, comparer);  // want to do dstToSrc, can just do it in-place, just sort the src, no need to copy
                 if (srcToDst)
-                    for (int i = l; i <= r; i++) dst[i] = src[i];	// copy from src to dst, when the result needs to be in dst
+                    Array.Copy(src, l, dst, l, r - l + 1);
                 return;
             }
             else if ((r - l) <= parallelThreshold)
             {
                 Array.Sort<T>(src, l, r - l + 1, comparer);     // not a stable sort
                 if (srcToDst)
-                    for (int i = l; i <= r; i++) dst[i] = src[i];	// copy from src to dst, when the result needs to be in dst
+                    Array.Copy(src, l, dst, l, r - l + 1);
                 return;
             }
             int m = ((r + l) / 2);
@@ -88,9 +90,40 @@ namespace HPCsharp
                 () => { SortMergeInnerPar<T>(src, l,     m, dst, !srcToDst, comparer, parallelThreshold); },      // reverse direction of srcToDst for the next level of recursion
                 () => { SortMergeInnerPar<T>(src, m + 1, r, dst, !srcToDst, comparer, parallelThreshold); }
             );
+            if ((parallelMergeThreshold * Environment.ProcessorCount) < (r - l + 1))
+                parallelMergeThreshold = (r - l + 1) / Environment.ProcessorCount;
             // reverse direction of srcToDst for the next level of recursion
-            if (srcToDst) MergeInnerPar<T>(src, l, m, m + 1, r, dst, l, comparer);
-            else          MergeInnerPar<T>(dst, l, m, m + 1, r, src, l, comparer);
+            if (srcToDst) MergeInnerPar2<T>(src, l, m, m + 1, r, dst, l, comparer, parallelMergeThreshold);
+            else          MergeInnerPar2<T>(dst, l, m, m + 1, r, src, l, comparer, parallelMergeThreshold);
+        }
+
+        public static void SortMergeInnerPar_2<T>(this T[] src, Int32 srcStart, T[] dst, Int32 dstStart, Int32 length,
+                                                  IComparer<T> comparer = null, Int32 degreeOfParallelism = 0)
+        {
+            if (length <= 0)      // zero elements to sort
+                return;
+            if (length > (src.Length - srcStart) || length > (dst.Length - dstStart))
+                throw new ArgumentOutOfRangeException();
+
+            int maxDegreeOfPar = degreeOfParallelism <= 0 ? Environment.ProcessorCount : degreeOfParallelism;
+            int segmentLength = length / maxDegreeOfPar;
+
+            var myactions = new List<Action>();
+            int i = 0;
+            for( ; i < (maxDegreeOfPar - 1); i++)
+                myactions.Add(new Action(() => { Array.Sort<T>(src, segmentLength * i, segmentLength, comparer); }));
+            myactions.Add(new Action(() => { Array.Sort<T>(src, segmentLength * i, length - segmentLength * i, comparer); }));
+
+            Parallel.Invoke( myactions.ToArray() );
+
+            //var options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfPar };
+            //Parallel.ForEach(Partitioner.Create(srcStart, srcStart + length), options, range =>
+            //{
+            //    //Console.WriteLine("Partition: start = {0}   end = {1}", range.Item1, range.Item2);
+            //    Array.Sort<T>(src, range.Item1, range.Item2 - range.Item1, comparer);
+            //});
+
+            return;
         }
 
         /// <summary>

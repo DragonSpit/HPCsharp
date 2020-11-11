@@ -6,6 +6,15 @@
 // TODO: Parallelize Algorithm.BlockSwapReversal(arr, q1, midIndex, q2 - 1); to use SSE/SIMD instructions and to use as few cores as necessary to use full memory bandwidth.
 // TODO: Benchmark in-place versus not-in-place Merge and parallel Merge. Develop an adaptive in-place/not-in-place Merge and Parallel Merge if there is a large performance difference,
 //       and use it inside Parallel Merge Sort and serial Merge Sort
+// TODO: Parallel Merge running on all 32-core with hyperthreading (64-core in AWS) varied in performance dramatically from 200 Million to 1.7 Billion 
+//       530-741 Million on a 6-core (with hyperthreading) is much more consitent in performance (on battery). Figure out why it's not scaling well - interference?
+//       Single-core merge is 150-170 Million (very consistent) - on battery power; and 245-246 Million (extremely consistent - on wall power.
+//       ParallelMerge was 750-770 Million when threshold set to be arra.Length / numberOfCores, and 770-1.1 Billion when set to 32K or 64K on 6-core laptop (with 128K possibly even better).
+// TODO: Figure out why Merge and Merge2 are consistent in performance, with neither showing advantage, especially when order of measurement was swapped and then the other showed up as faster.
+//       Seems to be a measurement flaw.
+// TODO: Port my median-of-two-sorted-arrays algorithm from Dr. Dobb's to reduce the number of levels in the parallel merge to be exactly Log2(N).
+// TODO: Improve termination case of Parallel Merge to a better measure than (length1 + length2) < threshold, to possibly include the case of one of the lengths being smaller than a threshold
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -53,6 +62,9 @@ namespace HPCsharp
                 HPCsharp.Algorithm.Merge<T>(src, p1, length1,
                                             src, p2, length2,
                                             dst, p3, comparer);  // in Dr. Dobb's Journal paper
+                //HPCsharp.Algorithm.Merge2<T>(src, p1, length1,
+                //                                  p2, length2,
+                //                             dst, p3, comparer);  // in Dr. Dobb's Journal paper
             }
             else
             {
@@ -63,6 +75,84 @@ namespace HPCsharp
                 Parallel.Invoke(
                     () => { MergeInnerPar<T>(src, p1,     q1 - 1, p2, q2 - 1, dst, p3,     comparer); },
                     () => { MergeInnerPar<T>(src, q1 + 1, r1,     q2, r2,     dst, q3 + 1, comparer); }
+                );
+            }
+        }
+
+        internal static void MergeInnerParNew<T>(T[] src, Int32 p1, Int32 r1, Int32 p2, Int32 r2, T[] dst, Int32 p3, IComparer<T> comparer = null)
+        {
+            //Console.WriteLine("#1 " + p1 + " " + r1 + " " + p2 + " " + r2);
+            Int32 length1 = r1 - p1 + 1;
+            Int32 length2 = r2 - p2 + 1;
+            if (length1 < length2)
+            {
+                Algorithm.Swap(ref p1, ref p2);
+                Algorithm.Swap(ref r1, ref r2);
+                Algorithm.Swap(ref length1, ref length2);
+            }
+            if (length1 == 0) return;
+            if ((length1 + length2) <= MergeParallelArrayThreshold)
+            {
+                //Console.WriteLine("#3 " + p1 + " " + length1 + " " + p2 + " " + length2 + " " + p3);
+                HPCsharp.Algorithm.MergeNew<T>(src, p1, length1,
+                                               src, p2, length2,
+                                               dst, p3, comparer);  // in Dr. Dobb's Journal paper
+                //HPCsharp.Algorithm.Merge2<T>(src, p1, length1,
+                //                                  p2, length2,
+                //                             dst, p3, comparer);  // in Dr. Dobb's Journal paper
+            }
+            else
+            {
+                Int32 q1 = (p1 + r1) / 2;
+                Int32 q2 = Algorithm.BinarySearch(src[q1], src, p2, r2, comparer);
+                Int32 q3 = p3 + (q1 - p1) + (q2 - p2);
+                dst[q3] = src[q1];
+                Parallel.Invoke(
+                    () => { MergeInnerPar<T>(src, p1, q1 - 1, p2, q2 - 1, dst, p3, comparer); },
+                    () => { MergeInnerPar<T>(src, q1 + 1, r1, q2, r2, dst, q3 + 1, comparer); }
+                );
+            }
+        }
+        /// <summary>
+        /// Divide-and-Conquer Merge of two ranges of source array src[ p1 .. r1 ] and src[ p2 .. r2 ] into destination array starting at index p3.
+        /// </summary>
+        /// <typeparam name="T">data type of each array element</typeparam>
+        /// <param name="src">source array</param>
+        /// <param name="p1">starting index of the first  segment, inclusive</param>
+        /// <param name="r1">ending   index of the first  segment, inclusive</param>
+        /// <param name="p2">starting index of the second segment, inclusive</param>
+        /// <param name="r2">ending   index of the second segment, inclusive</param>
+        /// <param name="dst">destination array</param>
+        /// <param name="p3">starting index of the result</param>
+        /// <param name="comparer">method to compare array elements</param>
+        internal static void MergeInnerPar2<T>(T[] src, Int32 p1, Int32 r1, Int32 p2, Int32 r2, T[] dst, Int32 p3, IComparer<T> comparer = null, Int32 mergeParallelThreshold = 128 * 1024)
+        {
+            //Console.WriteLine("#1 " + p1 + " " + r1 + " " + p2 + " " + r2);
+            Int32 length1 = r1 - p1 + 1;
+            Int32 length2 = r2 - p2 + 1;
+            if (length1 < length2)
+            {
+                Algorithm.Swap(ref p1, ref p2);
+                Algorithm.Swap(ref r1, ref r2);
+                Algorithm.Swap(ref length1, ref length2);
+            }
+            if (length1 == 0) return;
+            if ((length1 + length2) <= mergeParallelThreshold)
+            {
+                //Console.WriteLine("#3 " + p1 + " " + length1 + " " + p2 + " " + length2 + " " + p3);
+                HPCsharp.Algorithm.Merge2<T>(src, p1, length1,
+                                             src, p2, length2,
+                                             dst, p3, comparer);  // in Dr. Dobb's Journal paper
+            }
+            else
+            {
+                Int32 q1 = (p1 + r1) / 2;
+                Int32 q2 = Algorithm.BinarySearch(src[q1], src, p2, r2, comparer);
+                Int32 q3 = p3 + (q1 - p1) + (q2 - p2);
+                dst[q3] = src[q1];
+                Parallel.Invoke(
+                    () => { MergeInnerPar2<T>(src, p1, q1 - 1, p2, q2 - 1, dst, p3, comparer, mergeParallelThreshold); },
+                    () => { MergeInnerPar2<T>(src, q1 + 1, r1, q2, r2, dst, q3 + 1, comparer, mergeParallelThreshold); }
                 );
             }
         }
@@ -81,6 +171,11 @@ namespace HPCsharp
         public static void MergePar<T>(T[] src, Int32 aStart, Int32 aLength, Int32 bStart, Int32 bLength, T[] dst, Int32 dstStart, Comparer<T> comparer = null)
         {
             MergeInnerPar<T>(src, aStart, aStart + aLength - 1, bStart, bStart + bLength - 1, dst, dstStart, comparer);
+        }
+
+        public static void MergeParNew<T>(T[] src, Int32 aStart, Int32 aLength, Int32 bStart, Int32 bLength, T[] dst, Int32 dstStart, Comparer<T> comparer = null)
+        {
+            MergeInnerParNew<T>(src, aStart, aStart + aLength - 1, bStart, bStart + bLength - 1, dst, dstStart, comparer);
         }
 
         /// <summary>
