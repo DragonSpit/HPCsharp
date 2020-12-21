@@ -797,7 +797,7 @@ namespace HPCsharp.ParallelAlgorithms
             for (; i <= r; i++)
                 overallSum += arrayToSum[i];
             sumVectorLower += sumVectorUpper;
-            for (i = 0; i < Vector<long>.Count; i++)
+            for (i = 0; i < Vector<ulong>.Count; i++)
                 overallSum += sumVectorLower[i];
             return overallSum;
         }
