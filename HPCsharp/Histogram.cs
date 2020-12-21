@@ -264,14 +264,19 @@ namespace HPCsharp
             for (int i = 0; i < numberOfDigits; i++)
                 count[i] = new uint[numberOfBins];
 #if true
+            uint[] count0 = count[0];
+            uint[] count1 = count[1];
+            uint[] count2 = count[2];
+            uint[] count3 = count[3];
+
             var union = new UInt32ByteUnion();
             for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
             {
                 union.integer = getKey(inArray[current]);
-                count[0][union.byte0]++;
-                count[1][union.byte1]++;
-                count[2][union.byte2]++;
-                count[3][union.byte3]++;
+                count0[union.byte0]++;
+                count1[union.byte1]++;
+                count2[union.byte2]++;
+                count3[union.byte3]++;
             }
 #else
             for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
@@ -294,18 +299,27 @@ namespace HPCsharp
             for (int i = 0; i < numberOfDigits; i++)
                 count[i] = new uint[numberOfBins];
 #if true
+            uint[] count0 = count[0];
+            uint[] count1 = count[1];
+            uint[] count2 = count[2];
+            uint[] count3 = count[3];
+            uint[] count4 = count[4];
+            uint[] count5 = count[5];
+            uint[] count6 = count[6];
+            uint[] count7 = count[7];
+
             var union = new UInt64ByteUnion();
             for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
             {
                 union.integer = getKey(inArray[current]);
-                count[0][union.byte0]++;
-                count[1][union.byte1]++;
-                count[2][union.byte2]++;
-                count[3][union.byte3]++;
-                count[4][union.byte4]++;
-                count[5][union.byte5]++;
-                count[6][union.byte6]++;
-                count[7][union.byte7]++;
+                count0[union.byte0]++;
+                count1[union.byte1]++;
+                count2[union.byte2]++;
+                count3[union.byte3]++;
+                count4[union.byte4]++;
+                count5[union.byte5]++;
+                count6[union.byte6]++;
+                count7[union.byte7]++;
             }
 #else
             for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
@@ -329,15 +343,20 @@ namespace HPCsharp
             for (int i = 0; i < numberOfDigits; i++)
                 count[i] = new uint[numberOfBins];
 #if true
+            uint[] count0 = count[0];
+            uint[] count1 = count[1];
+            uint[] count2 = count[2];
+            uint[] count3 = count[3];
+
             var union = new UInt32ByteUnion();
             for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
             {
                 union.integer = getKey(inArray[current]);
                 inKeys[current] = union.integer;
-                count[0][union.byte0]++;
-                count[1][union.byte1]++;
-                count[2][union.byte2]++;
-                count[3][union.byte3]++;
+                count0[union.byte0]++;
+                count1[union.byte1]++;
+                count2[union.byte2]++;
+                count3[union.byte3]++;
             }
 #else
             for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
@@ -361,19 +380,28 @@ namespace HPCsharp
             for (int i = 0; i < numberOfDigits; i++)
                 count[i] = new uint[numberOfBins];
 #if true
+            uint[] count0 = count[0];
+            uint[] count1 = count[1];
+            uint[] count2 = count[2];
+            uint[] count3 = count[3];
+            uint[] count4 = count[4];
+            uint[] count5 = count[5];
+            uint[] count6 = count[6];
+            uint[] count7 = count[7];
+
             var union = new UInt64ByteUnion();
             for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
             {
                 union.integer = getKey(inArray[current]);
                 inKeys[current] = union.integer;
-                count[0][union.byte0]++;
-                count[1][union.byte1]++;
-                count[2][union.byte2]++;
-                count[3][union.byte3]++;
-                count[4][union.byte4]++;
-                count[5][union.byte5]++;
-                count[6][union.byte6]++;
-                count[7][union.byte7]++;
+                count0[union.byte0]++;
+                count1[union.byte1]++;
+                count2[union.byte2]++;
+                count3[union.byte3]++;
+                count4[union.byte4]++;
+                count5[union.byte5]++;
+                count6[union.byte6]++;
+                count7[union.byte7]++;
             }
 #else
             for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
@@ -415,18 +443,27 @@ namespace HPCsharp
             for (int i = 0; i < numberOfDigits; i++)
                 count[i] = new uint[numberOfBins];
 
+            uint[] count0 = count[0];
+            uint[] count1 = count[1];
+            uint[] count2 = count[2];
+            uint[] count3 = count[3];
+            uint[] count4 = count[4];
+            uint[] count5 = count[5];
+            uint[] count6 = count[6];
+            uint[] count7 = count[7];
+
             var union  = new UInt64ByteUnion();
             for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
             {
                 union.integer = inArray[current];
-                count[0][union.byte0]++;
-                count[1][union.byte1]++;
-                count[2][union.byte2]++;
-                count[3][union.byte3]++;
-                count[4][union.byte4]++;
-                count[5][union.byte5]++;
-                count[6][union.byte6]++;
-                count[7][union.byte7]++;
+                count0[union.byte0]++;
+                count1[union.byte1]++;
+                count2[union.byte2]++;
+                count3[union.byte3]++;
+                count4[union.byte4]++;
+                count5[union.byte5]++;
+                count6[union.byte6]++;
+                count7[union.byte7]++;
             }
             return count;
         }
@@ -439,14 +476,19 @@ namespace HPCsharp
             for (int i = 0; i < numberOfDigits; i++)
                 count[i] = new uint[numberOfBins];
 
+            uint[] count0 = count[0];
+            uint[] count1 = count[1];
+            uint[] count2 = count[2];
+            uint[] count3 = count[3];
+
             var union = new Int32ByteUnion();
             for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
             {
                 union.integer = inArray[current];
-                count[0][union.byte0]++;
-                count[1][union.byte1]++;
-                count[2][union.byte2]++;
-                count[3][((uint)inArray[current] >> 24) ^ 128]++;
+                count0[union.byte0]++;
+                count1[union.byte1]++;
+                count2[union.byte2]++;
+                count3[((uint)inArray[current] >> 24) ^ 128]++;
             }
             return count;
         }
@@ -459,18 +501,27 @@ namespace HPCsharp
             for (int i = 0; i < numberOfDigits; i++)
                 count[i] = new uint[numberOfBins];
 
+            uint[] count0 = count[0];
+            uint[] count1 = count[1];
+            uint[] count2 = count[2];
+            uint[] count3 = count[3];
+            uint[] count4 = count[4];
+            uint[] count5 = count[5];
+            uint[] count6 = count[6];
+            uint[] count7 = count[7];
+
             var union = new Int64ByteUnion();
             for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
             {
                 union.integer = inArray[current];
-                count[0][union.byte0]++;
-                count[1][union.byte1]++;
-                count[2][union.byte2]++;
-                count[3][union.byte3]++;
-                count[4][union.byte4]++;
-                count[5][union.byte5]++;
-                count[6][union.byte6]++;
-                count[7][((ulong)inArray[current] >> 56) ^ 128]++;
+                count0[union.byte0]++;
+                count1[union.byte1]++;
+                count2[union.byte2]++;
+                count3[union.byte3]++;
+                count4[union.byte4]++;
+                count5[union.byte5]++;
+                count6[union.byte6]++;
+                count7[((ulong)inArray[current] >> 56) ^ 128]++;
             }
             return count;
         }
@@ -484,20 +535,29 @@ namespace HPCsharp
                 count[i] = new uint[numberOfBins];
             int numElementsPreSorted = 0;
 
+            uint[] count0 = count[0];
+            uint[] count1 = count[1];
+            uint[] count2 = count[2];
+            uint[] count3 = count[3];
+            uint[] count4 = count[4];
+            uint[] count5 = count[5];
+            uint[] count6 = count[6];
+            uint[] count7 = count[7];
+
             var union = new Int64ByteUnion();
 
             int current = l;
             if (current <= r)
             {
                 union.integer = inArray[current];
-                count[0][union.byte0]++;
-                count[1][union.byte1]++;
-                count[2][union.byte2]++;
-                count[3][union.byte3]++;
-                count[4][union.byte4]++;
-                count[5][union.byte5]++;
-                count[6][union.byte6]++;
-                count[7][((ulong)inArray[current] >> 56) ^ 128]++;
+                count0[union.byte0]++;
+                count1[union.byte1]++;
+                count2[union.byte2]++;
+                count3[union.byte3]++;
+                count4[union.byte4]++;
+                count5[union.byte5]++;
+                count6[union.byte6]++;
+                count7[((ulong)inArray[current] >> 56) ^ 128]++;
                 current++;
 
                 numElementsPreSorted++;     // initial single array element is considered sorted, since there is only a single element
@@ -506,14 +566,14 @@ namespace HPCsharp
             for (; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
             {
                 union.integer = inArray[current];
-                count[0][union.byte0]++;
-                count[1][union.byte1]++;
-                count[2][union.byte2]++;
-                count[3][union.byte3]++;
-                count[4][union.byte4]++;
-                count[5][union.byte5]++;
-                count[6][union.byte6]++;
-                count[7][((ulong)inArray[current] >> 56) ^ 128]++;
+                count0[union.byte0]++;
+                count1[union.byte1]++;
+                count2[union.byte2]++;
+                count3[union.byte3]++;
+                count4[union.byte4]++;
+                count5[union.byte5]++;
+                count6[union.byte6]++;
+                count7[((ulong)inArray[current] >> 56) ^ 128]++;
 
                 // TODO: It should be possible to take the if/branch out, possibly by using SIMD/SSE or by separating the > from the ==, where ? can be done with a subtraction
                 //       and equal with XOR followed by a subtraction from all 1's
@@ -880,76 +940,106 @@ namespace HPCsharp
                 countLeft[i] = new uint[numberOfBins];
             if (bitsPerComponent == 8)
             {
+                uint[] countLeft0 = countLeft[0];
+                uint[] countLeft1 = countLeft[1];
+                uint[] countLeft2 = countLeft[2];
+                uint[] countLeft3 = countLeft[3];
+
                 var union = new UInt32ByteUnion();
                 for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
                 {
                     union.integer = inArray[current];
-                    countLeft[0][union.byte0]++;
-                    countLeft[1][union.byte1]++;
-                    countLeft[2][union.byte2]++;
-                    countLeft[3][union.byte3]++;
+                    countLeft0[union.byte0]++;
+                    countLeft1[union.byte1]++;
+                    countLeft2[union.byte2]++;
+                    countLeft3[union.byte3]++;
                 }
             }
             else if (bitsPerComponent == 9)
             {
+                uint[] countLeft0 = countLeft[0];
+                uint[] countLeft1 = countLeft[1];
+                uint[] countLeft2 = countLeft[2];
+                uint[] countLeft3 = countLeft[3];
+
                 for (int current = l; current <= r; current++)
                 {
                     uint value = inArray[current];
-                    countLeft[0][value  &      0x1ff       ]++;
-                    countLeft[1][(value &    0x3fe00) >>  9]++;
-                    countLeft[2][(value &  0x7fc0000) >> 18]++;
-                    countLeft[3][(value & 0xf8000000) >> 27]++;
+                    countLeft0[value  &      0x1ff       ]++;
+                    countLeft1[(value &    0x3fe00) >>  9]++;
+                    countLeft2[(value &  0x7fc0000) >> 18]++;
+                    countLeft3[(value & 0xf8000000) >> 27]++;
                 }
             }
             else if (bitsPerComponent == 10)
             {
+                uint[] countLeft0 = countLeft[0];
+                uint[] countLeft1 = countLeft[1];
+                uint[] countLeft2 = countLeft[2];
+                uint[] countLeft3 = countLeft[3];
+
                 for (int current = l; current <= r; current++)
                 {
                     uint value = inArray[current];
-                    countLeft[0][ value &      0x3ff       ]++;
-                    countLeft[1][(value &    0xffc00) >> 10]++;
-                    countLeft[2][(value & 0x3ff00000) >> 20]++;
-                    countLeft[3][(value & 0xc0000000) >> 30]++;
+                    countLeft0[ value &      0x3ff       ]++;
+                    countLeft1[(value &    0xffc00) >> 10]++;
+                    countLeft2[(value & 0x3ff00000) >> 20]++;
+                    countLeft3[(value & 0xc0000000) >> 30]++;
                 }
             }
             else if (bitsPerComponent == 11)
             {
+                uint[] countLeft0 = countLeft[0];
+                uint[] countLeft1 = countLeft[1];
+                uint[] countLeft2 = countLeft[2];
+
                 for (int current = l; current <= r; current++)
                 {
                     uint value = inArray[current];
-                    countLeft[0][ value &      0x7ff       ]++;
-                    countLeft[1][(value &   0x3ff800) >> 11]++;
-                    countLeft[2][(value & 0xffc00000) >> 22]++;
+                    countLeft0[ value &      0x7ff       ]++;
+                    countLeft1[(value &   0x3ff800) >> 11]++;
+                    countLeft2[(value & 0xffc00000) >> 22]++;
                 }
             }
             else if (bitsPerComponent == 12)
             {
+                uint[] countLeft0 = countLeft[0];
+                uint[] countLeft1 = countLeft[1];
+                uint[] countLeft2 = countLeft[2];
+
                 for (int current = l; current <= r; current++)
                 {
                     uint value = inArray[current];
-                    countLeft[0][ value &      0xfff       ]++;
-                    countLeft[1][(value &   0xfff000) >> 12]++;
-                    countLeft[2][(value & 0xff000000) >> 24]++;
+                    countLeft0[ value &      0xfff       ]++;
+                    countLeft1[(value &   0xfff000) >> 12]++;
+                    countLeft2[(value & 0xff000000) >> 24]++;
                 }
             }
             else if (bitsPerComponent == 13)
             {
+                uint[] countLeft0 = countLeft[0];
+                uint[] countLeft1 = countLeft[1];
+                uint[] countLeft2 = countLeft[2];
+
                 for (int current = l; current <= r; current++)
                 {
                     uint value = inArray[current];
-                    countLeft[0][ value &     0x1fff       ]++;
-                    countLeft[1][(value &  0x3ffe000) >> 13]++;
-                    countLeft[2][(value & 0xfc000000) >> 26]++;
+                    countLeft0[ value &     0x1fff       ]++;
+                    countLeft1[(value &  0x3ffe000) >> 13]++;
+                    countLeft2[(value & 0xfc000000) >> 26]++;
                 }
             }
             else if (bitsPerComponent == 16)
             {
+                uint[] countLeft0 = countLeft[0];
+                uint[] countLeft1 = countLeft[1];
+
                 var union = new UInt32UShortUnion();
                 for (int current = l; current <= r; current++)
                 {
                     union.integer = inArray[current];
-                    countLeft[0][union.ushort0]++;
-                    countLeft[1][union.ushort1]++;
+                    countLeft0[union.ushort0]++;
+                    countLeft1[union.ushort1]++;
                 }
             }
             else
@@ -977,97 +1067,148 @@ namespace HPCsharp
                 countLeft[i] = new uint[numberOfBins];
             if (bitsPerComponent == 8)
             {
+                uint[] countLeft0 = countLeft[0];
+                uint[] countLeft1 = countLeft[1];
+                uint[] countLeft2 = countLeft[2];
+                uint[] countLeft3 = countLeft[3];
+                uint[] countLeft4 = countLeft[4];
+                uint[] countLeft5 = countLeft[5];
+                uint[] countLeft6 = countLeft[6];
+                uint[] countLeft7 = countLeft[7];
+
                 var union = new UInt64ByteUnion();
                 for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
                 {
                     union.integer = inArray[current];
-                    countLeft[0][union.byte0]++;
-                    countLeft[1][union.byte1]++;
-                    countLeft[2][union.byte2]++;
-                    countLeft[3][union.byte3]++;
-                    countLeft[4][union.byte4]++;
-                    countLeft[5][union.byte5]++;
-                    countLeft[6][union.byte6]++;
-                    countLeft[7][union.byte7]++;
+                    countLeft0[union.byte0]++;
+                    countLeft1[union.byte1]++;
+                    countLeft2[union.byte2]++;
+                    countLeft3[union.byte3]++;
+                    countLeft4[union.byte4]++;
+                    countLeft5[union.byte5]++;
+                    countLeft6[union.byte6]++;
+                    countLeft7[union.byte7]++;
                 }
             }
             else if (bitsPerComponent == 9)
             {
+                uint[] countLeft0 = countLeft[0];
+                uint[] countLeft1 = countLeft[1];
+                uint[] countLeft2 = countLeft[2];
+                uint[] countLeft3 = countLeft[3];
+                uint[] countLeft4 = countLeft[4];
+                uint[] countLeft5 = countLeft[5];
+                uint[] countLeft6 = countLeft[6];
+                uint[] countLeft7 = countLeft[7];
+
                 for (int current = l; current <= r; current++)
                 {
                     ulong value = inArray[current];
-                    countLeft[0][ value &              0x1ff       ]++;
-                    countLeft[1][(value &            0x3fe00) >>  9]++;
-                    countLeft[2][(value &          0x7fc0000) >> 18]++;
-                    countLeft[3][(value &        0xff8000000) >> 27]++;
-                    countLeft[4][(value &     0x1ff000000000) >> 36]++;
-                    countLeft[5][(value &   0x3fe00000000000) >> 45]++;
-                    countLeft[6][(value & 0x7fc0000000000000) >> 54]++;
-                    countLeft[7][(value & 0x8000000000000000) >> 63]++;
+                    countLeft0[ value &              0x1ff       ]++;
+                    countLeft1[(value &            0x3fe00) >>  9]++;
+                    countLeft2[(value &          0x7fc0000) >> 18]++;
+                    countLeft3[(value &        0xff8000000) >> 27]++;
+                    countLeft4[(value &     0x1ff000000000) >> 36]++;
+                    countLeft5[(value &   0x3fe00000000000) >> 45]++;
+                    countLeft6[(value & 0x7fc0000000000000) >> 54]++;
+                    countLeft7[(value & 0x8000000000000000) >> 63]++;
                 }
             }
             else if (bitsPerComponent == 10)    // useful for 64-bit
             {
+                uint[] countLeft0 = countLeft[0];
+                uint[] countLeft1 = countLeft[1];
+                uint[] countLeft2 = countLeft[2];
+                uint[] countLeft3 = countLeft[3];
+                uint[] countLeft4 = countLeft[4];
+                uint[] countLeft5 = countLeft[5];
+                uint[] countLeft6 = countLeft[6];
+
                 for (int current = l; current <= r; current++)
                 {
                     ulong value = inArray[current];
-                    countLeft[0][ value &              0x3ff       ]++;
-                    countLeft[1][(value &            0xffc00) >> 10]++;
-                    countLeft[2][(value &         0x3ff00000) >> 20]++;
-                    countLeft[3][(value &       0xffc0000000) >> 30]++;
-                    countLeft[4][(value &    0x3ff0000000000) >> 40]++;
-                    countLeft[5][(value &  0xffc000000000000) >> 50]++;
-                    countLeft[6][(value & 0xf000000000000000) >> 60]++;
+                    countLeft0[ value &              0x3ff       ]++;
+                    countLeft1[(value &            0xffc00) >> 10]++;
+                    countLeft2[(value &         0x3ff00000) >> 20]++;
+                    countLeft3[(value &       0xffc0000000) >> 30]++;
+                    countLeft4[(value &    0x3ff0000000000) >> 40]++;
+                    countLeft5[(value &  0xffc000000000000) >> 50]++;
+                    countLeft6[(value & 0xf000000000000000) >> 60]++;
                 }
             }
             else if (bitsPerComponent == 11)
             {
+                uint[] countLeft0 = countLeft[0];
+                uint[] countLeft1 = countLeft[1];
+                uint[] countLeft2 = countLeft[2];
+                uint[] countLeft3 = countLeft[3];
+                uint[] countLeft4 = countLeft[4];
+                uint[] countLeft5 = countLeft[5];
+
                 for (int current = l; current <= r; current++)
                 {
                     ulong value = inArray[current];
-                    countLeft[0][ value &              0x7ff       ]++;
-                    countLeft[1][(value &           0x3ff800) >> 11]++;
-                    countLeft[2][(value &        0x1ffc00000) >> 22]++;
-                    countLeft[3][(value &      0xffe00000000) >> 33]++;
-                    countLeft[4][(value &   0x7ff00000000000) >> 44]++;
-                    countLeft[5][(value & 0xff80000000000000) >> 55]++;
+                    countLeft0[ value &              0x7ff       ]++;
+                    countLeft1[(value &           0x3ff800) >> 11]++;
+                    countLeft2[(value &        0x1ffc00000) >> 22]++;
+                    countLeft3[(value &      0xffe00000000) >> 33]++;
+                    countLeft4[(value &   0x7ff00000000000) >> 44]++;
+                    countLeft5[(value & 0xff80000000000000) >> 55]++;
                 }
             }
             else if (bitsPerComponent == 12)
             {
                 for (int current = l; current <= r; current++)
                 {
+                    uint[] countLeft0 = countLeft[0];
+                    uint[] countLeft1 = countLeft[1];
+                    uint[] countLeft2 = countLeft[2];
+                    uint[] countLeft3 = countLeft[3];
+                    uint[] countLeft4 = countLeft[4];
+                    uint[] countLeft5 = countLeft[5];
+
                     ulong value = inArray[current];
-                    countLeft[0][ value &              0xfff       ]++;
-                    countLeft[1][(value &           0xfff000) >> 12]++;
-                    countLeft[2][(value &        0xfff000000) >> 24]++;
-                    countLeft[3][(value &     0xfff000000000) >> 36]++;
-                    countLeft[4][(value &  0xfff000000000000) >> 48]++;
-                    countLeft[5][(value & 0xf000000000000000) >> 60]++;
+                    countLeft0[ value &              0xfff       ]++;
+                    countLeft1[(value &           0xfff000) >> 12]++;
+                    countLeft2[(value &        0xfff000000) >> 24]++;
+                    countLeft3[(value &     0xfff000000000) >> 36]++;
+                    countLeft4[(value &  0xfff000000000000) >> 48]++;
+                    countLeft5[(value & 0xf000000000000000) >> 60]++;
                 }
             }
             else if (bitsPerComponent == 13)
             {
+                uint[] countLeft0 = countLeft[0];
+                uint[] countLeft1 = countLeft[1];
+                uint[] countLeft2 = countLeft[2];
+                uint[] countLeft3 = countLeft[3];
+                uint[] countLeft4 = countLeft[4];
+
                 for (int current = l; current <= r; current++)
                 {
                     ulong value = inArray[current];
-                    countLeft[0][ value &             0x1fff       ]++;
-                    countLeft[1][(value &          0x3ffe000) >> 13]++;
-                    countLeft[2][(value &       0x7ffc000000) >> 26]++;
-                    countLeft[3][(value &    0xfff8000000000) >> 39]++;
-                    countLeft[4][(value & 0xfff0000000000000) >> 52]++;
+                    countLeft0[ value &             0x1fff       ]++;
+                    countLeft1[(value &          0x3ffe000) >> 13]++;
+                    countLeft2[(value &       0x7ffc000000) >> 26]++;
+                    countLeft3[(value &    0xfff8000000000) >> 39]++;
+                    countLeft4[(value & 0xfff0000000000000) >> 52]++;
                 }
             }
             else if (bitsPerComponent == 16)
             {
+                uint[] countLeft0 = countLeft[0];
+                uint[] countLeft1 = countLeft[1];
+                uint[] countLeft2 = countLeft[2];
+                uint[] countLeft3 = countLeft[3];
+
                 var union = new UInt64UShortUnion();
                 for (int current = l; current <= r; current++)
                 {
                     union.integer = inArray[current];
-                    countLeft[0][union.ushort0]++;
-                    countLeft[1][union.ushort1]++;
-                    countLeft[2][union.ushort0]++;
-                    countLeft[3][union.ushort1]++;
+                    countLeft0[union.ushort0]++;
+                    countLeft1[union.ushort1]++;
+                    countLeft2[union.ushort0]++;
+                    countLeft3[union.ushort1]++;
                 }
             }
             else

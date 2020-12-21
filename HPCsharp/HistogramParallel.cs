@@ -1,4 +1,5 @@
-﻿using System;
+﻿// TODO: Implement performance improvement from my C++ code, where in the counting 2-D part, instead of using a 2-D array for the increment computation, a 1-D array is used, which gets initialized before the for loop. C++ comment is that it's faster.
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Numerics;
@@ -157,14 +158,19 @@ namespace HPCsharp
                 return countLeft;
             if ((r - l + 1) <= ThresholdByteCount)
             {
+                uint[] countLeft0 = countLeft[0];
+                uint[] countLeft1 = countLeft[1];
+                uint[] countLeft2 = countLeft[2];
+                uint[] countLeft3 = countLeft[3];
+
                 var union = new Algorithm.UInt32ByteUnion();
                 for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
                 {
                     union.integer = inArray[current];
-                    countLeft[0][union.byte0]++;
-                    countLeft[1][union.byte1]++;
-                    countLeft[2][union.byte2]++;
-                    countLeft[3][union.byte3]++;
+                    countLeft0[union.byte0]++;
+                    countLeft1[union.byte1]++;
+                    countLeft2[union.byte2]++;
+                    countLeft3[union.byte3]++;
                 }
                 return countLeft;
             }
@@ -199,14 +205,19 @@ namespace HPCsharp
                 return countLeft;
             if ((r - l + 1) <= ThresholdByteCount)
             {
+                uint[] countLeft0 = countLeft[0];
+                uint[] countLeft1 = countLeft[1];
+                uint[] countLeft2 = countLeft[2];
+                uint[] countLeft3 = countLeft[3];
+
                 var union = new Algorithm.UInt32ByteUnion();
                 for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
                 {
                     union.integer = inArray[current];
-                    countLeft[0][union.byte0]++;
-                    countLeft[1][union.byte1]++;
-                    countLeft[2][union.byte2]++;
-                    countLeft[3][union.byte3]++;
+                    countLeft0[union.byte0]++;
+                    countLeft1[union.byte1]++;
+                    countLeft2[union.byte2]++;
+                    countLeft3[union.byte3]++;
                 }
                 return countLeft;
             }
@@ -240,14 +251,19 @@ namespace HPCsharp
                 return countLeft;
             if ((r - l + 1) <= ThresholdByteCount)
             {
+                uint[] countLeft0 = countLeft[0];
+                uint[] countLeft1 = countLeft[1];
+                uint[] countLeft2 = countLeft[2];
+                uint[] countLeft3 = countLeft[3];
+
                 var union = new Algorithm.Int32ByteUnion();
                 for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
                 {
                     union.integer = inArray[current];
-                    countLeft[0][union.byte0]++;
-                    countLeft[1][union.byte1]++;
-                    countLeft[2][union.byte2]++;
-                    countLeft[3][((uint)inArray[current] >> 24) ^ 128]++;
+                    countLeft0[union.byte0]++;
+                    countLeft1[union.byte1]++;
+                    countLeft2[union.byte2]++;
+                    countLeft3[((uint)inArray[current] >> 24) ^ 128]++;
                 }
                 return countLeft;
             }
@@ -282,14 +298,19 @@ namespace HPCsharp
                 return countLeft;
             if ((r - l + 1) <= ThresholdByteCount)
             {
+                uint[] countLeft0 = countLeft[0];
+                uint[] countLeft1 = countLeft[1];
+                uint[] countLeft2 = countLeft[2];
+                uint[] countLeft3 = countLeft[3];
+
                 var union = new Algorithm.Int32ByteUnion();
                 for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
                 {
                     union.integer = inArray[current];
-                    countLeft[0][union.byte0]++;
-                    countLeft[1][union.byte1]++;
-                    countLeft[2][union.byte2]++;
-                    countLeft[3][((uint)inArray[current] >> 24) ^ 128]++;
+                    countLeft0[union.byte0]++;
+                    countLeft1[union.byte1]++;
+                    countLeft2[union.byte2]++;
+                    countLeft3[((uint)inArray[current] >> 24) ^ 128]++;
                 }
                 return countLeft;
             }
@@ -323,18 +344,27 @@ namespace HPCsharp
                 return countLeft;
             if ((r - l + 1) <= ThresholdByteCount)
             {
+                uint[] countLeft0 = countLeft[0];
+                uint[] countLeft1 = countLeft[1];
+                uint[] countLeft2 = countLeft[2];
+                uint[] countLeft3 = countLeft[3];
+                uint[] countLeft4 = countLeft[4];
+                uint[] countLeft5 = countLeft[5];
+                uint[] countLeft6 = countLeft[6];
+                uint[] countLeft7 = countLeft[7];
+
                 var union = new Algorithm.UInt64ByteUnion();
                 for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
                 {
                     union.integer = inArray[current];
-                    countLeft[0][union.byte0]++;
-                    countLeft[1][union.byte1]++;
-                    countLeft[2][union.byte2]++;
-                    countLeft[3][union.byte3]++;
-                    countLeft[4][union.byte4]++;
-                    countLeft[5][union.byte5]++;
-                    countLeft[6][union.byte6]++;
-                    countLeft[7][union.byte7]++;
+                    countLeft0[union.byte0]++;
+                    countLeft1[union.byte1]++;
+                    countLeft2[union.byte2]++;
+                    countLeft3[union.byte3]++;
+                    countLeft4[union.byte4]++;
+                    countLeft5[union.byte5]++;
+                    countLeft6[union.byte6]++;
+                    countLeft7[union.byte7]++;
                 }
                 return countLeft;
             }
@@ -369,18 +399,27 @@ namespace HPCsharp
                 return countLeft;
             if ((r - l + 1) <= ThresholdByteCount)
             {
+                uint[] countLeft0 = countLeft[0];
+                uint[] countLeft1 = countLeft[1];
+                uint[] countLeft2 = countLeft[2];
+                uint[] countLeft3 = countLeft[3];
+                uint[] countLeft4 = countLeft[4];
+                uint[] countLeft5 = countLeft[5];
+                uint[] countLeft6 = countLeft[6];
+                uint[] countLeft7 = countLeft[7];
+
                 var union = new Algorithm.Int64ByteUnion();
                 for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
                 {
                     union.integer = inArray[current];
-                    countLeft[0][union.byte0]++;
-                    countLeft[1][union.byte1]++;
-                    countLeft[2][union.byte2]++;
-                    countLeft[3][union.byte3]++;
-                    countLeft[4][union.byte4]++;
-                    countLeft[5][union.byte5]++;
-                    countLeft[6][union.byte6]++;
-                    countLeft[7][((ulong)inArray[current] >> 56) ^ 128]++;
+                    countLeft0[union.byte0]++;
+                    countLeft1[union.byte1]++;
+                    countLeft2[union.byte2]++;
+                    countLeft3[union.byte3]++;
+                    countLeft4[union.byte4]++;
+                    countLeft5[union.byte5]++;
+                    countLeft6[union.byte6]++;
+                    countLeft7[((ulong)inArray[current] >> 56) ^ 128]++;
                 }
                 return countLeft;
             }
@@ -415,18 +454,27 @@ namespace HPCsharp
                 return countLeft;
             if ((r - l + 1) <= ThresholdByteCount)
             {
+                uint[] countLeft0 = countLeft[0];
+                uint[] countLeft1 = countLeft[1];
+                uint[] countLeft2 = countLeft[2];
+                uint[] countLeft3 = countLeft[3];
+                uint[] countLeft4 = countLeft[4];
+                uint[] countLeft5 = countLeft[5];
+                uint[] countLeft6 = countLeft[6];
+                uint[] countLeft7 = countLeft[7];
+
                 var union = new Algorithm.Int64ByteUnion();
                 for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
                 {
                     union.integer = inArray[current];
-                    countLeft[0][union.byte0]++;
-                    countLeft[1][union.byte1]++;
-                    countLeft[2][union.byte2]++;
-                    countLeft[3][union.byte3]++;
-                    countLeft[4][union.byte4]++;
-                    countLeft[5][union.byte5]++;
-                    countLeft[6][union.byte6]++;
-                    countLeft[7][((ulong)inArray[current] >> 56) ^ 128]++;
+                    countLeft0[union.byte0]++;
+                    countLeft1[union.byte1]++;
+                    countLeft2[union.byte2]++;
+                    countLeft3[union.byte3]++;
+                    countLeft4[union.byte4]++;
+                    countLeft5[union.byte5]++;
+                    countLeft6[union.byte6]++;
+                    countLeft7[((ulong)inArray[current] >> 56) ^ 128]++;
                 }
                 return countLeft;
             }
