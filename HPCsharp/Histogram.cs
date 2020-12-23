@@ -87,24 +87,29 @@ namespace HPCsharp
             uint[][] count = new uint[numberOfDigits][];
             for (int i = 0; i < numberOfDigits; i++)
                 count[i] = new uint[numberOfBins];
-#if true
+
+            uint[] count0 = count[0];
+            uint[] count1 = count[1];
+            uint[] count2 = count[2];
+            uint[] count3 = count[3];
+#if false
             var union  = new UInt32ByteUnion();
             for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
             {
                 union.integer = inArray[current];
-                count[0][union.byte0]++;
-                count[1][union.byte1]++;
-                count[2][union.byte2]++;
-                count[3][union.byte3]++;
+                count0[union.byte0]++;
+                count1[union.byte1]++;
+                count2[union.byte2]++;
+                count3[union.byte3]++;
             }
 #else
             for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
             {
                 uint value = inArray[current];
-                count[0][ value &       0xff       ]++;
-                count[1][(value &     0xff00) >>  8]++;
-                count[2][(value &   0xff0000) >> 16]++;
-                count[3][(value & 0xff000000) >> 24]++;
+                count0[ value        & 0xff]++;
+                count1[(value >>  8) & 0xff]++;
+                count2[(value >> 16) & 0xff]++;
+                count3[(value >> 24) & 0xff]++;
             }
 #endif
             return count;
