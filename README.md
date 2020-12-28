@@ -66,7 +66,7 @@ The table below compares performance (in GigaAdds/second) of Linq.AsParallel().S
 array.Sum() | n/a | n/a | n/a | n/a |1.5\*|n/a|1.7\*|n/a| using 6 cores
 array.Sum(v => (long)v) |0.72|0.76|0.75|0.76|0.7|0.7| | | using 6 cores
 array.Sum(v => (decimal)v) | | | | | |0.35|0.31|0.29| using 6 cores
-Parallel.ForEach((long)v)  |5.9| |10.9| |10.7| | | | using 6 cores
+Parallel.ForEach((long)v)  |5.9| |10.9| |10.7| | | | using 6 cores, HPC# implements
 Parallel.ForEach((long)v)  ||1.0| | |0.7| | | | Raspberry Pi 4, 4-core ARM
 HPC# (6-core) |33|33|17|17|8.4|8.4|3.7|4| using 6 cores, 2 memory channels
 HPC# (6-core) |26|26|13||3.6|||| using 2 cores
