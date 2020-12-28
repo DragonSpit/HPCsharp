@@ -9,6 +9,8 @@
 // TODO: For parallel versions reduce false sharing by either splitting the array on cache-line boundaries (this type of a split function would be useful for many algorithms), or
 //       create a parallel for loop functionality, where we make an array/list of tasks (I already do this in spots), each one on cache-line boundary and then hand that array to TPL to execute in parallel.
 // TODO: For generic implementation of SSE limit the data types to numeric, like generic scalar version does.
+// TODO: Benchmark Fill on quad-channel and 8-channel and higher machines in AWS, to see how well these scale.
+// TODO: If FillUsingBlockCopy runs faster than scalar Fill, then implement a parallel version using it.
 
 using System;
 using System.Collections.Generic;
