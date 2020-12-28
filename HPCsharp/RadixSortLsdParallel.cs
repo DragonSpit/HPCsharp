@@ -45,7 +45,7 @@ namespace HPCsharp
         /// </summary>
         /// <param name="inputArray">array of unsigned integers to be sorted</param>
         /// <returns>sorted array of unsigned integers</returns>
-        public static uint[] SortRadixPar(this uint[] inputArray)
+        public static uint[] SortRadixPar(this uint[] inputArray, int parallelThresholdHistogram = 16 * 1024)
         {
             int numberOfBins = 256;
             int numberOfDigits = 4;
@@ -61,7 +61,10 @@ namespace HPCsharp
             uint bitMask = 255;
             int shiftRightAmount = 0;
 
-            uint[][] count = HistogramByteComponentsPar(inputArray, 0, inputArray.Length - 1);
+            if ((parallelThresholdHistogram * Environment.ProcessorCount) <= inputArray.Length)
+                parallelThresholdHistogram = inputArray.Length / Environment.ProcessorCount;
+
+            uint[][] count = HistogramByteComponentsPar(inputArray, 0, inputArray.Length - 1, parallelThresholdHistogram);
 
             for (d = 0; d < numberOfDigits; d++)
             {
