@@ -674,7 +674,7 @@ namespace HPCsharp
             else if ((r - l) <= parallelThreshold)
             {
                 // TODO: this version of the algorithm isn't the fastest two phase version
-                HPCsharp.Algorithm.SortRadix(src, l, r - l + 1, dst);
+                HPCsharp.Algorithm.SortRadix(src, l, r - l + 1);
                 if (srcToDst)
                     for (int i = l; i <= r; i++) dst[i] = src[i];
                 //HPCsharp.Algorithm.SortRadix(src, l, r - l + 1, dst);
