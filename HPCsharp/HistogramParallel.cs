@@ -10,8 +10,6 @@ namespace HPCsharp
 {
     static public partial class ParallelAlgorithm
     {
-        public static Int32 ThresholdHistogramBytePar { get; set; } = 64 * 1024;
-
         // So far, not any faster, but works correctly
         private static int[] HistogramSse(this byte[] inArray)
         {
@@ -74,15 +72,20 @@ namespace HPCsharp
             return count;
         }
 
-        public static int[] HistogramInnerPar(byte[] inArray, Int32 l, Int32 r)
+        public static int[] HistogramInnerPar(byte[] inArray, Int32 l, Int32 r, int parallelThreshold = 16 * 1024)
         {
             int numberOfBins = 256;
-            int[] countLeft = new int[numberOfBins];
+            int[] countLeft  = null;
+            int[] countRight = null;
 
             if (l > r)      // zero elements to compare
-                return countLeft;
-            if ((r - l + 1) <= ThresholdHistogramBytePar)
             {
+                countLeft = new int[numberOfBins];
+                return countLeft;
+            }
+            if ((r - l + 1) <= parallelThreshold)
+            {
+                countLeft = new int[numberOfBins];
                 for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
                     countLeft[inArray[current]]++;
                 return countLeft;
@@ -90,11 +93,9 @@ namespace HPCsharp
 
             int m = (r + l) / 2;
 
-            int[] countRight = new int[numberOfBins];
-
             Parallel.Invoke(
-                () => { countLeft  = HistogramInnerPar(inArray, l,     m); },
-                () => { countRight = HistogramInnerPar(inArray, m + 1, r); }
+                () => { countLeft  = HistogramInnerPar(inArray, l,     m, parallelThreshold); },
+                () => { countRight = HistogramInnerPar(inArray, m + 1, r, parallelThreshold); }
             );
             
             for (int j = 0; j < numberOfBins; j++)      // Combine left and right results into a single count/histogram
@@ -103,22 +104,25 @@ namespace HPCsharp
             return countLeft;
         }
 
-        public static int[] HistogramPar(this byte[] inArray)
+        public static int[] HistogramPar(this byte[] inArray, int parallelThreshold = 16 * 1024)
         {
-            return HistogramInnerPar(inArray, 0, inArray.Length - 1);
+            return HistogramInnerPar(inArray, 0, inArray.Length - 1, parallelThreshold);
         }
 
-        public static Int32 ThresholdHistogamShortPar { get; set; } = 64 * 1024;
-
-        public static int[] HistogramInnerPar(ushort[] inArray, Int32 l, Int32 r)
+        public static int[] HistogramInnerPar(ushort[] inArray, Int32 l, Int32 r, int parallelThreshold = 16 * 1024)
         {
             int numberOfBins = 256 * 256;
-            int[] countLeft = new int[numberOfBins];
+            int[] countLeft  = null;
+            int[] countRight = null;
 
             if (l > r)      // zero elements to compare
-                return countLeft;
-            if ((r - l + 1) <= ThresholdHistogamShortPar)
             {
+                countLeft = new int[numberOfBins];
+                return countLeft;
+            }
+            if ((r - l + 1) <= parallelThreshold)
+            {
+                countLeft = new int[numberOfBins];
                 for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
                     countLeft[inArray[current]]++;
                 return countLeft;
@@ -126,11 +130,9 @@ namespace HPCsharp
 
             int m = (r + l) / 2;
 
-            int[] countRight = new int[numberOfBins];
-
             Parallel.Invoke(
-                () => { countLeft  = HistogramInnerPar(inArray, l,     m); },
-                () => { countRight = HistogramInnerPar(inArray, m + 1, r); }
+                () => { countLeft  = HistogramInnerPar(inArray, l,     m, parallelThreshold); },
+                () => { countRight = HistogramInnerPar(inArray, m + 1, r, parallelThreshold); }
             );
 
             for (int j = 0; j < numberOfBins; j++)      // Combine left and right results into a single count/histogram
@@ -144,9 +146,7 @@ namespace HPCsharp
             return HistogramInnerPar(inArray, 0, inArray.Length - 1);
         }
 
-        public static Int32 ThresholdByteCount { get; set; } = 16 * 1024;
-
-        public static uint[][] HistogramByteComponentsPar(uint[] inArray, Int32 l, Int32 r, int parallelThresholdHistogram = 16 * 1024)
+        static uint[][] HistogramByteComponentsParInner(uint[] inArray, Int32 l, Int32 r, int parallelThreshold = 16 * 1024)
         {
             const int numberOfBins = 256;
             const int numberOfDigits = sizeof(uint);
@@ -160,7 +160,7 @@ namespace HPCsharp
                     countLeft[i] = new uint[numberOfBins];
                 return countLeft;
             }
-            if ((r - l + 1) <= parallelThresholdHistogram)
+            if ((r - l + 1) <= parallelThreshold)
             {
                 countLeft = new uint[numberOfDigits][];
                 for (int i = 0; i < numberOfDigits; i++)
@@ -186,8 +186,8 @@ namespace HPCsharp
             int m = (r + l) / 2;
 
             Parallel.Invoke(
-                () => { countLeft  = HistogramByteComponentsPar(inArray, l,     m, parallelThresholdHistogram); },
-                () => { countRight = HistogramByteComponentsPar(inArray, m + 1, r, parallelThresholdHistogram); }
+                () => { countLeft  = HistogramByteComponentsParInner(inArray, l,     m, parallelThreshold); },
+                () => { countRight = HistogramByteComponentsParInner(inArray, m + 1, r, parallelThreshold); }
             );
             // Combine left and right results (reduce step)
             for (int i = 0; i < numberOfDigits; i++)
@@ -197,7 +197,15 @@ namespace HPCsharp
             return countLeft;
         }
 
-        public static uint[][] HistogramByteComponentsSsePar(uint[] inArray, Int32 l, Int32 r, int parallelThresholdHistogram = 16 * 1024)
+        public static uint[][] HistogramByteComponentsPar(uint[] inArray, Int32 l, Int32 r, int parallelThreshold = 16 * 1024)
+        {
+            int length = r - l + 1;
+            if ((parallelThreshold * Environment.ProcessorCount) < length)
+                parallelThreshold = length / Environment.ProcessorCount;
+            return HistogramByteComponentsParInner(inArray, l, r, parallelThreshold);
+        }
+
+        static uint[][] HistogramByteComponentsSseParInner(uint[] inArray, Int32 l, Int32 r, int parallelThreshold = 16 * 1024)
         {
             const int numberOfBins = 256;
             const int numberOfDigits = sizeof(uint);
@@ -212,7 +220,7 @@ namespace HPCsharp
 
                 return countLeft;
             }
-            if ((r - l + 1) <= ThresholdByteCount)
+            if ((r - l + 1) <= parallelThreshold)
             {
                 countLeft = new uint[numberOfDigits][];
                 for (int i = 0; i < numberOfDigits; i++)
@@ -238,8 +246,8 @@ namespace HPCsharp
             int m = (r + l) / 2;
 
             Parallel.Invoke(
-                () => { countLeft  = HistogramByteComponentsSsePar(inArray, l,     m, parallelThresholdHistogram); },
-                () => { countRight = HistogramByteComponentsSsePar(inArray, m + 1, r, parallelThresholdHistogram); }
+                () => { countLeft  = HistogramByteComponentsSseParInner(inArray, l,     m, parallelThreshold); },
+                () => { countRight = HistogramByteComponentsSseParInner(inArray, m + 1, r, parallelThreshold); }
             );
             // Combine left and right results
             for (int i = 0; i < numberOfDigits; i++)
@@ -248,18 +256,34 @@ namespace HPCsharp
             return countLeft;
         }
 
-        public static uint[][] HistogramByteComponentsPar(int[] inArray, Int32 l, Int32 r)
+        public static uint[][] HistogramByteComponentsSsePar(uint[] inArray, Int32 l, Int32 r, int parallelThreshold = 16 * 1024)
+        {
+            int length = r - l + 1;
+            if ((parallelThreshold * Environment.ProcessorCount) < length)
+                parallelThreshold = length / Environment.ProcessorCount;
+            return HistogramByteComponentsSseParInner(inArray, l, r, parallelThreshold);
+        }
+
+        static uint[][] HistogramByteComponentsParInner(int[] inArray, Int32 l, Int32 r, int parallelThreshold = 16 * 1024)
         {
             const int numberOfBins = 256;
             const int numberOfDigits = sizeof(uint);
-            uint[][] countLeft = new uint[numberOfDigits][];
-            for (int i = 0; i < numberOfDigits; i++)
-                countLeft[i] = new uint[numberOfBins];
+            uint[][] countLeft  = null;
+            uint[][] countRight = null;
 
             if (l > r)      // zero elements to compare
-                return countLeft;
-            if ((r - l + 1) <= ThresholdByteCount)
             {
+                countLeft = new uint[numberOfDigits][];
+                for (int i = 0; i < numberOfDigits; i++)
+                    countLeft[i] = new uint[numberOfBins];
+                return countLeft;
+            }
+            if ((r - l + 1) <= parallelThreshold)
+            {
+                countLeft = new uint[numberOfDigits][];
+                for (int i = 0; i < numberOfDigits; i++)
+                    countLeft[i] = new uint[numberOfBins];
+
                 uint[] countLeft0 = countLeft[0];
                 uint[] countLeft1 = countLeft[1];
                 uint[] countLeft2 = countLeft[2];
@@ -279,13 +303,9 @@ namespace HPCsharp
 
             int m = (r + l) / 2;
 
-            uint[][] countRight = new uint[numberOfDigits][];
-            for (int i = 0; i < numberOfDigits; i++)
-                countRight[i] = new uint[numberOfBins];
-
             Parallel.Invoke(
-                () => { countLeft  = HistogramByteComponentsPar(inArray, l,     m); },
-                () => { countRight = HistogramByteComponentsPar(inArray, m + 1, r); }
+                () => { countLeft  = HistogramByteComponentsParInner(inArray, l,     m, parallelThreshold); },
+                () => { countRight = HistogramByteComponentsParInner(inArray, m + 1, r, parallelThreshold); }
             );
             // Combine left and right results
             for (int i = 0; i < numberOfDigits; i++)
@@ -295,18 +315,35 @@ namespace HPCsharp
             return countLeft;
         }
 
-        public static uint[][] HistogramByteComponentsSsePar(int[] inArray, Int32 l, Int32 r)
+        public static uint[][] HistogramByteComponentsPar(int[] inArray, Int32 l, Int32 r, int parallelThreshold = 16 * 1024)
+        {
+            int length = r - l + 1;
+            if ((parallelThreshold * Environment.ProcessorCount) < length)
+                parallelThreshold = length / Environment.ProcessorCount;
+            return HistogramByteComponentsParInner(inArray, l, r, parallelThreshold);
+        }
+
+        static uint[][] HistogramByteComponentsSseParInner(int[] inArray, Int32 l, Int32 r, int parallelThreshold = 16 * 1024)
         {
             const int numberOfBins = 256;
             const int numberOfDigits = sizeof(uint);
-            uint[][] countLeft = new uint[numberOfDigits][];
-            for (int i = 0; i < numberOfDigits; i++)
-                countLeft[i] = new uint[numberOfBins];
+            uint[][] countLeft = null;
+            uint[][] countRight = null;
 
             if (l > r)      // zero elements to compare
-                return countLeft;
-            if ((r - l + 1) <= ThresholdByteCount)
             {
+                countLeft = new uint[numberOfDigits][];
+                for (int i = 0; i < numberOfDigits; i++)
+                    countLeft[i] = new uint[numberOfBins];
+
+                return countLeft;
+            }
+            if ((r - l + 1) <= parallelThreshold)
+            {
+                countLeft = new uint[numberOfDigits][];
+                for (int i = 0; i < numberOfDigits; i++)
+                    countLeft[i] = new uint[numberOfBins];
+
                 uint[] countLeft0 = countLeft[0];
                 uint[] countLeft1 = countLeft[1];
                 uint[] countLeft2 = countLeft[2];
@@ -326,13 +363,9 @@ namespace HPCsharp
 
             int m = (r + l) / 2;
 
-            uint[][] countRight = new uint[numberOfDigits][];
-            for (int i = 0; i < numberOfDigits; i++)
-                countRight[i] = new uint[numberOfBins];
-
             Parallel.Invoke(
-                () => { countLeft  = HistogramByteComponentsSsePar(inArray, l,     m); },
-                () => { countRight = HistogramByteComponentsSsePar(inArray, m + 1, r); }
+                () => { countLeft  = HistogramByteComponentsSseParInner(inArray, l,     m, parallelThreshold); },
+                () => { countRight = HistogramByteComponentsSseParInner(inArray, m + 1, r, parallelThreshold); }
             );
             // Combine left and right results
             for (int i = 0; i < numberOfDigits; i++)
@@ -341,18 +374,35 @@ namespace HPCsharp
             return countLeft;
         }
 
-        public static uint[][] HistogramByteComponentsPar(ulong[] inArray, Int32 l, Int32 r)
+        public static uint[][] HistogramByteComponentsSsePar(int[] inArray, Int32 l, Int32 r, int parallelThreshold = 16 * 1024)
+        {
+            int length = r - l + 1;
+            if ((parallelThreshold * Environment.ProcessorCount) < length)
+                parallelThreshold = length / Environment.ProcessorCount;
+            return HistogramByteComponentsSseParInner(inArray, l, r, parallelThreshold);
+        }
+
+        static uint[][] HistogramByteComponentsParInner(ulong[] inArray, Int32 l, Int32 r, int parallelThreshold = 16 * 1024)
         {
             const int numberOfBins = 256;
             const int numberOfDigits = sizeof(ulong);
-            uint[][] countLeft = new uint[numberOfDigits][];
-            for (int i = 0; i < numberOfDigits; i++)
-                countLeft[i] = new uint[numberOfBins];
+            uint[][] countLeft = null;
+            uint[][] countRight = null;
 
             if (l > r)      // zero elements to compare
-                return countLeft;
-            if ((r - l + 1) <= ThresholdByteCount)
             {
+                countLeft = new uint[numberOfDigits][];
+                for (int i = 0; i < numberOfDigits; i++)
+                    countLeft[i] = new uint[numberOfBins];
+
+                return countLeft;
+            }
+            if ((r - l + 1) <= parallelThreshold)
+            {
+                countLeft = new uint[numberOfDigits][];
+                for (int i = 0; i < numberOfDigits; i++)
+                    countLeft[i] = new uint[numberOfBins];
+
                 uint[] countLeft0 = countLeft[0];
                 uint[] countLeft1 = countLeft[1];
                 uint[] countLeft2 = countLeft[2];
@@ -380,13 +430,9 @@ namespace HPCsharp
 
             int m = (r + l) / 2;
 
-            uint[][] countRight = new uint[numberOfDigits][];
-            for (int i = 0; i < numberOfDigits; i++)
-                countRight[i] = new uint[numberOfBins];
-
             Parallel.Invoke(
-                () => { countLeft  = HistogramByteComponentsPar(inArray, l,     m); },
-                () => { countRight = HistogramByteComponentsPar(inArray, m + 1, r); }
+                () => { countLeft  = HistogramByteComponentsParInner(inArray, l,     m, parallelThreshold); },
+                () => { countRight = HistogramByteComponentsParInner(inArray, m + 1, r, parallelThreshold); }
             );
             // Combine left and right results
             for (int i = 0; i < numberOfDigits; i++)
@@ -396,18 +442,35 @@ namespace HPCsharp
             return countLeft;
         }
 
-        public static uint[][] HistogramByteComponentsPar(long[] inArray, Int32 l, Int32 r)
+        public static uint[][] HistogramByteComponentsPar(ulong[] inArray, Int32 l, Int32 r, int parallelThreshold = 16 * 1024)
+        {
+            int length = r - l + 1;
+            if ((parallelThreshold * Environment.ProcessorCount) < length)
+                parallelThreshold = length / Environment.ProcessorCount;
+            return HistogramByteComponentsParInner(inArray, l, r, parallelThreshold);
+        }
+
+        static uint[][] HistogramByteComponentsParInner(long[] inArray, Int32 l, Int32 r, int parallelThreshold = 16 * 1024)
         {
             const int numberOfBins = 256;
             const int numberOfDigits = sizeof(ulong);
-            uint[][] countLeft = new uint[numberOfDigits][];
-            for (int i = 0; i < numberOfDigits; i++)
-                countLeft[i] = new uint[numberOfBins];
+            uint[][] countLeft = null;
+            uint[][] countRight = null;
 
             if (l > r)      // zero elements to compare
-                return countLeft;
-            if ((r - l + 1) <= ThresholdByteCount)
             {
+                countLeft = new uint[numberOfDigits][];
+                for (int i = 0; i < numberOfDigits; i++)
+                    countLeft[i] = new uint[numberOfBins];
+
+                return countLeft;
+            }
+            if ((r - l + 1) <= parallelThreshold)
+            {
+                countLeft = new uint[numberOfDigits][];
+                for (int i = 0; i < numberOfDigits; i++)
+                    countLeft[i] = new uint[numberOfBins];
+
                 uint[] countLeft0 = countLeft[0];
                 uint[] countLeft1 = countLeft[1];
                 uint[] countLeft2 = countLeft[2];
@@ -435,13 +498,9 @@ namespace HPCsharp
 
             int m = (r + l) / 2;
 
-            uint[][] countRight = new uint[numberOfDigits][];
-            for (int i = 0; i < numberOfDigits; i++)
-                countRight[i] = new uint[numberOfBins];
-
             Parallel.Invoke(
-                () => { countLeft  = HistogramByteComponentsPar(inArray, l,     m); },
-                () => { countRight = HistogramByteComponentsPar(inArray, m + 1, r); }
+                () => { countLeft  = HistogramByteComponentsParInner(inArray, l,     m, parallelThreshold); },
+                () => { countRight = HistogramByteComponentsParInner(inArray, m + 1, r, parallelThreshold); }
             );
             // Combine left and right results
             for (int i = 0; i < numberOfDigits; i++)
@@ -451,18 +510,35 @@ namespace HPCsharp
             return countLeft;
         }
 
-        public static uint[][] HistogramByteComponentsSsePar(long[] inArray, Int32 l, Int32 r)
+        public static uint[][] HistogramByteComponentsPar(long[] inArray, Int32 l, Int32 r, int parallelThreshold = 16 * 1024)
+        {
+            int length = r - l + 1;
+            if ((parallelThreshold * Environment.ProcessorCount) < length)
+                parallelThreshold = length / Environment.ProcessorCount;
+            return HistogramByteComponentsParInner(inArray, l, r, parallelThreshold);
+        }
+
+        static uint[][] HistogramByteComponentsSseParInner(long[] inArray, Int32 l, Int32 r, int parallelThreshold = 16 * 1024)
         {
             const int numberOfBins = 256;
             const int numberOfDigits = sizeof(ulong);
-            uint[][] countLeft = new uint[numberOfDigits][];
-            for (int i = 0; i < numberOfDigits; i++)
-                countLeft[i] = new uint[numberOfBins];
+            uint[][] countLeft = null;
+            uint[][] countRight = null;
 
             if (l > r)      // zero elements to compare
-                return countLeft;
-            if ((r - l + 1) <= ThresholdByteCount)
             {
+                countLeft = new uint[numberOfDigits][];
+                for (int i = 0; i < numberOfDigits; i++)
+                    countLeft[i] = new uint[numberOfBins];
+
+                return countLeft;
+            }
+            if ((r - l + 1) <= parallelThreshold)
+            {
+                countLeft = new uint[numberOfDigits][];
+                for (int i = 0; i < numberOfDigits; i++)
+                    countLeft[i] = new uint[numberOfBins];
+
                 uint[] countLeft0 = countLeft[0];
                 uint[] countLeft1 = countLeft[1];
                 uint[] countLeft2 = countLeft[2];
@@ -490,13 +566,9 @@ namespace HPCsharp
 
             int m = (r + l) / 2;
 
-            uint[][] countRight = new uint[numberOfDigits][];
-            for (int i = 0; i < numberOfDigits; i++)
-                countRight[i] = new uint[numberOfBins];
-
             Parallel.Invoke(
-                () => { countLeft  = HistogramByteComponentsSsePar(inArray, l,     m); },
-                () => { countRight = HistogramByteComponentsSsePar(inArray, m + 1, r); }
+                () => { countLeft  = HistogramByteComponentsSseParInner(inArray, l,     m, parallelThreshold); },
+                () => { countRight = HistogramByteComponentsSseParInner(inArray, m + 1, r, parallelThreshold); }
             );
             // Combine left and right results
             for (int i = 0; i < numberOfDigits; i++)
@@ -505,28 +577,49 @@ namespace HPCsharp
             return countLeft;
         }
 
-        public static int[] HistogramOneByteComponentPar(long[] inArray, Int32 l, Int32 r, int shiftRightAmount)
+        public static uint[][] HistogramByteComponentsSsePar(long[] inArray, Int32 l, Int32 r, int parallelThreshold = 16 * 1024)
+        {
+            int length = r - l + 1;
+            if ((parallelThreshold * Environment.ProcessorCount) < length)
+                parallelThreshold = length / Environment.ProcessorCount;
+            return HistogramByteComponentsSseParInner(inArray, l, r, parallelThreshold);
+        }
+
+        static int[] HistogramOneByteComponentParInner(long[] inArray, Int32 l, Int32 r, int shiftRightAmount, int parallelThreshold = 16 * 1024)
         {
             const int numberOfBins = 256;
-            int[] countLeft = new int[numberOfBins];
+            int[] countLeft = null;
+            int[] countRight = null;
 
             if (l > r)      // zero elements to compare
+            {
+                countLeft = new int[numberOfBins];
                 return countLeft;
-            if ((r - l + 1) <= ThresholdByteCount)
+            }
+            if ((r - l + 1) <= parallelThreshold)
+            {
+                countLeft = new int[numberOfBins];
                 return Algorithm.HistogramOneByteComponent(inArray, l, r, shiftRightAmount);
+            }
 
             int m = (r + l) / 2;
 
-            int[] countRight = new int[numberOfBins];
-
             Parallel.Invoke(
-                () => { countLeft  = HistogramOneByteComponentPar(inArray, l,     m, shiftRightAmount); },
-                () => { countRight = HistogramOneByteComponentPar(inArray, m + 1, r, shiftRightAmount); }
+                () => { countLeft  = HistogramOneByteComponentParInner(inArray, l,     m, shiftRightAmount, parallelThreshold); },
+                () => { countRight = HistogramOneByteComponentParInner(inArray, m + 1, r, shiftRightAmount, parallelThreshold); }
             );
             // Combine left and right results
             countLeft = Addition.AddSse(countLeft, countRight);
 
             return countLeft;
+        }
+
+        public static int[] HistogramOneByteComponentPar(long[] inArray, Int32 l, Int32 r, int parallelThreshold = 16 * 1024)
+        {
+            int length = r - l + 1;
+            if ((parallelThreshold * Environment.ProcessorCount) < length)
+                parallelThreshold = length / Environment.ProcessorCount;
+            return HistogramOneByteComponentParInner(inArray, l, r, parallelThreshold);
         }
     }
 }
