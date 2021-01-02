@@ -1134,7 +1134,7 @@ namespace HPCsharp
             const int Log2ofPowerOfTwoRadix = 8;
             const int bitsPerDigit = Log2ofPowerOfTwoRadix;
             const int numberOfDigits = (sizeof(uint) * 8 + bitsPerDigit - 1) / bitsPerDigit;
-            uint cacheLineSizeInBytes = 64 * 4;
+            uint cacheLineSizeInBytes = 64 * 4 * 4;
             uint cacheLineSizeInUInt32s = cacheLineSizeInBytes / 4;  // is there sizeOf() in C#
             uint[] cacheBuffers = new uint[numberOfBins * cacheLineSizeInUInt32s];
             uint[] cacheBufferIndexes = new uint[numberOfBins];
@@ -1176,13 +1176,15 @@ namespace HPCsharp
                     }
                     else     // flush the buffer to system memory
                     {
-                        uint index = startOfBuffer;
+                        uint srcIndex = startOfBuffer;
+                        uint dstIndex = startOfBinLoc[whichBin];
 #if false
                         for (int i = 0; i < cacheLineSizeInUInt32s; i++)
-                            outputArray[startOfBinLoc[whichBin]++] = cacheBuffers[index++];
+                            outputArray[dstIndex++] = cacheBuffers[srcIndex++];
 #else
-                        Array.Copy(cacheBuffers, index, outputArray, startOfBinLoc[whichBin], cacheLineSizeInUInt32s);
+                        Array.Copy(cacheBuffers, srcIndex, outputArray, dstIndex, cacheLineSizeInUInt32s);
 #endif
+                        startOfBinLoc[whichBin] += cacheLineSizeInUInt32s;
                         cacheBuffers[startOfBuffer] = inputArray[current];
                         cacheBufferIndexes[whichBin] = 1;
                     }
