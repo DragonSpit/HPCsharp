@@ -1129,38 +1129,46 @@ namespace HPCsharp
         }
         public static uint[] SortRadixDerandomizedWrites3(this uint[] inputArray)
         {
-            int numberOfBins = 256;
-            int Log2ofPowerOfTwoRadix = 8;
-            uint cacheLineSizeInBytes = 64 * 4;
-            uint BufferDepth = cacheLineSizeInBytes / sizeof(uint);
-            uint[] cacheBuffers = new uint[numberOfBins * BufferDepth];
+            const int numberOfBins = 256;
+            const int Log2ofPowerOfTwoRadix = 8;
+            const int numberOfDigits = 4;
+            const uint cacheLineSizeInBytes = 64 * 4;
+            const uint BufferDepth = cacheLineSizeInBytes / sizeof(uint);
+            uint[] cacheBuffers       = new uint[numberOfBins * BufferDepth];
             uint[] bufferIndexCurrent = new uint[numberOfBins];
-            uint[] bufferIndexStart = new uint[numberOfBins];
-            uint[] bufferIndexEnd = new uint[numberOfBins];
-            uint[] count = new uint[numberOfBins];
+            uint[] bufferIndexStart   = new uint[numberOfBins];
+            uint[] bufferIndexEnd     = new uint[numberOfBins];
             uint[] outputArray = new uint[inputArray.Length];
             bool outputArrayHasResult = false;
+            int d = 0;
+
+            uint[][] startOfBin = new uint[numberOfDigits][];
+            for (int i = 0; i < numberOfDigits; i++)
+                startOfBin[i] = new uint[numberOfBins];
+
+            uint[][] count = HistogramByteComponents(inputArray, 0, inputArray.Length - 1);
+
+            for (d = 0; d < numberOfDigits; d++)
+            {
+                startOfBin[d][0] = 0;
+                for (uint i = 1; i < numberOfBins; i++)
+                    startOfBin[d][i] = startOfBin[d][i - 1] + count[d][i - 1];
+            }
 
             uint bitMask = 255;
             int shiftRightAmount = 0;
-
-            uint[] startOfBin = new uint[numberOfBins];
+            d = 0;
 
             while (bitMask != 0)    // end processing digits when all the mask bits have been processed and shifted out, leaving no bits set in the bitMask
             {
+                uint[] startOfBinLoc = startOfBin[d];
+
                 for (uint i = 0; i < numberOfBins; i++)
                 {
-                    count[i] = 0;
-                    bufferIndexStart[i] = i * BufferDepth;
+                    bufferIndexStart[  i] = i * BufferDepth;
                     bufferIndexCurrent[i] = i * BufferDepth;
-                    bufferIndexEnd[i] = i * BufferDepth + BufferDepth - 1;
+                    bufferIndexEnd[    i] = i * BufferDepth + BufferDepth - 1;
                 }
-                for (uint current = 0; current < inputArray.Length; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
-                    count[ExtractDigit(inputArray[current], bitMask, shiftRightAmount)]++;
-
-                startOfBin[0] = 0;
-                for (uint i = 1; i < numberOfBins; i++)
-                    startOfBin[i] = (uint)(startOfBin[i - 1] + count[i - 1]);
 
                 for (uint current = 0; current < inputArray.Length; current++)
                 {
@@ -1172,10 +1180,10 @@ namespace HPCsharp
                     else     // flush the buffer to system memory
                     {
                         uint srcIndex = whichBin * BufferDepth;
-                        uint dstIndex = startOfBin[whichBin];
+                        uint dstIndex = startOfBinLoc[whichBin];
                         for (int i = 0; i < BufferDepth; i++)
                             outputArray[dstIndex++] = cacheBuffers[srcIndex++];
-                        startOfBin[whichBin] += BufferDepth;
+                        startOfBinLoc[whichBin] += BufferDepth;
                         bufferIndexCurrent[whichBin] = bufferIndexStart[whichBin];
                         cacheBuffers[bufferIndexCurrent[whichBin]++] = inputArray[current];
                     }
@@ -1184,7 +1192,7 @@ namespace HPCsharp
                 for (uint whichBin = 0; whichBin < numberOfBins; whichBin++)
                 {
                     uint index = whichBin * BufferDepth;
-                    uint dstIndex = startOfBin[whichBin];
+                    uint dstIndex = startOfBinLoc[whichBin];
                     uint numItems = bufferIndexCurrent[whichBin] - bufferIndexStart[whichBin];
                     for (int i = 0; i < numItems; i++)
                         outputArray[dstIndex++] = cacheBuffers[index++];
@@ -1193,6 +1201,7 @@ namespace HPCsharp
                 bitMask <<= Log2ofPowerOfTwoRadix;
                 shiftRightAmount += Log2ofPowerOfTwoRadix;
                 outputArrayHasResult = !outputArrayHasResult;
+                d++;
 
                 uint[] tmp = inputArray;       // swap input and output arrays
                 inputArray = outputArray;
