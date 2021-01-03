@@ -1127,6 +1127,83 @@ namespace HPCsharp
 
             return inputArray;
         }
+        public static uint[] SortRadixDerandomizedWrites3(this uint[] inputArray)
+        {
+            int numberOfBins = 256;
+            int Log2ofPowerOfTwoRadix = 8;
+            uint cacheLineSizeInBytes = 64 * 4;
+            uint BufferDepth = cacheLineSizeInBytes / sizeof(uint);
+            uint[] cacheBuffers = new uint[numberOfBins * BufferDepth];
+            uint[] bufferIndexCurrent = new uint[numberOfBins];
+            uint[] bufferIndexStart = new uint[numberOfBins];
+            uint[] bufferIndexEnd = new uint[numberOfBins];
+            uint[] count = new uint[numberOfBins];
+            uint[] outputArray = new uint[inputArray.Length];
+            bool outputArrayHasResult = false;
+
+            uint bitMask = 255;
+            int shiftRightAmount = 0;
+
+            uint[] startOfBin = new uint[numberOfBins];
+
+            while (bitMask != 0)    // end processing digits when all the mask bits have been processed and shifted out, leaving no bits set in the bitMask
+            {
+                for (uint i = 0; i < numberOfBins; i++)
+                {
+                    count[i] = 0;
+                    bufferIndexStart[i] = i * BufferDepth;
+                    bufferIndexCurrent[i] = i * BufferDepth;
+                    bufferIndexEnd[i] = i * BufferDepth + BufferDepth - 1;
+                }
+                for (uint current = 0; current < inputArray.Length; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
+                    count[ExtractDigit(inputArray[current], bitMask, shiftRightAmount)]++;
+
+                startOfBin[0] = 0;
+                for (uint i = 1; i < numberOfBins; i++)
+                    startOfBin[i] = (uint)(startOfBin[i - 1] + count[i - 1]);
+
+                for (uint current = 0; current < inputArray.Length; current++)
+                {
+                    uint whichBin = (inputArray[current] & bitMask) >> shiftRightAmount;
+                    if (bufferIndexCurrent[whichBin] <= bufferIndexEnd[whichBin])  // place current element into its cacheBuffer
+                    {
+                        cacheBuffers[bufferIndexCurrent[whichBin]++] = inputArray[current];
+                    }
+                    else     // flush the buffer to system memory
+                    {
+                        uint srcIndex = whichBin * BufferDepth;
+                        uint dstIndex = startOfBin[whichBin];
+                        for (int i = 0; i < BufferDepth; i++)
+                            outputArray[dstIndex++] = cacheBuffers[srcIndex++];
+                        startOfBin[whichBin] += BufferDepth;
+                        bufferIndexCurrent[whichBin] = bufferIndexStart[whichBin];
+                        cacheBuffers[bufferIndexCurrent[whichBin]++] = inputArray[current];
+                    }
+                }
+                // Flush all of the cache buffers
+                for (uint whichBin = 0; whichBin < numberOfBins; whichBin++)
+                {
+                    uint index = whichBin * BufferDepth;
+                    uint dstIndex = startOfBin[whichBin];
+                    uint numItems = bufferIndexCurrent[whichBin] - bufferIndexStart[whichBin];
+                    for (int i = 0; i < numItems; i++)
+                        outputArray[dstIndex++] = cacheBuffers[index++];
+                }
+
+                bitMask <<= Log2ofPowerOfTwoRadix;
+                shiftRightAmount += Log2ofPowerOfTwoRadix;
+                outputArrayHasResult = !outputArrayHasResult;
+
+                uint[] tmp = inputArray;       // swap input and output arrays
+                inputArray = outputArray;
+                outputArray = tmp;
+            }
+            if (outputArrayHasResult)
+                for (uint current = 0; current < inputArray.Length; current++)    // copy from output array into the input array
+                    inputArray[current] = outputArray[current];
+
+            return inputArray;
+        }
         // Improved version (hopefully) with various optimization ideas developed since the time the above was written
         public static uint[] SortRadixDerandomizedWrites2(this uint[] inputArray)
         {
@@ -1135,8 +1212,8 @@ namespace HPCsharp
             const int bitsPerDigit = Log2ofPowerOfTwoRadix;
             const int numberOfDigits = (sizeof(uint) * 8 + bitsPerDigit - 1) / bitsPerDigit;
             uint cacheLineSizeInBytes = 64 * 4 * 4;
-            uint cacheLineSizeInUInt32s = cacheLineSizeInBytes / 4;  // is there sizeOf() in C#
-            uint[] cacheBuffers = new uint[numberOfBins * cacheLineSizeInUInt32s];
+            uint cacheLineSizeInUInt32s = cacheLineSizeInBytes / sizeof(uint);
+            uint[] cacheBuffers       = new uint[numberOfBins * cacheLineSizeInUInt32s];
             uint[] cacheBufferIndexes = new uint[numberOfBins];
             uint[] outputArray = new uint[inputArray.Length];
             uint[][] startOfBin = new uint[numberOfDigits][];
@@ -1161,7 +1238,7 @@ namespace HPCsharp
             while (bitMask != 0)    // end processing digits when all the mask bits have been processed and shifted out, leaving no bits set in the bitMask
             {
                 for (uint i = 0; i < numberOfBins; i++)
-                    cacheBufferIndexes[i] = 0;
+                    cacheBufferIndexes[i] = i * cacheLineSizeInUInt32s;
 
                 uint[] startOfBinLoc = startOfBin[d];
 
@@ -1171,8 +1248,7 @@ namespace HPCsharp
                     uint startOfBuffer = whichBin * cacheLineSizeInUInt32s;
                     if (cacheBufferIndexes[whichBin] < cacheLineSizeInUInt32s)  // place current element into its cacheBuffer
                     {
-                        cacheBuffers[startOfBuffer + cacheBufferIndexes[whichBin]] = inputArray[current];
-                        cacheBufferIndexes[whichBin]++;
+                        cacheBuffers[cacheBufferIndexes[whichBin]++] = inputArray[current];
                     }
                     else     // flush the buffer to system memory
                     {
@@ -1186,7 +1262,7 @@ namespace HPCsharp
 #endif
                         startOfBinLoc[whichBin] += cacheLineSizeInUInt32s;
                         cacheBuffers[startOfBuffer] = inputArray[current];
-                        cacheBufferIndexes[whichBin] = 1;
+                        cacheBufferIndexes[whichBin] = whichBin * cacheLineSizeInUInt32s + 1;
                     }
                     //outputArray[endOfBin[ExtractDigit(inputArray[current], bitMask, shiftRightAmount)]++] = inputArray[current];
                 }
