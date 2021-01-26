@@ -602,13 +602,14 @@ namespace HPCsharp
             if (inputArray.Length == 0)
                 return outputArray;
 
-            // TODO: the following calculation seems wrong whenever the division is even, as we would generate an additional work item that is empty
-            //uint numWorkItems = (uint)inputArray.Length / SortRadixParallelWorkQuanta + 1;
             uint numberOfQuantas = (inputArray.Length % SortRadixParallelWorkQuanta) == 0 ? (uint)(inputArray.Length / SortRadixParallelWorkQuanta)
                                                                                           : (uint)(inputArray.Length / SortRadixParallelWorkQuanta + 1);
+            uint numberOfFullQuantas = (uint)(inputArray.Length / SortRadixParallelWorkQuanta);
 
+            Console.WriteLine("Before Histogram");
             // TODO: This histogram operation can be done in parallel to speed it up
             uint[][][] count = Algorithm.HistogramByteComponentsAcrossWorkQuantas(inputArray, SortRadixParallelWorkQuanta);
+            Console.WriteLine("After Histogram");
 
             uint[][][] startOfBin = new uint[numberOfQuantas][][];     // start of bin for each parallel work item
             for (int q = 0; q < numberOfQuantas; q++)
@@ -648,6 +649,7 @@ namespace HPCsharp
             int shiftRightAmount = 0;
             uint digit = 0;
 
+            Console.WriteLine("Before main permutation");
             while (bitMask != 0)    // end processing digits when all the mask bits have been processed and shifted out, leaving no bits set in the bitMask
             {
 #if false
@@ -657,10 +659,10 @@ namespace HPCsharp
                     outputArray[startOfBin[r, ExtractDigit(inputArray[current], bitMask, shiftRightAmount)]++] = inputArray[current];
                 }
 #else
-#if true
+#if false
                 // The last work item may not have the full parallelWorkQuanta of items to process
-                Task[] taskArray = new Task[numberOfQuantas - 1];
-                for (uint q = 0; q < numberOfQuantas - 1; q++)
+                Task[] taskArray = new Task[numberOfFullQuantas];
+                for (uint q = 0; q < numberOfFullQuantas; q++)
                 {
                     uint current = q * SortRadixParallelWorkQuanta;
                     taskArray[q] = Task.Factory.StartNew((Object obj) => {
@@ -682,24 +684,29 @@ namespace HPCsharp
                 }
                 Task.WaitAll(taskArray);
 #else
-                // The last work item may not have the full parallelWorkQuanta of items to process
-                for (uint r = 0; r < numWorkItems - 1; r++)
+                for (uint q = 0; q < numberOfFullQuantas; q++)
                 {
-                    uint current = r * SortRadixParallelWorkQuanta;
+                    uint[] startOfBinLoc = startOfBin[q][digit];
+                    uint current = q * SortRadixParallelWorkQuanta;
                     for (uint i = 0; i < SortRadixParallelWorkQuanta; i++)
                     {
-                        outputArray[startOfBin[r, ExtractDigit(inputArray[current], bitMask, shiftRightAmount)]++] = inputArray[current];
+                        outputArray[startOfBinLoc[ExtractDigit(inputArray[current], bitMask, shiftRightAmount)]++] = inputArray[current];
                         current++;
                     }
                 }
 #endif
-                // The last iteration, which may not have the full parallelWorkQuanta of items to process
-                uint currentLast = numberOfQuantas > 0 ? (numberOfQuantas - 1) * SortRadixParallelWorkQuanta : 0;
-                uint numItems = (uint)inputArray.Length % SortRadixParallelWorkQuanta;
-                for (uint i = 0; i < numItems; i++)
+                // The last work item may not have the full parallelWorkQuanta of items to process
+                Console.WriteLine("Before last permutation");
+                if (numberOfQuantas > numberOfFullQuantas)
                 {
-                    outputArray[startOfBin[(numberOfQuantas - 1)][digit][ExtractDigit(inputArray[currentLast], bitMask, shiftRightAmount)]++] = inputArray[currentLast];
-                    currentLast++;
+                    // The last iteration, which may not have the full parallelWorkQuanta of items to process
+                    uint currentLast = numberOfFullQuantas * SortRadixParallelWorkQuanta;
+                    uint numItems = (uint)inputArray.Length % SortRadixParallelWorkQuanta;
+                    for (uint i = 0; i < numItems; i++)
+                    {
+                        outputArray[startOfBin[numberOfFullQuantas][digit][ExtractDigit(inputArray[currentLast], bitMask, shiftRightAmount)]++] = inputArray[currentLast];
+                        currentLast++;
+                    }
                 }
 #endif
 
