@@ -120,7 +120,7 @@ namespace HPCsharp
             const int numberOfBins = 256;
             const int numberOfDigits = sizeof(uint);
             uint numberOfQuantas = (inArray.Length % workQuanta) == 0 ? (uint)(inArray.Length / workQuanta) : (uint)(inArray.Length / workQuanta + 1);
-            Console.WriteLine("Histogram: inArray.Length = {0}, workQuanta = {1}, numberOfQuantas = {2}", inArray.Length, workQuanta, numberOfQuantas);
+            //Console.WriteLine("Histogram: inArray.Length = {0}, workQuanta = {1}, numberOfQuantas = {2}", inArray.Length, workQuanta, numberOfQuantas);
 
             uint[][][] count = new uint[numberOfQuantas][][];          // count for each parallel work item
             for (int i = 0; i < numberOfQuantas; i++)
@@ -155,19 +155,11 @@ namespace HPCsharp
                 count[q][3][union.byte3]++;
             }
 
-            for (int d = 0; d < numberOfDigits; d++)
-                for (q = 0; q < numberOfQuantas; q++)
-                {
-                    Console.WriteLine("h: q = {0}   d = {1}", q, d);
-                    for (uint b = 0; b < numberOfBins; b++)
-                        Console.Write("{0} ", count[q][d][b]);
-                    Console.WriteLine();
-                }
-
             return count;
         }
 
-        public static uint[][] HistogramByteComponentsAcrossWorkQuantas1(uint[] inArray, uint workQuanta, uint whichByte)
+        // Produces counts for each bin per work quanta, with the left-most dimention being the work-quanta and the right-most dimention being the counts
+        public static uint[][] HistogramByteComponentsAcrossWorkQuantasQC(uint[] inArray, uint workQuanta, uint whichByte)
         {
             const int numberOfBins = 256;
             uint numberOfQuantas = (inArray.Length % workQuanta) == 0 ? (uint)(inArray.Length / workQuanta) : (uint)(inArray.Length / workQuanta + 1);
@@ -256,6 +248,63 @@ namespace HPCsharp
             //    for (uint b = 0; b < numberOfBins; b++)
             //        Console.Write("{0} ", count[q][b]);
             //    Console.WriteLine();
+            //}
+
+            return count;
+        }
+
+        // Different index order
+        public static uint[][][] HistogramByteComponentsAcrossWorkQuantasDQC(uint[] inArray, uint workQuanta)
+        {
+            const int numberOfBins = 256;
+            const int numberOfDigits = sizeof(uint);
+            uint numberOfQuantas = (inArray.Length % workQuanta) == 0 ? (uint)(inArray.Length / workQuanta) : (uint)(inArray.Length / workQuanta + 1);
+            uint q;
+            //Console.WriteLine("Histogram: inArray.Length = {0}, workQuanta = {1}, numberOfQuantas = {2}", inArray.Length, workQuanta, numberOfQuantas);
+
+            uint[][][] count = new uint[numberOfDigits][][];          // count for each parallel work item
+            for (int d = 0; d < numberOfDigits; d++)
+            {
+                count[d] = new uint[numberOfQuantas][];
+                for (q = 0; q < numberOfQuantas; q++)
+                    count[d][q] = new uint[numberOfBins];
+            }
+
+            uint numberOfFullQuantas = (uint)(inArray.Length / workQuanta);
+            int currIndex = 0;
+            var union = new UInt32ByteUnion();
+            for (q = 0; q < numberOfFullQuantas; q++)
+            {
+                for (uint j = 0; j < workQuanta; j++)
+                {
+                    union.integer = inArray[currIndex++];
+                    count[0][q][union.byte0]++;
+                    count[1][q][union.byte1]++;
+                    count[2][q][union.byte2]++;
+                    count[3][q][union.byte3]++;
+                }
+            }
+            // Last work quanta may be a partial one, whenever array length doesn't divide evenly by work quanta
+            for (; currIndex < inArray.Length;)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
+            {
+                union.integer = inArray[currIndex++];
+                count[0][q][union.byte0]++;
+                count[1][q][union.byte1]++;
+                count[2][q][union.byte2]++;
+                count[3][q][union.byte3]++;
+            }
+
+            //Console.WriteLine("Comparing Counts");
+            //for (uint d = 0; d < numberOfDigits; d++)
+            //{
+            //    uint[][] count1 = Algorithm.HistogramByteComponentsAcrossWorkQuantas1(inArray, workQuanta, d);
+
+            //    for (q = 0; q < numberOfQuantas; q++)
+            //        for (uint b = 0; b < numberOfBins; b++)
+            //        {
+            //            if (count[d][q][b] != count1[q][b])
+            //                Console.WriteLine("count's are not equal at digit {0}  q = {1}  b = {2}: {3}  {4}", d, q, b, count[d][q][b], count1[q][b]);
+            //        }
             //}
 
             return count;
