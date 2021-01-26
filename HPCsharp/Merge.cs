@@ -197,6 +197,105 @@ namespace HPCsharp
         /// <param name="bLength">length of the second sorted segment</param>
         /// <param name="dst">destination Array where the result of two merged Arrays is to be placed</param>
         /// <param name="dstStart">starting index within the destination Array where the merged sorted Array is to be placed</param>
+        static public void Merge5(int[] src, Int32 aStart, Int32 aLength,
+                                             Int32 bStart, Int32 bLength,
+                                  int[] dst, Int32 dstStart,
+                                  Int32 threshold = 1024)
+        {
+            Int32 numElements;
+            Int32 aEnd = aStart + aLength - 1;      // inclusive
+            Int32 bEnd = bStart + bLength - 1;
+
+            while (true)
+            {
+                if (aLength <= bLength)
+                {
+                    if (aLength < threshold)
+                    {
+                        Merge2(src, aStart, aLength, bStart, bLength, dst, dstStart);
+                        return;
+                    }
+                    else
+                        numElements = aLength;
+                }
+                else
+                {
+                    if (bLength < threshold)
+                    {
+                        Merge2(src, aStart, aLength, bStart, bLength, dst, dstStart);
+                        return;
+                    }
+                    else
+                        numElements = bLength;
+                }
+
+                for (Int32 i = 0; i < numElements; i++)     // more predictable comparisons, since these aren't data dependent, easier for branch prediction
+                {
+                    if (src[aStart] <= src[bStart])         // if elements are equal, then a[] element is output
+                        dst[dstStart++] = src[aStart++];
+                    else
+                        dst[dstStart++] = src[bStart++];
+                }
+                aLength = aEnd - aStart + 1;
+                bLength = bEnd - bStart + 1;
+            }
+        }
+
+        static public void Merge6(int[] src, Int32 aStart, Int32 aLength,
+                                             Int32 bStart, Int32 bLength,
+                                  int[] dst, Int32 dstStart,
+                                  Int32 threshold = 1024)
+        {
+            Int32 numElements;
+            Int32 aEnd = aStart + aLength - 1;      // inclusive
+            Int32 bEnd = bStart + bLength - 1;
+
+            while (true)
+            {
+                if (aLength <= bLength)
+                {
+                    if (aLength < threshold)
+                    {
+                        Merge2(src, aStart, aLength, bStart, bLength, dst, dstStart);
+                        return;
+                    }
+                    else
+                        numElements = aLength;
+                }
+                else
+                {
+                    if (bLength < threshold)
+                    {
+                        Merge2(src, aStart, aLength, bStart, bLength, dst, dstStart);
+                        return;
+                    }
+                    else
+                        numElements = bLength;
+                }
+
+                Int32 dstEnd = dstStart + numElements - 1;
+
+                while (dstStart <= dstEnd)                  // single comparison
+                {
+                    if (src[aStart] <= src[bStart])         // if elements are equal, then a[] element is output
+                        dst[dstStart++] = src[aStart++];
+                    else
+                        dst[dstStart++] = src[bStart++];
+                }
+                aLength = aEnd - aStart + 1;
+                bLength = bEnd - bStart + 1;
+            }
+        }
+        /// <summary>
+        /// Merge two sorted spans of an Array of int's, placing the result into a destination Array, starting at an index.
+        /// </summary>
+        /// <param name="src">source Array of int's with two sorted segments to be merged</param>
+        /// <param name="aStart">starting index of the first sorted Array, inclusive</param>
+        /// <param name="aLength">length of the first sorted segment</param>
+        /// <param name="bStart">starting index within the second sorted Array, inclusive</param>
+        /// <param name="bLength">length of the second sorted segment</param>
+        /// <param name="dst">destination Array where the result of two merged Arrays is to be placed</param>
+        /// <param name="dstStart">starting index within the destination Array where the merged sorted Array is to be placed</param>
         static public void Merge(int[] src, Int32 aStart, Int32 aLength, Int32 bStart, Int32 bLength,
                                  int[] dst, Int32 dstStart)
         {
@@ -217,6 +316,27 @@ namespace HPCsharp
             //Array.Copy(src, bStart, dst, dstStart, bEnd - bStart + 1);
             //ParallelAlgorithms.Copy.CopySse(src, bStart, dst, dstStart, bEnd - bStart + 1);
             while (bStart <= bEnd) dst[dstStart++] = src[bStart++];
+        }
+        static public void MergeWithCopy(int[] src, Int32 aStart, Int32 aLength, Int32 bStart, Int32 bLength,
+                                         int[] dst, Int32 dstStart)
+        {
+            Int32 aEnd = aStart + aLength - 1;
+            Int32 bEnd = bStart + bLength - 1;
+            while (aStart <= aEnd && bStart <= bEnd)
+            {
+                if (src[aStart] <= src[bStart])   	    // if elements are equal, then a[] element is output
+                    dst[dstStart++] = src[aStart++];
+                else
+                    dst[dstStart++] = src[bStart++];
+            }
+            //Console.WriteLine("Merge: aStart = {0}  dstStart = {1}  length = {2}", aStart, dstStart, aEnd - aStart + 1);
+            Copy(src, aStart, dst, dstStart, aEnd - aStart + 1);
+            //ParallelAlgorithms.Copy.CopySse(src, aStart, dst, dstStart, aEnd - aStart + 1);
+            //while (aStart <= aEnd) dst[dstStart++] = src[aStart++];       // copy(a[aStart, aEnd] to dst[dstStart]
+            //Console.WriteLine("Merge: bStart = {0}  dstStart = {1}  length = {2}", bStart, dstStart, bEnd - bStart + 1);
+            Copy(src, bStart, dst, dstStart, bEnd - bStart + 1);
+            //ParallelAlgorithms.Copy.CopySse(src, bStart, dst, dstStart, bEnd - bStart + 1);
+            //while (bStart <= bEnd) dst[dstStart++] = src[bStart++];
         }
         /// <summary>
         /// A slightly faster implementation, which performs only a single comparison for each loop
@@ -252,6 +372,31 @@ namespace HPCsharp
             while (aStart <= aEnd) dst[dstStart++] = src[aStart++];       // copy(a[aStart, aEnd] to dst[dstStart]
             //Array.Copy(src, bStart, dst, dstStart, bEnd - bStart + 1);
             while (bStart <= bEnd) dst[dstStart++] = src[bStart++];
+        }
+
+        static public void Merge2withCopy(int[] src, Int32 aStart, Int32 aLength, Int32 bStart, Int32 bLength,
+                                          int[] dst, Int32 dstStart)
+        {
+            Int32 aEnd = aStart + aLength - 1;
+            Int32 bEnd = bStart + bLength - 1;
+            if (aStart <= aEnd && bStart <= bEnd)
+            {
+                while (true)
+                    if (src[aStart] <= src[bStart])   	    // if elements are equal, then a[] element is output
+                    {
+                        dst[dstStart++] = src[aStart++];
+                        if (aStart > aEnd) break;
+                    }
+                    else
+                    {
+                        dst[dstStart++] = src[bStart++];
+                        if (bStart > bEnd) break;
+                    }
+            }
+            Copy(src, aStart, dst, dstStart, aEnd - aStart + 1);
+            //while (aStart <= aEnd) dst[dstStart++] = src[aStart++];       // copy(a[aStart, aEnd] to dst[dstStart]
+            Copy(src, bStart, dst, dstStart, bEnd - bStart + 1);
+            //while (bStart <= bEnd) dst[dstStart++] = src[bStart++];
         }
         // Is loop unrolling worthwhile?
         static public void Merge3(int[] src, Int32 aStart, Int32 aEnd, Int32 bStart, Int32 bEnd,
