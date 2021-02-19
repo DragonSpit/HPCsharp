@@ -39,13 +39,189 @@ namespace HPCsharp
             return arrayToBeSorted.SortCountingInPlaceFuncPar();
         }
 
+        public static uint[][] ComputeStartOfBinsPar(this uint[] inputArray, int workQuanta, uint digit)
+        {
+            uint numberOfBins = 256;
+            uint numberOfQuantas = (inputArray.Length % workQuanta) == 0 ? (uint)(inputArray.Length / workQuanta)
+                                                                         : (uint)(inputArray.Length / workQuanta + 1);
+
+            //uint[][] count = Algorithm.HistogramByteComponentsAcrossWorkQuantasQC(inputArray, workQuanta, digit);
+            //uint[][] count = Algorithm.HistogramByteComponentsAcrossWorkQuantasQC(inputArray, 0, inputArray.Length - 1, workQuanta, digit);
+            uint[][] count = ParallelAlgorithm.HistogramByteComponentsQCPar(inputArray, 0, inputArray.Length - 1, workQuanta, digit);
+
+            uint[][] startOfBin = new uint[numberOfQuantas][];     // start of bin for each parallel work item
+            for (int q = 0; q < numberOfQuantas; q++)
+                startOfBin[q] = new uint[numberOfBins];
+
+            uint[] sizeOfBin = new uint[numberOfBins];
+
+            // Determine the overall size of each bin, across all work quantas
+            for (uint b = 0; b < numberOfBins; b++)
+            {
+                sizeOfBin[b] = 0;
+                for (int q = 0; q < numberOfQuantas; q++)
+                    sizeOfBin[b] += count[q][b];
+                //Console.WriteLine("ComputeStartOfBins: d = {0}  sizeOfBin[{1}] = {2}", digit, b, sizeOfBin[b]);
+            }
+
+            // Determine starting of bins for work quanta 0
+            startOfBin[0][0] = 0;
+            for (uint b = 1; b < numberOfBins; b++)
+            {
+                startOfBin[0][b] = startOfBin[0][b - 1] + sizeOfBin[b - 1];
+                //startOfBin[0][b] = sizeOfBin[b - 1];
+                //if (digit == 1)
+                //    Console.WriteLine("ComputeStartOfBins: d = {0}  startOfBin[0][{1}] = {2}", digit, b, startOfBin[0][b]);
+            }
+
+            // Determine starting of bins for work quanta 1 thru Q
+            for (uint q = 1; q < numberOfQuantas; q++)
+                for (uint b = 0; b < numberOfBins; b++)
+                {
+                    startOfBin[q][b] = startOfBin[q - 1][b] + count[q - 1][b];
+                    //if (digit == 1)
+                    //    Console.WriteLine("ComputeStartOfBins: d = {0}  sizeOfBin[{1}][{2}] = {3}", digit, q, b, startOfBin[q][b]);
+                }
+
+            return startOfBin;
+        }
+
+        private static void SortRadixInnerFunction(uint[] inputArray, uint[] outputArray, uint[][] startOfBin, uint[][] bufferIndex, uint[][] bufferDerandomize, uint[] bufferIndexEnd, CustomData data, uint endIndex, uint BufferDepth, int NumberOfBins)
+        {
+            if (data == null)
+                return;
+            uint currIndex = data.current;
+            //uint endIndex = currIndex + SortRadixParallelWorkQuanta;
+            uint qLoc = data.q;
+            uint[] startOfBinLoc = startOfBin[qLoc];
+            uint[] bufferIndexLoc = bufferIndex[qLoc];
+            uint[] bufferDerandomizeLoc = bufferDerandomize[qLoc];
+            //Console.WriteLine("current = {0}, q = {1}, bitMask = {2}, shiftRightAmount = {3}", currIndex, qLoc, data.bitMask, data.shiftRightAmount);
+            for (; currIndex < endIndex; currIndex++)
+            {
+                uint currDigit = (inputArray[currIndex] & data.bitMask) >> data.shiftRightAmount;
+                if (bufferIndexLoc[currDigit] < bufferIndexEnd[currDigit])
+                {
+                    bufferDerandomizeLoc[bufferIndexLoc[currDigit]++] = inputArray[currIndex];
+                }
+                else
+                {
+                    uint outIndex = startOfBinLoc[currDigit];
+                    uint buffIndex = currDigit * BufferDepth;
+                    //for (uint i = 0; i < BufferDepth; i++)
+                    //    outputArray[outIndex++] = bufferDerandomizeLoc[buffIndex++];   // TODO: use SSE
+                    Array.Copy(bufferDerandomizeLoc, buffIndex, outputArray, outIndex, BufferDepth);
+                    startOfBinLoc[currDigit] += BufferDepth;
+                    bufferDerandomizeLoc[currDigit * BufferDepth] = inputArray[currIndex];
+                    bufferIndexLoc[currDigit] = currDigit * BufferDepth + 1;
+                }
+            }
+            // Flush all the derandomization buffers
+            for (uint whichBuff = 0; whichBuff < NumberOfBins; whichBuff++)
+            {
+                uint buffStartIndex = whichBuff * BufferDepth;
+                uint buffEndIndex = bufferIndexLoc[whichBuff];
+                //Console.WriteLine("q = {0}, numOfElementsInBuff[{1}] = {2}", qLoc, whichBuff, numOfElementsInBuff);
+                for (; buffStartIndex < buffEndIndex;)
+                    outputArray[startOfBinLoc[whichBuff]++] = bufferDerandomizeLoc[buffStartIndex++];
+                bufferIndexLoc[whichBuff] = whichBuff * BufferDepth;
+            }
+        }
+
+        public static uint[] SortRadixPar(this uint[] inputArray, int SortRadixParallelWorkQuanta = 64 * 1024)
+        {
+            const int NumberOfBins = 256;
+            int Log2ofPowerOfTwoRadix = 8;
+            uint[] outputArray = new uint[inputArray.Length];
+            bool outputArrayHasResult = false;
+            uint numberOfQuantas = (inputArray.Length % SortRadixParallelWorkQuanta) == 0 ? (uint)(inputArray.Length / SortRadixParallelWorkQuanta)
+                                                                                          : (uint)(inputArray.Length / SortRadixParallelWorkQuanta + 1);
+            // Setup de-randomization buffers for writes during the permutation phase
+            const uint BufferDepth = 64;
+            uint[][] bufferDerandomize = new uint[numberOfQuantas][];
+            for (int q = 0; q < numberOfQuantas; q++)
+                bufferDerandomize[q] = new uint[NumberOfBins * BufferDepth];
+            uint[][] bufferIndex = new uint[numberOfQuantas][];
+
+            for (int q = 0; q < numberOfQuantas; q++)
+            {
+                bufferIndex[q] = new uint[NumberOfBins];
+                bufferIndex[q][0] = 0;
+                for (int b = 1; b < NumberOfBins; b++)
+                    bufferIndex[q][b] = bufferIndex[q][b - 1] + BufferDepth;
+            }
+            uint[] bufferIndexEnd = new uint[NumberOfBins];
+            bufferIndexEnd[0] = BufferDepth;
+            for (int b = 1; b < NumberOfBins; b++)
+                bufferIndexEnd[b] = bufferIndexEnd[b - 1] + BufferDepth;
+            // End of de-randomization buffers setup
+
+            if (inputArray.Length == 0)
+                return outputArray;
+
+            // Use TPL ideas from https://docs.microsoft.com/en-us/dotnet/standard/parallel-programming/task-based-asynchronous-programming
+
+            uint bitMask = 255;
+            int shiftRightAmount = 0;
+            uint digit = 0;
+
+            while (bitMask != 0)    // end processing digits when all the mask bits have been processed and shifted out, leaving no bits set in the bitMask
+            {
+                uint[][] startOfBin = ComputeStartOfBinsPar(inputArray, SortRadixParallelWorkQuanta, digit);
+
+                // The last work item may not have the full parallelWorkQuanta of items to process
+                uint numberOfFullQuantas = (uint)(inputArray.Length / SortRadixParallelWorkQuanta);
+                Task[] taskArray = new Task[numberOfQuantas];
+                uint q;
+                for (q = 0; q < numberOfFullQuantas; q++)
+                {
+                    uint current = (uint)(q * SortRadixParallelWorkQuanta);
+                    taskArray[q] = Task.Factory.StartNew((Object obj) => {
+                        CustomData data = obj as CustomData;
+                        uint endIndex = (uint)(data.current + SortRadixParallelWorkQuanta);
+
+                        SortRadixInnerFunction(inputArray, outputArray, startOfBin, bufferIndex, bufferDerandomize, bufferIndexEnd, data, endIndex, BufferDepth, NumberOfBins);
+                    },
+                    new CustomData() { current = current, q = q, bitMask = bitMask, shiftRightAmount = shiftRightAmount }
+                    );
+                }
+                if (numberOfQuantas > numberOfFullQuantas)      // last partially filled workQuanta
+                {
+                    uint current = (uint)(q * SortRadixParallelWorkQuanta);
+                    taskArray[q] = Task.Factory.StartNew((Object obj) => {
+                        CustomData data = obj as CustomData;
+                        uint endIndex = (uint)inputArray.Length;
+
+                        SortRadixInnerFunction(inputArray, outputArray, startOfBin, bufferIndex, bufferDerandomize, bufferIndexEnd, data, endIndex, BufferDepth, NumberOfBins);
+                    },
+                    new CustomData() { current = current, q = q, bitMask = bitMask, shiftRightAmount = shiftRightAmount }
+                    );
+                }
+                Task.WaitAll(taskArray);    // wait for all work quantas to finish before starting the next pass, as passes have to be done in sequence
+
+                bitMask <<= Log2ofPowerOfTwoRadix;
+                digit++;
+                shiftRightAmount += Log2ofPowerOfTwoRadix;
+                outputArrayHasResult = !outputArrayHasResult;
+
+                uint[] tmp = inputArray;       // swap input and output arrays
+                inputArray = outputArray;
+                outputArray = tmp;
+            }
+            if (outputArrayHasResult)
+                for (uint current = 0; current < inputArray.Length; current++)    // copy from output array into the input array
+                    inputArray[current] = outputArray[current];
+
+            return inputArray;
+        }
+
         /// <summary>
         /// Parallel Sort an array of unsigned integers using Radix Sorting algorithm (least significant digit variation - LSD)
         /// This algorithm is stable, but is not in-place.
         /// </summary>
         /// <param name="inputArray">array of unsigned integers to be sorted</param>
         /// <returns>sorted array of unsigned integers</returns>
-        public static uint[] SortRadixPar(this uint[] inputArray, int parallelThresholdHistogram = 16 * 1024)
+        public static uint[] SortRadixPartialPar(this uint[] inputArray, int parallelThresholdHistogram = 16 * 1024)
         {
             int numberOfBins = 256;
             int numberOfDigits = 4;
