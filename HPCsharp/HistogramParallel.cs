@@ -264,7 +264,7 @@ namespace HPCsharp
             return HistogramByteComponentsSseParInner(inArray, l, r, parallelThreshold);
         }
 
-        static uint[][] HistogramByteComponentsQCParInner(uint[] inArray, Int32 l, Int32 r, uint workQuanta, uint whichByte, int parallelThreshold = 16 * 1024)
+        static uint[][] HistogramByteComponentsQCParInner(uint[] inArray, Int32 l, Int32 r, int workQuanta, uint whichByte, int parallelThreshold = 16 * 1024)
         {
             const int numberOfBins = 256;
             uint[][] countLeft  = null;
@@ -289,7 +289,7 @@ namespace HPCsharp
             return countLeft;
         }
 
-        public static uint[][] HistogramByteComponentsQCPar(uint[] inArray, Int32 l, Int32 r, uint workQuanta, uint whichByte, int parallelThreshold = 16 * 1024)
+        public static uint[][] HistogramByteComponentsQCPar(uint[] inArray, Int32 l, Int32 r, int workQuanta, uint whichByte, int parallelThreshold = 16 * 1024)
         {
             int length = r - l + 1;
             if ((parallelThreshold * Environment.ProcessorCount) < length)
