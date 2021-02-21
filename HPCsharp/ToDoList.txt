@@ -1,4 +1,6 @@
-﻿// TODO: Figure out why LSD Radix Sort is 3X slower when compiled with "g++ -O2" versus same code (is it?) using VisualStudio 2019 (same optimization switches?), since
+﻿// TODO: Bring in parallel Quick Sort from the link that John provided (http://dzmitryhuba.blogspot.com/2012/03/parallel-partition-phase-for-quick-sort.html)
+//       Or, port from C++ parallel implementation provided in Pro TBB book from Intel (chapter 2).
+// TODO: Figure out why LSD Radix Sort is 3X slower when compiled with "g++ -O2" versus same code (is it?) using VisualStudio 2019 (same optimization switches?), since
 //       it is the same code.
 // TODO: Optimize small size sorting cases by doing a bunch of sub-array sorting and benchmarking performance. It would be very powerful to show speedup at the lower
 //       size end of the spectrum, as that would show usefulness to more users, and may require completely different optimizations and thinking.

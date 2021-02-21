@@ -11,7 +11,6 @@
 // TODO: Make all multi-dimensional buffers a single array, to keep cache usage and mapping to the same cache location impossible.
 // TODO: For parallel algorithm, parallel the counting portion of the algorithm, as I've done in my Dr. Dobb's papers for the parallel counting sort and MSD Radix Sort.
 //       To start with don't parallel the permuting portion of the algorithm until we figure out how to do it with a performance gain.
-// TODO: Bring in parallel Quick Sort from the link that John provided.
 // TODO: Figure out why for pre-sorted arrays of uint Radix Sort's 4 passes are much slower on the middle two passes than on the first and last pass. The last pass is
 //       understandable since most likely all elements go into a single bin and that's why it's fast. This could be an opportunity to expose a weakness in this algorithm
 //       or an opportunity to fix this weakness.
