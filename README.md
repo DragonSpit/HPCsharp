@@ -168,7 +168,7 @@ HPCsharp implements LSD Radix Sort, which is a linear time ***O***(N), stable so
 for three input data distributions, in Millions of UInt32's per second.
 
 *Algorithm*|*Random*|*Presorted*|*Constant*|*Computer*
---- | --- | ---
+--- | --- | --- | --- | ---
 LSD Radix Sort (Serial) | 104 | 45 | 90 | 1-core i7-9750H
 LSD Radix Sort (Partially Parallel) | 118 | 48 | 112 | 6-core i7-9750H
 LSD Radix Sort (Parallel) | 193 | 203 | 225 | 6-core i7-9750H
