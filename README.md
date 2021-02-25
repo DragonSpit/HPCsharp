@@ -164,7 +164,7 @@ Linq.OrderBy |2.1|6.3|6.3| single-core on 6 core i7-9750H
 Linq.OrderBy |2.3|7.7|8.0| single-core on 14 core Intel Xeon
 Linq.OrderBy |1.1|5.5|5.4| single-core on 32 core AMD EPYC
 
-LSD Radix Sort is a linear time ***O***(N), stable sorting algorithm.
+HPCsharp implements LSD Radix Sort, which is a linear time ***O***(N), stable sorting algorithm.
 
 *Algorithm*|*MegaUInt32/sec*|*Computer*
 --- | --- | ---
