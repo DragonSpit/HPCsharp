@@ -153,7 +153,7 @@ The above benchmark is on a single core! Multi-core sorts even faster, at GigaEl
 ## LSD Radix Sort
 
 C# implements two ways to sort arrays: .Sort and Linq.OrderBy. Sort does not support multi-core, whereas Linq.OrderBy does.
-The following table shows performance of these two algorithms, for three input data distributions.
+The following table shows performance of these two algorithms, for three input data distributions, in Millions of Int32's per second.
 
 *Algorithm*|*Random*|*Presorted*|*Constant*|*Description*
 --- | --- | --- | --- | ---
