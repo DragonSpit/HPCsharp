@@ -155,7 +155,7 @@ The above benchmark is on a single core! Multi-core sorts even faster, at GigaEl
 C# implements two ways to sort arrays: .Sort and Linq.OrderBy. Sort does not support multi-core, whereas Linq.OrderBy does.
 The following table shows performance of these two algorithms, for three input data distributions, in Millions of Int32's per second.
 
-*Algorithm*|*Random*|*Presorted*|*Constant*|*Description*
+*Algorithm*|*Random*|*Presorted*|*Constant*|*Computer*
 --- | --- | --- | --- | ---
 .Sort |11|70|32| single-core on 6-core i7-9750H
 .Sort |13|105|53| single-core on 14-core Xeon
@@ -164,14 +164,15 @@ Linq.OrderBy |2.1|6.3|6.3| single-core on 6 core i7-9750H
 Linq.OrderBy |2.3|7.7|8.0| single-core on 14 core Intel Xeon
 Linq.OrderBy |1.1|5.5|5.4| single-core on 32 core AMD EPYC
 
-HPCsharp implements LSD Radix Sort, which is a linear time ***O***(N), stable sorting algorithm.
+HPCsharp implements LSD Radix Sort, which is a linear time ***O***(N), stable sorting algorithm. The following table shows performance
+for three input data distributions, in Millions of UInt32's per second.
 
-*Algorithm*|*MegaUInt32/sec*|*Computer*
+*Algorithm*|*Random*|*Presorted*|*Constant*|*Computer*
 --- | --- | ---
-LSD Radix Sort (Serial) | 98 | 1-core i7-9750H
-LSD Radix Sort (Partially Parallel) | 120 | 6-core i7-9750H
-LSD Radix Sort (Parallel) | 195 | 6-core i7-9750H
-LSD Radix Sort (Parallel) | 300 | 48-core AWS
+LSD Radix Sort (Serial) | 104 | 45 | 90 | 1-core i7-9750H
+LSD Radix Sort (Partially Parallel) | 118 | 48 | 112 | 6-core i7-9750H
+LSD Radix Sort (Parallel) | 193 | 203 | 225 | 6-core i7-9750H
+LSD Radix Sort (Parallel) | 316 | 360 | 370 | 48-core AWS
 
 Several implementations available: serial, partially parallel, and fully parallel. Serial algorithm runs on a single core.
 Partially parallel algorithm runs the counting/histogram phase of the algorithm in parallel, and the permutation phase
