@@ -8,7 +8,7 @@
     <Description>Parallel high performance cross-platform C#/.NET algorithms. 20+ algorithms with familiar interfaces and examples. Multi-core and data parallel (SIMD/SSE). Open source and free. See project Readme, blog, and videos...</Description>
     <Copyright>© 2018 FooState</Copyright>
     <PackageLicenseUrl>https://github.com/DragonSpit/HPCsharp/blob/master/LICENSE</PackageLicenseUrl>
-    <PackageReleaseNotes>Start of Parallel Quicksort algorithm, which is generic, able to compare built-in data types and user defined types.</PackageReleaseNotes>
+    <PackageReleaseNotes>Partially parallel Quicksort and Introspective Sort algorithms. Parallel Quicksort is generic and specialized for uint[], which is 2X faster than the generic version.</PackageReleaseNotes>
     <PackageId>HPCsharp</PackageId>
     <PackageTags>high perfromance algorithms, C#, high performance, high performance computing, HPC, algorithm, algorithms, Linq, parallel, parallel algorithm</PackageTags>
     <PackageIconUrl>https://foostate.com/images/default_lib_icon_64.png</PackageIconUrl>
@@ -17,9 +17,9 @@
     <PackageProjectUrl>https://github.com/DragonSpit/HPCsharp</PackageProjectUrl>
     <RepositoryUrl>https://github.com/DragonSpit/HPCsharp</RepositoryUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <AssemblyVersion>3.15.1.0</AssemblyVersion>
-    <FileVersion>3.15.1.0</FileVersion>
-    <Version>3.15.1</Version>
+    <AssemblyVersion>3.16.1.0</AssemblyVersion>
+    <FileVersion>3.16.1.0</FileVersion>
+    <Version>3.16.1</Version>
     <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
