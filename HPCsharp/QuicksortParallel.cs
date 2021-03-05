@@ -19,7 +19,7 @@ namespace HPCsharp
 
             if (e - b <= cutoff)
             {
-                Algorithm.Quicksort4(src, b, e, comparer);
+                Algorithm.QuicksortHoare(src, b, e, comparer);
             }
             else
             {
@@ -73,7 +73,7 @@ namespace HPCsharp
 
             if (e - b <= cutoff)
             {
-                Algorithm.Quicksort3(src, b, e);
+                Algorithm.QuicksortHoare(src, b, e);
             }
             else
             {
