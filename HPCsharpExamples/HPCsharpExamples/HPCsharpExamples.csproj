@@ -68,8 +68,8 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="HPCsharp, Version=3.6.0.0, Culture=neutral, processorArchitecture=AMD64">
-      <HintPath>..\packages\HPCsharp.3.6.0\lib\netstandard2.0\HPCsharp.dll</HintPath>
+    <Reference Include="HPCsharp, Version=3.16.0.0, Culture=neutral, processorArchitecture=AMD64">
+      <HintPath>..\packages\HPCsharp.3.16.0\lib\netstandard2.0\HPCsharp.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

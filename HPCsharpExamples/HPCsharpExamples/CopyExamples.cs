@@ -48,8 +48,8 @@ namespace HPCsharpExamples
             Array.Copy(arraySource, 0, arrayDestination, 0, arraySource.Length);
 
             // HPCsharp parallel (multi-core) copy Array to another Array variations. Similar interface
-            ArrayHpc.CopyPar(arraySource, arrayDestination, arraySource.Length);
-            ArrayHpc.CopyPar(arraySource, 0, arrayDestination, 0, arraySource.Length);
+            arraySource.CopyPar(arrayDestination, arraySource.Length);
+            arraySource.CopyPar(0, arrayDestination, 0, arraySource.Length);
 
             // HPCsharp parallel (multi-core) copy Array to another Array variations. More modern and convenient interface
             arraySource.CopyPar(arrayDestination, arraySource.Length);
