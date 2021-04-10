@@ -45,7 +45,7 @@ namespace HPCsharp
 		}
 
 		// main function to do heapsort
-		internal static void heapSort(int[] src, int begin, int end)
+		public static void heapSort(int[] src, int begin, int end)
 		{
 			int heapN = end - begin;
 
@@ -198,7 +198,7 @@ namespace HPCsharp
 		}
 
 		// main function to do heapsort
-		internal static void heapSort(uint[] src, int begin, int end)
+		public static void heapSort(uint[] src, int begin, int end)
 		{
 			int heapN = end - begin;
 
