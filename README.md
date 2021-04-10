@@ -16,14 +16,17 @@ High performance C# generic algorithms. Runs on Windows and Linux. Community dri
 [Counting Sort](#Counting-Sort) | 3 | 14 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | byte, ushort, sbyte, short arrays. Ludicrous speed!
 [Divide-and-Conquer](#Divide-and-Conquer) | 2 | 4 | | :heavy_check_mark: | :heavy_check_mark: | | Generic serial and parallel abstraction
 Fill | 4 | 10 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Numeric arrays
+Heap Sort | 1 | 2 | | | | :heavy_check_mark: |
 Histogram | 14 | 35 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Byte, N-bit components of numeric arrays
 [Insertion Sort](#Insertion-Sort) | 1 | 2 | | | :heavy_check_mark: | :heavy_check_mark: | Generic IComparer\<T\>
+Introspective Sort | 1 | 3 | | | :heavy_check_mark: | :heavy_check_mark: |
 [Max, Min](#Min-and-Max) | 2 | 12 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | Generic IComparer\<T\>
 [Mean Absolute Deviation](#Mean-Absolute-Deviation) | 3 | 6 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | float[] and double[]
 [Merge](#Merge) | 2 | 18 | | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | Generic IComparer\<T\>
 Multi-way Merge | 1 | | | | :heavy_check_mark: | |
 [Merge Sort](#Merge-Sort) | 2 | 25 | | :heavy_check_mark: | :heavy_check_mark: | | Generic, Stable or not, whole or partial
 Priority Queue | 2 | 15 | | | :heavy_check_mark: | | 
+Quicksort | 5 | 9 | | :heavy_check_mark: | :heavy_check_mark: | | 
 [Radix Sort (LSD)](#LSD-Radix-Sort) | 6 | 40 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Numeric arrays, user defined types, Stable
 Radix Sort (MSD) | 4 | 24| :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Numeric arrays, user defined types, In-place
 Sequence Equal | 2 | 19 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | 
