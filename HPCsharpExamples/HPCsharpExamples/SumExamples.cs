@@ -79,8 +79,8 @@ namespace HPCsharpExamples
             sumBigInteger = arrLong.SumToBigIntegerFast();           // scalar, single-core
             sumBigInteger = arrLong.SumToBigIntegerFaster();         // scalar, single-core (much faster when lots of overflows can occur)
             sumBigInteger = arrLong.SumToBigIntegerSseFaster();      // data parallel (SSE), single-core, much faster when lots of overflows can occur
-            //sumBigInteger = arrLong.SumToBigIntegerFasterPar();      // scalar,               multi-core, much faster when lots of overflows can occur
-            //sumBigInteger = arrLong.SumToBigIntegerSseFasterPar();   // data parallel (SSE),  multi-core, much faster when lots of overflows can occur
+            sumBigInteger = arrLong.SumToBigIntegerFasterPar();      // scalar,               multi-core, much faster when lots of overflows can occur
+            sumBigInteger = arrLong.SumToBigIntegerSseFasterPar();   // data parallel (SSE),  multi-core, much faster when lots of overflows can occur
 
 
             float[] arrFloat = new float[] { 5.0f, 7.3f, 16.3f, 3.1f };
@@ -111,6 +111,8 @@ namespace HPCsharpExamples
             ulong[] arrUlong = new ulong[] { 5, 7, 16, 3, UInt64.MaxValue, 1 };
             long sumUlong;
 
+            ulong sumUlongUL = 0;
+
             //sumULong = arrUlong.Sum();                  // standard C# usage,   single-core, throws an overflow exception
             //sumUlong = arrUlong.AsParallel().Sum();     // standard C# usage,    multi-core, throws an overflow exception
             //sumUlong = arrLong.SumCheckedSse();         // data parallel (SSE), single-core, throws an overflow exception
@@ -130,8 +132,8 @@ namespace HPCsharpExamples
             sumBigInteger = arrUlong.SumToBigIntegerFast();           // scalar, single-core
             sumBigInteger = arrUlong.SumToBigIntegerFaster();         // scalar, single-core (much faster when many overflows can occur)
             sumBigInteger = arrUlong.SumToBigIntegerSseFaster();      // data parallel (SSE), single-core, much faster when many overflows can occur
-            //sumBigInteger = arrUlong.SumToBigIntegerFasterPar();      // scalar,               multi-core, much faster when many overflows can occur
-            //sumBigInteger = arrUlong.SumToBigIntegerSseFasterPar();   // data parallel (SSE),  multi-core, much faster when many overflows can occur
+            sumBigInteger = arrUlong.SumToBigIntegerFasterPar();      // scalar,               multi-core, much faster when many overflows can occur
+            sumBigInteger = arrUlong.SumToBigIntegerSseFasterPar();   // data parallel (SSE),  multi-core, much faster when many overflows can occur
 
             BigInteger[] arrBigInteger = new BigInteger[] { 5, 7, 16, 3, UInt64.MaxValue, 1 };
 
