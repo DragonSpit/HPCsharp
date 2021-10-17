@@ -99,6 +99,55 @@ namespace HPCsharp
             return dst;
         }
 
+        static internal void SortMergeFourWayInner<T>(this T[] src, int l, int r, T[] dst, bool srcToDst = true, IComparer<T> comparer = null)
+        {
+            if (r == l)
+            {    // termination/base case of sorting a single element
+                if (srcToDst) dst[l] = src[l];    // copy the single element from src to dst
+                return;
+            }
+            else if ((r - l) < SortMergeInsertionThreshold)
+            {
+                HPCsharp.Algorithm.InsertionSort<T>(src, l, r - l + 1, comparer);  // want to do dstToSrc, can just do it in-place, just sort the src, no need to copy
+                if (srcToDst)
+                    for (int i = l; i <= r; i++) dst[i] = src[i];	// copy from src to dst, when the result needs to be in dst
+                return;
+            }
+
+            int m1 = (l  + r)  / 2;
+            int m0 = (l  + m1) / 2;
+            int m2 = (m1 + r)  / 2;
+            int length0 = m0 - l + 1;
+            int length1 = m1 - (m0 + 1) + 1;
+            int length2 = m2 - (m1 + 1) + 1;
+            int length3 = r  - (m2 + 1) + 1;
+            //Console.WriteLine("SortMergeFourWay: Length = {0} l = {1} r = {2} m0 = {3} m1 = {4} m2 = {5} length0 = {6} length1 = {7} length2 = {8} length3 = {9}", src.Length, l, r, m0, m1, m2, length0, length1, length2, length3);
+
+            SortMergeFourWayInner(src, l,      m0, dst, !srcToDst, comparer);		// reverse direction of srcToDst for the next level of recursion
+            SortMergeFourWayInner(src, m0 + 1, m1, dst, !srcToDst, comparer);
+            SortMergeFourWayInner(src, m1 + 1, m2, dst, !srcToDst, comparer);
+            SortMergeFourWayInner(src, m2 + 1, r,  dst, !srcToDst, comparer);
+
+            if (srcToDst) MergeFourWay(src, l, length0, m0 + 1, length1, m1 + 1, length2, m2 + 1, length3, dst, l, comparer);
+            else          MergeFourWay(dst, l, length0, m0 + 1, length1, m1 + 1, length2, m2 + 1, length3, src, l, comparer);
+        }
+        /// <summary>
+        /// Take the source array, sort it using the Merge Sort algorithm, and return a sorted array of full length.
+        /// Not in-place algorithm. Uses a 4-way split and 4-way merge.
+        /// </summary>
+        /// <typeparam name="T">array of type T</typeparam>
+        /// <param name="source">source array</param>
+        /// <param name="comparer">comparer used to compare two array elements of type T</param>
+        /// <returns>returns a sorted array of full length</returns>
+        static public T[] SortMergeFourWay<T>(this T[] source, IComparer<T> comparer = null)
+        {
+            T[] dst = new T[source.Length];
+
+            source.SortMergeFourWayInner<T>(0, source.Length - 1, dst, true, comparer);
+
+            return dst;
+        }
+
         public static void SortMergeInPlacePure<T>(T[] arr, IComparer<T> comparer = null, int threshold = 16 * 1024)
         {
             SortMergeInPlacePureInner<T>(arr, 0, arr.Length - 1, comparer, threshold);
