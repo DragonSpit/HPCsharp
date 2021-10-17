@@ -465,10 +465,7 @@ namespace HPCsharp
 
             while (aStart <= aEnd && bStart <= bEnd)
             {
-                if (equalityComparer.Compare(a[aStart], b[bStart]) <= 0)   	    // if elements are equal, then a[] element is output
-                    dst[dstStart++] = a[aStart++];
-                else
-                    dst[dstStart++] = b[bStart++];
+                dst[dstStart++] = equalityComparer.Compare(a[aStart], b[bStart]) <= 0 ? a[aStart++] : b[bStart++];      // if elements are equal, then a[] element is output
             }
             if (aStart <= aEnd)
                 Array.Copy(a, aStart, dst, dstStart, aEnd - aStart + 1);
@@ -831,9 +828,9 @@ namespace HPCsharp
             }
         }
 
-        static public void MergeThree<T>(T[] a, Int32 aStart, Int32 aLength,
-                                         T[] b, Int32 bStart, Int32 bLength,
-                                         T[] c, Int32 cStart, Int32 cLength,
+        static public void MergeThreeWay<T>(T[] a,   Int32 aStart, Int32 aLength,
+                                                  Int32 bStart, Int32 bLength,
+                                                  Int32 cStart, Int32 cLength,
                                          T[] dst, Int32 dstStart,
                                          IComparer<T> comparer = null)
         {
@@ -844,51 +841,41 @@ namespace HPCsharp
             while (aStart <= aEnd && bStart <= bEnd && cStart <= cEnd)
             {
                 // a[aStart] <= b[bStart]
-                if (equalityComparer.Compare(a[aStart], b[bStart]) <= 0)
+                if (equalityComparer.Compare(a[aStart], a[bStart]) <= 0)
                 {   // a <= b
-                    if (equalityComparer.Compare(a[aStart], c[cStart]) <= 0)
-                    {   // a is smallest
-                        dst[dstStart++] = a[aStart++];
-                    }
-                    else
-                    {   // c is smallest
-                        dst[dstStart++] = c[cStart++];
-                    }
+                    dst[dstStart++] = equalityComparer.Compare(a[aStart], a[cStart]) <= 0 ? a[aStart++] : a[cStart++];
                 }
                 else
                 {   // b < a
-                    if (equalityComparer.Compare(b[bStart], c[cStart]) <= 0)
-                    {   // b is smallest
-                        dst[dstStart++] = b[bStart++];
-                    }
-                    else
-                    {   // c is smallest
-                        dst[dstStart++] = c[cStart++];
-                    }
+                    dst[dstStart++] = equalityComparer.Compare(a[bStart], a[cStart]) <= 0 ? a[bStart++] : a[cStart++];
                 }
             }
             // Ran out of elements in one of the segments - i.e. 2 segments are available for merging, but which 2
+            // Length needs to be adjusted, to be lengths left yet to be merged for each segment
+            aLength = aEnd - aStart + 1;
+            bLength = bEnd - bStart + 1;
+            cLength = cEnd - cStart + 1;
             if (aStart > aEnd)
             {
-                Merge(b, bStart, bLength, c, cStart, cLength, dst, dstStart, equalityComparer);
+                Merge(a, bStart, bLength, cStart, cLength, dst, dstStart, equalityComparer);
             }
             else if (bStart > bEnd)
             {
-                Merge(a, aStart, aLength, c, cStart, cLength, dst, dstStart, equalityComparer);
+                Merge(a, aStart, aLength, cStart, cLength, dst, dstStart, equalityComparer);
             }
             else   // (cStart > cEnd)
             {
-                Merge(a, aStart, aLength, b, bStart, bLength, dst, dstStart, equalityComparer);
+                Merge(a, aStart, aLength, bStart, bLength, dst, dstStart, equalityComparer);
             }
         }
         // Strategy is to handle 4 segments while 4 are available, 3 while 3 are available, 2 while 2 are available
         // This extends the strategy used for merging two segments nicely
-        static public void MergeFour<T>(T[] a, Int32 aStart, Int32 aLength,
-                                        T[] b, Int32 bStart, Int32 bLength,
-                                        T[] c, Int32 cStart, Int32 cLength,
-                                        T[] d, Int32 dStart, Int32 dLength,
-                                        T[] dst, Int32 dstStart,
-                                        IComparer<T> comparer = null)
+        static public void MergeFourWay<T>(T[] a, Int32 aStart, Int32 aLength,
+                                                  Int32 bStart, Int32 bLength,
+                                                  Int32 cStart, Int32 cLength,
+                                                  Int32 dStart, Int32 dLength,
+                                         T[] dst, Int32 dstStart,
+                                         IComparer<T> comparer = null)
         {
             var equalityComparer = comparer ?? Comparer<T>.Default;
             Int32 aEnd = aStart + aLength - 1;
@@ -897,74 +884,50 @@ namespace HPCsharp
             Int32 dEnd = dStart + dLength - 1;
             while (aStart <= aEnd && bStart <= bEnd && cStart <= cEnd && dStart <= dEnd)
             {
-                // a[aStart] <= b[bStart]
-                if (equalityComparer.Compare(a[aStart], b[bStart]) <= 0)
+                if (equalityComparer.Compare(a[aStart], a[bStart]) <= 0)
                 {   // a <= b
-                    if (equalityComparer.Compare(c[cStart], d[dStart]) <= 0)
+                    if (equalityComparer.Compare(a[cStart], a[dStart]) <= 0)
                     {   // c <= d
-                        if (equalityComparer.Compare(a[aStart], c[cStart]) <= 0)
-                        {   // a is smallest
-                            dst[dstStart++] = a[aStart++];
-                        }
-                        else
-                        {   // c is smallest
-                            dst[dstStart++] = c[cStart++];
-                        }
+                        dst[dstStart++] = equalityComparer.Compare(a[aStart], a[cStart]) <= 0 ? a[aStart++] : a[cStart++];   // a or c is smallest
                     }
                     else
                     {   // d < c
-                        if (equalityComparer.Compare(a[aStart], d[dStart]) <= 0)
-                        {   // a is smallest
-                            dst[dstStart++] = a[aStart++];
-                        }
-                        else
-                        {   // d is smallest
-                            dst[dstStart++] = d[dStart++];
-                        }
+                        dst[dstStart++] = equalityComparer.Compare(a[aStart], a[dStart]) <= 0 ? a[aStart++] : a[dStart++];   // a or d is smallest
                     }
                 }
                 else
                 {   // b < a
-                    if (equalityComparer.Compare(c[cStart], d[dStart]) <= 0)
+                    if (equalityComparer.Compare(a[cStart], a[dStart]) <= 0)
                     {   // c <= d
-                        if (equalityComparer.Compare(b[bStart], c[cStart]) <= 0)
-                        {   // b is smallest
-                            dst[dstStart++] = b[bStart++];
-                        }
-                        else
-                        {   // c is smallest
-                            dst[dstStart++] = c[cStart++];
-                        }
+                        dst[dstStart++] = equalityComparer.Compare(a[bStart], a[cStart]) <= 0 ? a[bStart++] : a[cStart++];  // b or c is smallest
                     }
                     else
                     {   // d < c
-                        if (equalityComparer.Compare(b[bStart], d[dStart]) <= 0)
-                        {   // b is smallest
-                            dst[dstStart++] = b[bStart++];
-                        }
-                        else
-                        {   // d is smallest
-                            dst[dstStart++] = d[dStart++];
-                        }
+                        dst[dstStart++] = equalityComparer.Compare(a[bStart], a[dStart]) <= 0 ? a[bStart++] :a[dStart++];  // b or d is smallest
                     }
                 }
             }
-            // Ran out of elements in one of the segments - i.e. 3 segments are available for merging, but which 3
+            // Ran out of elements in one of the four segments - i.e. 3 segments are available for merging, but which 3
+            // Length needs to be adjusted, to be lengths left yet to be merged for each segment
+            aLength = aEnd - aStart + 1;
+            bLength = bEnd - bStart + 1;
+            cLength = cEnd - cStart + 1;
+            dLength = dEnd - dStart + 1;
             if (aStart > aEnd)
             {
-                MergeThree(b, bStart, bLength, c, cStart, cLength, d, dStart, dLength, dst, dstStart, equalityComparer);
+                MergeThreeWay(a, bStart, bLength, cStart, cLength, dStart, dLength, dst, dstStart, equalityComparer);
             }
             else if (bStart > bEnd)
             {
-                MergeThree(a, aStart, aLength, c, cStart, cLength, d, dStart, dLength, dst, dstStart, equalityComparer);
+                MergeThreeWay(a, aStart, aLength, cStart, cLength, dStart, dLength, dst, dstStart, equalityComparer);
             }
             else if (cStart > cEnd)
             {
-                MergeThree(a, aStart, aLength, b, bStart, bLength, d, dStart, dLength, dst, dstStart, equalityComparer);
+                MergeThreeWay(a, aStart, aLength, bStart, bLength, dStart, dLength, dst, dstStart, equalityComparer);
             }
             else   // (dStart > dEnd)
             {
-                MergeThree(a, aStart, aLength, b, bStart, bLength, c, cStart, cLength, dst, dstStart, equalityComparer);
+                MergeThreeWay(a, aStart, aLength, bStart, bLength, cStart, cLength, dst, dstStart, equalityComparer);
             }
         }
 
