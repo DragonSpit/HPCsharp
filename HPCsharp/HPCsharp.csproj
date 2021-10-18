@@ -5,10 +5,10 @@
     <Authors>Victor J. Duvanenko</Authors>
     <Company>FooState</Company>
     <Product>HPCsharp</Product>
-    <Description>Parallel high performance cross-platform C#/.NET algorithms. 20+ algorithms with familiar interfaces and examples. Multi-core and data parallel (SIMD/SSE). Open source and free. See project Readme, blog, and videos...</Description>
+    <Description>Parallel high performance cross-platform C#/.NET algorithms. 25+ algorithms with familiar interfaces and examples. Multi-core and data parallel (SIMD/SSE). Open source and free. See project Readme, blog, and videos...</Description>
     <Copyright>© 2018 FooState</Copyright>
     <PackageLicenseUrl>https://github.com/DragonSpit/HPCsharp/blob/master/LICENSE</PackageLicenseUrl>
-    <PackageReleaseNotes>Fixed type conversion exception thrown by long[] and ulong[] parallel Sum to BigInteger (non-SSE and SSE) algorithms. Exposed Heap Sort algorithm used by Introspective Sort.</PackageReleaseNotes>
+    <PackageReleaseNotes>Added Merge Sort which uses a 4-way merge algorithm to reduce the number of recursion levels for improved performance.</PackageReleaseNotes>
     <PackageId>HPCsharp</PackageId>
     <PackageTags>high perfromance algorithms, C#, high performance, high performance computing, HPC, algorithm, algorithms, Linq, parallel, parallel algorithm</PackageTags>
     <PackageIconUrl>https://foostate.com/images/default_lib_icon_64.png</PackageIconUrl>
@@ -17,9 +17,9 @@
     <PackageProjectUrl>https://github.com/DragonSpit/HPCsharp</PackageProjectUrl>
     <RepositoryUrl>https://github.com/DragonSpit/HPCsharp</RepositoryUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <AssemblyVersion>3.16.1.0</AssemblyVersion>
-    <FileVersion>3.16.1.0</FileVersion>
-    <Version>3.16.1</Version>
+    <AssemblyVersion>3.16.2.0</AssemblyVersion>
+    <FileVersion>3.16.2.0</FileVersion>
+    <Version>3.16.2</Version>
     <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
