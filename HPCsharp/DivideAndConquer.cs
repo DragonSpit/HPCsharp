@@ -105,7 +105,7 @@ namespace HPCsharp
             if (left > right)
                 return resultLeft;
             if ((right - left + 1) <= thresholdPar)
-                return baseCase(arrayToProcess, left, right - left + 1);        // Not (left, rigtht), but (start, length) instead for the baseCase function
+                return baseCase(arrayToProcess, left, right - left + 1);        // Not (left, right), but (start, length) instead for the baseCase function
 
             int mid = (right + left) / 2;
 
