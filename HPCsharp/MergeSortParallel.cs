@@ -97,6 +97,58 @@ namespace HPCsharp
             else          MergeInnerPar2<T>(dst, l, m, m + 1, r, src, l, comparer, parallelMergeThreshold);
         }
 
+        /// <summary>
+        /// Parallel Merge Sort that is not-in-place. Also, not stable, since Array.Sort is not stable, and is used as the recursion base-case.
+        /// </summary>
+        /// <typeparam name="T">data type of each array element</typeparam>
+        /// <param name="src">source array</param>
+        /// <param name="l">left  index of the source array, inclusive</param>
+        /// <param name="r">right index of the source array, inclusive</param>
+        /// <param name="dst">destination array</param>
+        /// <param name="srcToDst">true => destination array will hold the sorted array; false => source array will hold the sorted array</param>
+        /// <param name="comparer">method to compare array elements</param>
+        /// <param name ="parallelThreshold">arrays larger than this value will be sorted using multiple cores</param>
+        private static void SortMergeFourWayInnerPar<T>(this T[] src, Int32 l, Int32 r, T[] dst, bool srcToDst = true, IComparer<T> comparer = null,
+                                                        Int32 parallelThreshold = 24 * 1024, Int32 parallelMergeThreshold = 128 * 1024)
+        {
+            if (r == l)
+            {    // termination/base case of sorting a single element
+                if (srcToDst) dst[l] = src[l];    // copy the single element from src to dst
+                return;
+            }
+            // TODO: This threshold may not be needed as C# sort already does it
+            if ((r - l) <= SortMergeParallelInsertionThreshold)
+            {
+                HPCsharp.Algorithm.InsertionSort<T>(src, l, r - l + 1, comparer);  // want to do dstToSrc, can just do it in-place, just sort the src, no need to copy
+                if (srcToDst)
+                    Array.Copy(src, l, dst, l, r - l + 1);
+                return;
+            }
+            else if ((r - l) <= parallelThreshold)
+            {
+                Array.Sort<T>(src, l, r - l + 1, comparer);     // not a stable sort
+                if (srcToDst)
+                    Array.Copy(src, l, dst, l, r - l + 1);
+                return;
+            }
+            // TODO: Borrow from the serial 4-way merge implementation
+            int m1 = (l + r)  / 2;
+            int m0 = (l + m1) / 2;
+            int m2 = (m1 + r) / 2;
+            int length0 = m0 - l + 1;
+            int length1 = m1 - (m0 + 1) + 1;
+            int length2 = m2 - (m1 + 1) + 1;
+            int length3 = r  - (m2 + 1) + 1;
+            Parallel.Invoke(
+                () => { SortMergeFourWayInnerPar<T>(src, l,      m0, dst, !srcToDst, comparer, parallelThreshold); },      // reverse direction of srcToDst for the next level of recursion
+                () => { SortMergeFourWayInnerPar<T>(src, m0 + 1, m1, dst, !srcToDst, comparer, parallelThreshold); },
+                () => { SortMergeFourWayInnerPar<T>(src, m1 + 1, m2, dst, !srcToDst, comparer, parallelThreshold); },
+                () => { SortMergeFourWayInnerPar<T>(src, m2 + 1, r,  dst, !srcToDst, comparer, parallelThreshold); }
+            );
+            if (srcToDst) Algorithm.MergeFourWay2(src, l, length0, m0 + 1, length1, m1 + 1, length2, m2 + 1, length3, dst, l, comparer);
+            else          Algorithm.MergeFourWay2(dst, l, length0, m0 + 1, length1, m1 + 1, length2, m2 + 1, length3, src, l, comparer);
+        }
+
         public static void SortMergeInnerPar_2<T>(this T[] src, Int32 srcStart, T[] dst, Int32 dstStart, Int32 length,
                                                   IComparer<T> comparer = null, Int32 degreeOfParallelism = 0)
         {
@@ -258,6 +310,24 @@ namespace HPCsharp
             Array.Copy(src, startIndex, srcTrimmed, 0, length);
 
             srcTrimmed.SortMergeInnerPar<T>(0, length - 1, dst, true, comparer, parallelThreshold);
+            return dst;
+        }
+        /// <summary>
+        /// Parallel Merge Sort. Allocates the resulting sorted array and returns it.
+        /// Modifies the original source array.
+        /// </summary>
+        /// <typeparam name="T">data type of each array element</typeparam>
+        /// <param name="src">source array</param>
+        /// <param name="comparer">method to compare array elements</param>
+        /// <param name="parallelThreshold">arrays larger than this value will be sorted using multiple cores</param>
+        /// <returns>returns a newly allocated sorted array</returns>
+        public static T[] SortMergeFourWayPar<T>(this T[] src, IComparer<T> comparer = null, Int32 parallelThreshold = 24 * 1024)
+        {
+            var dst = new T[src.Length];
+            if ((parallelThreshold * Environment.ProcessorCount) < src.Length)
+                parallelThreshold = src.Length / Environment.ProcessorCount;
+
+            src.SortMergeFourWayInnerPar<T>(0, src.Length - 1, dst, true, comparer, parallelThreshold);
             return dst;
         }
         /// <summary>
