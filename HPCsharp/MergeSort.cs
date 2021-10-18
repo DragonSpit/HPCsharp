@@ -128,8 +128,8 @@ namespace HPCsharp
             SortMergeFourWayInner(src, m1 + 1, m2, dst, !srcToDst, comparer);
             SortMergeFourWayInner(src, m2 + 1, r,  dst, !srcToDst, comparer);
 
-            if (srcToDst) MergeFourWay(src, l, length0, m0 + 1, length1, m1 + 1, length2, m2 + 1, length3, dst, l, comparer);
-            else          MergeFourWay(dst, l, length0, m0 + 1, length1, m1 + 1, length2, m2 + 1, length3, src, l, comparer);
+            if (srcToDst) MergeFourWay2(src, l, length0, m0 + 1, length1, m1 + 1, length2, m2 + 1, length3, dst, l, comparer);
+            else          MergeFourWay2(dst, l, length0, m0 + 1, length1, m1 + 1, length2, m2 + 1, length3, src, l, comparer);
         }
         /// <summary>
         /// Take the source array, sort it using the Merge Sort algorithm, and return a sorted array of full length.
