@@ -159,10 +159,9 @@ namespace HPCsharp
         }
 
         // Produces counts for each bin per work quanta, with the left-most dimention being the work-quanta and the right-most dimention being the counts
-        public static uint[][] HistogramByteComponentsAcrossWorkQuantasQC(uint[] inArray, int workQuanta, uint whichByte)
+        public static uint[][] HistogramByteComponentsAcrossWorkQuantasQC(uint[] inArray, int workQuanta, uint numberOfQuantas, uint whichByte)
         {
             const int numberOfBins = 256;
-            uint numberOfQuantas = (inArray.Length % workQuanta) == 0 ? (uint)(inArray.Length / workQuanta) : (uint)(inArray.Length / workQuanta + 1);
             //Console.WriteLine("Histogram: inArray.Length = {0}, workQuanta = {1}, numberOfQuantas = {2}, whichByte = {3}", inArray.Length, workQuanta, numberOfQuantas, whichByte);
 
             uint[][] count = new uint[numberOfQuantas][];          // count for each parallel work item
@@ -256,12 +255,11 @@ namespace HPCsharp
         // Produces counts for each bin per work quanta, with the left-most dimention being the work-quanta and the right-most dimention being the counts
         // l is the  left-most index, inclusive
         // r is the right-most index, inclusive
-        public static uint[][] HistogramByteComponentsAcrossWorkQuantasQC(uint[] inArray, Int32 l, Int32 r, int workQuanta, uint whichByte)
+        public static uint[][] HistogramByteComponentsAcrossWorkQuantasQC(uint[] inArray, Int32 l, Int32 r, int workQuanta, uint numberOfQuantas, uint whichByte)
         {
             const int numberOfBins = 256;
             const uint mask = 0xff;
             int shiftRightAmount = (int)(8 * whichByte);
-            int numberOfQuantas = (inArray.Length % workQuanta) == 0 ? inArray.Length / workQuanta : inArray.Length / workQuanta + 1;
             //Console.WriteLine("Histogram: inArray.Length = {0}, workQuanta = {1}, numberOfQuantas = {2}, whichByte = {3}", inArray.Length, workQuanta, numberOfQuantas, whichByte);
 
             uint[][] count = new uint[numberOfQuantas][];          // count for each parallel work item
