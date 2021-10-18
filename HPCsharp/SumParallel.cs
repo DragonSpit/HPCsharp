@@ -3,6 +3,8 @@
 // TODO: Implement a for loop instead of divide-and-conquer, since they really accomplish the same thing, and the for loop will be more efficient and easier to make cache line boundary divisible.
 //       Combining will be slightly harder, but we could create an array of sums, where each task has its own array element to fill in, then we combine all of the sums at the end serially. Still has the issue of managed memory
 //       where the array may move and not be cache aligned any more, requiring fixing the array in memory to not move (an unsafe version).
+// TODO: Study parallel solution presented here (parallel for), which may be better in some cases: https://stackoverflow.com/questions/2419343/how-to-sum-up-an-array-of-integers-in-c-sharp/54794753#54794753
+//       This method should control the degree of parallelism better than divide-and-conquer (DAC), since DAC we found to be unable to control degree of parallelism
 // TODO: Implement nullable versions of Sum, only faster than the standard C# ones. Should be able to still use SSE and multi-core, but need to check out each element for null before adding it. These
 //       will be much slower than non-nullable. Hmmm.. Need to test what Linq.Sum() returns for nullable, as I bet the sum becomes null, since null is really an unknown and if one value of an array is unknown, then the Sum() becomes unknown.
 //       If that's the case for Linq.Sum() for nullable types, then SIMD acceleration is still possible, but will be much slower, since we'll need to test each Vector.Count array items for null, and only if they all are not-null then add them to the sum.
@@ -26,15 +28,13 @@
 //       Wonder if having two or more independent loop counters would also help, along with two or more memory loads.
 //       Need to see if SSE on single core is memory limited. Need to add to table single-core performance.
 // TODO: Need to implement integer and unsigned integer .SumPar() - i.e. without SSE, but multi-core.
-// TODO: Missing .SumSsePar() for float[] that uses float SSE summation for higher performance than converting it to double and using SSE.
 // TODO: Implement pair-wise floating-point summation that is multi-core and SSE, with separate SSE implementation which recursively combines an SSE-word all the way down possibly, as this eliminates the problem of base-case function being non-pair,
 //       as this most likely could be just about as fast, or we could develop one that is just as fast and keeps the pairing using SSE all the way to the bottom of recursion.
-// TODO: Study parallel solution presented here (parallel for), which may be better in some cases: https://stackoverflow.com/questions/2419343/how-to-sum-up-an-array-of-integers-in-c-sharp/54794753#54794753
 // TODO: One idea that Josh and I came up with to detect overflow for SSE instructions if they saturate for addition is
 //       to subtract and see if the result is the same as the original. If C# chooses the wrap around SSE instructions then
 //       the same technique may still work, or we may need to come up with a different technique to detect wrap around,
 //       possibly when the addition to a positive value makes the result go negative.
-// TODO: Bnechmark all Int64.MaxValue to show the worst case of BigInteger and Decimal summation of long[]
+// TODO: Benchmark all Int64.MaxValue to show the worst case of BigInteger and Decimal summation of long[]
 // TODO: Benchmark smaller arrays that fit into cache to show even a higher level of acceleration for a common user case
 //       where the previous step in functional flow will most likely put the result inside the cache.
 // TODO: Implement long[] to decimal and BigInteger in SSE with overflow detection in s/w. For ulong[] detections can
