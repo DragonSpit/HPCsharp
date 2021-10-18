@@ -7,6 +7,8 @@
 // TODO: Parallelize user-defined-type extraction of counts and input keys in the histogram and benchmark
 // TODO: Add handling of an input array of size zero to all sorting algorithms, where an output array of zero length is returned, if not in-place
 // TODO: In parallel LSD Radix Sort, optimize this division out by using nested loops, as division even integer is slow
+// TODO: It seems like ComputeStartOfBinsPar needs to have the parallel threshold to be passed in and optimized
+// TODO: Optimize digit extraction in LSD and MSD Radix algorithms by doing shift right first and then masking, to keep the mask a constant value, and not needing to shift the mask.
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -39,15 +41,13 @@ namespace HPCsharp
             return arrayToBeSorted.SortCountingInPlaceFuncPar();
         }
 
-        public static uint[][] ComputeStartOfBinsPar(this uint[] inputArray, int workQuanta, uint digit)
+        public static uint[][] ComputeStartOfBinsPar(this uint[] inputArray, int workQuanta, uint numberOfQuantas, uint digit)
         {
             uint numberOfBins = 256;
-            uint numberOfQuantas = (inputArray.Length % workQuanta) == 0 ? (uint)(inputArray.Length / workQuanta)
-                                                                         : (uint)(inputArray.Length / workQuanta + 1);
 
             //uint[][] count = Algorithm.HistogramByteComponentsAcrossWorkQuantasQC(inputArray, workQuanta, digit);
             //uint[][] count = Algorithm.HistogramByteComponentsAcrossWorkQuantasQC(inputArray, 0, inputArray.Length - 1, workQuanta, digit);
-            uint[][] count = ParallelAlgorithm.HistogramByteComponentsQCPar(inputArray, 0, inputArray.Length - 1, workQuanta, digit);
+            uint[][] count = ParallelAlgorithm.HistogramByteComponentsQCPar(inputArray, 0, inputArray.Length - 1, workQuanta, numberOfQuantas, digit);
 
             uint[][] startOfBin = new uint[numberOfQuantas][];     // start of bin for each parallel work item
             for (int q = 0; q < numberOfQuantas; q++)
@@ -85,19 +85,18 @@ namespace HPCsharp
 
             return startOfBin;
         }
-
-        private static void SortRadixInnerFunction(uint[] inputArray, uint[] outputArray, uint[][] startOfBin, uint[][] bufferIndex, uint[][] bufferDerandomize, uint[] bufferIndexEnd, CustomData data, uint endIndex, uint BufferDepth, int NumberOfBins)
+        // Permute function with de-randomized write memory accesses
+        private static void SortRadixInnerFunction( uint[] inputArray, uint[] outputArray, uint[][] startOfBin, uint[][] bufferIndex, uint[][] bufferDerandomize, uint[] bufferIndexEnd,
+                                                    CustomData data, uint endIndex, uint BufferDepth, int NumberOfBins)
         {
             if (data == null)
                 return;
-            uint currIndex = data.current;
-            //uint endIndex = currIndex + SortRadixParallelWorkQuanta;
             uint qLoc = data.q;
-            uint[] startOfBinLoc = startOfBin[qLoc];
-            uint[] bufferIndexLoc = bufferIndex[qLoc];
+            uint[] startOfBinLoc        = startOfBin[       qLoc];
+            uint[] bufferIndexLoc       = bufferIndex[      qLoc];
             uint[] bufferDerandomizeLoc = bufferDerandomize[qLoc];
             //Console.WriteLine("current = {0}, q = {1}, bitMask = {2}, shiftRightAmount = {3}", currIndex, qLoc, data.bitMask, data.shiftRightAmount);
-            for (; currIndex < endIndex; currIndex++)
+            for (uint currIndex = data.current; currIndex < endIndex; currIndex++)
             {
                 uint currDigit = (inputArray[currIndex] & data.bitMask) >> data.shiftRightAmount;
                 if (bufferIndexLoc[currDigit] < bufferIndexEnd[currDigit])
@@ -106,7 +105,7 @@ namespace HPCsharp
                 }
                 else
                 {
-                    uint outIndex = startOfBinLoc[currDigit];
+                    uint outIndex  = startOfBinLoc[currDigit];
                     uint buffIndex = currDigit * BufferDepth;
                     //for (uint i = 0; i < BufferDepth; i++)
                     //    outputArray[outIndex++] = bufferDerandomizeLoc[buffIndex++];   // TODO: use SSE
@@ -122,7 +121,7 @@ namespace HPCsharp
                 uint buffStartIndex = whichBuff * BufferDepth;
                 uint buffEndIndex = bufferIndexLoc[whichBuff];
                 //Console.WriteLine("q = {0}, numOfElementsInBuff[{1}] = {2}", qLoc, whichBuff, numOfElementsInBuff);
-                for (; buffStartIndex < buffEndIndex;)
+                while (buffStartIndex < buffEndIndex)
                     outputArray[startOfBinLoc[whichBuff]++] = bufferDerandomizeLoc[buffStartIndex++];
                 bufferIndexLoc[whichBuff] = whichBuff * BufferDepth;
             }
@@ -141,8 +140,8 @@ namespace HPCsharp
             uint[][] bufferDerandomize = new uint[numberOfQuantas][];
             for (int q = 0; q < numberOfQuantas; q++)
                 bufferDerandomize[q] = new uint[NumberOfBins * BufferDepth];
-            uint[][] bufferIndex = new uint[numberOfQuantas][];
 
+            uint[][] bufferIndex = new uint[numberOfQuantas][];
             for (int q = 0; q < numberOfQuantas; q++)
             {
                 bufferIndex[q] = new uint[NumberOfBins];
@@ -151,7 +150,7 @@ namespace HPCsharp
                     bufferIndex[q][b] = bufferIndex[q][b - 1] + BufferDepth;
             }
             uint[] bufferIndexEnd = new uint[NumberOfBins];
-            bufferIndexEnd[0] = BufferDepth;
+            bufferIndexEnd[0] = BufferDepth;                            // non-inclusive
             for (int b = 1; b < NumberOfBins; b++)
                 bufferIndexEnd[b] = bufferIndexEnd[b - 1] + BufferDepth;
             // End of de-randomization buffers setup
@@ -167,7 +166,7 @@ namespace HPCsharp
 
             while (bitMask != 0)    // end processing digits when all the mask bits have been processed and shifted out, leaving no bits set in the bitMask
             {
-                uint[][] startOfBin = ComputeStartOfBinsPar(inputArray, SortRadixParallelWorkQuanta, digit);
+                uint[][] startOfBin = ComputeStartOfBinsPar(inputArray, SortRadixParallelWorkQuanta, numberOfQuantas, digit);
 
                 // The last work item may not have the full parallelWorkQuanta of items to process
                 uint numberOfFullQuantas = (uint)(inputArray.Length / SortRadixParallelWorkQuanta);
