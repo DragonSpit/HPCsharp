@@ -42,6 +42,13 @@
 //       the 128-bit value any time overflow of the lower 64-bit occurs. Then at the end convert the 128-bit value into Decimal or BigInteger.
 //       The beauty of this algorithm is that it will perform at the same high speed for Decimal or BigInteger result!
 // TODO: Continue discussion in https://github.com/dotnet/corefx/issues/17147 for support of 128-bit native integers in C#
+// TODO: Figure out how https://www.geeksforgeeks.org/program-for-average-of-an-array-without-running-into-overflow/ works to compute average/mean without overflow
+//       https://www.heikohoffmann.de/htmlthesis/node134.html also https://stackoverflow.com/questions/1930454/what-is-a-good-solution-for-calculating-an-average-where-the-sum-of-all-values-e
+//       Do careful numerical analysis of these algorithms, as at first they seem possibly problematic and may produce results that are quite different. Plus, floating-point does not use
+//       safer Kahan summation
+// TODO: Implement Average computing using integer division and modulo method, as this method does not require use of BigInteger, and does not overflow, and thus does not need
+//       extended precision support, and may turn out to be faster and simpler. However, this may be only good for computing average, whereas sum is useful for many other things.
+//       There are no SEE instructions to accelerate it - i.e. no integer division and no integer modulo. Are there SSE double-precision floating-point division instructions?
 using System.Collections.Generic;
 using System.Text;
 using System.Numerics;
