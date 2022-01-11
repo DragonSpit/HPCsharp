@@ -5,7 +5,7 @@ Give us feedback and let us know where else could use additional performance.
 
 # High Performance Computing in C# (HPCsharp)
 
-High performance C# generic algorithms. Runs on Windows and Linux. Community driven to raise C# performance. Familiar interfaces, similar to standard C# algorithms and Linq. Free, open source, on nuget.org
+NuGet package of high performance C# generic algorithms. Runs on Windows and Linux (.NET 5 and 6, .NET Standard 2.0 and 2.1). Community driven to raise C# performance. Familiar interfaces, similar to standard C# algorithms and Linq. Free, open source, on nuget.org
 
 *Algorithm*|*\**|*\*\**|*SSE*|*Multi-Core*|*Array*|*List*|*Details*
 --- | --- | --- | --- | :---: | :---: | --- | :--
@@ -22,8 +22,9 @@ Histogram | 14 | 35 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mar
 Introspective Sort | 1 | 3 | | | :heavy_check_mark: | |
 [Max, Min](#Min-and-Max) | 2 | 12 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | Generic IComparer\<T\>
 [Mean Absolute Deviation](#Mean-Absolute-Deviation) | 3 | 6 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | float[] and double[]
-[Merge](#Merge) | 2 | 18 | | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | Generic IComparer\<T\>
-Multi-way Merge | 1 | | | | :heavy_check_mark: | |
+[Merge](#Merge) | 6 | 18 | | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | Generic IComparer\<T\>
+[Merge In-Place](#Merge) | 1 | 3 | | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | Generic IComparer\<T\>
+Multi-way Merge | 1 | 1 | | | :heavy_check_mark: | |
 [Merge Sort](#Merge-Sort) | 2 | 25 | | :heavy_check_mark: | :heavy_check_mark: | | Generic, Stable or not, whole or partial
 Priority Queue | 2 | 15 | | | :heavy_check_mark: | | 
 Quicksort | 5 | 9 | | :heavy_check_mark: | :heavy_check_mark: | | 
@@ -37,10 +38,9 @@ Swap | 4 | 4 | | | :heavy_check_mark: | | Generic swap variations
 
 \* Number of different algorithms\
 \*\* Number of functions for this algorithm\
-\*\*\* Coming soon
 
 ## Examples
-Usage examples are provided in the HPCsharpExamples folder, which has a VisualStudio 2017 solution. Build and run it to see performance gains on your machine.
+Usage examples are provided in the HPCsharpExamples folder, which has a VisualStudio 2019 solution. Build and run it to see performance gains on your machine.
 To get the maximum performance make sure to target x64 processor architecture for the Release build in VisualStudio, increasing performance by as much as 50%.
 
 ## Benchmarking
