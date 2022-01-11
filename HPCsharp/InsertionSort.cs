@@ -1,4 +1,7 @@
-﻿using System;
+﻿// TODO: Implement Selection Sort, and especially the double Selection Sort (or Cocktail Sort), which looks for min and max elements in every pass, since it requires half as many passes, but more comparisons,
+//       as this may end up faster than Insertion Sort (see Wikipedia page) and my DDJ article from Sept. 2009
+// TODO: Implement Insertion Sort for arrays of built-in data types without the comparer function, as this should be faster
+using System;
 using System.Collections.Generic;
 
 namespace HPCsharp

@@ -62,9 +62,9 @@ namespace HPCsharp
                 HPCsharp.Algorithm.Merge<T>(src, p1, length1,
                                             src, p2, length2,
                                             dst, p3, comparer);  // in Dr. Dobb's Journal paper
-                //HPCsharp.Algorithm.Merge2<T>(src, p1, length1,
-                //                                  p2, length2,
-                //                             dst, p3, comparer);  // in Dr. Dobb's Journal paper
+                //HPCsharp.Algorithm.MergeFaster<T>(src, p1, length1,
+                //                                       p2, length2,
+                //                                  dst, p3, comparer);
             }
             else
             {
@@ -94,12 +94,12 @@ namespace HPCsharp
             if ((length1 + length2) <= MergeParallelArrayThreshold)
             {
                 //Console.WriteLine("#3 " + p1 + " " + length1 + " " + p2 + " " + length2 + " " + p3);
-                HPCsharp.Algorithm.MergeNew<T>(src, p1, length1,
-                                               src, p2, length2,
-                                               dst, p3, comparer);  // in Dr. Dobb's Journal paper
-                //HPCsharp.Algorithm.Merge2<T>(src, p1, length1,
-                //                                  p2, length2,
-                //                             dst, p3, comparer);  // in Dr. Dobb's Journal paper
+                HPCsharp.Algorithm.MergeWithCopy<T>(src, p1, length1,
+                                                    src, p2, length2,
+                                                    dst, p3, comparer);
+                //HPCsharp.Algorithm.MergeFaster<T>(src, p1, length1,
+                //                                       p2, length2,
+                //                                  dst, p3, comparer);
             }
             else
             {
@@ -125,7 +125,7 @@ namespace HPCsharp
         /// <param name="dst">destination array</param>
         /// <param name="p3">starting index of the result</param>
         /// <param name="comparer">method to compare array elements</param>
-        internal static void MergeInnerPar2<T>(T[] src, Int32 p1, Int32 r1, Int32 p2, Int32 r2, T[] dst, Int32 p3, IComparer<T> comparer = null, Int32 mergeParallelThreshold = 128 * 1024)
+        internal static void MergeInnerFasterPar<T>(T[] src, Int32 p1, Int32 r1, Int32 p2, Int32 r2, T[] dst, Int32 p3, IComparer<T> comparer = null, Int32 mergeParallelThreshold = 128 * 1024)
         {
             //Console.WriteLine("#1 " + p1 + " " + r1 + " " + p2 + " " + r2);
             Int32 length1 = r1 - p1 + 1;
@@ -140,9 +140,9 @@ namespace HPCsharp
             if ((length1 + length2) <= mergeParallelThreshold)
             {
                 //Console.WriteLine("#3 " + p1 + " " + length1 + " " + p2 + " " + length2 + " " + p3);
-                HPCsharp.Algorithm.Merge2<T>(src, p1, length1,
-                                             src, p2, length2,
-                                             dst, p3, comparer);  // in Dr. Dobb's Journal paper
+                HPCsharp.Algorithm.MergeFaster<T>(src, p1, length1,
+                                                  src, p2, length2,
+                                                  dst, p3, comparer);
             }
             else
             {
@@ -151,8 +151,8 @@ namespace HPCsharp
                 Int32 q3 = p3 + (q1 - p1) + (q2 - p2);
                 dst[q3] = src[q1];
                 Parallel.Invoke(
-                    () => { MergeInnerPar2<T>(src, p1, q1 - 1, p2, q2 - 1, dst, p3, comparer, mergeParallelThreshold); },
-                    () => { MergeInnerPar2<T>(src, q1 + 1, r1, q2, r2, dst, q3 + 1, comparer, mergeParallelThreshold); }
+                    () => { MergeInnerFasterPar<T>(src, p1, q1 - 1, p2, q2 - 1, dst, p3, comparer, mergeParallelThreshold); },
+                    () => { MergeInnerFasterPar<T>(src, q1 + 1, r1, q2, r2, dst, q3 + 1, comparer, mergeParallelThreshold); }
                 );
             }
         }

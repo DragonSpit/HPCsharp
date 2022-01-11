@@ -21,6 +21,8 @@
 // TODO: Fix inconsistent parallel threshold settings
 // TODO: Fix List sorting that is currently hidden because it's not truly in-place. Either make it truly in-place or call it not-in-place
 // TODO: See if the experimental hidden algorithm is worthwhile
+// TODO: Use Selection Sort instead of Insertion Sort for faster bottom of the recursion tree.
+
 using System;
 using System.Collections.Generic;
 using System.Xml.Schema;
@@ -171,7 +173,7 @@ namespace HPCsharp
             int midIndex = (endIndex + startIndex) / 2;
             SortMergeInPlacePureInner(arr, startIndex,   midIndex, comparer, threshold);    // recursive call left  half
             SortMergeInPlacePureInner(arr, midIndex + 1, endIndex, comparer, threshold);    // recursive call right half
-            MergeDivideAndConquerInPlace(arr, startIndex, midIndex, endIndex, comparer);    // merge the results
+            MergeInPlaceDivideAndConquer(arr, startIndex, midIndex, endIndex, comparer);    // merge the results
         }
 
         /// <summary>
@@ -306,7 +308,7 @@ namespace HPCsharp
             int midIndex = ((endIndex + startIndex) / 2);
             MergeSortInPlace(arr, startIndex,   midIndex, comparer);                         // recursive call left  half
             MergeSortInPlace(arr, midIndex + 1, endIndex, comparer);                         // recursive call right half
-            MergeDivideAndConquerInPlace(arr, startIndex, midIndex, endIndex, comparer);     // merge the results
+            MergeInPlaceDivideAndConquer(arr, startIndex, midIndex, endIndex, comparer);     // merge the results
         }
 
         private static void MergeSortInPlaceHybrid2<T>(T[] arr, IComparer<T> comparer = null, int buffLength = 1024, int threshold = 32)
@@ -334,7 +336,7 @@ namespace HPCsharp
             int midIndex = (endIndex + startIndex) / 2;
             MergeSortInPlaceHybridInner2(arr, startIndex,   midIndex, buff, comparer, threshold);       // recursive call left  half
             MergeSortInPlaceHybridInner2(arr, midIndex + 1, endIndex, buff, comparer, threshold);       // recursive call right half
-            MergeDivideAndConquerInPlace2(arr, startIndex, midIndex, endIndex, buff, comparer);         // merge the results
+            MergeInPlaceDivideAndConquerHybrid(arr, startIndex, midIndex, endIndex, buff, comparer);         // merge the results
         }
     }
 }

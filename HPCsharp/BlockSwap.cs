@@ -137,12 +137,12 @@ namespace HPCsharp
             {
                 if (i > j)
                 {
-                    array.SwapArray(p - i, p, j);
+                    array.Swap(p - i, p, j);
                     i -= j;
                 }
                 else
                 {
-                    array.SwapArray(p - i, p + j - i, i);
+                    array.Swap(p - i, p + j - i, i);
                     j -= i;
                 }
             }
