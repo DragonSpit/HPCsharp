@@ -150,16 +150,6 @@ namespace HPCsharp
             return dst;
         }
 
-        public static void SortMergeInPlacePure<T>(T[] arr, IComparer<T> comparer = null, int threshold = 16 * 1024)
-        {
-            SortMergeInPlacePureInner<T>(arr, 0, arr.Length - 1, comparer, threshold);
-        }
-
-        public static void SortMergeInPlacePure<T>(T[] arr, int startIndex, int length, IComparer<T> comparer = null, int threshold = 16 * 1024)
-        {
-            SortMergeInPlacePureInner<T>(arr, startIndex, startIndex + length - 1, comparer, threshold);
-        }
-
         private static void SortMergeInPlacePureInner<T>(T[] arr, int startIndex, int endIndex, IComparer<T> comparer = null, int threshold = 16 * 1024)
         {
             //Console.WriteLine("merge sort: start = {0}, length = {1}", startIndex, length);
@@ -179,35 +169,67 @@ namespace HPCsharp
         /// <summary>
         /// Take a segment of the source array, and sort it in place using the Merge Sort algorithm
         /// This algorithm uses a not in-place verion when there is enough memory available, allocating an array of the same size as the input array.
-        /// When there is not enough memory, a purely in-place merge sort is used.
+        /// When there is not enough memory, a purely in-place merge sort is used, which is slower.
+        /// </summary>
+        /// <typeparam name="T">array of type T</typeparam>
+        /// <param name="array">source array</param>
+        /// <param name="comparer">comparer used to compare two array elements of type T</param>
+        static public void SortMergeInPlaceAdaptive<T>(this T[] array, IComparer<T> comparer = null, int thresholdInPlacePure = 16 * 1024)
+        {
+            try
+            {
+                T[] dst = new T[array.Length];
+                SortMergeInner(array, 0, array.Length - 1, dst, false, comparer);
+            }
+            catch (System.OutOfMemoryException)
+            {
+                SortMergeInPlacePureInner(array, 0, array.Length - 1, comparer, thresholdInPlacePure);
+            }
+        }
+
+        /// <summary>
+        /// Take a segment of the source array, and sort it in place using the Merge Sort algorithm
+        /// This algorithm uses a not in-place verion when there is enough memory available, allocating an array of the same size as the input array.
+        /// When there is not enough memory, a purely in-place merge sort is used, which is slower.
         /// </summary>
         /// <typeparam name="T">array of type T</typeparam>
         /// <param name="array">source array</param>
         /// <param name="startIndex">index within the array where sorting starts, inclusive</param>
         /// <param name="length">number of elements to be sorted</param>
         /// <param name="comparer">comparer used to compare two array elements of type T</param>
-        static public void SortMergeInPlace<T>(this T[] array, int startIndex, int length, IComparer<T> comparer = null, int thresholdInPlacePure = 16 * 1024)
+        static public void SortMergeInPlaceAdaptive<T>(this T[] array, int startIndex, int length, IComparer<T> comparer = null, int thresholdInPlacePure = 16 * 1024)
         {
             try
             {
                 T[] dst = new T[array.Length];
-                SortMergeInner<T>(array, startIndex, startIndex + length - 1, dst, false, comparer);
+                SortMergeInner(array, startIndex, startIndex + length - 1, dst, false, comparer);
             } catch (System.OutOfMemoryException) {
-                SortMergeInPlacePureInner<T>(array, startIndex, startIndex + length - 1, comparer, thresholdInPlacePure);
+                SortMergeInPlacePureInner(array, startIndex, startIndex + length - 1, comparer, thresholdInPlacePure);
             }
         }
 
         /// <summary>
-        /// Take the source array, and sort all of it in place using the Merge Sort algorithm
-        /// This algorithm uses a not in-place verion when there is enough memory available, allocating an array of the same size as the input array.
-        /// When there is not enough memory, a purely in-place merge sort is used.
+        /// Take the source array, and sort all of it in-place using the in-place version of Merge Sort algorithm
         /// </summary>
         /// <typeparam name="T">array of type T</typeparam>
         /// <param name="array">source and result array</param>
         /// <param name="comparer">comparer used to compare two array elements of type T</param>
         static public void SortMergeInPlace<T>(this T[] array, IComparer<T> comparer = null, int threshold = 16 * 1024)
         {
-            array.SortMergeInPlace(0, array.Length, comparer, threshold);
+            SortMergeInPlacePureInner(array, 0, array.Length - 1, comparer, threshold);
+        }
+
+        /// <summary>
+        /// Take the source array, and sort all of it in-place using the in-place version of Merge Sort algorithm
+        /// </summary>
+        /// <typeparam name="T">array of type T</typeparam>
+        /// <param name="array">source and result array</param>
+        /// <param name="startIndex">index within the array where sorting starts, inclusive</param>
+        /// <param name="length">number of elements to be sorted</param>
+        /// <param name="comparer">comparer used to compare two array elements of type T</param>
+        static public void SortMergeInPlace<T>(this T[] array, int startIndex, int length, IComparer<T> comparer = null, int threshold = 16 * 1024)
+        {
+            SortMergeInPlacePureInner(array, startIndex, startIndex + length - 1, comparer, threshold);
         }
 
         /// <summary>

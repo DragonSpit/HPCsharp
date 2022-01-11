@@ -371,7 +371,7 @@ namespace HPCsharp
             return dst;
         }
         /// <summary>
-        /// Adaptive in-place Parallel Merge Sort.
+        /// Adaptive in-place Parallel Merge Sort. Sorts the entire array.
         /// If memory is available, allocates a temporary array of the same size as the src array, and uses a faster not-in-place Merge Sort.
         /// Otherwise, uses a purely in-place but slower Parallel Merge Sort.
         /// </summary>
@@ -421,7 +421,7 @@ namespace HPCsharp
             }
         }
         /// <summary>
-        /// Purely in-place Parallel Merge Sort, but not an in-place algorithm. Takes a range of the src array, and sorts just that range.
+        /// Purely in-place Parallel Merge Sort. Sorts the entire array.
         /// </summary>
         /// <typeparam name="T">array of type T</typeparam>
         /// <param name="src">source array</param>
@@ -432,7 +432,7 @@ namespace HPCsharp
             SortMergeInPlacePureInnerPar<T>(src, 0, src.Length - 1, comparer, parallelThreshold);
         }
         /// <summary>
-        /// Purely in-place Parallel Merge Sort, but not an in-place algorithm. Takes a range of the src array, and sorts just that range.
+        /// Purely in-place Parallel Merge Sort algorithm. Takes a range of the src array, and sorts just that range.
         /// </summary>
         /// <typeparam name="T">array of type T</typeparam>
         /// <param name="src">source array</param>

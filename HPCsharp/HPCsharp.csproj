@@ -5,10 +5,10 @@
     <Authors>Victor J. Duvanenko</Authors>
     <Company>FooState</Company>
     <Product>HPCsharp</Product>
-    <Description>Parallel high performance cross-platform C#/.NET algorithms. 25+ algorithms with familiar interfaces and examples. Multi-core and data parallel (SIMD/SSE). Open source and free. See project Readme, blog, and videos...</Description>
+    <Description>Parallel high performance cross-platform C#/.NET algorithms. 28+ algorithms with familiar interfaces and examples. Multi-core and data parallel (SIMD/SSE). Open source and free. See project Readme, blog, and videos...</Description>
     <Copyright>© 2018 FooState</Copyright>
     <PackageLicenseUrl></PackageLicenseUrl>
-    <PackageReleaseNotes>Added support for .NET 6.0. Updated examples project to improved Merge Sort and Parallel Merge Sort method naming. Improved Parallel Merge Sort method naming.</PackageReleaseNotes>
+    <PackageReleaseNotes>Split In-Place Merge Sort into two variants: adaptive and pure.</PackageReleaseNotes>
     <PackageId>HPCsharp</PackageId>
     <PackageTags>high perfromance algorithms, C#, high performance, high performance computing, HPC, algorithm, algorithms, Linq, parallel, parallel algorithm</PackageTags>
     <PackageIconUrl>https://foostate.com/images/default_lib_icon_64.png</PackageIconUrl>
@@ -17,9 +17,9 @@
     <PackageProjectUrl>https://github.com/DragonSpit/HPCsharp</PackageProjectUrl>
     <RepositoryUrl>https://github.com/DragonSpit/HPCsharp</RepositoryUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <AssemblyVersion>3.16.3.0</AssemblyVersion>
-    <FileVersion>3.16.3.0</FileVersion>
-    <Version>3.16.3</Version>
+    <AssemblyVersion>3.16.4.0</AssemblyVersion>
+    <FileVersion>3.16.4.0</FileVersion>
+    <Version>3.16.4</Version>
     <Platforms>AnyCPU;x64</Platforms>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
   </PropertyGroup>

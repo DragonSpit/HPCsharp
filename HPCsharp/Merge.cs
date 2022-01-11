@@ -743,8 +743,14 @@ namespace HPCsharp
             }
         }
 
-        // This implementation uses a fixed size priority queue to extract the min element in O(1) time and to insert a new element O(lgK) time, where K is the K-way merge and K is known in advance
-        // since we know how many spans are being merged. Performs multi-way merge in one pass, from the source to destination.
+        /// <summary>
+        /// This implementation uses a fixed size priority queue to extract the min element in O(1) time and to insert a new element O(lgK) time, where K is the K-way merge and K is known in advance
+        /// since we know how many spans are being merged. Performs multi-way merge in one pass, from the source to destination.
+        /// </summary>
+        /// <param name="src">source Array to be merged</param>
+        /// <param name="srcSpans">List of sorted segments, specified by starting index and length</param>
+        /// <param name="dst">destination Array where the result of merged segments is to be placed</param>
+        /// <param name="comparer">optional method to compare array elements</param>
         static public void MergeMulti<T>(T[] src, List<SortedSpan> srcSpans,
                                          T[] dst,
                                          IComparer<T> comparer = null)
