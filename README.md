@@ -26,6 +26,7 @@ Introspective Sort | 1 | 3 | | | :heavy_check_mark: | |
 [Merge In-Place](#Merge) | 1 | 3 | | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | Generic IComparer\<T\>
 Multi-way Merge | 1 | 1 | | | :heavy_check_mark: | |
 [Merge Sort](#Merge-Sort) | 2 | 25 | | :heavy_check_mark: | :heavy_check_mark: | | Generic, Stable or not, whole or partial
+[Merge Sort In-Place](#Merge-Sort) | 2 | 8 | | :heavy_check_mark: | :heavy_check_mark: | | Generic, Adaptive, whole or partial
 Priority Queue | 2 | 15 | | | :heavy_check_mark: | | 
 Quicksort | 5 | 9 | | :heavy_check_mark: | :heavy_check_mark: | | 
 [Radix Sort (LSD)](#LSD-Radix-Sort) | 6 | 40 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Numeric arrays, user defined types, Stable
