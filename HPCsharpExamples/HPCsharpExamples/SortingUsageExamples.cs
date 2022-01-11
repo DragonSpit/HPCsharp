@@ -25,8 +25,11 @@ namespace HPCsharpExamples
             sortedArrayOne = ArrayOne.SortRadix();                   // HPCsharp Radix Sort (serial)
 
             // In-Place Sorting (Parallel)
-            ArrayOne.SortMergeInPlacePar();                        // HPCsharp Merge Sort (parallel)
+            ArrayOne.SortMergeInPlaceAdaptivePar();                // HPCsharp Merge Sort (parallel)
             ArrayOne.SortRadixMsdPar();                            // HPCsharp Merge Sort (parallel) - byte, short, ubyte, ushort exist
+
+            // In-Place Sorting (Parallel), but yet functional (see blog https://duvanenko.tech.blog/2021/10/17/feeling-in-place-with-functional/)
+            var ListOne = ArrayOne.SortRadixMsdInPlaceFuncPar().ToList();
 
             // Not In-Place Sorting (Parallel)
             sortedArrayOne = ArrayOne.AsParallel().OrderBy(i => i).ToArray();   // Linq Sort (parallel)

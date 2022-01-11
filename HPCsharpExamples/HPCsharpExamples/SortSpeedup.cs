@@ -39,7 +39,7 @@ namespace HPCsharpExamples
                 }
                 else
                 {
-                    if (!radixSort) benchArrayOne.SortMergeInPlacePar();
+                    if (!radixSort) benchArrayOne.SortMergeInPlaceAdaptivePar();
                     else            sortedArrayOne = benchArrayOne.SortRadixPar();
                 }
             }
@@ -220,7 +220,7 @@ namespace HPCsharpExamples
                     }
                 }
                 else
-                    benchArrayOne.SortMergeInPlacePar(comparer);
+                    benchArrayOne.SortMergeInPlaceAdaptivePar(comparer);
             }
             else
             {

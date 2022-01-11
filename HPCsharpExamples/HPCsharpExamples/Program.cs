@@ -21,7 +21,7 @@ namespace HPCsharpExamples
 
             Array.Sort(ArrayOne);                                   // C# standard in-place Sort
             ArrayTwo.SortMergeInPlace();                            // HPCsharp    in-place Merge Sort (serial)
-            ArrayThree.SortMergeInPlacePar();                       // HPCsharp    in-place Merge Sort (parallel)
+            ArrayThree.SortMergeInPlaceAdaptivePar();                 // HPCsharp    in-place Merge Sort (parallel)
 
             uint[] sortedArrayFour = ArrayFour.SortRadix();         // HPCsharp Radix Sort (not in-place, serial)
             uint[] sortedArrayFive = ArrayFive.SortMerge();         // HPCsharp Merge Sort (not in-place, serial)

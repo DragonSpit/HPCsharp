@@ -45,7 +45,6 @@ namespace HPCsharpExamples
         public static void SumHPCsharpExamples()
         {
             int[] arrInt = new int[] { 5, 7, 16, 3, Int32.MaxValue, 1 };
-            int sumInt;
             long sumLong;
 
             //sumInt = arrInt.Sum();                  // standard C# usage, single-core, will throw overflow exception
@@ -66,6 +65,8 @@ namespace HPCsharpExamples
             //sumLong = arrLong.SumCheckedSse();        // data parallel (SSE), single-core, throws an overflow exception
 
             // No overflow exception thrown by HPCsharp .Sum(), producing a perfectly accurate sum
+            sumDecimal = arrLong.SumToDecimal();               // scalar, single-core
+
             sumDecimal = arrLong.SumToDecimal();               // scalar, single-core
             sumDecimal = arrLong.SumToDecimalPar();            // scalar,  multi-core
 
@@ -109,12 +110,10 @@ namespace HPCsharpExamples
 
 
             ulong[] arrUlong = new ulong[] { 5, 7, 16, 3, UInt64.MaxValue, 1 };
-            long sumUlong;
+            //long sumULong = 0;
 
-            ulong sumUlongUL = 0;
-
-            //sumULong = arrUlong.Sum();                  // standard C# usage,   single-core, throws an overflow exception
-            //sumUlong = arrUlong.AsParallel().Sum();     // standard C# usage,    multi-core, throws an overflow exception
+            //sumULong = arrUlong.Sum();                  // standard C# usage,  does not support .Sum() for ulong arrays
+            //sumUlong = arrUlong.AsParallel().Sum();     // standard C# usage,  does not support .Sum() for ulong arrays
             //sumUlong = arrLong.SumCheckedSse();         // data parallel (SSE), single-core, throws an overflow exception
 
             // No overflow exception thrown by HPCsharp .Sum(), producing a perfectly accurate sum

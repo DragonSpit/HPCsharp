@@ -64,12 +64,12 @@ namespace HPCsharpExamples
                 Console.Write(item);
             Console.WriteLine();
 
-            Array.Sort(userArray, comparer);                   // Serial   Array.Sort (serial, not stable)
-            Algorithm.SortMergeInPlace(userArray, comparer);   // Serial   Merge Sort. Direct function call syntax (serial, stable)
+            Array.Sort(userArray, comparer);                        // Serial   Array.Sort (serial, not stable)
+            Algorithm.SortMergeInPlace(userArray, comparer);        // Serial   Merge Sort. Direct function call syntax (serial, stable)
 
-            userArray.SortMergeInPlace(comparer);              // Serial   Merge Sort. Extension method syntax (serial, stable)
-            userArray.SortMergeInPlacePar(comparer);           // Parallel Merge Sort (parallel, not stable)
-            userArray.SortMergeInPlaceStablePar(comparer);     // Parallel Merge Sort (parallel, stable)
+            userArray.SortMergeInPlace(comparer);                   // Serial   Merge Sort. Extension method syntax (serial, stable)
+            userArray.SortMergeInPlaceAdaptivePar(comparer);        // Parallel Merge Sort (parallel, not stable)
+            userArray.SortMergePseudoInPlaceStablePar(comparer);    // Parallel Merge Sort (parallel, stable)
 
             Console.Write("Sorted   array of user defined class: ");
             foreach (UserDefinedClass item in userArray)
