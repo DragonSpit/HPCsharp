@@ -109,12 +109,12 @@ namespace HPCsharp
         // Swaps two sequential subarrays ranges a[ l .. m ] and a[ m + 1 .. r ]
         public static void BlockSwapReversal<T>(T[] array, int l, int m, int r)
         {
-            //array.Reversal(l,     m);
-            //array.Reversal(m + 1, r);
-            //array.Reversal(l,     r);
-            Array.Reverse(array, l,     m - l + 1);
-            Array.Reverse(array, m + 1, r - m    );
-            Array.Reverse(array, l,     r - l + 1);
+            array.Reversal(l,     m);
+            array.Reversal(m + 1, r);
+            array.Reversal(l,     r);
+            //Array.Reverse(array, l,     m - l + 1);   // 2X slower than array.Reversal
+            //Array.Reverse(array, m + 1, r - m    );
+            //Array.Reverse(array, l,     r - l + 1);
         }
 
         public static void BlockSwapReversalReverseOrder<T>(T[] array, int l, int m, int r)
