@@ -1185,6 +1185,36 @@ namespace HPCsharp
                 MergeInPlaceDivideAndConquerHybrid(arr, q3 + 1,     q1,     endIndex, buff, comparer);
             }
         }
+        /// <summary>
+        /// Divide-and-Conquer In-Place Adaptive Merge of two ranges of source array src[ startIndex .. midIndex ] and src[ midIndex+1 .. endIndex ] in-place
+        /// This merge is not stable.
+        /// </summary>
+        /// <typeparam name="T">data type of each array element</typeparam>
+        /// <param name="arr">source array</param>
+        /// <param name="startIndex">starting index of the first  segment, inclusive</param>
+        /// <param name="midIndex">ending   index of the first  segment, inclusive</param>
+        /// <param name="endIndex">ending   index of the second segment, inclusive</param>
+        /// <param name="comparer">method to compare array elements</param>
+        public static void MergeInPlaceAdaptiveDivideAndConquer<T>(T[] arr, int startIndex, int midIndex, int endIndex, IComparer<T> comparer = null, int threshold = 16 * 1024)
+        {
+            if ((endIndex - startIndex) < threshold)
+            {
+                MergeInPlaceDivideAndConquer(arr, startIndex, midIndex, endIndex, comparer);
+            }
+            else
+            {
+                try
+                {
+                    T[] tmpBuff = new T[arr.Length];
+                    MergeDivideAndConquer(arr, startIndex, midIndex, midIndex + 1, endIndex, tmpBuff, startIndex, comparer);
+                    Array.Copy(tmpBuff, startIndex, arr, startIndex, endIndex - startIndex + 1);
+                }
+                catch (System.OutOfMemoryException)
+                {
+                    MergeInPlaceDivideAndConquer(arr, startIndex, midIndex, endIndex, comparer);
+                }
+            }
+        }
     }
 }
 
