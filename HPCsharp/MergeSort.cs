@@ -22,6 +22,7 @@
 // TODO: Fix List sorting that is currently hidden because it's not truly in-place. Either make it truly in-place or call it not-in-place
 // TODO: See if the experimental hidden algorithm is worthwhile
 // TODO: Use Selection Sort instead of Insertion Sort for faster bottom of the recursion tree.
+// TODO: Use Heap Sort or Array.Sort for faster bottom of the recursion tree, especially for in-place versions.
 
 using System;
 using System.Collections.Generic;
@@ -150,7 +151,7 @@ namespace HPCsharp
             return dst;
         }
 
-        private static void SortMergeInPlacePureInner<T>(T[] arr, int startIndex, int endIndex, IComparer<T> comparer = null, int threshold = 16 * 1024)
+        private static void SortMergeInPlaceHybridInner<T>(T[] arr, int startIndex, int endIndex, IComparer<T> comparer = null, int threshold = 16 * 1024)
         {
             //Console.WriteLine("merge sort: start = {0}, length = {1}", startIndex, length);
             int length = endIndex - startIndex + 1;
@@ -161,9 +162,30 @@ namespace HPCsharp
                 return;
             }
             int midIndex = (endIndex + startIndex) / 2;
-            SortMergeInPlacePureInner(arr, startIndex,   midIndex, comparer, threshold);    // recursive call left  half
-            SortMergeInPlacePureInner(arr, midIndex + 1, endIndex, comparer, threshold);    // recursive call right half
+            SortMergeInPlaceHybridInner(arr, startIndex,   midIndex, comparer, threshold);    // recursive call left  half
+            SortMergeInPlaceHybridInner(arr, midIndex + 1, endIndex, comparer, threshold);    // recursive call right half
             MergeInPlaceDivideAndConquer(arr, startIndex, midIndex, endIndex, comparer);    // merge the results
+        }
+
+        private static void SortMergeInPlaceAdaptiveInner<T>(this T[] arr, int startIndex, int endIndex, IComparer<T> comparer = null, int threshold = 16 * 1024)
+        {
+            if (endIndex <= startIndex) return;
+            int length = endIndex - startIndex + 1;
+            if (length <= 1) return;
+            if (length <= threshold)
+            {
+                Array.Sort(arr, startIndex, length, comparer);  // using InsertionSort here is much slower, since recursion has to go down to 32 elements
+                return;
+            }
+            int midIndex = (endIndex + startIndex) / 2;
+            SortMergeInPlaceAdaptiveInner(arr, startIndex,   midIndex, comparer);                   // recursive call left  half
+            SortMergeInPlaceAdaptiveInner(arr, midIndex + 1, endIndex, comparer);                   // recursive call right half
+            MergeInPlaceAdaptiveDivideAndConquer(arr, startIndex, midIndex, endIndex, comparer);    // merge the results
+        }
+
+        static public void SortMergeInPlaceUsingAdaptiveMerge<T>(this T[] arr, IComparer<T> comparer = null)
+        {
+            arr.SortMergeInPlaceAdaptiveInner<T>(0, arr.Length - 1, comparer);
         }
 
         /// <summary>
@@ -172,18 +194,18 @@ namespace HPCsharp
         /// When there is not enough memory, a purely in-place merge sort is used, which is slower.
         /// </summary>
         /// <typeparam name="T">array of type T</typeparam>
-        /// <param name="array">source array</param>
+        /// <param name="arr">source array</param>
         /// <param name="comparer">comparer used to compare two array elements of type T</param>
-        static public void SortMergeInPlaceAdaptive<T>(this T[] array, IComparer<T> comparer = null, int thresholdInPlacePure = 16 * 1024)
+        static public void SortMergeInPlaceAdaptive<T>(this T[] arr, IComparer<T> comparer = null, int thresholdInPlacePure = 16 * 1024)
         {
             try
             {
-                T[] dst = new T[array.Length];
-                SortMergeInner(array, 0, array.Length - 1, dst, false, comparer);
+                T[] dst = new T[arr.Length];
+                SortMergeInner(arr, 0, arr.Length - 1, dst, false, comparer);
             }
             catch (System.OutOfMemoryException)
             {
-                SortMergeInPlacePureInner(array, 0, array.Length - 1, comparer, thresholdInPlacePure);
+                SortMergeInPlaceHybridInner(arr, 0, arr.Length - 1, comparer, thresholdInPlacePure);
             }
         }
 
@@ -204,7 +226,7 @@ namespace HPCsharp
                 T[] dst = new T[array.Length];
                 SortMergeInner(array, startIndex, startIndex + length - 1, dst, false, comparer);
             } catch (System.OutOfMemoryException) {
-                SortMergeInPlacePureInner(array, startIndex, startIndex + length - 1, comparer, thresholdInPlacePure);
+                SortMergeInPlaceHybridInner(array, startIndex, startIndex + length - 1, comparer, thresholdInPlacePure);
             }
         }
 
@@ -216,7 +238,7 @@ namespace HPCsharp
         /// <param name="comparer">comparer used to compare two array elements of type T</param>
         static public void SortMergeInPlace<T>(this T[] array, IComparer<T> comparer = null, int threshold = 16 * 1024)
         {
-            SortMergeInPlacePureInner(array, 0, array.Length - 1, comparer, threshold);
+            SortMergeInPlaceHybridInner(array, 0, array.Length - 1, comparer, threshold);
         }
 
         /// <summary>
@@ -229,7 +251,7 @@ namespace HPCsharp
         /// <param name="comparer">comparer used to compare two array elements of type T</param>
         static public void SortMergeInPlace<T>(this T[] array, int startIndex, int length, IComparer<T> comparer = null, int threshold = 16 * 1024)
         {
-            SortMergeInPlacePureInner(array, startIndex, startIndex + length - 1, comparer, threshold);
+            SortMergeInPlaceHybridInner(array, startIndex, startIndex + length - 1, comparer, threshold);
         }
 
         /// <summary>
@@ -358,7 +380,7 @@ namespace HPCsharp
             int midIndex = (endIndex + startIndex) / 2;
             MergeSortInPlaceHybridInner2(arr, startIndex,   midIndex, buff, comparer, threshold);       // recursive call left  half
             MergeSortInPlaceHybridInner2(arr, midIndex + 1, endIndex, buff, comparer, threshold);       // recursive call right half
-            MergeInPlaceDivideAndConquerHybrid(arr, startIndex, midIndex, endIndex, buff, comparer);         // merge the results
+            MergeInPlaceDivideAndConquerHybrid(arr, startIndex, midIndex, endIndex, buff, comparer);    // merge the results
         }
     }
 }
