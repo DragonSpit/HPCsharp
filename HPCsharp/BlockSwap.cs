@@ -107,14 +107,20 @@ namespace HPCsharp
         }
 
         // Swaps two sequential subarrays ranges a[ l .. m ] and a[ m + 1 .. r ]
-        public static void BlockSwapReversal<T>(T[] array, int l, int m, int r)
+        public static void BlockSwapReversal<T>(T[] array, int l, int m, int r, int threshold = 1024)
         {
-            array.Reversal(l,     m);
-            array.Reversal(m + 1, r);
-            array.Reversal(l,     r);
-            //Array.Reverse(array, l,     m - l + 1);   // 2X slower than array.Reversal
-            //Array.Reverse(array, m + 1, r - m    );
-            //Array.Reverse(array, l,     r - l + 1);
+            if ((r - l) < threshold)
+            {
+                array.Reversal(l,     m);
+                array.Reversal(m + 1, r);
+                array.Reversal(l,     r);
+            }
+            else
+            {
+                Array.Reverse(array, l,     m - l + 1);   // 2X slower than array.Reversal when used in In-Place Merge Sort, but is 2X faster when this funciton is benchmarked by itself
+                Array.Reverse(array, m + 1, r - m    );   // Theory: Array.Reverse() has large overhead => does not peform well for small arrays
+                Array.Reverse(array, l,     r - l + 1);
+            }
         }
 
         public static void BlockSwapReversalReverseOrder<T>(T[] array, int l, int m, int r)
@@ -128,7 +134,7 @@ namespace HPCsharp
         public static void BlockSwapGriesMills<T>(T[] array, int l, int m, int r)
         {
             int rotdist = m - l + 1;
-            int n = r - l + 1;
+            int n       = r - l + 1;
             if (rotdist == 0 || rotdist == n) return;
             int p, i = p = rotdist;
             int j = n - p;
