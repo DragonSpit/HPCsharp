@@ -1132,7 +1132,10 @@ namespace HPCsharp
                 int q1 = (startIndex + midIndex) / 2;           // q1 is mid-point of the larger segment. length1 >= length2 > 0
                 int q2 = Algorithm.BinarySearch(arr[q1], arr, midIndex + 1, endIndex, comparer);  // q2 is q1 partitioning element within the smaller sub-array (and q2 itself is part of the sub-array that does not move)
                 int q3 = q1 + (q2 - midIndex - 1);
-                Algorithm.BlockSwapReversal(arr, q1, midIndex, q2 - 1);
+                if ((q2 - q1) < 1024)       // TODO: Not sure if this adaptive portion is worth it
+                    Algorithm.BlockSwapReversal(arr, q1, midIndex, q2 - 1);
+                else
+                    Algorithm.BlockSwapGriesMills(arr, q1, midIndex, q2 - 1);
                 MergeInPlaceDivideAndConquer(arr, startIndex, q1 - 1, q3 - 1,   comparer);        // note that q3 is now in its final place and no longer participates in further processing
                 MergeInPlaceDivideAndConquer(arr, q3 + 1,     q2 - 1, endIndex, comparer);
             }
@@ -1142,7 +1145,10 @@ namespace HPCsharp
                 int q1 = (midIndex + 1 + endIndex) / 2;         // q1 is mid-point of the larger segment.  length2 > length1 > 0
                 int q2 = Algorithm.BinarySearch(arr[q1], arr, startIndex, midIndex, comparer);    // q2 is q1 partitioning element within the smaller sub-array (and q2 itself is part of the sub-array that does not move)
                 int q3 = q2 + (q1 - midIndex - 1);
-                Algorithm.BlockSwapReversal(arr, q2, midIndex, q1);
+                if ((q1 - q2) < 1024)
+                    Algorithm.BlockSwapReversal(arr, q2, midIndex, q1);
+                else
+                    Algorithm.BlockSwapGriesMills(arr, q2, midIndex, q1);
                 MergeInPlaceDivideAndConquer(arr, startIndex, q2 - 1, q3 - 1,   comparer);        // note that q3 is now in its final place and no longer participates in further processing
                 MergeInPlaceDivideAndConquer(arr, q3 + 1,     q1,     endIndex, comparer);
             }
