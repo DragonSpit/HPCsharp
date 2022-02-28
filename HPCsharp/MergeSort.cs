@@ -164,7 +164,7 @@ namespace HPCsharp
             int midIndex = (endIndex + startIndex) / 2;
             SortMergeInPlaceHybridInner(arr, startIndex,   midIndex, comparer, threshold);    // recursive call left  half
             SortMergeInPlaceHybridInner(arr, midIndex + 1, endIndex, comparer, threshold);    // recursive call right half
-            MergeInPlaceDivideAndConquer(arr, startIndex, midIndex, endIndex, comparer);    // merge the results
+            MergeInPlaceDivideAndConquer(arr, startIndex, midIndex, endIndex, comparer);      // merge the results
         }
 
         private static void SortMergeInPlaceAdaptiveInner<T>(this T[] arr, int startIndex, int endIndex, IComparer<T> comparer = null, int threshold = 16 * 1024)
