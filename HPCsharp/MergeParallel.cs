@@ -168,12 +168,12 @@ namespace HPCsharp
         /// <param name="dst">destination array</param>
         /// <param name="dstStart">starting index of the destination/result</param>
         /// <param name="comparer">method to compare array elements</param>
-        public static void MergePar<T>(T[] src, Int32 aStart, Int32 aLength, Int32 bStart, Int32 bLength, T[] dst, Int32 dstStart, Comparer<T> comparer = null)
+        public static void MergePar<T>(T[] src, Int32 aStart, Int32 aLength, Int32 bStart, Int32 bLength, T[] dst, Int32 dstStart, IComparer<T> comparer = null)
         {
             MergeInnerPar<T>(src, aStart, aStart + aLength - 1, bStart, bStart + bLength - 1, dst, dstStart, comparer);
         }
 
-        public static void MergeParNew<T>(T[] src, Int32 aStart, Int32 aLength, Int32 bStart, Int32 bLength, T[] dst, Int32 dstStart, Comparer<T> comparer = null)
+        public static void MergeParNew<T>(T[] src, Int32 aStart, Int32 aLength, Int32 bStart, Int32 bLength, T[] dst, Int32 dstStart, IComparer<T> comparer = null)
         {
             MergeInnerParNew<T>(src, aStart, aStart + aLength - 1, bStart, bStart + bLength - 1, dst, dstStart, comparer);
         }
@@ -227,7 +227,7 @@ namespace HPCsharp
         }
         // Merge two ranges of source array T[ l .. m, m+1 .. r ] in-place.
         // Based on not-in-place algorithm in 3rd ed. of "Introduction to Algorithms" p. 798-802, extending it to be in-place
-        // and my Dr. Dobb's paper https://www.drdobbs.com/parallel/parallel-in-place-merge/240008783
+        // and my Dr. Dobb's paper https://www.drdobbs.com/parallel/parallel-in-place-merge/240008783 or https://web.archive.org/web/20141217133856/http://www.drdobbs.com/parallel/parallel-in-place-merge/240008783
         public static void MergeDivideAndConquerInPlacePar<T>(T[] arr, int startIndex, int midIndex, int endIndex, IComparer<T> comparer = null, int threshold0 = 16 * 1024, int threshold1 = 16 * 1024)
         {
             //Console.WriteLine("MergeDivideAndConquerInPlacePar: start = {0}, mid = {1}, end = {2}", startIndex, midIndex, endIndex);
@@ -268,8 +268,8 @@ namespace HPCsharp
 
                 if (length1 < threshold1)
                 {
-                    MergeDivideAndConquerInPlacePar(arr, startIndex, q2 - 1, q3 - 1, comparer);
-                    MergeDivideAndConquerInPlacePar(arr, q3 + 1, q1, endIndex, comparer);
+                    MergeDivideAndConquerInPlacePar(arr, startIndex, q2 - 1, q3 - 1,   comparer);
+                    MergeDivideAndConquerInPlacePar(arr, q3 + 1,     q1,     endIndex, comparer);
                 }
                 else
                 {
@@ -277,6 +277,39 @@ namespace HPCsharp
                         () => { MergeDivideAndConquerInPlacePar(arr, startIndex, q2 - 1, q3 - 1,   comparer); },   // note that q3 is now in its final place and no longer participates in further processing
                         () => { MergeDivideAndConquerInPlacePar(arr, q3 + 1,     q1,     endIndex, comparer); }
                     );
+                }
+            }
+        }
+
+        /// <summary>
+        /// Parallel In-Place Adaptive Merge of two ranges of source array src[ startIndex .. midIndex ] and src[ midIndex+1 .. endIndex ]
+        /// If there is enough system memory to allocate a temporary array of the same size as input array then run not-in-place Parallel Merge,
+        /// and copy the result back into the source array. Otherwise, run serial In-Place Merge.
+        /// This merge is not stable.
+        /// </summary>
+        /// <typeparam name="T">data type of each array element</typeparam>
+        /// <param name="arr">source array</param>
+        /// <param name="startIndex">starting index of the first  segment, inclusive</param>
+        /// <param name="midIndex">ending   index of the first  segment, inclusive</param>
+        /// <param name="endIndex">ending   index of the second segment, inclusive</param>
+        /// <param name="comparer">method to compare array elements</param>
+        public static void MergeInPlaceAdaptivePar<T>(T[] arr, int startIndex, int midIndex, int endIndex, IComparer<T> comparer = null, int threshold = 16 * 1024)
+        {
+            if ((endIndex - startIndex) < threshold)
+            {
+                Algorithm.MergeInPlaceDivideAndConquer(arr, startIndex, midIndex, endIndex, comparer);          // Serial In-Place Merge
+            }
+            else
+            {
+                try
+                {
+                    T[] tmpBuff = new T[arr.Length];
+                    MergeInnerPar(arr, startIndex, midIndex, midIndex + 1, endIndex, tmpBuff, startIndex, comparer); // Parallel Not-In-Place Merge
+                    Array.Copy(tmpBuff, startIndex, arr, startIndex, endIndex - startIndex + 1);
+                }
+                catch (System.OutOfMemoryException)
+                {
+                    Algorithm.MergeInPlaceDivideAndConquer(arr, startIndex, midIndex, endIndex, comparer);      // Serial In-Place Merge
                 }
             }
         }
