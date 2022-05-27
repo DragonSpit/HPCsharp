@@ -701,6 +701,21 @@ namespace HPCsharp
             return new Tuple<uint[][], int>(count, numElementsPreSorted);
         }
 
+        public static int[] HistogramOneByteComponent(uint[] inArray, Int32 l, Int32 r, int shiftRightAmount)
+        {
+            const int numberOfBins = 256;
+            //const ulong byteMask = numberOfBins - 1;
+            int[] count = new int[numberOfBins];
+
+            for (int current = l; current <= r; current++)
+            {
+                //count[(inArray[current] >> shiftRightAmount) & byteMask]++;
+                count[(byte)(inArray[current] >> shiftRightAmount)]++;          // ?? Which way is faster. Need to look at assembly language listing too
+            }
+
+            return count;
+        }
+
         public static int[] HistogramOneByteComponent(ulong[] inArray, Int32 l, Int32 r, int shiftRightAmount)
         {
             const int numberOfBins = 256;

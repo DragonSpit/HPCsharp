@@ -41,6 +41,7 @@
 // TODO: Implement the idea of flipping float/double once during the first pass/recursionLevel and flip it back during the last pass/recursionLevel. This should pay off especially for double.
 // TODO: Implement using more bits per digit for float (11-bits) and 9-bit or more for double to reduce the number of passes. This should help LSD quite a bit, but may not help uniform distribution MSD, since after 3 passes
 //       the bins end up pretty small, but should help other distributions.
+// TODO: Remove Swap() usage replacing it with its code, since C# seems to neverl inline.
 // Failed Experiments: Implemented reduction of memory allocations for the Histogram array - allocate it once and pass it around (need to clear it every time before using). Take this optimization ide further
 //       by reducing other memory allocations, such as reduce Start/EndOfBin into a single array (like Sedgewick does). Allocating startOfBin and endOfBin on the stack didn't help performance for random, pre-sorted and
 //       slowed constant arrays by 20%. Count array was also allocated only once at the top-level wrapper.
@@ -152,28 +153,63 @@ namespace HPCsharp
             return arrayToBeSorted;
         }
 
-        private static void SortRadixMsd(this uint[] arrayToBeSorted)
-        {
-            // TODO: Implement me
-        }
-
-        public static Int32 SortRadixMsdShortThreshold { get; set; } = 1024;
+        public static Int32 SortRadixMsdShortThreshold  { get; set; } = 1024;
         public static Int32 SortRadixMsdUShortThreshold { get; set; } = 1024;
-        public static Int32 SortRadixMsdIntThreshold { get; set; } = 64;
-        public static Int32 SortRadixMsdULongThreshold { get; set; } = 1024;
-        public static Int32 SortRadixMsdLongThreshold { get; set; } = 64;
-        public static Int32 SortRadixMsdFloatThreshold { get; set; } = 1024;
+        public static Int32 SortRadixMsdIntThreshold    { get; set; } =   64;
+        public static Int32 SortRadixMsdULongThreshold  { get; set; } = 1024;
+        public static Int32 SortRadixMsdLongThreshold   { get; set; } =   64;
+        public static Int32 SortRadixMsdFloatThreshold  { get; set; } = 1024;
         public static Int32 SortRadixMsdDoubleThreshold { get; set; } = 1024;
-
 
         // Port of Victor's articles in Dr. Dobb's Journal January 14, 2011
         // Plain function In-place MSD Radix Sort implementation (simplified).
-        private const int PowerOfTwoRadix       = 256;
-        private const int Log2ofPowerOfTwoRadix =   8;
-        private const int PowerOfTwoRadixFloat       =  256;
-        private const int Log2ofPowerOfTwoRadixFloat =    8;
+        private const int PowerOfTwoRadix             = 256;
+        private const int Log2ofPowerOfTwoRadix       =   8;
+        private const int PowerOfTwoRadixFloat        = 256;
+        private const int Log2ofPowerOfTwoRadixFloat  =   8;
         private const int PowerOfTwoRadixDouble       = 256;
         private const int Log2ofPowerOfTwoRadixDouble =   8;
+
+        private static void RadixSortMsdUIntInner(uint[] a, int first, int length, int shiftRightAmount, Action<uint[], int, int> baseCaseInPlaceSort, int threshold = 1024)
+        {
+            if (length < threshold)
+            {
+                baseCaseInPlaceSort(a, first, length);
+                return;
+            }
+            int last = first + length - 1;
+            const uint bitMask = PowerOfTwoRadix - 1;
+
+            var count = HistogramOneByteComponent(a, first, last, shiftRightAmount);
+
+            var startOfBin = new int[PowerOfTwoRadix + 1];
+            var endOfBin   = new int[PowerOfTwoRadix];
+            int nextBin = 1;
+            startOfBin[0] = endOfBin[0] = first; startOfBin[PowerOfTwoRadix] = -1;         // sentinal
+            for (int i = 1; i < PowerOfTwoRadix; i++)
+                startOfBin[i] = endOfBin[i] = startOfBin[i - 1] + count[i - 1];
+
+            for (int _current = first; _current <= last;)
+            {
+                uint digit;
+                uint current_element = a[_current];  // get the compiler to recognize that a register can be used for the loop instead of a[_current] memory location
+                while (endOfBin[digit = (current_element >> shiftRightAmount) & bitMask] != _current)
+                    Swap(ref current_element, a, endOfBin[digit]++);
+                a[_current] = current_element;
+
+                endOfBin[digit]++;
+                while (endOfBin[nextBin - 1] == startOfBin[nextBin]) nextBin++;   // skip over empty and full bins, when the end of the current bin reaches the start of the next bin
+                _current = endOfBin[nextBin - 1];
+            }
+            if (shiftRightAmount > 0)          // end recursion when all the bits have been processes
+            {
+                if (shiftRightAmount >= Log2ofPowerOfTwoRadix) shiftRightAmount -= Log2ofPowerOfTwoRadix;
+                else shiftRightAmount = 0;
+
+                for (int i = 0; i < PowerOfTwoRadix; i++)
+                    RadixSortMsdUIntInner(a, startOfBin[i], endOfBin[i] - startOfBin[i], shiftRightAmount, baseCaseInPlaceSort);
+            }
+        }
 
         private static void RadixSortMsdULongInner(ulong[] a, int first, int length, int shiftRightAmount, Action<ulong[], int, int> baseCaseInPlaceSort)
         {
@@ -215,6 +251,7 @@ namespace HPCsharp
                     RadixSortMsdULongInner( a, startOfBin[i], endOfBin[i] - startOfBin[i], shiftRightAmount, baseCaseInPlaceSort );
             }
         }
+
         private static void RadixSortMsdULongInner1(ulong[] a, int first, int length, int shiftRightAmount, Action<ulong[], int, int> baseCaseInPlaceSort)
         {
             if (length < SortRadixMsdULongThreshold)
@@ -358,6 +395,105 @@ namespace HPCsharp
         }
 
         /// <summary>
+        /// In-place Radix Sort (Most Significant Digit), not a stable sort.
+        /// </summary>
+        /// <param name="arrayToBeSorted">array that is to be sorted in place</param>
+        /// <param name="threshold">for array size smaller than threshold Array.Sort will be used instead</param>
+        public static void SortRadixMsd(this uint[] arrayToBeSorted, Int32 start, Int32 length, Int32 threshold = 1024)
+        {
+            int shiftRightAmount = sizeof(uint) * 8 - Log2ofPowerOfTwoRadix;
+            // Insertion Sort or Heap Sort could be passed in as another base case since they are both in-place
+            RadixSortMsdUIntInner(arrayToBeSorted, start, length, shiftRightAmount, Array.Sort, threshold);
+        }
+
+        /// <summary>
+        /// In-place Radix Sort (Most Significant Digit), not a stable sort.
+        /// </summary>
+        /// <param name="arrayToBeSorted">array that is to be sorted in place</param>
+        /// <param name="threshold">for array size smaller than threshold Array.Sort will be used instead</param>
+        public static void SortRadixMsd(this uint[] arrayToBeSorted, Int32 threshold = 1024)
+        {
+            int shiftRightAmount = sizeof(uint) * 8 - Log2ofPowerOfTwoRadix;
+            // Insertion Sort or Heap Sort could be passed in as another base case since they are both in-place
+            RadixSortMsdUIntInner(arrayToBeSorted, 0, arrayToBeSorted.Length, shiftRightAmount, Array.Sort);
+        }
+
+        /// <summary>
+        /// In-place Radix Sort (Most Significant Digit), not stable. Functional style interface, which returns the input array, but sorted.
+        /// </summary>
+        /// <param name="arrayToBeSorted">array that is to be sorted in place</param>
+        /// <returns>returns the input array itself, but sorted</returns>
+        public static uint[] SortRadixMsdInPlaceFunc(this uint[] arrayToBeSorted)
+        {
+            arrayToBeSorted.SortRadixMsd();
+            return arrayToBeSorted;
+        }
+
+        /// <summary>
+        /// In-place Adaptive Radix Sort, not a stable sort whenever In-Place MSD Radix Sort is used.
+        /// </summary>
+        /// <param name="arrayToBeSorted">array that is to be sorted in place</param>
+        /// <param name="threshold">for array size smaller than threshold Array.Sort will be used instead</param>
+        public static void SortRadixInPlaceAdaptive(this uint[] arrayToBeSorted, Int32 start, Int32 length, Int32 threshold = 1024)
+        {
+           try
+            {
+                SortRadix(arrayToBeSorted, start, length);   // allocates a working buffer and other buffers internally
+            }
+            catch (System.OutOfMemoryException)
+            {
+                SortRadixMsd(arrayToBeSorted, start, length, threshold);
+            }
+        }
+
+        /// <summary>
+        /// In-place Adaptive Radix Sort, not a stable sort whenever In-Place MSD Radix Sort is used.
+        /// </summary>
+        /// <param name="arrayToBeSorted">array that is to be sorted in place</param>
+        /// <param name="threshold">for array size smaller than threshold Array.Sort will be used instead</param>
+        public static void SortRadixInPlaceAdaptive(this uint[] arrayToBeSorted, Int32 threshold = 1024)
+        {
+            try
+            {
+                SortRadix(arrayToBeSorted);   // allocates a working buffer and other buffers internally
+            }
+            catch (System.OutOfMemoryException)
+            {
+                SortRadixMsd(arrayToBeSorted, threshold);
+            }
+        }
+
+        /// <summary>
+        /// In-place Adaptive Radix Sort, not a stable sort whenever In-Place MSD Radix Sort is used.
+        /// Functional style interface, which returns the input array, but sorted.
+        /// </summary>
+        /// <param name="arrayToBeSorted">array that is to be sorted in place</param>
+        /// <returns>returns the input array itself, but sorted</returns>
+        public static uint[] SortRadixInPlaceAdaptiveFunc(this uint[] arrayToBeSorted, Int32 threshold = 1024)
+        {
+            try
+            {
+                SortRadix(arrayToBeSorted);   // allocates a working buffer and other buffers internally
+            }
+            catch (System.OutOfMemoryException)
+            {
+                SortRadixMsd(arrayToBeSorted, threshold);
+            }
+            return arrayToBeSorted;
+        }
+
+        /// <summary>
+        /// In-place Radix Sort (Most Significant Digit), not stable.
+        /// </summary>
+        /// <param name="arrayToBeSorted">array that is to be sorted in place</param>
+        public static void SortRadixMsd(this ulong[] arrayToBeSorted, Int32 start, Int32 length)
+        {
+            int shiftRightAmount = sizeof(ulong) * 8 - Log2ofPowerOfTwoRadix;
+            // InsertionSort could be passed in as another base case since it's in-place
+            RadixSortMsdULongInner(arrayToBeSorted, start, length, shiftRightAmount, Array.Sort);
+        }
+
+        /// <summary>
         /// In-place Radix Sort (Most Significant Digit), not stable.
         /// </summary>
         /// <param name="arrayToBeSorted">array that is to be sorted in place</param>
@@ -377,17 +513,6 @@ namespace HPCsharp
         {
             arrayToBeSorted.SortRadixMsd();
             return arrayToBeSorted;
-        }
-
-        /// <summary>
-        /// In-place Radix Sort (Most Significant Digit), not stable.
-        /// </summary>
-        /// <param name="arrayToBeSorted">array that is to be sorted in place</param>
-        public static void SortRadixMsd(this ulong[] arrayToBeSorted, Int32 start, Int32 length)
-        {
-            int shiftRightAmount = sizeof(ulong) * 8 - Log2ofPowerOfTwoRadix;
-            // InsertionSort could be passed in as another base case since it's in-place
-            RadixSortMsdULongInner(arrayToBeSorted, start, length, shiftRightAmount, Array.Sort);
         }
 
         private static void RadixSortMsdIntInner(int[] a, int first, int length, int shiftRightAmount, Action<int[], int, int> baseCaseInPlaceSort)
