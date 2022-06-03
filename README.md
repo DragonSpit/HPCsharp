@@ -176,7 +176,7 @@ for three input data distributions, in Millions of UInt32's per second.
 LSD Radix Sort (Serial) | 104 | 45 | 90 | 1-core i7-9750H
 LSD Radix Sort (Partially Parallel) | 118 | 48 | 112 | 6-core i7-9750H
 LSD Radix Sort (Parallel) | 193 | 203 | 225 | 6-core i7-9750H
-LSD Radix Sort (Parallel) | 316 | 360 | 370 | 48-core AWS
+LSD Radix Sort (Parallel) | 316 | 360 | 370 | 24-core Xeon 8275CL
 
 Several implementations available: serial, partially parallel, and fully parallel. Serial algorithm runs on a single core.
 Partially parallel algorithm runs the counting/histogram phase of the algorithm in parallel, and the permutation phase
@@ -220,14 +220,14 @@ On variety of machines, sorting an array of Int32's, performance in Millions of 
 
 *Algorithm*|*Random*|*Presorted*|*Constant*|*Description*
 --- | --- | --- | --- | ---
-Linq.AsParallel.OrderBy |6.5|13|13| 6-core laptop, with hyperthreading
+Linq.AsParallel.OrderBy |6.5|13|13| 6-core i7-9750H
 Linq.AsParallel.OrderBy |8|14|14| 14-core Intel Xeon, with hyperthreading
 Linq.AsParallel.OrderBy |7|16|15| 32-core AMD EPYC, with hyperthreading
-Linq.AsParallel.OrderBy |7.4|17|18| 48-core Intel Xeon, with hyperthreading (96 vCPUs)
-HPC# .SortMergePar |66|230|154| 6-core laptop, with hyperthreading
+Linq.AsParallel.OrderBy |7.4|17|18| 24-core Intel Xeon 8275CL
+HPC# .SortMergePar |66|230|154| 6-core i7-9750H
 HPC# .SortMergePar |77|412|260| 14-core Intel Xeon, with hyperthreading
 HPC# .SortMergePar |293|893|760| 32-core AMD EPYC, with hyperthreading
-HPC# .SortMergePar |397|915|754| 48-core Intel Xeon, with hyperthreading (96 vCPUs)
+HPC# .SortMergePar |397|915|754| 24-core Intel Xeon 8275CL
 
 HPCsharp's Parallel Merge Sort is not stable, just like Array.Sort.
 The version benchmarked above is the not-in-place one. Faster than Array.Sort and List.Sort across all distributions, and
