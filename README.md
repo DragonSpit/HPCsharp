@@ -173,10 +173,10 @@ for three input data distributions, in Millions of UInt32's per second.
 
 *Algorithm*|*Random*|*Presorted*|*Constant*|*Computer*
 --- | --- | --- | --- | ---
-LSD Radix Sort (Serial) | 104 | 45 | 90 | 1-core i7-9750H
-LSD Radix Sort (Partially Parallel) | 118 | 48 | 112 | 6-core i7-9750H
-LSD Radix Sort (Parallel) | 193 | 203 | 225 | 6-core i7-9750H
-LSD Radix Sort (Parallel) | 316 | 360 | 370 | 24-core Xeon 8275CL
+LSD Radix Sort (Serial)             | 104 |  45 |  90 | 1-core i7-9750H
+LSD Radix Sort (Partially Parallel) | 118 |  48 | 112 | 6-core i7-9750H
+LSD Radix Sort (Fully Parallel)     | 193 | 203 | 225 | 6-core i7-9750H
+LSD Radix Sort (Fully Parallel)     | 316 | 360 | 370 | 24-core Xeon 8275CL
 
 Several implementations available: serial, partially parallel, and fully parallel. Serial algorithm runs on a single core.
 Partially parallel algorithm runs the counting/histogram phase of the algorithm in parallel, and the permutation phase
