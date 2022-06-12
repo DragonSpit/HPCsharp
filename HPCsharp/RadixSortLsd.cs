@@ -422,7 +422,7 @@ namespace HPCsharp
         }
         /// <summary>
         /// Sort an array of unsigned integers using Radix Sorting algorithm (least significant digit variation - LSD)
-        /// This algorithm is not in-place. This algorithm is stable.
+        /// This algorithm is not in-place. This algorithm is stable. Two-phase implementation.
         /// </summary>
         /// <param name="inOutArray">array of unsigned integers to be sorted, and where the sorted array will be returned</param>
         /// <param name="startIndex">index of the first element where sorting is to start</param>
