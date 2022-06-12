@@ -86,8 +86,8 @@ namespace HPCsharp
             return startOfBin;
         }
         // Permute function with de-randomized write memory accesses
-        private static void SortRadixInnerFunction( uint[] inputArray, uint[] outputArray, uint[][] startOfBin, uint[][] bufferIndex, uint[][] bufferDerandomize, uint[] bufferIndexEnd,
-                                                    CustomData data, uint endIndex, uint BufferDepth, int NumberOfBins)
+        private static void SortRadixDeRandomizedInnerFunction( uint[] inputArray, uint[] outputArray, uint[][] startOfBin, uint[][] bufferIndex, uint[][] bufferDerandomize, uint[] bufferIndexEnd,
+                                                                CustomData data, uint endIndex, uint BufferDepth, int NumberOfBins)
         {
             if (data == null)
                 return;
@@ -127,6 +127,14 @@ namespace HPCsharp
             }
         }
 
+        /// <summary>
+        /// Fully Parallel Sort an array of unsigned integers using LSD Radix Sorting algorithm (least significant digit - LSD)
+        /// This algorithm is stable, and is not in-place. Counting portion and permutation are both parallel.
+        /// This method is referenced in the Parallel LSD Radix Sort section of Victor's book.
+        /// </summary>
+        /// <param name="inputArray">array of unsigned integers to be sorted</param>
+        /// <param name="SortRadixParallelWorkQuanta">number of array elements each core will process</param>
+        /// <returns>sorted array of unsigned integers</returns>
         public static uint[] SortRadixPar(this uint[] inputArray, int SortRadixParallelWorkQuanta = 64 * 1024)
         {
             const int NumberOfBins = 256;
@@ -179,7 +187,7 @@ namespace HPCsharp
                         CustomData data = obj as CustomData;
                         uint endIndex = (uint)(data.current + SortRadixParallelWorkQuanta);
 
-                        SortRadixInnerFunction(inputArray, outputArray, startOfBin, bufferIndex, bufferDerandomize, bufferIndexEnd, data, endIndex, BufferDepth, NumberOfBins);
+                        SortRadixDeRandomizedInnerFunction(inputArray, outputArray, startOfBin, bufferIndex, bufferDerandomize, bufferIndexEnd, data, endIndex, BufferDepth, NumberOfBins);
                     },
                     new CustomData() { current = current, q = q, bitMask = bitMask, shiftRightAmount = shiftRightAmount }
                     );
@@ -191,7 +199,7 @@ namespace HPCsharp
                         CustomData data = obj as CustomData;
                         uint endIndex = (uint)inputArray.Length;
 
-                        SortRadixInnerFunction(inputArray, outputArray, startOfBin, bufferIndex, bufferDerandomize, bufferIndexEnd, data, endIndex, BufferDepth, NumberOfBins);
+                        SortRadixDeRandomizedInnerFunction(inputArray, outputArray, startOfBin, bufferIndex, bufferDerandomize, bufferIndexEnd, data, endIndex, BufferDepth, NumberOfBins);
                     },
                     new CustomData() { current = current, q = q, bitMask = bitMask, shiftRightAmount = shiftRightAmount }
                     );
@@ -216,7 +224,20 @@ namespace HPCsharp
 
         /// <summary>
         /// Parallel Sort an array of unsigned integers using Radix Sorting algorithm (least significant digit variation - LSD)
+        /// The core algorithm is not in-place, but the interface is in-place. This algorithm is stable.
+        /// </summary>
+        /// <param name="inputArray">array of unsigned integers to be sorted</param>
+        /// <returns>sorted array of unsigned integers</returns>
+        public static void SortRadixInPlaceInterfacePar(this uint[] inputArray)
+        {
+            var sortedArray = SortRadixPar(inputArray);
+            Array.Copy(sortedArray, inputArray, inputArray.Length);
+        }
+
+        /// <summary>
+        /// Partially Parallel Sort an array of unsigned integers using LSD Radix Sorting algorithm (least significant digit - LSD)
         /// This algorithm is stable, but is not in-place.
+        /// Only the Histogram portion of the algorithm is parallel.
         /// </summary>
         /// <param name="inputArray">array of unsigned integers to be sorted</param>
         /// <returns>sorted array of unsigned integers</returns>
@@ -273,20 +294,9 @@ namespace HPCsharp
 
         /// <summary>
         /// Parallel Sort an array of unsigned integers using Radix Sorting algorithm (least significant digit variation - LSD)
-        /// The core algorithm is not in-place, but the interface is in-place. This algorithm is stable.
-        /// </summary>
-        /// <param name="inputArray">array of unsigned integers to be sorted</param>
-        /// <returns>sorted array of unsigned integers</returns>
-        public static void SortRadixInPlaceInterfacePar(this uint[] inputArray)
-        {
-            var sortedArray = SortRadixPar(inputArray);
-            Array.Copy(sortedArray, inputArray, inputArray.Length);
-        }
-
-        /// <summary>
-        /// Parallel Sort an array of unsigned integers using Radix Sorting algorithm (least significant digit variation - LSD)
         /// This algorithm uses SIMD/SSE instructions for higher performance on each core, as well as multiple cores.
         /// This algorithm is stable, but is not in-place.
+        /// Only the Histogram portion of the algorithm is parallel.
         /// </summary>
         /// <param name="inputArray">array of unsigned integers to be sorted</param>
         /// <returns>sorted array of unsigned integers</returns>
@@ -338,8 +348,9 @@ namespace HPCsharp
             return inputArray;
         }
         /// <summary>
-        /// Parallel Sort an array of signed integers using Radix Sorting algorithm (least significant digit variation - LSD)
+        /// Partially Parallel Sort an array of signed integers using LSD Radix Sorting algorithm (least significant digit - LSD)
         /// This algorithm is stable, but not in-place.
+        /// Only the Histogram portion of the algorithm is parallel.
         /// </summary>
         /// <param name="inputArray">array of signed long integers to be sorted</param>
         /// <returns>sorted array of signed long integers</returns>
@@ -392,8 +403,9 @@ namespace HPCsharp
             return outputArrayHasResult ? outputArray : inputArray;
         }
         /// <summary>
-        /// Parallel Sort an array of signed integers using Radix Sorting algorithm (least significant digit variation - LSD)
+        /// Partially Parallel Sort an array of signed integers using LSD Radix Sorting algorithm (least significant digit - LSD)
         /// This algorithm is stable, but not in-place.
+        /// Only the Histogram portion of the algorithm is parallel.
         /// </summary>
         /// <param name="inputArray">array of signed long integers to be sorted</param>
         /// <returns>sorted array of signed long integers</returns>
@@ -446,8 +458,9 @@ namespace HPCsharp
             return outputArrayHasResult ? outputArray : inputArray;
         }
         /// <summary>
-        /// Parallel Sort an array of signed long integers using Radix Sorting algorithm (least significant digit variation - LSD)
+        /// Partially Parallel Sort an array of signed long integers using LSD Radix Sorting algorithm (least significant digit - LSD)
         /// This algorithm is stable, but not in-place.
+        /// Only the Histogram portion of the algorithm is parallel.
         /// </summary>
         /// <param name="inputArray">array of signed long integers to be sorted</param>
         /// <returns>sorted array of signed long integers</returns>
@@ -501,9 +514,10 @@ namespace HPCsharp
         }
 
         /// <summary>
-        /// Parallel Sort an array of signed long integers using Radix Sorting algorithm (least significant digit variation - LSD)
+        /// Partial Parallel Sort an array of signed long integers using LSD Radix Sorting algorithm (least significant digit - LSD)
         /// This algorithm uses SIMD/SSE instructions for higher performance on each core, as well as multiple cores.
         /// This algorithm is stable, but not in-place.
+        /// Only the Histogram portion of the algorithm is parallel.
         /// </summary>
         /// <param name="inputArray">array of signed long integers to be sorted</param>
         /// <returns>sorted array of signed long integers</returns>
@@ -557,8 +571,9 @@ namespace HPCsharp
         }
 
         /// <summary>
-        /// Sort an array of signed long integers using Radix Sorting algorithm (least significant digit variation - LSD)
+        /// Partially Parallel Sort an array of signed long integers using LSD Radix Sorting algorithm (least significant digit - LSD)
         /// The core algorithm is not in-place, but the interface is in-place. This algorithm is stable.
+        /// Only the Histogram portion of the algorithm is parallel.
         /// </summary>
         /// <param name="inputArray">array of signed long integers to be sorted</param>
         /// <returns>sorted array of signed long integers</returns>
@@ -569,8 +584,9 @@ namespace HPCsharp
         }
 
         /// <summary>
-        /// Parallel Sort an array of unsigned long integers using Radix Sorting algorithm (least significant digit variation - LSD)
+        /// Partially Parallel Sort an array of unsigned long integers using LSD Radix Sorting algorithm (least significant digit - LSD)
         /// This algorithm is stable, but is not in-place.
+        /// Only the Histogram portion of the algorithm is parallel.
         /// </summary>
         /// <param name="inputArray">array of unsigned long integers to be sorted</param>
         /// <returns>sorted array of unsigned long integers</returns>
@@ -619,8 +635,9 @@ namespace HPCsharp
         }
 
         /// <summary>
-        /// Parallel Sort an array of unsigned integers using Radix Sorting algorithm (least significant digit variation - LSD)
+        /// Partially Parallel Sort an array of unsigned integers using Radix Sorting algorithm (least significant digit variation - LSD)
         /// The core algorithm is not in-place, but the interface is in-place. This algorithm is stable.
+        /// Only the Histogram portion of the algorithm is parallel.
         /// </summary>
         /// <param name="inputArray">array of unsigned integers to be sorted</param>
         /// <returns>sorted array of unsigned integers</returns>
