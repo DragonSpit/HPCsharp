@@ -41,7 +41,6 @@
 // TODO: Implement the idea of flipping float/double once during the first pass/recursionLevel and flip it back during the last pass/recursionLevel. This should pay off especially for double.
 // TODO: Implement using more bits per digit for float (11-bits) and 9-bit or more for double to reduce the number of passes. This should help LSD quite a bit, but may not help uniform distribution MSD, since after 3 passes
 //       the bins end up pretty small, but should help other distributions.
-// TODO: Remove Swap() usage replacing it with its code, since C# seems to neverl inline.
 // Failed Experiments: Implemented reduction of memory allocations for the Histogram array - allocate it once and pass it around (need to clear it every time before using). Take this optimization ide further
 //       by reducing other memory allocations, such as reduce Start/EndOfBin into a single array (like Sedgewick does). Allocating startOfBin and endOfBin on the stack didn't help performance for random, pre-sorted and
 //       slowed constant arrays by 20%. Count array was also allocated only once at the top-level wrapper.
@@ -194,7 +193,11 @@ namespace HPCsharp
                 uint digit;
                 uint current_element = a[_current];  // get the compiler to recognize that a register can be used for the loop instead of a[_current] memory location
                 while (endOfBin[digit = (current_element >> shiftRightAmount) & bitMask] != _current)
-                    Swap(ref current_element, a, endOfBin[digit]++);
+                {
+                    uint temp = a[endOfBin[digit]];
+                    a[endOfBin[digit]++] = current_element;
+                    current_element = temp;
+                }
                 a[_current] = current_element;
 
                 endOfBin[digit]++;
@@ -235,7 +238,11 @@ namespace HPCsharp
                 ulong digit;
                 ulong current_element = a[_current];  // get the compiler to recognize that a register can be used for the loop instead of a[_current] memory location
                 while (endOfBin[digit = (current_element >> shiftRightAmount) & bitMask] != _current)
-                    Swap(ref current_element, a, endOfBin[digit]++);
+                {
+                    ulong temp = a[endOfBin[digit]];
+                    a[endOfBin[digit]++] = current_element;
+                    current_element = temp;
+                }
                 a[_current] = current_element;
 
                 endOfBin[digit]++;
@@ -745,7 +752,11 @@ namespace HPCsharp
                         ulong digit;
                         long current_element = a[_current];  // get the compiler to recognize that a register can be used for the loop instead of a[_current] memory location
                         while (endOfBin[digit = ((ulong)current_element >> shiftRightAmount) ^ halfOfPowerOfTwoRadix] != _current)
-                            Swap(ref current_element, a, endOfBin[digit]++);
+                        {
+                            long temp = a[endOfBin[digit]];
+                            a[endOfBin[digit]++] = current_element;
+                            current_element = temp;
+                        }
                         a[_current] = current_element;
                         endOfBin[digit]++;
 
@@ -845,7 +856,11 @@ namespace HPCsharp
                         ulong digit;
                         long current_element = a[_current];  // get the compiler to recognize that a register can be used for the loop instead of a[_current] memory location
                         while (endOfBin[digit = ((ulong)current_element >> shiftRightAmount) ^ halfOfPowerOfTwoRadix] != _current)
-                            Swap(ref current_element, a, endOfBin[digit]++);
+                        {
+                            long temp = a[endOfBin[digit]];
+                            a[endOfBin[digit]++] = current_element;
+                            current_element = temp;
+                        }
                         a[_current] = current_element;                          // place the current_element in the a[_current] location, since we hit the end of the current loop, and advance its current bin end
                         endOfBin[digit]++;
 
@@ -860,7 +875,11 @@ namespace HPCsharp
                         ulong digit;
                         long current_element = a[_current];  // get the compiler to recognize that a register can be used for the loop instead of a[_current] memory location
                         while (endOfBin[digit = ((ulong)current_element >> shiftRightAmount) & bitMask] != _current)
-                            Swap(ref current_element, a, endOfBin[digit]++);
+                        {
+                            long temp = a[endOfBin[digit]];
+                            a[endOfBin[digit]++] = current_element;
+                            current_element = temp;
+                        }
                         a[_current] = current_element;
                         endOfBin[digit]++;
 
@@ -1313,7 +1332,11 @@ namespace HPCsharp
                 ushort digit;
                 ushort current_element = a[_current];  // get the compiler to recognize that a register can be used for the loop instead of a[_current] memory location
                 while (endOfBin[digit = (ushort)((current_element & bitMask) >> shiftRightAmount)] != _current)
-                    Swap(ref current_element, a, endOfBin[digit]++);
+                {
+                    ushort temp = a[endOfBin[digit]];
+                    a[endOfBin[digit]++] = current_element;
+                    current_element = temp;
+                }
                 a[_current] = current_element;
 
                 endOfBin[digit]++;
