@@ -1,4 +1,5 @@
 ﻿// TODO: Implement performance improvement from my C++ code, where in the counting 2-D part, instead of using a 2-D array for the increment computation, a 1-D array is used, which gets initialized before the for loop. C++ comment is that it's faster.
+// TODO: Fix the subtle bug with long[] Histogram, which seems to have an issue when the parallelThreshold is == array.length/#cores
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -621,6 +622,41 @@ namespace HPCsharp
         static int[] HistogramOneByteComponentParInner(long[] inArray, Int32 l, Int32 r, int shiftRightAmount, int parallelThreshold = 16 * 1024)
         {
             const int numberOfBins = 256;
+            int[] countLeft  = null;
+            int[] countRight = null;
+
+            if (l > r)      // zero elements to compare
+            {
+                countLeft = new int[numberOfBins];
+                return countLeft;
+            }
+            if ((r - l + 1) <= parallelThreshold)
+                return Algorithm.HistogramOneByteComponent(inArray, l, r, shiftRightAmount);
+
+            int m = (r + l) / 2;
+
+            Parallel.Invoke(
+                () => { countLeft  = HistogramOneByteComponentParInner(inArray, l,     m, shiftRightAmount, parallelThreshold); },
+                () => { countRight = HistogramOneByteComponentParInner(inArray, m + 1, r, shiftRightAmount, parallelThreshold); }
+            );
+            // Combine left and right results
+            countLeft = Algorithms.Addition.Add(countLeft, countRight);
+
+            return countLeft;
+        }
+
+        public static int[] HistogramOneByteComponentPar(long[] inArray, Int32 l, Int32 r, int parallelThreshold = 16 * 1024)
+        {
+            int length = r - l + 1;
+            //if ((parallelThreshold * Environment.ProcessorCount) < length)        // Mystery: This causes array out of bounds error
+            //    parallelThreshold = length / Environment.ProcessorCount;
+            //Console.WriteLine("parallelThreshold = {0}   # Cores = {1}   Array length = {2}", parallelThreshold, Environment.ProcessorCount, length);
+            return HistogramOneByteComponentParInner(inArray, l, r, parallelThreshold);
+        }
+
+        static int[] HistogramOneByteComponentParInner(uint[] inArray, Int32 l, Int32 r, int shiftRightAmount, int parallelThreshold = 16 * 1024)
+        {
+            const int numberOfBins = 256;
             int[] countLeft = null;
             int[] countRight = null;
 
@@ -630,10 +666,7 @@ namespace HPCsharp
                 return countLeft;
             }
             if ((r - l + 1) <= parallelThreshold)
-            {
-                countLeft = new int[numberOfBins];
                 return Algorithm.HistogramOneByteComponent(inArray, l, r, shiftRightAmount);
-            }
 
             int m = (r + l) / 2;
 
@@ -642,16 +675,17 @@ namespace HPCsharp
                 () => { countRight = HistogramOneByteComponentParInner(inArray, m + 1, r, shiftRightAmount, parallelThreshold); }
             );
             // Combine left and right results
-            countLeft = Addition.AddSse(countLeft, countRight);
+            countLeft = Algorithms.Addition.Add(countLeft, countRight);
 
             return countLeft;
         }
 
-        public static int[] HistogramOneByteComponentPar(long[] inArray, Int32 l, Int32 r, int parallelThreshold = 16 * 1024)
+        public static int[] HistogramOneByteComponentPar(uint[] inArray, Int32 l, Int32 r, int parallelThreshold = 16 * 1024)
         {
-            int length = r - l + 1;
-            if ((parallelThreshold * Environment.ProcessorCount) < length)
-                parallelThreshold = length / Environment.ProcessorCount;
+            //int length = r - l + 1;
+            //if ((parallelThreshold * Environment.ProcessorCount) < length)        // Mystery: This causes array out of bounds error
+            //    parallelThreshold = length / Environment.ProcessorCount;
+            //Console.WriteLine("parallelThreshold = {0}   # Cores = {1}   Array length = {2}", parallelThreshold, Environment.ProcessorCount, length);
             return HistogramOneByteComponentParInner(inArray, l, r, parallelThreshold);
         }
     }
