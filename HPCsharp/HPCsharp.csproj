@@ -8,7 +8,7 @@
     <Description>Parallel high performance cross-platform C#/.NET algorithms. 28+ algorithms with familiar interfaces and examples. Multi-core and data parallel (SIMD/SSE). Open source and free. See project Readme, blog, and videos...</Description>
     <Copyright>© 2018 FooState</Copyright>
     <PackageLicenseUrl></PackageLicenseUrl>
-    <PackageReleaseNotes>Split In-Place Merge Sort into two variants: adaptive and pure. Added In-Place MSD Radix Sort for uint[]. Adde an Adaptive In-Place Radix Sort, which runs a faster not-in-place version when there is sufficient memory available. Exposed In-Place MSD Radix Sort for ulong[]. Added LSD Radix Sort for uint[] with de-randomization of writes. Use ICompare consistently for generic Parallel Merge. Added Adaptive In-Place Merge. Added Parallel In-Place Hybrid Merge and Radix Sort for ulong[] and uint[], and adaptive versions also. Corrected several Readme tables.</PackageReleaseNotes>
+    <PackageReleaseNotes>Fixed average calculations in many recursive algorithms and Binary Search to not have overflow/underflow.</PackageReleaseNotes>
     <PackageId>HPCsharp</PackageId>
     <PackageTags>high perfromance algorithms, C#, high performance, high performance computing, HPC, algorithm, algorithms, Linq, parallel, parallel algorithm</PackageTags>
     <PackageIconUrl>https://foostate.com/images/default_lib_icon_64.png</PackageIconUrl>
@@ -17,9 +17,9 @@
     <PackageProjectUrl>https://github.com/DragonSpit/HPCsharp</PackageProjectUrl>
     <RepositoryUrl>https://github.com/DragonSpit/HPCsharp</RepositoryUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <AssemblyVersion>3.16.4.0</AssemblyVersion>
-    <FileVersion>3.16.4.0</FileVersion>
-    <Version>3.16.4</Version>
+    <AssemblyVersion>3.16.5.0</AssemblyVersion>
+    <FileVersion>3.16.5.0</FileVersion>
+    <Version>3.16.5</Version>
     <Platforms>AnyCPU;x64</Platforms>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
   </PropertyGroup>
