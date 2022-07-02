@@ -47,7 +47,7 @@ namespace HPCsharp
             Int32 high = Math.Max(left, right + 1);
             while (low < high)
             {
-                Int32 mid = (low + high) / 2;
+                Int32 mid = low + ((high - low) / 2);   // overflow-free average calculation, since high > low is the condition for entering while-loop body
                 if (equalityComparer.Compare(value, a[mid]) <= 0)   // if (value <= a[mid])
                     high = mid;
                 else low = mid + 1; // because we compared to a[mid] and the value was larger than a[mid].
@@ -73,7 +73,7 @@ namespace HPCsharp
             Int32 high = Math.Max(left, right + 1);
             while (low < high)
             {
-                Int32 mid = (low + high) / 2;
+                Int32 mid = low + ((high - low) / 2);   // overflow-free average calculation, since high > low is the condition for entering while-loop body
                 if (equalityComparer.Compare(value, a[mid]) <= 0)   // if (value <= a[mid])
                     high = mid;
                 else low = mid + 1; // because we compared to a[mid] and the value was larger than a[mid].
