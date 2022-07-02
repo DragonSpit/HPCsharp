@@ -23,6 +23,7 @@
 // TODO: See if the experimental hidden algorithm is worthwhile
 // TODO: Use Selection Sort instead of Insertion Sort for faster bottom of the recursion tree.
 // TODO: Use Heap Sort or Array.Sort for faster bottom of the recursion tree, especially for in-place versions.
+// TODO: Fix all average calculation to not cause over/underflow.
 
 using System;
 using System.Collections.Generic;
@@ -40,6 +41,7 @@ namespace HPCsharp
 
         static internal void SortMergeInner<T>(this T[] src, int l, int r, T[] dst, bool srcToDst = true, IComparer<T> comparer = null)
         {
+            if (r < l) return;
             if (r == l)
             {    // termination/base case of sorting a single element
                 if (srcToDst) dst[l] = src[l];    // copy the single element from src to dst
@@ -53,7 +55,7 @@ namespace HPCsharp
                 return;
             }
 
-            int m = (r + l) / 2;
+            int m = r / 2 + l / 2 + (r % 2 + l % 2) / 2;    // (l + r) / 2 without overflow or underflow
             int length1 = m - l + 1;
             int length2 = r - (m + 1) + 1;
 
@@ -161,7 +163,7 @@ namespace HPCsharp
                 Array.Sort(arr, startIndex, length, comparer);  // using InsertionSort here is much slower, since recursion has to go down to 32 elements
                 return;
             }
-            int midIndex = (endIndex + startIndex) / 2;
+            int midIndex = endIndex / 2 + startIndex / 2 + (endIndex % 2 + startIndex % 2) / 2; // (endIndex + startIndex) / 2 without overflow
             SortMergeInPlaceHybridInner(arr, startIndex,   midIndex, comparer, threshold);    // recursive call left  half
             SortMergeInPlaceHybridInner(arr, midIndex + 1, endIndex, comparer, threshold);    // recursive call right half
             MergeInPlaceDivideAndConquer(arr, startIndex, midIndex, endIndex, comparer);      // merge the results
@@ -177,7 +179,7 @@ namespace HPCsharp
                 Array.Sort(arr, startIndex, length, comparer);  // using InsertionSort here is much slower, since recursion has to go down to 32 elements
                 return;
             }
-            int midIndex = (endIndex + startIndex) / 2;
+            int midIndex = endIndex / 2 + startIndex / 2 + (endIndex % 2 + startIndex % 2) / 2; // (endIndex + startIndex) / 2 without overflow
             SortMergeInPlaceAdaptiveInner(arr, startIndex,   midIndex, comparer);                   // recursive call left  half
             SortMergeInPlaceAdaptiveInner(arr, midIndex + 1, endIndex, comparer);                   // recursive call right half
             MergeInPlaceAdaptiveDivideAndConquer(arr, startIndex, midIndex, endIndex, comparer);    // merge the results
@@ -349,7 +351,7 @@ namespace HPCsharp
         {
             if (length <= 1) return;
             int endIndex = startIndex + length;
-            int midIndex = ((endIndex + startIndex) / 2);
+            int midIndex = endIndex / 2 + startIndex / 2 + (endIndex % 2 + startIndex % 2) / 2; // (endIndex + startIndex) / 2 without overflow
             MergeSortInPlace(arr, startIndex,   midIndex, comparer);                         // recursive call left  half
             MergeSortInPlace(arr, midIndex + 1, endIndex, comparer);                         // recursive call right half
             MergeInPlaceDivideAndConquer(arr, startIndex, midIndex, endIndex, comparer);     // merge the results
@@ -377,7 +379,7 @@ namespace HPCsharp
                 Algorithm.InsertionSort(arr, startIndex, length, comparer);
                 return;
             }
-            int midIndex = (endIndex + startIndex) / 2;
+            int midIndex = endIndex / 2 + startIndex / 2 + (endIndex % 2 + startIndex % 2) / 2; // (endIndex + startIndex) / 2 without overflow
             MergeSortInPlaceHybridInner2(arr, startIndex,   midIndex, buff, comparer, threshold);       // recursive call left  half
             MergeSortInPlaceHybridInner2(arr, midIndex + 1, endIndex, buff, comparer, threshold);       // recursive call right half
             MergeInPlaceDivideAndConquerHybrid(arr, startIndex, midIndex, endIndex, buff, comparer);    // merge the results
