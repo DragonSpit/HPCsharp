@@ -91,6 +91,8 @@
 //       each other in some way. Another approach is to study why some array sizes and thus their splits perform better than others and see if there is a patterns
 //       Maybe the first place to check is if the top performers are consistenly top performing.
 // TODO: Figure out why BigInteger sum from long and ulong FasterPar divide-and-conquer generic is throwing an type conversion exception when using the Generic Divide and Conquer.
+// TODO: Not sure if this is a good idea or if it would even work, but for Sum of Array of Longs (signed in general) could we split positives and negatives
+//       and generate separate sums of each of them, and then at the end combine positive and negative sum? Does that simplify things?
 
 using System.Collections.Generic;
 using System.Text;
