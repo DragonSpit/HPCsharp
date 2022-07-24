@@ -411,6 +411,8 @@ namespace HPCsharp
             int shiftRightAmount = sizeof(uint) * 8 - Log2ofPowerOfTwoRadix;
             // Insertion Sort or Heap Sort could be passed in as another base case since they are both in-place
             RadixSortMsdUIntInner(arrayToBeSorted, start, length, shiftRightAmount, Array.Sort, threshold);
+            // The following does not work: Need to figure out how to pass InsertionSort method as an Action
+            //RadixSortMsdUIntInner(arrayToBeSorted, start, length, shiftRightAmount, (arr, startIndex, lengthOfArray) => InsertionSort(arrayToBeSorted, start, length), threshold);
         }
 
         /// <summary>
@@ -422,7 +424,9 @@ namespace HPCsharp
         {
             int shiftRightAmount = sizeof(uint) * 8 - Log2ofPowerOfTwoRadix;
             // Insertion Sort or Heap Sort could be passed in as another base case since they are both in-place
-            RadixSortMsdUIntInner(arrayToBeSorted, 0, arrayToBeSorted.Length, shiftRightAmount, Array.Sort);
+            RadixSortMsdUIntInner(arrayToBeSorted, 0, arrayToBeSorted.Length, shiftRightAmount, Array.Sort, threshold);
+            // The following does not work: Need to figure out how to pass InsertionSort method as an Action
+            //RadixSortMsdUIntInner(arrayToBeSorted, 0, arrayToBeSorted.Length, shiftRightAmount, (arr, startIndex, lengthOfArray) => { InsertionSort(arrayToBeSorted, 0, arrayToBeSorted.Length); }, threshold);
         }
 
         /// <summary>
@@ -430,9 +434,9 @@ namespace HPCsharp
         /// </summary>
         /// <param name="arrayToBeSorted">array that is to be sorted in place</param>
         /// <returns>returns the input array itself, but sorted</returns>
-        public static uint[] SortRadixMsdInPlaceFunc(this uint[] arrayToBeSorted)
+        public static uint[] SortRadixMsdInPlaceFunc(this uint[] arrayToBeSorted, Int32 threshold = 1024)
         {
-            arrayToBeSorted.SortRadixMsd();
+            arrayToBeSorted.SortRadixMsd(threshold);
             return arrayToBeSorted;
         }
 
