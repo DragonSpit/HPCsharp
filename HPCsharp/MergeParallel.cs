@@ -68,7 +68,7 @@ namespace HPCsharp
             }
             else
             {
-                Int32 q1 = (p1 + r1) / 2;
+                Int32 q1 = p1 / 2 + r1 / 2 + (p1 % 2 + r1 % 2) / 2;                // (p1 + r1) / 2 without overflow
                 Int32 q2 = Algorithm.BinarySearch(src[q1], src, p2, r2, comparer);
                 Int32 q3 = p3 + (q1 - p1) + (q2 - p2);
                 dst[q3] = src[q1];
@@ -103,7 +103,7 @@ namespace HPCsharp
             }
             else
             {
-                Int32 q1 = (p1 + r1) / 2;
+                Int32 q1 = p1 / 2 + r1 / 2 + (p1 % 2 + r1 % 2) / 2;                // (p1 + r1) / 2 without overflow
                 Int32 q2 = Algorithm.BinarySearch(src[q1], src, p2, r2, comparer);
                 Int32 q3 = p3 + (q1 - p1) + (q2 - p2);
                 dst[q3] = src[q1];
@@ -146,7 +146,7 @@ namespace HPCsharp
             }
             else
             {
-                Int32 q1 = (p1 + r1) / 2;
+                Int32 q1 = p1 / 2 + r1 / 2 + (p1 % 2 + r1 % 2) / 2;                // (p1 + r1) / 2 without overflow
                 Int32 q2 = Algorithm.BinarySearch(src[q1], src, p2, r2, comparer);
                 Int32 q3 = p3 + (q1 - p1) + (q2 - p2);
                 dst[q3] = src[q1];
@@ -214,7 +214,7 @@ namespace HPCsharp
             }
             else
             {
-                Int32 q1 = (p1 + r1) / 2;
+                Int32 q1 = p1 / 2 + r1 / 2 + (p1 % 2 + r1 % 2) / 2;                // (p1 + r1) / 2 without overflow
                 Int32 q2 = Algorithm.BinarySearch(srcKeys[q1], srcKeys, p2, r2, comparer);
                 Int32 q3 = p3 + (q1 - p1) + (q2 - p2);
                 dstKeys[ q3] = srcKeys[ q1];
@@ -236,7 +236,7 @@ namespace HPCsharp
             if (length1 >= length2)
             {
                 if (length2 <= 0) return;                       // if the smaller segment has zero elements, then nothing to merge
-                int q1 = (startIndex + midIndex) / 2;           // q1 is mid-point of the larger segment. length1 >= length2 > 0
+                int q1 = startIndex / 2 + midIndex / 2 + (startIndex % 2 + midIndex % 2) / 2;     // q1 is mid-point of the larger segment. length1 >= length2 > 0
                 int q2 = Algorithm.BinarySearch(arr[q1], arr, midIndex + 1, endIndex, comparer);  // q2 is q1 partitioning element within the smaller sub-array (and q2 itself is part of the sub-array that does not move)
                 int q3 = q1 + (q2 - midIndex - 1);
                 //BlockSwapReversalPar(arr, q1, midIndex, q2 - 1, threshold0);
@@ -259,8 +259,8 @@ namespace HPCsharp
             else
             {   // length1 < length2
                 if (length1 <= 0) return;                       // if the smaller segment has zero elements, then nothing to merge
-                int q1 = (midIndex + 1 + endIndex) / 2;         // q1 is mid-point of the larger segment.  length2 > length1 > 0
-                int q2 = Algorithm.BinarySearch(arr[q1], arr, startIndex, midIndex, comparer);    // q2 is q1 partitioning element within the smaller sub-array (and q2 itself is part of the sub-array that does not move)
+                int q1 = (midIndex + 1) / 2 + endIndex / 2 + ((midIndex + 1) % 2 + endIndex % 2) / 2;   // q1 is mid-point of the larger segment.  length2 > length1 > 0
+                int q2 = Algorithm.BinarySearch(arr[q1], arr, startIndex, midIndex, comparer);          // q2 is q1 partitioning element within the smaller sub-array (and q2 itself is part of the sub-array that does not move)
                 int q3 = q2 + (q1 - midIndex - 1);
                 //BlockSwapReversalPar(arr, q2, midIndex, q1, threshold0);
                 //Algorithm.BlockSwapReversal(arr, q2, midIndex, q1);
@@ -349,7 +349,7 @@ namespace HPCsharp
             }
             else
             {
-                Int32 q1 = (p1 + r1) / 2;
+                Int32 q1 = p1 / 2 + r1 / 2 + (p1 % 2 + r1 % 2) / 2;                // (p1 + r1) / 2 without overflow
                 Int32 q2 = Algorithm.BinarySearch(src[q1], src, p2, r2);
                 Int32 q3 = p3 + (q1 - p1) + (q2 - p2);
                 dst[q3] = src[q1];
