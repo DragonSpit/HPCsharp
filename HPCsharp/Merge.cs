@@ -481,9 +481,9 @@ namespace HPCsharp
         /// <param name="dstStart">starting index within the destination Array where the merged sorted Array is to be placed</param>
         /// <param name="comparer">optional method to compare array elements</param>
         static public void MergeFaster<T>(T[] a, Int32 aStart, Int32 aLength,
-                                          T[] b, Int32 bStart, Int32 bLength,
-                                          T[] dst, Int32 dstStart,
-                                          IComparer<T> comparer = null)
+                                            T[] b, Int32 bStart, Int32 bLength,
+                                            T[] dst, Int32 dstStart,
+                                            IComparer<T> comparer = null)
         {
             var equalityComparer = comparer ?? Comparer<T>.Default;
             Int32 aEnd = aStart + aLength - 1;
@@ -1109,7 +1109,7 @@ namespace HPCsharp
             }
             else
             {
-                Int32 q1 = (aStart + aEnd) / 2;
+                Int32 q1 = aStart / 2 + aEnd / 2 + (aStart % 2 + aEnd % 2) / 2;    // (aStart + aEmd) / 2   without overflow
                 Int32 q2 = Algorithm.BinarySearch(src[q1], src, bStart, bEnd, comparer);
                 Int32 q3 = p3 + (q1 - aStart) + (q2 - bStart);
                 dst[q3] = src[q1];
@@ -1129,7 +1129,7 @@ namespace HPCsharp
             if (length1 >= length2)
             {
                 if (length2 <= 0) return;                       // if the smaller segment has zero elements, then nothing to merge
-                int q1 = (startIndex + midIndex) / 2;           // q1 is mid-point of the larger segment. length1 >= length2 > 0
+                int q1 = startIndex / 2 + midIndex / 2 + (startIndex % 2 + midIndex % 2) / 2;     // q1 is mid-point of the larger segment. length1 >= length2 > 0
                 int q2 = Algorithm.BinarySearch(arr[q1], arr, midIndex + 1, endIndex, comparer);  // q2 is q1 partitioning element within the smaller sub-array (and q2 itself is part of the sub-array that does not move)
                 int q3 = q1 + (q2 - midIndex - 1);
                 if ((q2 - q1) < 1024)       // TODO: Not sure if this adaptive portion is worth it
@@ -1142,8 +1142,8 @@ namespace HPCsharp
             else
             {   // length1 < length2
                 if (length1 <= 0) return;                       // if the smaller segment has zero elements, then nothing to merge
-                int q1 = (midIndex + 1 + endIndex) / 2;         // q1 is mid-point of the larger segment.  length2 > length1 > 0
-                int q2 = Algorithm.BinarySearch(arr[q1], arr, startIndex, midIndex, comparer);    // q2 is q1 partitioning element within the smaller sub-array (and q2 itself is part of the sub-array that does not move)
+                int q1 = (midIndex + 1) / 2 + endIndex / 2 + ((midIndex + 1) % 2 + endIndex % 2) / 2; // q1 is mid-point of the larger segment.  length2 > length1 > 0
+                int q2 = Algorithm.BinarySearch(arr[q1], arr, startIndex, midIndex, comparer);        // q2 is q1 partitioning element within the smaller sub-array (and q2 itself is part of the sub-array that does not move)
                 int q3 = q2 + (q1 - midIndex - 1);
                 if ((q1 - q2) < 1024)
                     Algorithm.BlockSwapReversal(arr, q2, midIndex, q1);
@@ -1174,7 +1174,7 @@ namespace HPCsharp
             }
             if (length1 >= length2)
             {
-                int q1 = (startIndex + midIndex) / 2;           // q1 is mid-point of the larger segment. length1 >= length2 > 0
+                int q1 = startIndex / 2 + midIndex / 2 + (startIndex % 2 + midIndex % 2) / 2;     // q1 is mid-point of the larger segment. length1 >= length2 > 0
                 int q2 = Algorithm.BinarySearch(arr[q1], arr, midIndex + 1, endIndex, comparer);  // q2 is q1 partitioning element within the smaller sub-array (and q2 itself is part of the sub-array that does not move)
                 int q3 = q1 + (q2 - midIndex - 1);
                 Algorithm.BlockSwapReversal(arr, q1, midIndex, q2 - 1);
@@ -1183,8 +1183,8 @@ namespace HPCsharp
             }
             else
             {   // length1 < length2
-                int q1 = (midIndex + 1 + endIndex) / 2;         // q1 is mid-point of the larger segment.  length2 > length1 > 0
-                int q2 = Algorithm.BinarySearch(arr[q1], arr, startIndex, midIndex, comparer);    // q2 is q1 partitioning element within the smaller sub-array (and q2 itself is part of the sub-array that does not move)
+                int q1 = (midIndex + 1) / 2 + endIndex / 2 + ((midIndex + 1) % 2 + endIndex % 2) / 2;  // q1 is mid-point of the larger segment.  length2 > length1 > 0
+                int q2 = Algorithm.BinarySearch(arr[q1], arr, startIndex, midIndex, comparer);         // q2 is q1 partitioning element within the smaller sub-array (and q2 itself is part of the sub-array that does not move)
                 int q3 = q2 + (q1 - midIndex - 1);
                 Algorithm.BlockSwapReversal(arr, q2, midIndex, q1);
                 MergeInPlaceDivideAndConquerHybrid(arr, startIndex, q2 - 1, q3 - 1,   buff, comparer);  // note that q3 is now in its final place and no longer participates in further processing
@@ -1251,7 +1251,7 @@ namespace HPCsharpExperimental
             }
             else
             {
-                Int32 q1 = (aStart + aEnd) / 2;
+                Int32 q1 = aStart / 2 + aEnd / 2 + (aStart % 2 + aEnd % 2) / 2;  // (aStart + aEnd) / 2   without overflow
                 Int32 q2 = HPCsharp.Algorithm.BinarySearch(src[q1], src, bStart, bEnd, comparer);
                 Int32 q3 = p3 + (q1 - aStart) + (q2 - bStart);
                 // TODO: The flaw seems to be when q2 == bStart. In this case, there may not be a split of the [bStart-bEnd] range, and we need to detect and account for this case
@@ -1311,7 +1311,7 @@ namespace HPCsharpExperimental
                 }
                 else
                 {
-                    Int32 q1 = (aStart + aEnd) / 2;
+                    Int32 q1 = aStart / 2 + aEnd / 2 + (aStart % 2 + aEnd % 2) / 2;    // (aStart + aEnd) / 2   without overflow
                     Int32 q2 = HPCsharp.Algorithm.BinarySearch(src[q1], src, bStart, bEnd, comparer);
                     Int32 q3 = p3 + (q1 - aStart) + (q2 - bStart);
                     // TODO: The flaw seems to be when q2 == bStart. In this case, there may not be a split of the [bStart-bEnd] range, and we need to detect and account for this case
@@ -1344,7 +1344,7 @@ namespace HPCsharpExperimental
                 }
                 else
                 {
-                    Int32 q1 = (bStart + bEnd) / 2;
+                    Int32 q1 = bStart / 2 + bEnd / 2 + (bStart % 2 + bEnd % 2) / 2;    // (bStart + bEnd) / 2   without overflow
                     Int32 q2 = HPCsharp.Algorithm.BinarySearch(src[q1], src, aStart, aEnd, comparer);
                     Int32 q3 = p3 + (q1 - bStart) + (q2 - aStart);
                     // TODO: The flaw seems to be when q2 == bStart. In this case, there may not be a split of the [bStart-bEnd] range, and we need to detect and account for this case
