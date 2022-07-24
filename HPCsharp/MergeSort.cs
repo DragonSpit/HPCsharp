@@ -39,7 +39,7 @@ namespace HPCsharp
         /// </summary>
         public static Int32 SortMergeInsertionThreshold { get; set; } = 16;
 
-        static internal void SortMergeInner<T>(this T[] src, int l, int r, T[] dst, bool srcToDst = true, IComparer<T> comparer = null)
+        static internal void SortMergeInner<T>(this T[] src, int l, int r, T[] dst, bool srcToDst = true, IComparer<T> comparer = null, int threshold = 1024)
         {
             if (r < l) return;
             if (r == l)
@@ -47,9 +47,11 @@ namespace HPCsharp
                 if (srcToDst) dst[l] = src[l];    // copy the single element from src to dst
                 return;
             }
-            else if ((r - l) < SortMergeInsertionThreshold)
+            //else if ((r - l) < SortMergeInsertionThreshold)
+            else if ((r - l) < threshold)
             {
-                HPCsharp.Algorithm.InsertionSort<T>(src, l, r - l + 1, comparer);  // want to do dstToSrc, can just do it in-place, just sort the src, no need to copy
+                //HPCsharp.Algorithm.InsertionSort<T>(src, l, r - l + 1, comparer);  // want to do dstToSrc, can just do it in-place, just sort the src, no need to copy
+                Array.Sort(src, l, r - l + 1, comparer);
                 if (srcToDst)
                     for (int i = l; i <= r; i++) dst[i] = src[i];	// copy from src to dst, when the result needs to be in dst
                 return;
@@ -59,8 +61,8 @@ namespace HPCsharp
             int length1 = m - l + 1;
             int length2 = r - (m + 1) + 1;
 
-            SortMergeInner(src, l,     m, dst, !srcToDst, comparer);		// reverse direction of srcToDst for the next level of recursion
-            SortMergeInner(src, m + 1, r, dst, !srcToDst, comparer);
+            SortMergeInner(src, l,     m, dst, !srcToDst, comparer, threshold);		// reverse direction of srcToDst for the next level of recursion
+            SortMergeInner(src, m + 1, r, dst, !srcToDst, comparer, threshold);
 
             if (srcToDst) Merge(src, l, length1, m + 1, length2, dst, l, comparer);
             else          Merge(dst, l, length1, m + 1, length2, src, l, comparer);
@@ -75,14 +77,14 @@ namespace HPCsharp
         /// <param name="length">number of elements to be sorted</param>
         /// <param name="comparer">comparer used to compare two array elements of type T</param>
         /// <returns>returns a sorted array of length specified</returns>
-        static public T[] SortMerge<T>(this T[] source, int startIndex, int length, IComparer<T> comparer = null)
+        static public T[] SortMerge<T>(this T[] source, int startIndex, int length, IComparer<T> comparer = null, int threshold = 1024)
         {
             T[] srcTrimmed = new T[length];
             T[] dst = new T[length];
 
             Array.Copy(source, startIndex, srcTrimmed, 0, length);
 
-            srcTrimmed.SortMergeInner<T>(0, length - 1, dst, true, comparer);
+            srcTrimmed.SortMergeInner<T>(0, length - 1, dst, true, comparer, threshold);
 
             return dst;
         }
@@ -95,11 +97,11 @@ namespace HPCsharp
         /// <param name="source">source array</param>
         /// <param name="comparer">comparer used to compare two array elements of type T</param>
         /// <returns>returns a sorted array of full length</returns>
-        static public T[] SortMerge<T>(this T[] source, IComparer<T> comparer = null)
+        static public T[] SortMerge<T>(this T[] source, IComparer<T> comparer = null, int threshold = 1024)
         {
             T[] dst = new T[source.Length];
 
-            source.SortMergeInner<T>(0, source.Length - 1, dst, true, comparer);
+            source.SortMergeInner<T>(0, source.Length - 1, dst, true, comparer, threshold);
 
             return dst;
         }
@@ -119,9 +121,9 @@ namespace HPCsharp
                 return;
             }
 
-            int m1 = (l  + r)  / 2;
-            int m0 = (l  + m1) / 2;
-            int m2 = (m1 + r)  / 2;
+            int m1 = l / 2 +  r / 2 + ( l % 2 +  r % 2) / 2;    // ( l +  r) / 2    without overflow
+            int m0 = l / 2 + m1 / 2 + ( l % 2 + m1 % 2) / 2;    // ( l + m1) / 2    without overflow
+            int m2 = m1 / 2 + r / 2 + (m1 % 2 +  r % 2) / 2;    // (m1 +  r) / 2    without overflow
             int length0 = m0 - l + 1;
             int length1 = m1 - (m0 + 1) + 1;
             int length2 = m2 - (m1 + 1) + 1;
