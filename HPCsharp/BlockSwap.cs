@@ -100,7 +100,7 @@ namespace HPCsharp
         {
             for(; l < r; l++, r--)
             {
-                T temp   = array[l];
+                T temp   = array[l];  // swap of array[l] and array[r]
                 array[l] = array[r];
                 array[r] = temp;
             }

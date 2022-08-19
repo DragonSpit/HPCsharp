@@ -27,7 +27,7 @@ namespace HPCsharp
             for (uint countIndex = 0; countIndex < counts.Length; countIndex++)
             {
                 //sortedArray.FillUsingBlockCopy((byte)countIndex, startIndex, counts[countIndex]);
-                sortedArray.FillSse((byte)countIndex, startIndex, counts[countIndex]);
+                sortedArray.Fill((byte)countIndex, startIndex, counts[countIndex]);
                 startIndex += counts[countIndex];
             }
 
@@ -42,7 +42,7 @@ namespace HPCsharp
             for (uint countIndex = 0; countIndex < counts.Length; countIndex++)
             {
                 //arrayToSort.FillUsingBlockCopy((byte)countIndex, startIndex, counts[countIndex]);
-                arrayToSort.FillSse((byte)countIndex, startIndex, counts[countIndex]);
+                arrayToSort.Fill((byte)countIndex, startIndex, counts[countIndex]);
                 startIndex += counts[countIndex];
             }
         }
@@ -62,8 +62,8 @@ namespace HPCsharp
             int startIndex = 0;
             for (uint countIndex = 0; countIndex < counts.Length; countIndex++)
             {
-                sortedArray.FillUsingBlockCopy((sbyte)(countIndex - 128), startIndex, counts[countIndex]);
-                //sortedArray.FillSse((sbyte)countIndex, startIndex, counts[countIndex]);
+                //sortedArray.FillUsingBlockCopy((sbyte)(countIndex - 128), startIndex, counts[countIndex]);
+                sortedArray.Fill((sbyte)countIndex, startIndex, counts[countIndex]);
                 startIndex += counts[countIndex];
             }
 
@@ -78,7 +78,7 @@ namespace HPCsharp
             for (uint countIndex = 0; countIndex < counts.Length; countIndex++)
             {
                 arrayToSort.FillUsingBlockCopy((sbyte)(countIndex - 128), startIndex, counts[countIndex]);
-                //arrayToSort.FillSse((byte)countIndex, startIndex, counts[countIndex]);
+                //arrayToSort.Fill((byte)countIndex, startIndex, counts[countIndex]);
                 startIndex += counts[countIndex];
             }
         }
