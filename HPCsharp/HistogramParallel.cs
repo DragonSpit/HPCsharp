@@ -92,7 +92,7 @@ namespace HPCsharp
                 return countLeft;
             }
 
-            int m = (r + l) / 2;
+            int m = r / 2 + l / 2 + (r % 2 + l % 2) / 2;   // average without overflow
 
             Parallel.Invoke(
                 () => { countLeft  = HistogramInnerPar(inArray, l,     m, parallelThreshold); },
@@ -129,7 +129,7 @@ namespace HPCsharp
                 return countLeft;
             }
 
-            int m = (r + l) / 2;
+            int m = r / 2 + l / 2 + (r % 2 + l % 2) / 2;   // average without overflow
 
             Parallel.Invoke(
                 () => { countLeft  = HistogramInnerPar(inArray, l,     m, parallelThreshold); },
@@ -184,7 +184,7 @@ namespace HPCsharp
                 return countLeft;
             }
 
-            int m = (r + l) / 2;
+            int m = r / 2 + l / 2 + (r % 2 + l % 2) / 2;   // average without overflow
 
             Parallel.Invoke(
                 () => { countLeft  = HistogramByteComponentsParInner(inArray, l,     m, parallelThreshold); },
@@ -244,7 +244,7 @@ namespace HPCsharp
                 return countLeft;
             }
 
-            int m = (r + l) / 2;
+            int m = r / 2 + l / 2 + (r % 2 + l % 2) / 2;   // average without overflow
 
             Parallel.Invoke(
                 () => { countLeft  = HistogramByteComponentsSseParInner(inArray, l,     m, parallelThreshold); },
@@ -274,7 +274,7 @@ namespace HPCsharp
             if ((r - l + 1) <= parallelThreshold)
                 return Algorithm.HistogramByteComponentsAcrossWorkQuantasQC(inArray, l, r, workQuanta, numberOfQuantas, whichByte);
 
-            int m = (r + l) / 2;
+            int m = r / 2 + l / 2 + (r % 2 + l % 2) / 2;   // average without overflow
 
             Parallel.Invoke(
                 () => { countLeft  = HistogramByteComponentsQCParInner(inArray, l,     m, workQuanta, numberOfQuantas, whichByte, parallelThreshold); },
@@ -335,7 +335,7 @@ namespace HPCsharp
                 return countLeft;
             }
 
-            int m = (r + l) / 2;
+            int m = r / 2 + l / 2 + (r % 2 + l % 2) / 2;   // average without overflow
 
             Parallel.Invoke(
                 () => { countLeft  = HistogramByteComponentsParInner(inArray, l,     m, parallelThreshold); },
@@ -395,7 +395,7 @@ namespace HPCsharp
                 return countLeft;
             }
 
-            int m = (r + l) / 2;
+            int m = r / 2 + l / 2 + (r % 2 + l % 2) / 2;   // average without overflow
 
             Parallel.Invoke(
                 () => { countLeft  = HistogramByteComponentsSseParInner(inArray, l,     m, parallelThreshold); },
@@ -462,7 +462,7 @@ namespace HPCsharp
                 return countLeft;
             }
 
-            int m = (r + l) / 2;
+            int m = r / 2 + l / 2 + (r % 2 + l % 2) / 2;   // average without overflow
 
             Parallel.Invoke(
                 () => { countLeft  = HistogramByteComponentsParInner(inArray, l,     m, parallelThreshold); },
@@ -530,7 +530,7 @@ namespace HPCsharp
                 return countLeft;
             }
 
-            int m = (r + l) / 2;
+            int m = r / 2 + l / 2 + (r % 2 + l % 2) / 2;   // average without overflow
 
             Parallel.Invoke(
                 () => { countLeft  = HistogramByteComponentsParInner(inArray, l,     m, parallelThreshold); },
@@ -598,7 +598,7 @@ namespace HPCsharp
                 return countLeft;
             }
 
-            int m = (r + l) / 2;
+            int m = r / 2 + l / 2 + (r % 2 + l % 2) / 2;   // average without overflow
 
             Parallel.Invoke(
                 () => { countLeft  = HistogramByteComponentsSseParInner(inArray, l,     m, parallelThreshold); },
@@ -633,21 +633,21 @@ namespace HPCsharp
             if ((r - l + 1) <= parallelThreshold)
                 return Algorithm.HistogramOneByteComponent(inArray, l, r, shiftRightAmount);
 
-            int m = (r + l) / 2;
+            int m = r / 2 + l / 2 + (r % 2 + l % 2) / 2;   // average without overflow
 
             Parallel.Invoke(
                 () => { countLeft  = HistogramOneByteComponentParInner(inArray, l,     m, shiftRightAmount, parallelThreshold); },
                 () => { countRight = HistogramOneByteComponentParInner(inArray, m + 1, r, shiftRightAmount, parallelThreshold); }
             );
             // Combine left and right results
-            countLeft = Algorithms.Addition.Add(countLeft, countRight);
+            Algorithms.Addition.AddTo(countLeft, countRight);
 
             return countLeft;
         }
 
         public static int[] HistogramOneByteComponentPar(long[] inArray, Int32 l, Int32 r, int parallelThreshold = 16 * 1024)
         {
-            int length = r - l + 1;
+            //int length = r - l + 1;
             //if ((parallelThreshold * Environment.ProcessorCount) < length)        // Mystery: This causes array out of bounds error
             //    parallelThreshold = length / Environment.ProcessorCount;
             //Console.WriteLine("parallelThreshold = {0}   # Cores = {1}   Array length = {2}", parallelThreshold, Environment.ProcessorCount, length);
@@ -668,14 +668,14 @@ namespace HPCsharp
             if ((r - l + 1) <= parallelThreshold)
                 return Algorithm.HistogramOneByteComponent(inArray, l, r, shiftRightAmount);
 
-            int m = (r + l) / 2;
+            int m = r / 2 + l / 2 + (r % 2 + l % 2) / 2;   // average without overflow
 
             Parallel.Invoke(
                 () => { countLeft  = HistogramOneByteComponentParInner(inArray, l,     m, shiftRightAmount, parallelThreshold); },
                 () => { countRight = HistogramOneByteComponentParInner(inArray, m + 1, r, shiftRightAmount, parallelThreshold); }
             );
             // Combine left and right results
-            countLeft = Algorithms.Addition.Add(countLeft, countRight);
+            Algorithms.Addition.AddTo(countLeft, countRight);
 
             return countLeft;
         }
