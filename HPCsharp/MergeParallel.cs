@@ -239,9 +239,9 @@ namespace HPCsharp
                 int q1 = startIndex / 2 + midIndex / 2 + (startIndex % 2 + midIndex % 2) / 2;     // q1 is mid-point of the larger segment. length1 >= length2 > 0
                 int q2 = Algorithm.BinarySearch(arr[q1], arr, midIndex + 1, endIndex, comparer);  // q2 is q1 partitioning element within the smaller sub-array (and q2 itself is part of the sub-array that does not move)
                 int q3 = q1 + (q2 - midIndex - 1);
-                //BlockSwapReversalPar(arr, q1, midIndex, q2 - 1, threshold0);
+                BlockSwapReversalPar(arr, q1, midIndex, q2 - 1, threshold0);
                 //Algorithm.BlockSwapReversal(arr, q1, midIndex, q2 - 1);
-                Algorithm.BlockSwapGriesMills(arr, q1, midIndex, q2 - 1);
+                //Algorithm.BlockSwapGriesMills(arr, q1, midIndex, q2 - 1);
 
                 if (length1 < threshold1)
                 {
@@ -262,9 +262,9 @@ namespace HPCsharp
                 int q1 = (midIndex + 1) / 2 + endIndex / 2 + ((midIndex + 1) % 2 + endIndex % 2) / 2;   // q1 is mid-point of the larger segment.  length2 > length1 > 0
                 int q2 = Algorithm.BinarySearch(arr[q1], arr, startIndex, midIndex, comparer);          // q2 is q1 partitioning element within the smaller sub-array (and q2 itself is part of the sub-array that does not move)
                 int q3 = q2 + (q1 - midIndex - 1);
-                //BlockSwapReversalPar(arr, q2, midIndex, q1, threshold0);
+                BlockSwapReversalPar(arr, q2, midIndex, q1, threshold0);
                 //Algorithm.BlockSwapReversal(arr, q2, midIndex, q1);
-                Algorithm.BlockSwapGriesMills(arr, q2, midIndex, q1);
+                //Algorithm.BlockSwapGriesMills(arr, q2, midIndex, q1);
 
                 if (length1 < threshold1)
                 {
@@ -312,7 +312,7 @@ namespace HPCsharp
                     Algorithm.MergeInPlaceDivideAndConquer(arr, startIndex, midIndex, endIndex, comparer);      // Serial In-Place Merge
                 }
             }
-        }
+       }
 
         /// <summary>
         /// Smaller than threshold will use non-parallel algorithm to merge arrays
