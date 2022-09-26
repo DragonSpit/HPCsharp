@@ -28,7 +28,9 @@ namespace HPCsharpExamples
     {
         public int Compare(UserDefinedClass first, UserDefinedClass second)
         {
-            return (int)first.Key - (int)second.Key;
+            if (first.Key > second.Key) return  1;
+            if (first.Key < second.Key) return -1;
+            else return 0;
         }
     }
 
