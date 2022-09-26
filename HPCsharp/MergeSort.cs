@@ -68,6 +68,35 @@ namespace HPCsharp
             else          Merge(dst, l, length1, m + 1, length2, src, l, comparer);
         }
 
+        static internal void SortMergeInner2<T>(this T[] src, int l, int r, T[] dst, bool srcToDst = true, IComparer<T> comparer = null, int threshold = 32)
+        {
+            if (r < l) return;
+            if (r == l)
+            {    // termination/base case of sorting a single element
+                if (srcToDst) dst[l] = src[l];    // copy the single element from src to dst
+                return;
+            }
+            //else if ((r - l) < SortMergeInsertionThreshold)
+            else if ((r - l) < threshold)
+            {
+                HPCsharp.Algorithm.InsertionSort<T>(src, l, r - l + 1, comparer);  // want to do dstToSrc, can just do it in-place, just sort the src, no need to copy
+                //Array.Sort(src, l, r - l + 1, comparer);
+                if (srcToDst)
+                    for (int i = l; i <= r; i++) dst[i] = src[i];	// copy from src to dst, when the result needs to be in dst
+                return;
+            }
+
+            int m = r / 2 + l / 2 + (r % 2 + l % 2) / 2;    // (l + r) / 2 without overflow or underflow
+            int length1 = m - l + 1;
+            int length2 = r - (m + 1) + 1;
+
+            SortMergeInner(src, l, m, dst, !srcToDst, comparer, threshold);		// reverse direction of srcToDst for the next level of recursion
+            SortMergeInner(src, m + 1, r, dst, !srcToDst, comparer, threshold);
+
+            if (srcToDst) Merge(src, l, length1, m + 1, length2, dst, l, comparer);
+            else Merge(dst, l, length1, m + 1, length2, src, l, comparer);
+        }
+
         /// <summary>
         /// Take a segment of the src array, sort it using the Merge Sort algorithm, and then return just the sorted range
         /// </summary>
@@ -171,6 +200,7 @@ namespace HPCsharp
             MergeInPlaceDivideAndConquer(arr, startIndex, midIndex, endIndex, comparer);      // merge the results
         }
 
+        // Using Array.Sort makes this algorithm not-stable. Using Insertion Sort, even though it's much slower will keep the overall algorithm stable.
         private static void SortMergeInPlaceAdaptiveInner<T>(this T[] arr, int startIndex, int endIndex, IComparer<T> comparer = null, int threshold = 16 * 1024)
         {
             if (endIndex <= startIndex) return;
@@ -187,9 +217,34 @@ namespace HPCsharp
             MergeInPlaceAdaptiveDivideAndConquer(arr, startIndex, midIndex, endIndex, comparer);    // merge the results
         }
 
+        /// <summary>
+        /// Take a segment of the source array, and sort it in place using the Merge Sort algorithm
+        /// This algorithm uses a not in-place verion when there is enough memory available, allocating an array of the same size as the input array.
+        /// When there is not enough memory, a purely in-place merge is used, which is slower.
+        /// This sort is not stable.
+        /// </summary>
+        /// <typeparam name="T">array of type T</typeparam>
+        /// <param name="arr">source array</param>
+        /// <param name="comparer">comparer used to compare two array elements of type T</param>
         static public void SortMergeInPlaceUsingAdaptiveMerge<T>(this T[] arr, IComparer<T> comparer = null)
         {
             arr.SortMergeInPlaceAdaptiveInner<T>(0, arr.Length - 1, comparer);
+        }
+
+        /// <summary>
+        /// Take a segment of the source array, and sort it in place using the Merge Sort algorithm
+        /// This algorithm uses a not in-place verion when there is enough memory available, allocating an array of the same size as the input array.
+        /// When there is not enough memory, a purely in-place merge is used, which is slower.
+        /// This sort is not stable.
+        /// </summary>
+        /// <typeparam name="T">array of type T</typeparam>
+        /// <param name="arr">source array</param>
+        /// <param name="startIndex">index within the array where sorting starts, inclusive</param>
+        /// <param name="length">number of elements to be sorted</param>
+        /// <param name="comparer">comparer used to compare two array elements of type T</param>
+        static public void SortMergeInPlaceUsingAdaptiveMerge<T>(this T[] arr, int startIndex, int length, IComparer<T> comparer = null)
+        {
+            arr.SortMergeInPlaceAdaptiveInner<T>(startIndex, startIndex + length - 1, comparer);
         }
 
         /// <summary>
