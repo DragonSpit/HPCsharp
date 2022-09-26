@@ -1193,7 +1193,7 @@ namespace HPCsharp
         }
         /// <summary>
         /// Divide-and-Conquer In-Place Adaptive Merge of two ranges of source array src[ startIndex .. midIndex ] and src[ midIndex+1 .. endIndex ] in-place
-        /// This merge is not stable.
+        /// This merge is stable.
         /// </summary>
         /// <typeparam name="T">data type of each array element</typeparam>
         /// <param name="arr">source array</param>
@@ -1205,15 +1205,16 @@ namespace HPCsharp
         {
             if ((endIndex - startIndex) < threshold)
             {
-                MergeInPlaceDivideAndConquer(arr, startIndex, midIndex, endIndex, comparer);
+                MergeInPlaceDivideAndConquer(arr, startIndex, midIndex, endIndex, comparer);    // purely in-place merge
             }
             else
             {
                 try
                 {
-                    T[] tmpBuff = new T[arr.Length];
-                    MergeDivideAndConquer(arr, startIndex, midIndex, midIndex + 1, endIndex, tmpBuff, startIndex, comparer);
-                    Array.Copy(tmpBuff, startIndex, arr, startIndex, endIndex - startIndex + 1);
+                    int length = endIndex - startIndex + 1;
+                    T[] tmpBuff = new T[length];
+                    MergeDivideAndConquer(arr, startIndex, midIndex, midIndex + 1, endIndex, tmpBuff, 0, comparer);
+                    Array.Copy(tmpBuff, 0, arr, startIndex, length);
                 }
                 catch (System.OutOfMemoryException)
                 {
