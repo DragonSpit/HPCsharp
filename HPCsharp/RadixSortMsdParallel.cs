@@ -254,6 +254,8 @@ namespace HPCsharp
             return arrayToBeSorted;
         }
 
+        // TODO: Fix this broken version!! Does not work for random values with 10M or 100M array elements!!
+        // It also seems wrong, as it calls a different function instead of itself recursively. Seems like it should call itself recursively.
         private static void RadixSortMsdUIntParInner(uint[] a, int first, int length, int shiftRightAmount, Action<uint[], int, int> baseCaseInPlaceSort)
         {
             int last = first + length - 1;
