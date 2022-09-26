@@ -10,7 +10,9 @@
 //       create a parallel for loop functionality, where we make an array/list of tasks (I already do this in spots), each one on cache-line boundary and then hand that array to TPL to execute in parallel.
 // TODO: For generic implementation of SSE limit the data types to numeric, like generic scalar version does.
 // TODO: Benchmark Fill on quad-channel and 8-channel and higher machines in AWS, to see how well these scale.
-// TODO: If FillUsingBlockCopy runs faster than scalar Fill, then implement a parallel version using it.
+// TODO: Fix a array-out-of-bounds bug in         public static void FillSse(this byte[] arrayToFill, byte value, int startIndex, int length)
+// TODO: Fix an out-of-bounds bug in FillSse method. Only then put it back as being public
+
 
 using System;
 using System.Collections.Generic;
@@ -22,48 +24,49 @@ namespace HPCsharp
 {
     static public partial class ParallelAlgorithm
     {
-        public static void FillPar<T>(this T[] arrayToFill, T value) where T : struct
+        public static void FillPar<T>(this T[] arrayToFill, T value, int parallelThreshold = 16 * 1024) where T : struct
         {
-            int m = arrayToFill.Length / 2;
-            int lengthOf2ndHalf = arrayToFill.Length - m;
-            Parallel.Invoke(
-                () => { Algorithm.Fill<T>(arrayToFill, value, 0, m              ); },
-                () => { Algorithm.Fill<T>(arrayToFill, value, m, lengthOf2ndHalf); }
-            );
+            FillPar(arrayToFill, value, 0, arrayToFill.Length, parallelThreshold);
         }
 
-        public static void FillPar<T>(this T[] arrayToFill, T value, int startIndex, int length) where T : struct
+        public static void FillPar<T>(this T[] arrayToFill, T value, int startIndex, int length, int parallelThreshold = 16 * 1024) where T : struct
         {
+            if ( length <= parallelThreshold)
+            {
+                Algorithm.Fill<T>(arrayToFill, value, startIndex, length);
+                return;
+            }
             int m = length / 2;
             int lengthOf2ndHalf = length - m;
             Parallel.Invoke(
-                () => { Algorithm.Fill<T>(arrayToFill, value, startIndex,     m              ); },
-                () => { Algorithm.Fill<T>(arrayToFill, value, startIndex + m, lengthOf2ndHalf); }
+                () => { FillPar(arrayToFill, value, startIndex,     m              , parallelThreshold); },
+                () => { FillPar(arrayToFill, value, startIndex + m, lengthOf2ndHalf, parallelThreshold); }
             );
         }
 
-        // TODO: Figure out why these are not scaling well
         private static void FillPar(this byte[] arrayToFill, byte value)
         {
-            int m = arrayToFill.Length / 2;
-            int lengthOf2ndHalf = arrayToFill.Length - m;
-            Parallel.Invoke(
-                () => { Algorithm.Fill(arrayToFill, value, 0, m              ); },
-                () => { Algorithm.Fill(arrayToFill, value, m, lengthOf2ndHalf); }
-            );
+            FillPar(arrayToFill, value, 0, arrayToFill.Length);
         }
 
-        private static void FillPar(this byte[] arrayToFill, byte value, int startIndex, int length)
+        private static void FillPar(this byte[] arrayToFill, byte value, int startIndex, int length, int parallelThreshold = 16 * 1024)
         {
+            if (length <= parallelThreshold)
+            {
+                Algorithm.Fill(arrayToFill, value, startIndex, length);
+                //Algorithm.FillUsingBlockCopy(arrayToFill, value, startIndex, length);
+                return;
+            }
             int m = length / 2;
             int lengthOf2ndHalf = length - m;
             Parallel.Invoke(
-                () => { Algorithm.Fill(arrayToFill, value, startIndex, m); },
-                () => { Algorithm.Fill(arrayToFill, value, startIndex + m, lengthOf2ndHalf); }
+                () => { FillPar(arrayToFill, value, startIndex,     m              , parallelThreshold); },
+                () => { FillPar(arrayToFill, value, startIndex + m, lengthOf2ndHalf, parallelThreshold); }
             );
         }
 
-        public static void FillGenericSse<T>(this T[] arrayToFill, T value) where T : struct
+        // Horrible performance!
+        private static void FillGenericSse<T>(this T[] arrayToFill, T value) where T : struct
         {
             var fillVector = new Vector<T>(value);
             int numFullVectorsIndex = (arrayToFill.Length / Vector<T>.Count) * Vector<T>.Count;
@@ -74,7 +77,8 @@ namespace HPCsharp
                 arrayToFill[i] = value;
         }
 
-        public static void FillGenericSse<T>(this T[] arrayToFill, T value, int startIndex, int length) where T : struct
+        // Horrible performacne!
+        private static void FillGenericSse<T>(this T[] arrayToFill, T value, int startIndex, int length) where T : struct
         {
             var fillVector = new Vector<T>(value);
             int numFullVectorsIndex = (length / Vector<T>.Count) * Vector<T>.Count;
@@ -85,7 +89,8 @@ namespace HPCsharp
                 arrayToFill[i] = value;
         }
 
-        public static void FillSse(this byte[] arrayToFill, byte value)
+        // TODO: Fix an out-of-bounds bug in this method. Only then put it back as being public
+        private static void FillSse(this byte[] arrayToFill, byte value)
         {
             var fillVector = new Vector<byte>(value);
             int endOfFullVectorsIndex = (arrayToFill.Length / Vector<byte>.Count) * Vector<byte>.Count;
@@ -103,7 +108,8 @@ namespace HPCsharp
                 arrayToFill[i] = value;
         }
 
-        public static void FillSse(this byte[] arrayToFill, byte value, int startIndex, int length)
+        // TODO: Fix an out-of-bounds bug in this method. Only then put it back as being public
+        private static void FillSse(this byte[] arrayToFill, byte value, int startIndex, int length)
         {
             var fillVector = new Vector<byte>(value);
             int endOfFullVectorsIndex, numBytesUnaligned, i = startIndex;
