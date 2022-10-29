@@ -8,7 +8,8 @@
     <Description>Parallel high performance cross-platform C#/.NET algorithms. 28+ algorithms with familiar interfaces and examples. Multi-core and data parallel (SIMD/SSE). Open source and free. See project Readme, blog, and videos...</Description>
     <Copyright>© 2018 FooState</Copyright>
     <PackageLicenseUrl></PackageLicenseUrl>
-    <PackageReleaseNotes>Fixed average calculations in many recursive algorithms and Binary Search to not have overflow/underflow.</PackageReleaseNotes>
+    <PackageReleaseNotes>Fixed average calculations in many recursive algorithms and Binary Search to not have overflow/underflow.
+Reduced memory usage of Adaptive In-Place Merge. Added In-Place Adaptive Merge Sort using this memory optimized Adaptive In-Place Merge with starting index and length to specify array range to be sorted in-place. Improved organization of Parallel Fill, and removed usage of SSE versions due to a bug.</PackageReleaseNotes>
     <PackageId>HPCsharp</PackageId>
     <PackageTags>high perfromance algorithms, C#, high performance, high performance computing, HPC, algorithm, algorithms, Linq, parallel, parallel algorithm</PackageTags>
     <PackageIconUrl>https://foostate.com/images/default_lib_icon_64.png</PackageIconUrl>
