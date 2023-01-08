@@ -434,7 +434,7 @@ namespace HPCsharp
             uint numberOfBins = 1 << bitsPerDigit;
             uint numberOfDigits = (sizeof(uint) * 8 + bitsPerDigit - 1) / bitsPerDigit;
             //Console.WriteLine("SortRadix: NumberOfDigits = {0}", numberOfDigits);
-            uint[] workBuffer = new uint[inOutArray.Length];
+            uint[] workBuffer = new uint[inOutArray.Length];    // TODO: Reduce to length instead of inOutArray.Length
             int d;
 
             uint[][] startOfBin = new uint[numberOfDigits][];

@@ -55,7 +55,7 @@ namespace HPCsharp
 
             uint[] sizeOfBin = new uint[numberOfBins];
 
-            // Determine the overall size of each bin, across all work quantas
+            // Determine the overall size of each bin, across all work quanta
             for (uint b = 0; b < numberOfBins; b++)
             {
                 sizeOfBin[b] = 0;
@@ -130,27 +130,27 @@ namespace HPCsharp
         /// <summary>
         /// Fully Parallel Sort an array of unsigned integers using LSD Radix Sorting algorithm (least significant digit - LSD)
         /// This algorithm is stable, and is not in-place. Counting portion and permutation are both parallel.
-        /// This method is referenced in the Parallel LSD Radix Sort section of Victor's book.
+        /// This method is referenced in the Parallel LSD Radix Sort section of Practical Parallel Algorithms Book
         /// </summary>
         /// <param name="inputArray">array of unsigned integers to be sorted</param>
-        /// <param name="SortRadixParallelWorkQuanta">number of array elements each core will process</param>
+        /// <param name="ParallelWorkQuantum">number of array elements each core will process</param>
         /// <returns>sorted array of unsigned integers</returns>
-        public static uint[] SortRadixPar(this uint[] inputArray, int SortRadixParallelWorkQuanta = 64 * 1024)
+        public static uint[] SortRadixPar(this uint[] inputArray, int ParallelWorkQuantum = 64 * 1024)
         {
             const int NumberOfBins = 256;
             int Log2ofPowerOfTwoRadix = 8;
             uint[] outputArray = new uint[inputArray.Length];
             bool outputArrayHasResult = false;
-            uint numberOfQuantas = (inputArray.Length % SortRadixParallelWorkQuanta) == 0 ? (uint)(inputArray.Length / SortRadixParallelWorkQuanta)
-                                                                                          : (uint)(inputArray.Length / SortRadixParallelWorkQuanta + 1);
+            uint quanta = (inputArray.Length % ParallelWorkQuantum) == 0 ? (uint)(inputArray.Length / ParallelWorkQuantum)
+                                                                         : (uint)(inputArray.Length / ParallelWorkQuantum + 1);
             // Setup de-randomization buffers for writes during the permutation phase
             const uint BufferDepth = 64;
-            uint[][] bufferDerandomize = new uint[numberOfQuantas][];
-            for (int q = 0; q < numberOfQuantas; q++)
+            uint[][] bufferDerandomize = new uint[quanta][];
+            for (int q = 0; q < quanta; q++)
                 bufferDerandomize[q] = new uint[NumberOfBins * BufferDepth];
 
-            uint[][] bufferIndex = new uint[numberOfQuantas][];
-            for (int q = 0; q < numberOfQuantas; q++)
+            uint[][] bufferIndex = new uint[quanta][];
+            for (int q = 0; q < quanta; q++)
             {
                 bufferIndex[q] = new uint[NumberOfBins];
                 bufferIndex[q][0] = 0;
@@ -174,27 +174,27 @@ namespace HPCsharp
 
             while (bitMask != 0)    // end processing digits when all the mask bits have been processed and shifted out, leaving no bits set in the bitMask
             {
-                uint[][] startOfBin = ComputeStartOfBinsPar(inputArray, SortRadixParallelWorkQuanta, numberOfQuantas, digit);
+                uint[][] startOfBin = ComputeStartOfBinsPar(inputArray, ParallelWorkQuantum, quanta, digit);
 
                 // The last work item may not have the full parallelWorkQuanta of items to process
-                uint numberOfFullQuantas = (uint)(inputArray.Length / SortRadixParallelWorkQuanta);
-                Task[] taskArray = new Task[numberOfQuantas];
+                uint numberOfFullQuantas = (uint)(inputArray.Length / ParallelWorkQuantum);
+                Task[] taskArray = new Task[quanta];
                 uint q;
                 for (q = 0; q < numberOfFullQuantas; q++)
                 {
-                    uint current = (uint)(q * SortRadixParallelWorkQuanta);
+                    uint current = (uint)(q * ParallelWorkQuantum);
                     taskArray[q] = Task.Factory.StartNew((Object obj) => {
                         CustomData data = obj as CustomData;
-                        uint endIndex = (uint)(data.current + SortRadixParallelWorkQuanta);
+                        uint endIndex = (uint)(data.current + ParallelWorkQuantum);
 
                         SortRadixDeRandomizedInnerFunction(inputArray, outputArray, startOfBin, bufferIndex, bufferDerandomize, bufferIndexEnd, data, endIndex, BufferDepth, NumberOfBins);
                     },
                     new CustomData() { current = current, q = q, bitMask = bitMask, shiftRightAmount = shiftRightAmount }
                     );
                 }
-                if (numberOfQuantas > numberOfFullQuantas)      // last partially filled workQuanta
+                if (quanta > numberOfFullQuantas)      // last partially filled workQuantum
                 {
-                    uint current = (uint)(q * SortRadixParallelWorkQuanta);
+                    uint current = (uint)(q * ParallelWorkQuantum);
                     taskArray[q] = Task.Factory.StartNew((Object obj) => {
                         CustomData data = obj as CustomData;
                         uint endIndex = (uint)inputArray.Length;
@@ -204,7 +204,7 @@ namespace HPCsharp
                     new CustomData() { current = current, q = q, bitMask = bitMask, shiftRightAmount = shiftRightAmount }
                     );
                 }
-                Task.WaitAll(taskArray);    // wait for all work quantas to finish before starting the next pass, as passes have to be done in sequence
+                Task.WaitAll(taskArray);    // wait for all work quanta to finish before starting the next pass, as passes have to be done in sequence
 
                 bitMask <<= Log2ofPowerOfTwoRadix;
                 digit++;
@@ -290,6 +290,78 @@ namespace HPCsharp
                     inputArray[current] = outputArray[current];
 
             return inputArray;
+        }
+        /// <summary>
+        /// Sort an array of unsigned integers using Radix Sorting algorithm (least significant digit variation - LSD)
+        /// This algorithm is not in-place. This algorithm is stable. Two-phase implementation.
+        /// </summary>
+        /// <param name="inOutArray">array of unsigned integers to be sorted, and where the sorted array will be returned</param>
+        /// <param name="startIndex">index of the first element where sorting is to start</param>
+        /// <param name="length">number of array elements to sort</param>
+        /// <returns>sorted array of unsigned integers</returns>
+        public static void SortRadixPartialPar(this uint[] inOutArray, int startIndex, int length, int parallelThresholdHistogram = 16 * 1024)
+        {
+            const int bitsPerDigit = 8;
+            uint numberOfBins = 1 << bitsPerDigit;
+            uint numberOfDigits = (sizeof(uint) * 8 + bitsPerDigit - 1) / bitsPerDigit;
+            //Console.WriteLine("SortRadix: NumberOfDigits = {0}", numberOfDigits);
+            uint[] workBuffer = new uint[inOutArray.Length];    // TODO: Reduce to length instead of inOutArray.Length
+            int d;
+
+            uint[][] startOfBin = new uint[numberOfDigits][];
+            for (int i = 0; i < numberOfDigits; i++)
+                startOfBin[i] = new uint[numberOfBins];
+            bool outputArrayHasResult = false;
+
+            uint bitMask = numberOfBins - 1;
+            int shiftRightAmount = 0;
+
+            //Stopwatch stopwatch = new Stopwatch();
+            //long frequency = Stopwatch.Frequency;
+            ////Console.WriteLine("  Timer frequency in ticks per second = {0}", frequency);
+            //long nanosecPerTick = (1000L * 1000L * 1000L) / frequency;
+
+            //stopwatch.Restart();
+            if ((parallelThresholdHistogram * Environment.ProcessorCount) <= length)
+                parallelThresholdHistogram = inOutArray.Length / Environment.ProcessorCount;
+
+            uint[][] count = HistogramByteComponentsPar(inOutArray, startIndex, startIndex + length - 1, parallelThresholdHistogram);
+
+            //uint[][] count = HistogramByteComponents(inOutArray, startIndex, startIndex + length - 1);
+            //stopwatch.Stop();
+            //double timeForCounting = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
+            //Console.WriteLine("Time for counting: {0}", timeForCounting);
+
+            for (d = 0; d < numberOfDigits; d++)
+            {
+                startOfBin[d][0] = (uint)startIndex;
+                for (uint i = 1; i < numberOfBins; i++)
+                    startOfBin[d][i] = startOfBin[d][i - 1] + count[d][i - 1];
+            }
+
+            d = 0;
+            while (bitMask != 0)    // end processing digits when all the mask bits have been processed and shifted out, leaving no bits set in the bitMask
+            {
+                //stopwatch.Restart();
+                uint[] startOfBinLoc = startOfBin[d];
+                for (int current = startIndex; current < (startIndex + length); current++)
+                {
+                    workBuffer[startOfBinLoc[(inOutArray[current] & bitMask) >> shiftRightAmount]++] = inOutArray[current];
+                    //Console.WriteLine("curr: {0}, index: {1}, startOfBin: {2}", current, (inputArray[current] & bitMask) >> shiftRightAmount, startOfBinLoc[(inputArray[current] & bitMask) >> shiftRightAmount]);
+                }
+                //stopwatch.Stop();
+                //double timeForPermuting = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
+                //Console.WriteLine("Time for permuting: {0}", timeForPermuting);
+
+                bitMask <<= bitsPerDigit;
+                shiftRightAmount += bitsPerDigit;
+                outputArrayHasResult = !outputArrayHasResult;
+                d++;
+
+                uint[] tmp = inOutArray;       // swap input and output arrays
+                inOutArray = workBuffer;
+                workBuffer = tmp;
+            }
         }
 
         /// <summary>
@@ -827,7 +899,7 @@ namespace HPCsharp
                         startOfBin[q][d][b] += startOfThisBin;
                 }
                 //for (int d = 0; d < numDigits; d++)
-                //    for (uint q = 0; q < numberOfQuantas; q++)
+                //    for (uint q = 0; q < quanta; q++)
                 //    {
                 //        Console.WriteLine("s: q = {0}   d = {1}", q, d);
                 //        for (uint b = 0; b < numberOfBins; b++)

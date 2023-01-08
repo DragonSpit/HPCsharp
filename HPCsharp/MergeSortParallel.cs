@@ -306,7 +306,7 @@ namespace HPCsharp
             }
             else if ((r - l) <= parallelThreshold)
             {
-                HPCsharp.Algorithm.SortMergeInner<T>(src, l, r, dst, srcToDst, comparer);
+                HPCsharp.Algorithm.SortMergeInner<T>(src, l, r, dst, true, srcToDst, comparer);
                 return;
             }
             int m = ((r + l) / 2);
@@ -491,13 +491,13 @@ namespace HPCsharp
         /// <param name="length">number of elements starting with startIndex to be sorted</param>
         /// <param name="comparer">comparer used to compare two array elements of type T</param>
         /// <param name="parallelThreshold">arrays larger than this value will be sorted using multiple cores</param>
-        public static void SortMergeInPlacePar<T>(this T[] src, int startIndex, int length, IComparer<T> comparer = null, int parallelThreshold = 16 * 1024)
-        {
-            if ((parallelThreshold * Environment.ProcessorCount) < src.Length)
-                parallelThreshold = src.Length / Environment.ProcessorCount;
+public static void SortMergeInPlacePar<T>(this T[] src, int startIndex, int length, IComparer<T> comparer = null, int parallelThreshold = 16 * 1024)
+{
+    if ((parallelThreshold * Environment.ProcessorCount) < src.Length)
+        parallelThreshold = src.Length / Environment.ProcessorCount;
 
-            SortMergeInPlaceHybridInnerPar<T>(src, startIndex, startIndex + length - 1, comparer, parallelThreshold);
-        }
+    SortMergeInPlaceHybridInnerPar<T>(src, startIndex, startIndex + length - 1, comparer, parallelThreshold);
+}
         // start and end indexes are inclusive
         private static void SortMergeInPlaceHybridInnerPar<T>(this T[] src, int startIndex, int endIndex, IComparer<T> comparer = null, int threshold0 = 16 * 1024,
                                                               int threshold1 = 256 * 1024, int threshold2 = 256 * 1024 )
@@ -806,9 +806,10 @@ namespace HPCsharp
             else if ((r - l) <= parallelThreshold)
             {
                 // TODO: this version of the algorithm isn't the fastest two phase version. Did I mean it could be the one with parallel Counting?
-                // TODO: Also, make/use a non-in-place version, where the dst array is provided
-                HPCsharp.Algorithm.SortRadix(src, l, r - l + 1);
-                //HPCsharp.Algorithm.SortRadixDerandomizeWrites(src, l, r - l + 1);
+                // TODO: Also, make/use a non-in-place version, where the dst array is provided to avoid allocations. Plus, current allocations are huge
+                HPCsharp.Algorithm.SortRadix(src, l, r - l + 1);                        // fastest
+                //SortRadixPartialPar(src, l, r - l + 1);                               // slower
+                //HPCsharp.Algorithm.SortRadixDerandomizeWrites(src, l, r - l + 1);     // slower
                 if (srcToDst)
                     for (int i = l; i <= r; i++) dst[i] = src[i];   // TODO: use Array.Copy
                 return;
@@ -876,7 +877,8 @@ namespace HPCsharp
             src.SortMergeHybridWithRadixInnerPar<T>(0, src.Length - 1, workBuffer, true, getKey, comparer, parallelThreshold);
         }
         /// <summary>
-        /// Parallel Merge Sort. Takes a range of the src array, sorts it, and then returns just the sorted range, with a Pseudo in-place algorithm.
+        /// Parallel Merge Sort. Takes a range of the src array, sorts it, and then returns just the sorted range.
+        /// Not in-place algorithm with an in-place interface.
         /// </summary>
         /// <typeparam name="T">array of type T</typeparam>
         /// <param name="src">source array</param>
@@ -901,7 +903,7 @@ namespace HPCsharp
         }
         /// <summary>
         /// Parallel Merge Sort, which uses Radix Sort as the recursion base-case.
-        /// Pseudo in-place algorithm.
+        /// Not in-place algorithm with an in-place interface.
         /// </summary>
         /// <param name="src">source array</param>
         /// <param name="parallelThreshold">arrays larger than this value will be sorted using multiple cores</param>

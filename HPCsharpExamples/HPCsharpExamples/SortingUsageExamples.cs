@@ -33,13 +33,13 @@ namespace HPCsharpExamples
 
             // Not In-Place Sorting (Parallel)
             sortedArrayOne = ArrayOne.AsParallel().OrderBy(i => i).ToArray();   // Linq Sort (parallel)
-            sortedArrayOne = ArrayOne.SortMergePar();                           // HPCsharp Merge Sort (parallel)
-            sortedArrayOne = ArrayOne.SortMergePar( 1, ArrayOne.Length - 1);    // HPCsharp Merge Sort (parallel)
-            sortedArrayOne = ArrayOne.SortRadixPar();                           // HPCsharp Radix Sort (parallel)
+                        sortedArrayOne = ArrayOne.SortMergePar();                           // HPCsharp Merge Sort (parallel)
+                        sortedArrayOne = ArrayOne.SortMergePar( 1, ArrayOne.Length - 1);    // HPCsharp Merge Sort (parallel)
+                        sortedArrayOne = ArrayOne.SortRadixPar();                           // HPCsharp Radix Sort (parallel)
 
-            // Other Sorts
-            // Insertion Sort - O(N^2) - use only for sorting fewer than 50 elements
-            // Counting  Sort - O(N)   - only for byte, short, ubyte, ushort arrays
+                        // Other Sorts
+                        // Insertion Sort - O(N^2) - use only for sorting fewer than 50 elements
+                        // Counting  Sort - O(N)   - only for byte, short, ubyte, ushort arrays
         }
     }
 }

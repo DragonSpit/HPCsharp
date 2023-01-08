@@ -39,7 +39,7 @@ namespace HPCsharp
         /// </summary>
         public static Int32 SortMergeInsertionThreshold { get; set; } = 16;
 
-        static internal void SortMergeInner<T>(this T[] src, int l, int r, T[] dst, bool srcToDst = true, IComparer<T> comparer = null, int threshold = 1024)
+        static internal void SortMergeInner<T>(this T[] src, int l, int r, T[] dst, bool stable = true, bool srcToDst = true, IComparer<T> comparer = null, int threshold = 1024)
         {
             if (r < l) return;
             if (r == l)
@@ -47,10 +47,18 @@ namespace HPCsharp
                 if (srcToDst) dst[l] = src[l];    // copy the single element from src to dst
                 return;
             }
-            //else if ((r - l) < SortMergeInsertionThreshold)
+            if (stable)
+            {
+                if ((r - l) < SortMergeInsertionThreshold)
+                {
+                    HPCsharp.Algorithm.InsertionSort<T>(src, l, r - l + 1, comparer);  // want to do dstToSrc, can just do it in-place, just sort the src, no need to copy
+                    if (srcToDst)
+                        for (int i = l; i <= r; i++) dst[i] = src[i];   // copy from src to dst, when the result needs to be in dst
+                    return;
+                }
+            }
             else if ((r - l) < threshold)
             {
-                //HPCsharp.Algorithm.InsertionSort<T>(src, l, r - l + 1, comparer);  // want to do dstToSrc, can just do it in-place, just sort the src, no need to copy
                 Array.Sort(src, l, r - l + 1, comparer);
                 if (srcToDst)
                     for (int i = l; i <= r; i++) dst[i] = src[i];	// copy from src to dst, when the result needs to be in dst
@@ -61,8 +69,8 @@ namespace HPCsharp
             int length1 = m - l + 1;
             int length2 = r - (m + 1) + 1;
 
-            SortMergeInner(src, l,     m, dst, !srcToDst, comparer, threshold);		// reverse direction of srcToDst for the next level of recursion
-            SortMergeInner(src, m + 1, r, dst, !srcToDst, comparer, threshold);
+            SortMergeInner(src, l,     m, dst, stable, !srcToDst, comparer, threshold);		// reverse direction of srcToDst for the next level of recursion
+            SortMergeInner(src, m + 1, r, dst, stable, !srcToDst, comparer, threshold);
 
             if (srcToDst) Merge(src, l, length1, m + 1, length2, dst, l, comparer);
             else          Merge(dst, l, length1, m + 1, length2, src, l, comparer);
@@ -90,11 +98,11 @@ namespace HPCsharp
             int length1 = m - l + 1;
             int length2 = r - (m + 1) + 1;
 
-            SortMergeInner(src, l, m, dst, !srcToDst, comparer, threshold);		// reverse direction of srcToDst for the next level of recursion
-            SortMergeInner(src, m + 1, r, dst, !srcToDst, comparer, threshold);
+            SortMergeInner2(src, l,     m, dst, !srcToDst, comparer, threshold);		// reverse direction of srcToDst for the next level of recursion
+            SortMergeInner2(src, m + 1, r, dst, !srcToDst, comparer, threshold);
 
             if (srcToDst) Merge(src, l, length1, m + 1, length2, dst, l, comparer);
-            else Merge(dst, l, length1, m + 1, length2, src, l, comparer);
+            else          Merge(dst, l, length1, m + 1, length2, src, l, comparer);
         }
 
         /// <summary>
@@ -104,16 +112,17 @@ namespace HPCsharp
         /// <param name="source">source array</param>
         /// <param name="startIndex">index within the src array where sorting starts</param>
         /// <param name="length">number of elements to be sorted</param>
+        /// <param name="stable">set to true for stable sorting</param>
         /// <param name="comparer">comparer used to compare two array elements of type T</param>
         /// <returns>returns a sorted array of length specified</returns>
-        static public T[] SortMerge<T>(this T[] source, int startIndex, int length, IComparer<T> comparer = null, int threshold = 1024)
+        static public T[] SortMerge<T>(this T[] source, int startIndex, int length, bool stable = true, IComparer<T> comparer = null, int threshold = 1024)
         {
             T[] srcTrimmed = new T[length];
             T[] dst = new T[length];
 
             Array.Copy(source, startIndex, srcTrimmed, 0, length);
 
-            srcTrimmed.SortMergeInner<T>(0, length - 1, dst, true, comparer, threshold);
+            srcTrimmed.SortMergeInner<T>(0, length - 1, dst, stable, true, comparer, threshold);
 
             return dst;
         }
@@ -124,13 +133,14 @@ namespace HPCsharp
         /// </summary>
         /// <typeparam name="T">array of type T</typeparam>
         /// <param name="source">source array</param>
+        /// <param name="stable">set to true for stable sort</param>
         /// <param name="comparer">comparer used to compare two array elements of type T</param>
         /// <returns>returns a sorted array of full length</returns>
-        static public T[] SortMerge<T>(this T[] source, IComparer<T> comparer = null, int threshold = 1024)
+        static public T[] SortMerge<T>(this T[] source, bool stable = true, IComparer<T> comparer = null, int threshold = 1024)
         {
             T[] dst = new T[source.Length];
 
-            source.SortMergeInner<T>(0, source.Length - 1, dst, true, comparer, threshold);
+            source.SortMergeInner<T>(0, source.Length - 1, dst, stable, true, comparer, threshold);
 
             return dst;
         }
@@ -255,10 +265,10 @@ namespace HPCsharp
         /// <typeparam name="T">array of type T</typeparam>
         /// <param name="arr">source array</param>
         /// <param name="comparer">comparer used to compare two array elements of type T</param>
-        static public void SortMergeInPlaceAdaptive<T>(this T[] arr, IComparer<T> comparer = null,
+        static public void SortMergeInPlaceAdaptive<T>(this T[] arr, bool stable = true, IComparer<T> comparer = null,
                                                        int thresholdInPlacePure = 16 * 1024)
         {
-            SortMergeInPlaceAdaptive(arr, 0, arr.Length - 1, comparer, thresholdInPlacePure);
+            SortMergeInPlaceAdaptive(arr, 0, arr.Length - 1, stable, comparer, thresholdInPlacePure);
         }
         /// <summary>
         /// Take a segment of the source array, and sort it in place using the Merge Sort algorithm.
@@ -267,15 +277,16 @@ namespace HPCsharp
         /// </summary>
         /// <typeparam name="T">array of type T</typeparam>
         /// <param name="arr">source array</param>
+        /// <param name="stable">set to true for stable sort</param>
         /// <param name="comparer">comparer used to compare two array elements of type T</param>
-        static public void SortMergeInPlaceAdaptive<T>(this T[] arr, int startIndex, int length, IComparer<T> comparer = null,
+        static public void SortMergeInPlaceAdaptive<T>(this T[] arr, int startIndex, int length, bool stable = true, IComparer<T> comparer = null,
                                                        int thresholdInPlacePure = 16 * 1024)
         {
             // Any time memory is allocated, it should be checked for out-of-memory exception/condition (i.e., memory exhaustion)
             try
             {
                 T[] dst = new T[arr.Length];
-                SortMergeInner(arr, startIndex, startIndex + length - 1, dst, false, comparer);
+                SortMergeInner(arr, startIndex, startIndex + length - 1, dst, stable, false, comparer);
             }
             catch (System.OutOfMemoryException)
             {
@@ -314,14 +325,15 @@ namespace HPCsharp
         /// <param name="src">source array</param>
         /// <param name="startIndex">index within the src array where sorting starts</param>
         /// <param name="length">number of elements starting with startIndex to be sorted</param>
+        /// <param name="stable">set to true for stable sort</param>
         /// <param name="comparer">comparer used to compare two array elements of type T</param>
         /// <returns>returns an array of length specified</returns>
-        static public List<T> SortMerge<T>(this List<T> src, int startIndex, int length, IComparer<T> comparer = null)
+        static public List<T> SortMerge<T>(this List<T> src, int startIndex, int length, bool stable = true, IComparer<T> comparer = null)
         {
             T[] srcTrimmed = src.ToArrayPar(startIndex, length);
             T[] dst = new T[srcTrimmed.Length];
 
-            srcTrimmed.SortMergeInner<T>(0, length - 1, dst, true, comparer);
+            srcTrimmed.SortMergeInner<T>(0, length - 1, dst, stable, true, comparer);
 
             return new List<T>(dst);
         }
@@ -332,12 +344,13 @@ namespace HPCsharp
         /// </summary>
         /// <typeparam name="T">data type of each array element</typeparam>
         /// <param name="src">source array</param>
+        /// <param name="stable">set to true for stable sort</param>
         /// <param name="comparer">method to compare List elements</param>
-        public static List<T> SortMerge<T>(this List<T> src, IComparer<T> comparer = null)
+        public static List<T> SortMerge<T>(this List<T> src, bool stable = true, IComparer<T> comparer = null)
         {
 #if true
             T[] srcCopy = src.ToArrayPar();
-            SortMerge(srcCopy, comparer);
+            SortMerge(srcCopy, stable, comparer);
             List<T> dst = new List<T>(srcCopy);
             return dst;
 #else
