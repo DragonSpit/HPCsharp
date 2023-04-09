@@ -11,12 +11,12 @@ namespace HPCsharp
     /// </summary>
     static public partial class Algorithm
     {
-        /// <summary>
-        /// O(n^2) sorting algorithm that's in-place. Fast for small arrays
-        /// l: left/starting index within the List where to start sorting
-        /// size: number of elements to sort
-        /// comparer: optional compare method
-        /// </summary>
+        // /// <summary>
+        ///// O(n^2) sorting algorithm that's in-place. Fast for small arrays
+        // /// l: left/starting index within the List where to start sorting
+        // /// size: number of elements to sort
+        // /// comparer: optional compare method
+        // /// </summary>
         //public static void InsertionSort<T>(List<T> a, Int32 l, Int32 size, IComparer<T> comparer = null)
         //{
         //    var equalityComparer = comparer ?? Comparer<T>.Default;
