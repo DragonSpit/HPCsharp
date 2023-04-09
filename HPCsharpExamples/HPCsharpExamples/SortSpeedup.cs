@@ -227,7 +227,7 @@ namespace HPCsharpExamples
                 if (!parallel)
                 {
                     if (!radixSort)
-                        sortedArrayOne = benchArrayOne.SortMerge(comparer);
+                        sortedArrayOne = benchArrayOne.SortMerge(true, comparer);
                     else
                     {
                         sortedArrayOne = benchArrayOne.SortRadixFaster(element => element.Key);      // faster, uses more memory

@@ -102,7 +102,7 @@ namespace HPCsharpExamples
             sortedUserArray = userArray.OrderBy(element => element.Key).ToArray();              // Serial   Linq  Sort (C# standard sort, stable)
             sortedUserArray = userArray.SortRadix(element => element.Key);                      // Serial   Radix Sort (stable)
 
-            sortedUserArray = Algorithm.SortMerge(userArray, comparer);                         // Serial   Merge Sort (stable)
+            sortedUserArray = Algorithm.SortMerge(userArray, true, comparer);                   // Serial   Merge Sort (stable)
 
             sortedUserArray = userArray.AsParallel().OrderBy(element => element.Key).ToArray(); // Parallel Linq  Sort (C# standard sort, stable)
             sortedUserArray = ParallelAlgorithm.SortMergePar(userArray, comparer);              // Parallel Merge Sort
