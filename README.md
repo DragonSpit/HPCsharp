@@ -5,7 +5,7 @@ Give us feedback and let us know where else could use additional performance.
 
 # High Performance Computing in C# (HPCsharp)
 
-NuGet package of high performance C# generic algorithms. Runs on Windows and Linux (.NET 5 and 6, .NET Standard 2.0 and 2.1). Community driven to raise C# performance. Familiar interfaces, similar to standard C# algorithms and Linq. Free, open source, on nuget.org
+NuGet package of high performance Parallel C# generic algorithms (multi-core and SSE). Runs on Windows and Linux (.NET 5, 6 and 8, .NET Standard 2.0 and 2.1). Raises C# performance many times over standard versions. Familiar interfaces, similar to standard C# algorithms and Linq. Free, open source, on nuget.org
 
 *Algorithm*|*\**|*\*\**|*SSE*|*Multi-Core*|*Array*|*List*|*Details*
 --- | --- | --- | --- | :---: | :---: | --- | :--
@@ -41,13 +41,88 @@ Swap | 4 | 4 | | | :heavy_check_mark: | | Generic swap variations
 \*\* Number of functions for this algorithm\
 
 ## Examples
-Usage examples are provided in the HPCsharpExamples folder, which has a VisualStudio 2019 solution. Build and run it to see performance gains on your machine.
+Usage examples are provided in the HPCsharpExamples directory, which has a VisualStudio 2022 solution. Build and run it to see performance gains on your computer or a cloud node.
 To get the maximum performance make sure to target x64 processor architecture for the Release build in VisualStudio, increasing performance by as much as 50%.
 
 ## Benchmarking
 The first time you call a function that is implemented using SIMD/SSE instructions, C# just-in-time (JIT) compiler takes the time to compile and optimize
 that function, which results in much slower performance. On the second use of the function and on subsequent uses, the SIMD/SSE function will run at
 its full performance. Keep this behavior of the C# JIT compiler in mind as you use or benchmark HPCsharp functions.
+
+## C# Standard Sort and Linq
+C# implements two ways to sort arrays: .Sort and Linq.OrderBy. Sort does not support multi-core, whereas Linq.OrderBy does.
+The following Table shows performance of these two algorithms, for three input data distributions, in Millions of Int32's per second.
+
+*Algorithm*|*Random*|*Presorted*|*Constant*|*Computer*
+--- | --- | --- | --- | ---
+.Sort                   |11 | 70| 32| 1-core of 6-core i7-9750H
+.Sort                   |13 |136| 78| 1-core of Intel i7-12700H
+.Sort                   |9  | 58| 46| 1-core of 32-core AMD EPYC
+Linq.OrderBy            |2.3|6.3|6.3| 1-core of Intel i7-12700H
+Linq.AsParallel.OrderBy |2.1|6.3|6.3| 14-core Intel i7-12700H
+Linq.OrderBy            |2.3|7.7|8.0| single-core on 14 core Intel Xeon
+Linq.AsParallel.OrderBy |1.1|5.5|5.4| single-core on 32 core AMD EPYC
+
+## LSD Radix Sort
+HPCsharp implements LSD Radix Sort, which is a linear time ***O***(N), stable sorting algorithm. The following table shows performance
+for three input data distributions, in Millions of UInt32's per second.
+
+*Algorithm*|*Random*|*Presorted*|*Constant*|*Computer*
+--- | --- | --- | --- | ---
+LSD Radix Sort (Parallel)   | 655 | 652 | 692 | 48-core AWS C7i.24xlarge (Intel)
+LSD Radix Sort (Parallel)   |  |  |  | 48-core AWS C7a.24xlarge (AMD)
+LSD Radix Sort (Parallel)   | 524 | 538 | 676 | 14-core Intel i7-12700H
+LSD Radix Sort (Sequential) | 127 |  62 | 181 | 1-core of Intel i7-12700H
+
+Several implementations available: serial, partially parallel, and fully parallel. Serial algorithm runs on a single core.
+Partially parallel algorithm runs the counting/histogram phase of the algorithm in parallel, and the permutation phase
+serially. Fully parallel algorith runs both phases of the algorithm on multiple cores in parallel.
+
+Radix Sort has been extended to sort user defined classes based on a UInt32 or UInt64 key within the class. Radix Sort is currently using only a single core.
+
+## Merge Sort
+Merge Sort provides a performance boost comparing with Linq.OrderBy when running on a single core,
+but is not competitive with Array.Sort().
+On a single core on variety of machines, sorting an array of Int32's, performance in Millions of Int32's per second is:
+
+*Algorithm*|*Random*|*Presorted*|*Constant*|*Description*
+--- | --- | --- | --- | ---
+HPC# .SortMerge |6|19|18| single-core on 6 core laptop
+HPC# .SortMerge |7|24|22| single-core on 14 core Intel Xeon
+HPC# .SortMerge |5|16|15| single-core on 32 core AMD EPYC
+
+Parallel Merge Sort uses multiple CPU cores to accelerate performance, which scales well with the number of
+cores and the number of memory channels. C# Array.Sort does not support parallel sorting.
+On variety of machines, sorting an array of Int32's, performance in Millions of Int32's per second is:
+
+*Algorithm*|*Random*|*Presorted*|*Constant*|*Description*
+--- | --- | --- | --- | ---
+HPC# .SortMergePar |66|230|154| 6-core i7-9750H
+HPC# .SortMergePar |77|412|260| 14-core Intel Xeon, with hyperthreading
+HPC# .SortMergePar |293|893|760| 32-core AMD EPYC, with hyperthreading
+HPC# .SortMergePar |397|915|754| 24-core Intel Xeon 8275CL
+
+HPCsharp's Parallel Merge Sort is not stable, just like Array.Sort.
+The version benchmarked above is the not-in-place one. Faster than Array.Sort and List.Sort across all distributions, and
+substantially faster than Linq.OrderBy and Linq.OrderBy.AsParallel, which doesn't scale well as the number of cores increases. HPCsharp's
+Parallel Merge Sort scales very well with the number of cores, for all distributions providing higher performance than Array.Sort() and
+Linq.OrderBy and Linq.OrderBy.AsParallel.
+
+**_28-core (56-threads) AWS c5.18xlarge_**
+
+*Algorithm*|*Collection*|*Distribution*|*vs .Sort*|*vs Linq*|*vs Linq.AsParallel*|*Description*
+--- | --- | --- | --- | --- | --- | ---
+Parallel Merge Sort|Array|Random|5X-14X|19X-90X|7X-47X|
+Parallel Merge Sort|Array|Presorted|1X-6X|5X-60X|16X-122X|
+Parallel Merge Sort|Array|Constant|TBD|TBD|9X-44X|
+
+*Algorithm*|*Collection*|*Distribution*|*vs .Sort*|*vs Linq*|*vs Linq.AsParallel*|*MegaInts/sec*
+--- | --- | --- | --- | --- | --- | ---
+Merge Sort (stable)|Array|Random|0.6X|2.5X|1X|5
+Merge Sort (stable)|Array|Presorted|0.3X|3X|2X|17
+Merge Sort (stable)|Array|Constant|0.5X|3X|2X|15
+
+Merge Sort is ***O***(NlgN), never ***O***(N<sup>2</sup>), generic, stable, and runs on a single CPU core. Faster than Linq.OrderBy and Linq.OrderBy.AsParallel.
 
 ## Better Sum in Many Ways
 HPCsharp improves .Sum() of numeric arrays in the following ways:
@@ -141,115 +216,6 @@ Two versions are provided: single data type and two types.
 
 For more details, see blog:
 - [Divide-and-Conquer](https://duvanenko.tech.blog/2019/12/25/parallel-divide-and-conquer-abstraction-in-c/ "Divide-and-Conquer")
-
-## Counting Sort
-
-*Algorithm*|*Distribution*|*vs .Sort*|*vs Linq*|*vs Linq.AsParallel*|*MegaBytes/sec*|*Data Type*
---- | --- | --- | --- | --- | --- | ---
-Counting Sort|Random|27-56X|156-343X|39-70X|846|byte
-Counting Sort|Presorted|26-56X|168-344X|38-66X|864|byte
-Counting Sort|Constant|30-56X|165-321X|34-70X|847|byte
-
-Counting Sort above is a linear time ***O***(N) algorithm, sorting an array of byte, sbyte, short or ushort data types.
-In-place and not-in-place version have been implementated.
-The above benchmark is on a single core! Multi-core sorts even faster, at GigaElements/second ludicrous speed.
-
-## LSD Radix Sort
-
-C# implements two ways to sort arrays: .Sort and Linq.OrderBy. Sort does not support multi-core, whereas Linq.OrderBy does.
-The following table shows performance of these two algorithms, for three input data distributions, in Millions of Int32's per second.
-
-*Algorithm*|*Random*|*Presorted*|*Constant*|*Computer*
---- | --- | --- | --- | ---
-.Sort |11|70|32| single-core on 6-core i7-9750H
-.Sort |13|105|53| single-core on 14-core Xeon
-.Sort |9|58|46| single-core on 32-core AMD EPYC
-Linq.OrderBy |2.1|6.3|6.3| single-core on 6 core i7-9750H
-Linq.OrderBy |2.3|7.7|8.0| single-core on 14 core Intel Xeon
-Linq.OrderBy |1.1|5.5|5.4| single-core on 32 core AMD EPYC
-
-HPCsharp implements LSD Radix Sort, which is a linear time ***O***(N), stable sorting algorithm. The following table shows performance
-for three input data distributions, in Millions of UInt32's per second.
-
-*Algorithm*|*Random*|*Presorted*|*Constant*|*Computer*
---- | --- | --- | --- | ---
-LSD Radix Sort (Serial)             | 104 |  45 |  90 | 1-core i7-9750H
-LSD Radix Sort (Partially Parallel) | 118 |  48 | 112 | 6-core i7-9750H
-LSD Radix Sort (Fully Parallel)     | 193 | 203 | 225 | 6-core i7-9750H
-LSD Radix Sort (Fully Parallel)     | 316 | 360 | 370 | 24-core Xeon 8275CL
-
-Several implementations available: serial, partially parallel, and fully parallel. Serial algorithm runs on a single core.
-Partially parallel algorithm runs the counting/histogram phase of the algorithm in parallel, and the permutation phase
-serially. Fully parallel algorith runs both phases of the algorithm on multiple cores in parallel.
-
-Radix Sort has been extended to sort user defined classes based on a UInt32 or UInt64 key within the class. Radix Sort is currently using only a single core.
-
-*Algorithm*|*Collection*|*Distribution*|*vs .Sort*|*vs Linq*|*vs Linq.AsParallel*|*Description*
---- | --- | --- | --- | --- | --- | ---
-Radix Sort|Array|Random|1X-4X|3X-5X|1X-2X|User defined class
-Radix Sort|List|Random|2X-4X|3X-5X|1X-2X|User defined class
-Radix Sort|Array|Presorted|1.2X-1.7X|0.9X-2.5X|0.9X-1.4X|User defined class
-Radix Sort|List|Presorted|1.0X-1.2X|1.7X-2.1X|0.7X-1.1X|User defined class
-Radix Sort|Array|Constant|3X-4X|4X-5X|2X-3X|User defined class
-Radix Sort|List|Constant|2X-4X|3X-4X|1.5X-2X|User defined class
-
-Only slightly slower than Array.Sort and List.Sort for presorted distribution, but faster for all other distributions. Uses a single core and is stable.
-Faster than Linq.OrderBy and Linq.OrderBy.AsParallel
-
-## Merge Sort
-
-Merge Sort provides a performance boost comparing with Linq.OrderBy when running on a single core,
-but is not competitive with Array.Sort().
-On a single core on variety of machines, sorting an array of Int32's, performance in Millions of Int32's per second is:
-
-*Algorithm*|*Random*|*Presorted*|*Constant*|*Description*
---- | --- | --- | --- | ---
-.Sort |11|70|32| single-core on 6-core laptop
-.Sort |13|105|53| single-core on 14-core Xeon
-.Sort |9|58|46| single-core on 32-core AMD EPYC
-Linq.OrderBy |2.1|6.3|6.3| single-core on 6 core laptop
-Linq.OrderBy |2.3|7.7|8.0| single-core on 14 core Intel Xeon
-Linq.OrderBy |1.1|5.5|5.4| single-core on 32 core AMD EPYC
-HPC# .SortMerge |6|19|18| single-core on 6 core laptop
-HPC# .SortMerge |7|24|22| single-core on 14 core Intel Xeon
-HPC# .SortMerge |5|16|15| single-core on 32 core AMD EPYC
-
-Parallel Merge Sort uses multiple CPU cores to accelerate performance, which scales well with the number of
-cores and the number of memory channels. C# Array.Sort does not support parallel sorting.
-On variety of machines, sorting an array of Int32's, performance in Millions of Int32's per second is:
-
-*Algorithm*|*Random*|*Presorted*|*Constant*|*Description*
---- | --- | --- | --- | ---
-Linq.AsParallel.OrderBy |6.5|13|13| 6-core i7-9750H
-Linq.AsParallel.OrderBy |8|14|14| 14-core Intel Xeon, with hyperthreading
-Linq.AsParallel.OrderBy |7|16|15| 32-core AMD EPYC, with hyperthreading
-Linq.AsParallel.OrderBy |7.4|17|18| 24-core Intel Xeon 8275CL
-HPC# .SortMergePar |66|230|154| 6-core i7-9750H
-HPC# .SortMergePar |77|412|260| 14-core Intel Xeon, with hyperthreading
-HPC# .SortMergePar |293|893|760| 32-core AMD EPYC, with hyperthreading
-HPC# .SortMergePar |397|915|754| 24-core Intel Xeon 8275CL
-
-HPCsharp's Parallel Merge Sort is not stable, just like Array.Sort.
-The version benchmarked above is the not-in-place one. Faster than Array.Sort and List.Sort across all distributions, and
-substantially faster than Linq.OrderBy and Linq.OrderBy.AsParallel, which doesn't scale well as the number of cores increases. HPCsharp's
-Parallel Merge Sort scales very well with the number of cores, for all distributions providing higher performance than Array.Sort() and
-Linq.OrderBy and Linq.OrderBy.AsParallel.
-
-**_28-core (56-threads) AWS c5.18xlarge_**
-
-*Algorithm*|*Collection*|*Distribution*|*vs .Sort*|*vs Linq*|*vs Linq.AsParallel*|*Description*
---- | --- | --- | --- | --- | --- | ---
-Parallel Merge Sort|Array|Random|5X-14X|19X-90X|7X-47X|
-Parallel Merge Sort|Array|Presorted|1X-6X|5X-60X|16X-122X|
-Parallel Merge Sort|Array|Constant|TBD|TBD|9X-44X|
-
-*Algorithm*|*Collection*|*Distribution*|*vs .Sort*|*vs Linq*|*vs Linq.AsParallel*|*MegaInts/sec*
---- | --- | --- | --- | --- | --- | ---
-Merge Sort (stable)|Array|Random|0.6X|2.5X|1X|5
-Merge Sort (stable)|Array|Presorted|0.3X|3X|2X|17
-Merge Sort (stable)|Array|Constant|0.5X|3X|2X|15
-
-Merge Sort is ***O***(NlgN), never ***O***(N<sup>2</sup>), generic, stable, and runs on a single CPU core. Faster than Linq.OrderBy and Linq.OrderBy.AsParallel.
 
 ## Merge
 ***O***(N) linear-time generic merge algorithms for arrays and list containers. Merges two pre-sorted arrays or lists,
