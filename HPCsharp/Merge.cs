@@ -1245,7 +1245,7 @@ namespace HPCsharpExperimental
             if (length1 == 0) return;
             if ((length1 + length2) <= HPCsharp.Algorithm.MergeArrayThreshold)
             {
-                Console.WriteLine("Merge: aStart = {0} length1 = {1} bStart = {2} length2 = {3} p3 = {2}", aStart, length1, bStart, length2, p3);
+                Console.WriteLine("Merge: aStart = {0} length1 = {1} bStart = {2} length2 = {3} p3 = {4}", aStart, length1, bStart, length2, p3);
                 HPCsharp.Algorithm.Merge<T>(src, aStart, length1,
                                             src, bStart, length2,
                                             dst, p3, comparer);            // in Dr. Dobb's Journal paper
@@ -1305,7 +1305,7 @@ namespace HPCsharpExperimental
                 if (length1 == 0) return;
                 if ((length1 + length2) <= HPCsharp.Algorithm.MergeArrayThreshold)
                 {
-                    Console.WriteLine("Merge: aStart = {0} length1 = {1} bStart = {2} length2 = {3} p3 = {2}", aStart, length1, bStart, length2, p3);
+                    Console.WriteLine("Merge: aStart = {0} length1 = {1} bStart = {2} length2 = {3} p3 = {4}", aStart, length1, bStart, length2, p3);
                     HPCsharp.Algorithm.Merge<T>(src, aStart, length1,
                                                 src, bStart, length2,
                                                 dst, p3, comparer);            // in Dr. Dobb's Journal paper
@@ -1338,7 +1338,7 @@ namespace HPCsharpExperimental
                 if (length2 == 0) return;
                 if ((length1 + length2) <= HPCsharp.Algorithm.MergeArrayThreshold)
                 {
-                    Console.WriteLine("Merge: aStart = {0} length1 = {1} bStart = {2} length2 = {3} p3 = {2}", aStart, length1, bStart, length2, p3);
+                    Console.WriteLine("Merge: aStart = {0} length1 = {1} bStart = {2} length2 = {3} p3 = {4}", aStart, length1, bStart, length2, p3);
                     HPCsharp.Algorithm.Merge<T>(src, aStart, length1,
                                                 src, bStart, length2,
                                                 dst, p3, comparer);            // in Dr. Dobb's Journal paper
