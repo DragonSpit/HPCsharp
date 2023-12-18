@@ -44,6 +44,9 @@ Swap | 4 | 4 | | | :heavy_check_mark: | | Generic swap variations
 Usage examples are provided in the HPCsharpExamples directory, which has a VisualStudio 2022 solution. Build and run it to see performance gains on your computer or a cloud node.
 To get the maximum performance make sure to target x64 processor architecture for the Release build in VisualStudio, increasing performance by as much as 50%.
 
+## Book
+HPCsharp has a [book](https://www.amazon.com/Practical-Parallel-Algorithms-Sorting-Multicore-ebook/dp/B0C3TZPRKZ/ref=sr_1_1?crid=3S9POH1Z7TYEP&keywords=duvanenko&qid=1702869537&sprefix=duvanenko%2Caps%2C121&sr=8-1) dedicated to Parallel Algorithm implementations within.
+
 ## Benchmarking
 The first time you call a function that is implemented using SIMD/SSE instructions, C# just-in-time (JIT) compiler takes the time to compile and optimize
 that function, which results in much slower performance. On the second use of the function and on subsequent uses, the SIMD/SSE function will run at
