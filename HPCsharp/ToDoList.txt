@@ -1,5 +1,7 @@
 ﻿// TODO: Add support for .NET 8
 // TODO: Fix all warnings the latest compiler in VS2022 is flagging
+// TODO: Consider changing interface on Sum methods to follow C++ accumulate pattern, where an initialization value is provided which drives the data type that is returned,
+//       if this is possible in C#.
 // TODO: Bring in parallel Quick Sort from the link that John provided (http://dzmitryhuba.blogspot.com/2012/03/parallel-partition-phase-for-quick-sort.html)
 //       Or, port from C++ parallel implementation provided in Pro TBB book from Intel (chapter 2).
 // TODO: Figure out why LSD Radix Sort is 3X slower when compiled with "g++ -O2" versus same code (is it?) using VisualStudio 2019 (same optimization switches?), since
