@@ -16,6 +16,10 @@ namespace HPCsharp.ParallelAlgorithms
     {
         public static int[] AddSse(this int[] arrayA, int[] arrayB)
         {
+            if (arrayA == null)
+                throw new ArgumentNullException(nameof(arrayA));
+            if (arrayB == null)
+                throw new ArgumentNullException(nameof(arrayB));
             return arrayA.AddSseInner(arrayB, 0, arrayA.Length - 1);
         }
 
@@ -42,11 +46,19 @@ namespace HPCsharp.ParallelAlgorithms
 
         public static void AddToSse(this int[] arrayA, int[] arrayB)
         {
+            if (arrayA == null)
+                throw new ArgumentNullException(nameof(arrayA));
+            if (arrayB == null)
+                throw new ArgumentNullException(nameof(arrayB));
             arrayA.AddToSseInner(arrayB, 0, arrayA.Length - 1);
         }
 
         public static void AddToSse(this int[] arrayA, int[] arrayB, int start, int length)
         {
+            if (arrayA == null)
+                throw new ArgumentNullException(nameof(arrayA));
+            if (arrayB == null)
+                throw new ArgumentNullException(nameof(arrayB));
             arrayA.AddToSseInner(arrayB, start, start + length - 1);
         }
 
@@ -67,11 +79,19 @@ namespace HPCsharp.ParallelAlgorithms
 
         public static void AddToSse(this uint[] arrayA, uint[] arrayB)
         {
+            if (arrayA == null)
+                throw new ArgumentNullException(nameof(arrayA));
+            if (arrayB == null)
+                throw new ArgumentNullException(nameof(arrayB));
             arrayA.AddToSseInner(arrayB, 0, arrayA.Length - 1);
         }
 
         public static void AddToSse(this uint[] arrayA, uint[] arrayB, int start, int length)
         {
+            if (arrayA == null)
+                throw new ArgumentNullException(nameof(arrayA));
+            if (arrayB == null)
+                throw new ArgumentNullException(nameof(arrayB));
             arrayA.AddToSseInner(arrayB, start, start + length - 1);
         }
 
@@ -147,6 +167,10 @@ namespace HPCsharp.ParallelAlgorithms
         /// <param name="arrayB">Second input array</param>
         public static void AddToSsePar(this int[] arrayA, int[] arrayB, int thresholdParallel = 16 * 1024)
         {
+            if (arrayA == null)
+                throw new ArgumentNullException(nameof(arrayA));
+            if (arrayB == null)
+                throw new ArgumentNullException(nameof(arrayB));
             arrayA.AddToSseParInner(arrayB, 0, arrayA.Length - 1, thresholdParallel);
         }
 

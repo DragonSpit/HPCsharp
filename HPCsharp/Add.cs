@@ -11,11 +11,19 @@ namespace HPCsharp.Algorithms
     {
         public static int[] Add(this int[] arrayA, int[] arrayB)
         {
+            if (arrayA == null)
+                throw new ArgumentNullException(nameof(arrayA));
+            if (arrayB == null)
+                throw new ArgumentNullException(nameof(arrayB));
             return arrayA.AddInner(arrayB, 0, arrayA.Length - 1);
         }
 
         public static int[] Add(this int[] arrayA, int[] arrayB, int start, int length)
         {
+            if (arrayA == null)
+                throw new ArgumentNullException(nameof(arrayA));
+            if (arrayB == null)
+                throw new ArgumentNullException(nameof(arrayB));
             return arrayA.AddInner(arrayB, start, start + length - 1);
         }
 
@@ -32,11 +40,19 @@ namespace HPCsharp.Algorithms
 
         public static void AddTo(this int[] arrayA, int[] arrayB)
         {
+            if (arrayA == null)
+                throw new ArgumentNullException(nameof(arrayA));
+            if (arrayB == null)
+                throw new ArgumentNullException(nameof(arrayB));
             arrayA.AddToInner(arrayB, 0, arrayA.Length - 1);
         }
 
         public static void AddTo(this int[] arrayA, int[] arrayB, int start, int length)
         {
+            if (arrayA == null)
+                throw new ArgumentNullException(nameof(arrayA));
+            if (arrayB == null)
+                throw new ArgumentNullException(nameof(arrayB));
             arrayA.AddToInner(arrayB, start, start + length - 1);
         }
 
