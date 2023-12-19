@@ -5,7 +5,7 @@ Give us feedback and let us know where else could use additional performance.
 
 # High Performance Computing in C# (HPCsharp)
 
-NuGet package of high performance Parallel C# generic algorithms (multi-core and SSE). Runs on Windows and Linux (.NET 5, 6 and 8, .NET Standard 2.0 and 2.1). Raises C# performance many times over standard versions. Familiar interfaces, similar to standard C# algorithms and Linq. Free, open source, on nuget.org
+[NuGet package](https://www.nuget.org/packages/HPCsharp) of high performance Parallel C# generic algorithms (multi-core and SSE). Runs on Windows and Linux (.NET 5, 6 and 8, .NET Standard 2.0 and 2.1). Raises C# performance many times over standard versions. Familiar interfaces, similar to standard C# algorithms and Linq. Free, open source, on nuget.org
 
 *Algorithm*|*\**|*\*\**|*SSE*|*Multi-Core*|*Array*|*List*|*Details*
 --- | --- | --- | --- | :---: | :---: | --- | :--
