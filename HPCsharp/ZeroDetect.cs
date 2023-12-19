@@ -13,6 +13,8 @@ namespace HPCsharp
     {
         public static bool ByFor(byte[] data)
         {
+            if (data == null)
+                throw new ArgumentNullException(nameof(data));
             // Local variable is accessed faster than a property, and loop multiplies the difference.
             int len = data.Length;
             for (int i = 0; i < len; i++)
@@ -23,6 +25,8 @@ namespace HPCsharp
 
         public static bool ByForUnrolled(byte[] data)
         {
+            if (data == null)
+                throw new ArgumentNullException(nameof(data));
             // Bitwise-or instead of addition does not gain performance.
             int len = (data.Length / 16) * 16;
             int rem = len % (sizeof(long) * 16);
@@ -49,6 +53,8 @@ namespace HPCsharp
         //           Unrolling helps by about 2X
         public static unsafe bool ByFixedLongUnrolled(byte[] data)
         {
+            if (data == null)
+                throw new ArgumentNullException(nameof(data));
             fixed (byte* bytes = data)
             {
                 int len = data.Length;

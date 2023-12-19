@@ -21,6 +21,8 @@ namespace HPCsharp
     {
         public static void Swap<T>(this T[] array, int indexA, int indexB)
         {
+            if (array == null)
+                throw new ArgumentNullException(nameof(array));
             T temp        = array[indexA];
             array[indexA] = array[indexB];
             array[indexB] = temp;
@@ -28,6 +30,8 @@ namespace HPCsharp
 
         public static void Swap<T>(this T[] array, int indexA, int indexB, int length, bool reverse = false)
         {
+            if (array == null)
+                throw new ArgumentNullException(nameof(array));
             if (!reverse)
             {
                 while (length-- > 0)
@@ -51,6 +55,8 @@ namespace HPCsharp
 
         public static void SwapArray<T>(this T[] array, int indexA, int indexB, int length, bool reverse = false, int tempBufferSize = 1024)
         {
+            if (array == null)
+                throw new ArgumentNullException(nameof(array));
             T[] tempBuffer = new T[tempBufferSize];
 
             if (!reverse)
@@ -83,6 +89,8 @@ namespace HPCsharp
 
         public static void Swap<T>(ref T B, T[] array, int indexA)
         {
+            if (array == null)
+                throw new ArgumentNullException(nameof(array));
             T temp        = array[indexA];
             array[indexA] = B;
             B             = temp;
@@ -98,7 +106,9 @@ namespace HPCsharp
         // reverse/mirror a range from l to r, inclusively, in-place
         public static void Reversal<T>(this T[] array, int l, int r)
         {
-            for(; l < r; l++, r--)
+            if (array == null)
+                throw new ArgumentNullException(nameof(array));
+            for (; l < r; l++, r--)
             {
                 T temp   = array[l];  // swap of array[l] and array[r]
                 array[l] = array[r];

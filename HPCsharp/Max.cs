@@ -43,7 +43,7 @@ namespace HPCsharp
         public static TSource MaxHpc<TSource>(this TSource[] a, Int32 l, Int32 r)
         {
             if (a == null)
-                throw new System.ArgumentNullException();
+                throw new ArgumentNullException(nameof(a));
             if (l > r)      // zero elements to compare
                 throw new System.ArgumentOutOfRangeException();
             if (!(l >= 0 && r < a.Length))

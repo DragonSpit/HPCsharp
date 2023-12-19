@@ -745,6 +745,8 @@ namespace HPCsharp
         /// <returns>array of unsigned integers</returns>
         public static uint[] SortRadixPar1(this uint[] inputArray)
         {
+            if (inputArray == null)
+                throw new ArgumentNullException(nameof(inputArray));
             uint numberOfBins = 256;
             int Log2ofPowerOfTwoRadix = 8;
             uint[] outputArray = new uint[inputArray.Length];

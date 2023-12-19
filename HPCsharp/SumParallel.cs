@@ -127,6 +127,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>long sum</returns>
         public static long SumToLongSse(this sbyte[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumSseInner(startIndex, startIndex + length - 1);
         }
 
@@ -176,6 +178,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>ulong sum</returns>
         public static ulong SumToUlongSse(this byte[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumSseInner(0, arrayToSum.Length - 1);
         }
 
@@ -189,6 +193,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>ulong sum</returns>
         public static ulong SumToUlongSse(this byte[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumSseInner(startIndex, startIndex + length - 1);
         }
 
@@ -289,6 +295,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>long sum</returns>
         public static long SumToLongSse(this short[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumSseInner(0, arrayToSum.Length - 1);
         }
 
@@ -302,6 +310,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>long sum</returns>
         public static long SumToLongSse(this short[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumSseInner(startIndex, startIndex + length - 1);
         }
 
@@ -348,6 +358,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>ulong sum</returns>
         public static ulong SumToUlongSse(this ushort[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumSseInner(0, arrayToSum.Length - 1);
         }
 
@@ -361,6 +373,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>ulong sum</returns>
         public static ulong SumToUlongSse(this ushort[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumSseInner(startIndex, startIndex + length - 1);
         }
 
@@ -407,6 +421,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>long sum</returns>
         public static long SumToLongSse(this int[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumSseInner(0, arrayToSum.Length - 1);
         }
 
@@ -420,6 +436,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>long sum</returns>
         public static long SumToLongSse(this int[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumSseInner(startIndex, startIndex + length - 1);
         }
 

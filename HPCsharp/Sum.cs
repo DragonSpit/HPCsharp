@@ -66,6 +66,8 @@ namespace HPCsharp.Algorithms
         /// <returns>BigInteger sum</returns>
         public static BigInteger SumHpc(this BigInteger[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             BigInteger overallSum = 0;
             for (int i = 0; i < arrayToSum.Length; i++)
                 overallSum += arrayToSum[i];
@@ -81,6 +83,8 @@ namespace HPCsharp.Algorithms
         /// <returns>BigInteger sum</returns>
         public static BigInteger SumHpc(this BigInteger[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             int endIndex = startIndex + length;
             BigInteger overallSum = 0;
             for (int i = startIndex; i < endIndex; i++)
@@ -97,6 +101,8 @@ namespace HPCsharp.Algorithms
         /// <returns>BigInteger sum</returns>
         public static BigInteger SumToBigIntegerFast(this long[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             BigInteger overallSum = 0;
             long longSum = 0;
             for (int i = 0; i < arrayToSum.Length; i++)
@@ -123,6 +129,8 @@ namespace HPCsharp.Algorithms
         /// <returns>BigInteger sum</returns>
         public static BigInteger SumToBigIntegerFast(this long?[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             BigInteger overallSum = 0;
             long longSum = 0;
             for (int i = 0; i < arrayToSum.Length; i++)
@@ -151,6 +159,8 @@ namespace HPCsharp.Algorithms
         /// <returns>BigInteger sum</returns>
         public static BigInteger SumToBigIntegerFast(this ulong[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             BigInteger overallSum = 0;
             ulong ulongSum = 0;
             for (int i = 0; i < arrayToSum.Length; i++)
@@ -178,6 +188,8 @@ namespace HPCsharp.Algorithms
         /// <returns>decimal sum</returns>
         public static decimal SumToDecimalEvenFaster(this ulong[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             decimal overallSum = 0;
             ulong ulongSum = 0;
             uint uintUpperSum = 0;      // together uintUpperSum and ulongSum represent a 96-bit uint
@@ -204,6 +216,8 @@ namespace HPCsharp.Algorithms
         /// <returns>decimal sum</returns>
         public static decimal SumToDecimalFaster(this ulong[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             decimal overallSum = 0;
             ulong ulongSum = 0;
             for (int i = 0; i < arrayToSum.Length; i++)
@@ -232,6 +246,8 @@ namespace HPCsharp.Algorithms
         /// <returns>decimal sum</returns>
         public static decimal SumToDecimalFaster(this ulong[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             int endIndex = startIndex + length;
             decimal overallSum = 0;
             ulong ulongSum = 0;
@@ -259,6 +275,8 @@ namespace HPCsharp.Algorithms
         /// <returns>BigInteger sum</returns>
         public static BigInteger SumToBigIntegerFaster(this ulong[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             BigInteger overallSum = 0;
             ulong ulongSum = 0;
             for (int i = 0; i < arrayToSum.Length; i++)
@@ -287,6 +305,8 @@ namespace HPCsharp.Algorithms
         /// <returns>BigInteger sum</returns>
         public static BigInteger SumToBigIntegerFaster(this ulong[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             int endIndex = startIndex + length;
             BigInteger overallSum = 0;
             ulong ulongSum = 0;
@@ -314,6 +334,8 @@ namespace HPCsharp.Algorithms
         /// <returns>BigInteger sum</returns>
         public static BigInteger SumToBigIntegerFast(this ulong?[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             BigInteger overallSum = 0;
             ulong ulongSum = 0;
             for (int i = 0; i < arrayToSum.Length; i++)
@@ -342,6 +364,8 @@ namespace HPCsharp.Algorithms
         /// <returns>BigInteger sum</returns>
         public static BigInteger SumToBigIntegerFaster(this long[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumToBigIntegerFaster(0, arrayToSum.Length);
         }
 
@@ -356,6 +380,8 @@ namespace HPCsharp.Algorithms
         /// <returns>BigInteger sum</returns>
         public static BigInteger SumToBigIntegerFaster(this long[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             int endIndex = startIndex + length;
             BigInteger overallSum = 0;
             long longSum = 0;
@@ -408,6 +434,8 @@ namespace HPCsharp.Algorithms
         /// <returns>BigInteger sum</returns>
         public static BigInteger SumToBigInteger(this long[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumToBigInteger(0, arrayToSum.Length);
         }
 
@@ -421,6 +449,8 @@ namespace HPCsharp.Algorithms
         /// <returns>BigInteger sum</returns>
         public static BigInteger SumToBigInteger(this long[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             int endIndex = startIndex + length;
             BigInteger overallSum = 0;
             for (int i = startIndex; i < endIndex; i++)
@@ -437,6 +467,8 @@ namespace HPCsharp.Algorithms
         /// <returns>decimal sum</returns>
         public static decimal SumToDecimalFast(this long[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             decimal overallSum = 0;
             long longSum = 0;
             for (int i = 0; i < arrayToSum.Length; i++)
@@ -464,6 +496,8 @@ namespace HPCsharp.Algorithms
         /// <returns>decimal sum</returns>
         public static decimal SumToDecimalFaster(this long[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumToDecimalFaster(0, arrayToSum.Length);
         }
 
@@ -478,6 +512,8 @@ namespace HPCsharp.Algorithms
         /// <returns>decimal sum</returns>
         public static decimal SumToDecimalFaster(this long[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             int endIndex = startIndex + length;
             decimal overallSum = 0;
             long longSum = 0;
@@ -531,6 +567,8 @@ namespace HPCsharp.Algorithms
         /// <returns>decimal sum</returns>
         public static decimal SumToDecimalFast(this ulong[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             decimal overallSum = 0;
             ulong ulongSum = 0;
             for (int i = 0; i < arrayToSum.Length; i++)
@@ -557,6 +595,8 @@ namespace HPCsharp.Algorithms
         /// <returns>decimal sum</returns>
         public static decimal SumToDecimal(this long[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumToDecimal(0, arrayToSum.Length);
         }
 
@@ -570,6 +610,8 @@ namespace HPCsharp.Algorithms
         /// <returns>decimal sum</returns>
         public static decimal SumToDecimal(this long[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             int endIndex = startIndex + length;
             decimal overallSum = 0;
             for (int i = startIndex; i < endIndex; i++)
@@ -585,6 +627,8 @@ namespace HPCsharp.Algorithms
         /// <returns>decimal summation value</returns>
         public static decimal SumToDecimal(this long?[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumToDecimal(0, arrayToSum.Length);
         }
 
@@ -598,6 +642,8 @@ namespace HPCsharp.Algorithms
         /// <returns>decimal sum</returns>
         public static decimal SumToDecimal(this long?[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             int endIndex = startIndex + length;
             decimal overallSum = 0;
             for (int i = startIndex; i < endIndex; i++)
@@ -614,6 +660,8 @@ namespace HPCsharp.Algorithms
         /// <exception>TSource:System.OverflowException: when the sum value is greater than Int64.MaxValue</exception>
         public static long SumHpc(this long[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumHpc(0, arrayToSum.Length);
         }
 
@@ -627,6 +675,8 @@ namespace HPCsharp.Algorithms
         /// <exception>TSource:System.OverflowException: when the sum value is greater than Int64.MaxValue</exception>
         public static long SumHpc(this long[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             int endIndex = startIndex + length;
             long overallSum = 0;
             for (int i = startIndex; i < endIndex; i++)
@@ -644,6 +694,8 @@ namespace HPCsharp.Algorithms
         /// <exception>TSource:System.OverflowException: when the sum value is greater than Int64.MaxValue</exception>
         public static long SumHpc(this long?[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumHpc(0, arrayToSum.Length);
         }
 
@@ -657,6 +709,8 @@ namespace HPCsharp.Algorithms
         /// <exception>TSource:System.OverflowException: when the sum value is greater than Int64.MaxValue</exception>
         public static long SumHpc(this long?[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             int endIndex = startIndex + length;
             long overallSum = 0;
             for (int i = startIndex; i < endIndex; i++)
@@ -675,6 +729,8 @@ namespace HPCsharp.Algorithms
         /// <returns>long sum</returns>
         public static long SumToLong(this int[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumToLong(0, arrayToSum.Length);
         }
 
@@ -688,6 +744,8 @@ namespace HPCsharp.Algorithms
         /// <returns>long sum</returns>
         public static long SumToLong(this int[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             int endIndex = startIndex + length;
             long overallSum = 0;
             for (int i = startIndex; i < endIndex; i++)
@@ -703,6 +761,8 @@ namespace HPCsharp.Algorithms
         /// <returns>long sum</returns>
         public static long SumToLong(this int?[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumToLong(0, arrayToSum.Length);
         }
 
@@ -716,6 +776,8 @@ namespace HPCsharp.Algorithms
         /// <returns>long sum</returns>
         public static long SumToLong(this int?[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             int endIndex = startIndex + length;
             long overallSum = 0;
             for (int i = startIndex; i < endIndex; i++)
@@ -732,6 +794,8 @@ namespace HPCsharp.Algorithms
         /// <returns>long sum</returns>
         public static long SumToLong(this short[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumToLong(0, arrayToSum.Length);
         }
 
@@ -745,6 +809,8 @@ namespace HPCsharp.Algorithms
         /// <returns>long sum</returns>
         public static long SumToLong(this short[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             int endIndex = startIndex + length;
             long overallSum = 0;
             for (int i = startIndex; i < endIndex; i++)
@@ -760,6 +826,8 @@ namespace HPCsharp.Algorithms
         /// <returns>long sum</returns>
         public static long SumToLong(this short?[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumToLong(0, arrayToSum.Length);
         }
 
@@ -773,6 +841,8 @@ namespace HPCsharp.Algorithms
         /// <returns>long sum</returns>
         public static long SumToLong(this short?[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             int endIndex = startIndex + length;
             long overallSum = 0;
             for (int i = startIndex; i < endIndex; i++)
@@ -789,6 +859,8 @@ namespace HPCsharp.Algorithms
         /// <returns>long sum</returns>
         public static long SumToLong(this sbyte[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumToLong(0, arrayToSum.Length);
         }
 
@@ -802,6 +874,8 @@ namespace HPCsharp.Algorithms
         /// <returns>long sum</returns>
         public static long SumToLong(this sbyte[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             int endIndex = startIndex + length;
             long overallSum = 0;
             for (int i = startIndex; i < endIndex; i++)
@@ -817,6 +891,8 @@ namespace HPCsharp.Algorithms
         /// <returns>long sum</returns>
         public static long SumToLong(this sbyte?[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumToLong(0, arrayToSum.Length);
         }
 
@@ -830,6 +906,8 @@ namespace HPCsharp.Algorithms
         /// <returns>long sum</returns>
         public static long SumToLong(this sbyte?[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             int endIndex = startIndex + length;
             long overallSum = 0;
             for (int i = startIndex; i < endIndex; i++)
@@ -846,6 +924,8 @@ namespace HPCsharp.Algorithms
         /// <returns>long sum</returns>
         public static decimal SumToDecimal(this ulong[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumToDecimal(0, arrayToSum.Length);
         }
 
@@ -859,6 +939,8 @@ namespace HPCsharp.Algorithms
         /// <returns>decimal sum</returns>
         public static decimal SumToDecimal(this ulong[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             int endIndex = startIndex + length;
             decimal overallSum = 0;
             for (int i = startIndex; i < endIndex; i++)
@@ -874,6 +956,8 @@ namespace HPCsharp.Algorithms
         /// <returns>decimal sum</returns>
         public static decimal SumToDecimal(this ulong?[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumToDecimal(0, arrayToSum.Length);
         }
 
@@ -887,6 +971,8 @@ namespace HPCsharp.Algorithms
         /// <returns>decimal sum</returns>
         public static decimal SumToDecimal(this ulong?[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             int endIndex = startIndex + length;
             decimal overallSum = 0;
             for (int i = startIndex; i < endIndex; i++)
@@ -903,6 +989,8 @@ namespace HPCsharp.Algorithms
         /// <returns>BigInteger sum</returns>
         public static BigInteger SumToBigInteger(this ulong[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumToBigInteger(0, arrayToSum.Length);
         }
 
@@ -916,6 +1004,8 @@ namespace HPCsharp.Algorithms
         /// <returns>BigInteger sum</returns>
         public static BigInteger SumToBigInteger(this ulong[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             int endIndex = startIndex + length;
             BigInteger overallSum = 0;
             for (int i = startIndex; i < endIndex; i++)
@@ -931,6 +1021,8 @@ namespace HPCsharp.Algorithms
         /// <returns>decimal sum</returns>
         public static BigInteger SumToBigInteger(this ulong?[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumToBigInteger(0, arrayToSum.Length);
         }
 
@@ -944,6 +1036,8 @@ namespace HPCsharp.Algorithms
         /// <returns>BigInteger sum</returns>
         public static BigInteger SumToBigInteger(this ulong?[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             int endIndex = startIndex + length;
             BigInteger overallSum = 0;
             for (int i = startIndex; i < endIndex; i++)
@@ -959,6 +1053,8 @@ namespace HPCsharp.Algorithms
         /// <exception>TSource:System.OverflowException: when the sum value is greater than UInt64.MaxValue</exception>
         public static ulong SumHpc(this ulong[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumHpc(0, arrayToSum.Length);
         }
 
@@ -972,6 +1068,8 @@ namespace HPCsharp.Algorithms
         /// <exception>TSource:System.OverflowException: when the sum value is greater than UInt64.MaxValue</exception>
         public static ulong SumHpc(this ulong[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             int endIndex = startIndex + length;
             ulong overallSum = 0;
             for (int i = startIndex; i < endIndex; i++)
@@ -992,6 +1090,8 @@ namespace HPCsharp.Algorithms
         /// <exception>TSource:System.OverflowException: when the sum value is greater than UInt64.MaxValue</exception>
         public static ulong SumHpc(this ulong?[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumHpc(0, arrayToSum.Length);
         }
 
@@ -1005,6 +1105,8 @@ namespace HPCsharp.Algorithms
         /// <exception>TSource:System.OverflowException: when the sum value is greater than UInt64.MaxValue</exception>
         public static ulong SumHpc(this ulong?[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             int endIndex = startIndex + length;
             ulong overallSum = 0;
             for (int i = startIndex; i < endIndex; i++)
@@ -1026,6 +1128,8 @@ namespace HPCsharp.Algorithms
         /// <returns>ulong sum</returns>
         public static ulong SumToUlong(this uint[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumUlong(0, arrayToSum.Length);
         }
 
@@ -1039,6 +1143,8 @@ namespace HPCsharp.Algorithms
         /// <returns>ulong sum</returns>
         public static ulong SumUlong(this uint[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             int endIndex = startIndex + length;
             ulong overallSum = 0;
             for (int i = startIndex; i < endIndex; i++)
@@ -1054,6 +1160,8 @@ namespace HPCsharp.Algorithms
         /// <returns>ulong sum</returns>
         public static ulong SumUlong(this uint?[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumToUlong(0, arrayToSum.Length);
         }
 
@@ -1067,6 +1175,8 @@ namespace HPCsharp.Algorithms
         /// <returns>ulong sum</returns>
         public static ulong SumToUlong(this uint?[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             int endIndex = startIndex + length;
             ulong overallSum = 0;
             for (int i = startIndex; i < endIndex; i++)
@@ -1083,6 +1193,8 @@ namespace HPCsharp.Algorithms
         /// <returns>decimal sum</returns>
         public static ulong SumToUlong(this ushort[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumToUlong(0, arrayToSum.Length);
         }
 
@@ -1096,6 +1208,8 @@ namespace HPCsharp.Algorithms
         /// <returns>ulong sum</returns>
         public static ulong SumToUlong(this ushort[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             int endIndex = startIndex + length;
             ulong overallSum = 0;
             for (int i = startIndex; i < endIndex; i++)
@@ -1111,6 +1225,8 @@ namespace HPCsharp.Algorithms
         /// <returns>ulong sum</returns>
         public static ulong SumToUlong(this ushort?[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumToUlong(0, arrayToSum.Length);
         }
 
@@ -1124,6 +1240,8 @@ namespace HPCsharp.Algorithms
         /// <returns>ulong sum</returns>
         public static ulong SumToUlong(this ushort?[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             int endIndex = startIndex + length;
             ulong overallSum = 0;
             for (int i = startIndex; i < endIndex; i++)
@@ -1140,6 +1258,8 @@ namespace HPCsharp.Algorithms
         /// <returns>decimal sum</returns>
         public static ulong SumToUlong(this byte[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumToUlong(0, arrayToSum.Length);
         }
 
@@ -1153,6 +1273,8 @@ namespace HPCsharp.Algorithms
         /// <returns>ulong sum</returns>
         public static ulong SumToUlong(this byte[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             int endIndex = startIndex + length;
             ulong overallSum = 0;
             for (int i = startIndex; i < endIndex; i++)
@@ -1168,6 +1290,8 @@ namespace HPCsharp.Algorithms
         /// <returns>decimal sum</returns>
         public static ulong SumToUlong(this byte?[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumToUlong(0, arrayToSum.Length);
         }
 
@@ -1181,6 +1305,8 @@ namespace HPCsharp.Algorithms
         /// <returns>ulong sum</returns>
         public static ulong SumToUlong(this byte?[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             int endIndex = startIndex + length;
             ulong overallSum = 0;
             for (int i = startIndex; i < endIndex; i++)
@@ -1196,6 +1322,8 @@ namespace HPCsharp.Algorithms
         /// <returns>float sum</returns>
         public static float SumHpc(this float[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumHpc(0, arrayToSum.Length);
         }
 
@@ -1208,6 +1336,8 @@ namespace HPCsharp.Algorithms
         /// <returns>float sum</returns>
         public static float SumHpc(this float[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             int endIndex = startIndex + length;
             float overallSum = 0;
             for (int i = startIndex; i < endIndex; i++)
@@ -1222,6 +1352,8 @@ namespace HPCsharp.Algorithms
        /// <returns>float sum</returns>
         public static float SumHpc(this float?[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumHpc(0, arrayToSum.Length);
         }
 
@@ -1234,6 +1366,8 @@ namespace HPCsharp.Algorithms
         /// <returns>float sum</returns>
         public static float SumHpc(this float?[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             int endIndex = startIndex + length;
             float overallSum = 0;
             for (int i = startIndex; i < endIndex; i++)
@@ -1249,6 +1383,8 @@ namespace HPCsharp.Algorithms
         /// <returns>double sum</returns>
         public static double SumToDouble(this float[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumToDouble(0, arrayToSum.Length);
         }
 
@@ -1261,6 +1397,8 @@ namespace HPCsharp.Algorithms
         /// <returns>double sum</returns>
         public static double SumToDouble(this float[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             int endIndex = startIndex + length;
             double overallSum = 0;
             for (int i = startIndex; i < endIndex; i++)
@@ -1276,6 +1414,8 @@ namespace HPCsharp.Algorithms
         /// <returns>double sum</returns>
         public static double SumToDouble(this float?[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumToDouble(0, arrayToSum.Length);
         }
 
@@ -1289,6 +1429,8 @@ namespace HPCsharp.Algorithms
         /// <returns>long sum</returns>
         public static double SumToDouble(this float?[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             int endIndex = startIndex + length;
             double overallSum = 0;
             for (int i = startIndex; i < endIndex; i++)
@@ -1320,6 +1462,8 @@ namespace HPCsharp.Algorithms
         /// <returns>double sum</returns>
         public static double SumHpc(this double[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumHpc(0, arrayToSum.Length);
         }
 
@@ -1332,6 +1476,8 @@ namespace HPCsharp.Algorithms
         /// <returns>double sum</returns>
         public static double SumHpc(this double[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             int endIndex = startIndex + length;
             double overallSum = 0;
             for (int i = startIndex; i < endIndex; i++)
@@ -1346,6 +1492,8 @@ namespace HPCsharp.Algorithms
         /// <returns>long sum</returns>
         public static double SumHpc(this double?[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumHpc(0, arrayToSum.Length);
         }
 
@@ -1358,6 +1506,8 @@ namespace HPCsharp.Algorithms
         /// <returns>double sum</returns>
         public static double SumHpc(this double?[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             int endIndex = startIndex + length;
             double overallSum = 0;
             for (int i = startIndex; i < endIndex; i++)
@@ -1381,6 +1531,8 @@ namespace HPCsharp.Algorithms
         /// <returns>decimal sum</returns>
         public static decimal SumHpc(this decimal[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumHpc(0, arrayToSum.Length);
         }
 
@@ -1407,6 +1559,8 @@ namespace HPCsharp.Algorithms
         /// <returns>decimal sum</returns>
         public static decimal SumHpc(this decimal?[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumHpc(0, arrayToSum.Length);
         }
 
@@ -1535,6 +1689,8 @@ namespace HPCsharp.Algorithms
         /// <returns>float sum</returns>
         public static float SumMostAccurate(this float[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumMostAccurate(0, arrayToSum.Length);
         }
 
@@ -1548,6 +1704,8 @@ namespace HPCsharp.Algorithms
         /// <returns>float sum</returns>
         public static float SumMostAccurate(this float[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             float sum = 0.0f;
             float c = 0.0f;                               // A running compensation for lost low-order bits  
             int endIndex = startIndex + length;
@@ -1573,6 +1731,8 @@ namespace HPCsharp.Algorithms
         /// <returns>float sum</returns>
         public static float SumMostAccurate(this float?[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumMostAccurate(0, arrayToSum.Length);
         }
 
@@ -1587,6 +1747,8 @@ namespace HPCsharp.Algorithms
         /// <returns>float sum</returns>
         public static float SumMostAccurate(this float?[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             float sum = 0.0f;
             float c   = 0.0f;                               // A running compensation for lost low-order bits  
             int endIndex = startIndex + length;
@@ -1616,6 +1778,8 @@ namespace HPCsharp.Algorithms
         /// <returns>double sum</returns>
         public static double SumToDoubleMostAccurate(this float[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumToDoubleMostAccurate(0, arrayToSum.Length);
         }
 
@@ -1630,6 +1794,8 @@ namespace HPCsharp.Algorithms
         /// <returns>double sum</returns>
         public static double SumToDoubleMostAccurate(this float[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             double sum = 0.0;
             double c   = 0.0;                               // A running compensation for lost low-order bits  
             int endIndex = startIndex + length;
@@ -1656,6 +1822,8 @@ namespace HPCsharp.Algorithms
         /// <returns>double sum</returns>
         public static double SumToDoubleMostAccurate(this float?[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumMostAccurate(0, arrayToSum.Length);
         }
 
@@ -1671,6 +1839,8 @@ namespace HPCsharp.Algorithms
         /// <returns>double sum</returns>
         public static double SumToDoubleMostAccurate(this float?[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             double sum = 0.0;
             double c   = 0.0;                               // A running compensation for lost low-order bits  
             int endIndex = startIndex + length;
@@ -1728,6 +1898,8 @@ namespace HPCsharp.Algorithms
         /// <returns>double sum</returns>
         public static double SumMostAccurate(this double[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumMostAccurate(0, arrayToSum.Length);
         }
 
@@ -1741,6 +1913,8 @@ namespace HPCsharp.Algorithms
         /// <returns>double sum</returns>
         public static double SumMostAccurate(this double[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             double sum = 0.0;
             double c = 0.0;                                 // A running compensation for lost low-order bits  
             int endIndex = startIndex + length;
@@ -1766,6 +1940,8 @@ namespace HPCsharp.Algorithms
         /// <returns>double sum</returns>
         public static double SumMostAccurate(this double?[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumMostAccurate(0, arrayToSum.Length);
         }
 
@@ -1780,6 +1956,8 @@ namespace HPCsharp.Algorithms
         /// <returns>double sum</returns>
         public static double SumMostAccurate(this double?[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             double sum = 0.0;
             double c = 0.0;                                 // A running compensation for lost low-order bits  
             int endIndex = startIndex + length;
@@ -1865,6 +2043,8 @@ namespace HPCsharp.Algorithms
         /// <returns>float sum</returns>
         public static float SumMoreAccurate(this float[] arrayToSum, int thresholdDivideAndConquerSum = 16 * 1024)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumPairwiseInner(0, arrayToSum.Length - 1, Algorithms.Sum.SumLR, (x, y) => x + y);
         }
 
@@ -1890,6 +2070,8 @@ namespace HPCsharp.Algorithms
         /// <returns>double sum</returns>
         public static double SumToDoubleMoreAccurate(this float[] arrayToSum, int thresholdDivideAndConquerSum = 16 * 1024)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumPairwiseDblInner(0, arrayToSum.Length - 1, Algorithms.Sum.SumToDoubleLR, (x, y) => x + y);
         }
 
@@ -1915,6 +2097,8 @@ namespace HPCsharp.Algorithms
         /// <returns>double sum</returns>
         public static double SumMoreAccurate(this double[] arrayToSum, int thresholdDivideAndConquerSum = 16 * 1024)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumPairwiseInner(0, arrayToSum.Length - 1, Algorithms.Sum.SumLR, (x, y) => x + y);
         }
 

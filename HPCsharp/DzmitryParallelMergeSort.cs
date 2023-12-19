@@ -21,6 +21,8 @@ namespace HPCsharpExperimental
 
         public void MergeSort(T[] array, int low, int high, bool parallel)
         {
+            if (array == null)
+                throw new ArgumentNullException(nameof(array));
             // Create a copy of the original array. Switching between
             // original array and its copy will allow to avoid
             // additional array allocations and data copying.

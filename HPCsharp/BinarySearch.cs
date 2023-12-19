@@ -42,6 +42,8 @@ namespace HPCsharp
         /// <returns>Returns the the left-most index at which the element of the array is larger or equal to the value</returns>
         public static Int32 BinarySearch<T>(T value, List<T> a, Int32 left, Int32 right, IComparer<T> comparer = null)
         {
+            if (a == null)
+                throw new ArgumentNullException(nameof(a));
             var equalityComparer = comparer ?? Comparer<T>.Default;
             Int32 low = left;
             Int32 high = Math.Max(left, right + 1);
@@ -68,6 +70,8 @@ namespace HPCsharp
         /// <returns>Returns the the left-most index at which the element of the array is larger or equal to the value</returns>
         public static Int32 BinarySearch<T>(T value, T[] a, Int32 left, Int32 right, IComparer<T> comparer = null)
         {
+            if (a == null)
+                throw new ArgumentNullException(nameof(a));
             var equalityComparer = comparer ?? Comparer<T>.Default;
             Int32 low = left;
             Int32 high = Math.Max(left, right + 1);

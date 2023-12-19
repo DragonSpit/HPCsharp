@@ -36,6 +36,8 @@ namespace HPCsharp.ParallelAlgorithms
 
         public static bool ZeroDetectSse(this byte[] arrayToDetect)
         {
+            if (arrayToDetect == null)
+                throw new ArgumentNullException(nameof(arrayToDetect));
             return arrayToDetect.ZeroDetectSseInner(0, arrayToDetect.Length - 1);
         }
 
