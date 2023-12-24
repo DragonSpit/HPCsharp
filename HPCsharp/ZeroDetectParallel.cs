@@ -3,6 +3,9 @@
 //       once memory bandwidth limit has been reached by the implementation. This is the same type of a problem, where AND condition is needed.
 // TODO: I'm seeing that for .Sum() using float[] or double[] is faster than using integer[]. It could be that this pipeline is more optimal is some way than the integer pipeline. C# SIMD allows you to
 //       cast between data types. This may be worthwhile to try for additional performance.
+
+#pragma warning disable CA1510
+
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -110,11 +113,15 @@ namespace HPCsharp.ParallelAlgorithms
 
         public static bool ZeroDetectSseUnrolled(this byte[] arrayToDetect)
         {
+            if (arrayToDetect == null)
+                throw new ArgumentNullException(nameof(arrayToDetect));
             return arrayToDetect.ZeroDetectSseUnrolledInner(0, arrayToDetect.Length - 1);
         }
 
         public static bool ZeroDetectSseUnrolled(this byte[] arrayToProcess, int start, int length)
         {
+            if (arrayToProcess == null)
+                throw new ArgumentNullException(nameof(arrayToProcess));
             return arrayToProcess.ZeroDetectSseUnrolledInner(start, start + length - 1);
         }
 
@@ -146,11 +153,15 @@ namespace HPCsharp.ParallelAlgorithms
 
         public static bool ValueDetectSseUnrolled(this byte[] arrayToDetect, byte value)
         {
-            return arrayToDetect.ValueDetectSseUnrolledInner(0, arrayToDetect.Length - 1, value);
+            if (arrayToDetect == null)
+                throw new ArgumentNullException(nameof(arrayToDetect));
+             return arrayToDetect.ValueDetectSseUnrolledInner(0, arrayToDetect.Length - 1, value);
         }
 
         public static bool ValueDetectSseUnrolled(this byte[] arrayToProcess, int start, int length, byte value)
         {
+            if (arrayToProcess == null)
+                throw new ArgumentNullException(nameof(arrayToProcess));
             return arrayToProcess.ValueDetectSseUnrolledInner(start, start + length - 1, value);
         }
 
@@ -215,6 +226,8 @@ namespace HPCsharp.ParallelAlgorithms
 
         public static bool ZeroDetectSseUnrolledPar(this byte[] arrayToProcess, int thresholdParallel = 4096, int parallelism = 2)
         {
+            if (arrayToProcess == null)
+                throw new ArgumentNullException(nameof(arrayToProcess));
             return ZeroDetectSseUnrolledParInner(arrayToProcess, 0, arrayToProcess.Length - 1, thresholdParallel, parallelism);
         }
 
@@ -247,6 +260,8 @@ namespace HPCsharp.ParallelAlgorithms
 
         public static bool ZeroDetectSsePar(this byte[] arrayToProcess, int thresholdParallel = 4096, int parallelism = 2)
         {
+            if (arrayToProcess == null)
+                throw new ArgumentNullException(nameof(arrayToProcess));
             return ZeroDetectSseParInner(arrayToProcess, 0, arrayToProcess.Length - 1, thresholdParallel, parallelism);
         }
 
@@ -279,6 +294,8 @@ namespace HPCsharp.ParallelAlgorithms
 
         public static bool ZeroDetectUnrolledPar(this byte[] arrayToProcess, int thresholdParallel = 4096, int parallelism = 2)
         {
+            if (arrayToProcess == null)
+                throw new ArgumentNullException(nameof(arrayToProcess));
             return ZeroDetectUnrolledParInner(arrayToProcess, 0, arrayToProcess.Length - 1, thresholdParallel, parallelism);
         }
 

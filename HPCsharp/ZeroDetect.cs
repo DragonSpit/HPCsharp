@@ -1,11 +1,15 @@
 ﻿// TODO: Implement not just Zero detection, but detection of any constant value, specified by the user. The constant
 //       value needs to be flexible and be any numeric data type. For example, we should be able to specify uint 0x00ff0000
 //       as the RGB value for a constant color array.
+
+#pragma warning disable CA1510
+
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Numerics;
 using System.Threading.Tasks;
+using System.Collections;
 
 namespace HPCsharp
 {
@@ -82,6 +86,8 @@ namespace HPCsharp
 
         public static unsafe bool ByFixedLongUnrolled(byte[] data, int l, int r)
         {
+            if (data == null)
+                throw new ArgumentNullException(nameof(data));
             fixed (byte* bytes = data)
             {
                 int len = r - l + 1;

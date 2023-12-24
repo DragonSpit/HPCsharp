@@ -94,6 +94,8 @@
 // TODO: Not sure if this is a good idea or if it would even work, but for Sum of Array of Longs (signed in general) could we split positives and negatives
 //       and generate separate sums of each of them, and then at the end combine positive and negative sum? Does that simplify things?
 
+#pragma warning disable CA1510
+
 using System.Collections.Generic;
 using System.Text;
 using System.Numerics;
@@ -101,6 +103,7 @@ using System.Threading.Tasks;
 using System;
 using System.Collections.Concurrent;
 using System.Threading;
+using System.Collections;
 
 namespace HPCsharp.ParallelAlgorithms
 {
@@ -114,6 +117,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>long sum</returns>
         public static long SumToLongSse(this sbyte[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumSseInner(0, arrayToSum.Length - 1);
         }
 
@@ -543,6 +548,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>long sum</returns>
         public static long SumToLongSse(this int?[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumSseInner(0, arrayToSum.Length - 1);
         }
 
@@ -556,17 +563,23 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>long sum</returns>
         public static long SumToLongSse(this int?[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumSseInner(startIndex, startIndex + length - 1);
         }
 
         public static long SumSseAndScalarSingleStream(this int[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             //return arrayToSum.SumSseInner(0, arrayToSum.Length - 1);
             return arrayToSum.SumSseAndScalarSingleStreamInner(0, arrayToSum.Length - 1);
         }
 
         public static long SumSseAndScalarSingleStream(this int[] arrayToSum, int start, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumSseAndScalarSingleStreamInner(start, start + length - 1);
         }
 
@@ -653,12 +666,16 @@ namespace HPCsharp.ParallelAlgorithms
 
         public static long SumSseAndScalar(this int[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             //return arrayToSum.SumSseInner(0, arrayToSum.Length - 1);
             return arrayToSum.SumSseAndScalarInner(0, arrayToSum.Length - 1);
         }
 
         public static long SumSseAndScalar(this int[] arrayToSum, int start, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumSseAndScalarInner(start, start + length - 1);
         }
         // Sadly, even in-cache small arrays are not speeding up with this interleaving idea :-(
@@ -699,12 +716,16 @@ namespace HPCsharp.ParallelAlgorithms
 
         public static ulong SumSseAndScalarSingleStream(this ulong[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             //return arrayToSum.SumSseInner(0, arrayToSum.Length - 1);
             return arrayToSum.SumSseAndScalarSingleStreamInner(0, arrayToSum.Length - 1);
         }
 
         public static ulong SumSseAndScalarSingleStream(this ulong[] arrayToSum, int start, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumSseAndScalarSingleStreamInner(start, start + length - 1);
         }
 
@@ -785,6 +806,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>ulong sum</returns>
         public static ulong SumToUlongSse(this uint[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumSseInner(0, arrayToSum.Length - 1);
         }
 
@@ -798,6 +821,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>ulong sum</returns>
         public static ulong SumToUlongSse(this uint[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumSseInner(startIndex, startIndex + length - 1);
         }
 
@@ -832,6 +857,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <exception>TSource:System.OverflowException: when the sum value is greater than Int64.MaxValue</exception>
         public static long SumSse(this long[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumSseInner(0, arrayToSum.Length - 1);
         }
 
@@ -846,6 +873,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <exception>TSource:System.OverflowException: when the sum value is greater than Int64.MaxValue</exception>
         public static long SumSse(this long[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumSseInner(startIndex, startIndex + length - 1);
         }
 
@@ -957,6 +986,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <exception>TSource:System.OverflowException: when the sum value is greater than Int64.MaxValue</exception>
         public static long SumCheckedSse(this long[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumCheckedSseInner(0, arrayToSum.Length - 1);
         }
 
@@ -971,6 +1002,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <exception>TSource:System.OverflowException: when the sum value is greater than Int64.MaxValue</exception>
         public static long SumCheckedSse(this long[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumCheckedSseInner(startIndex, startIndex + length - 1);
         }
 
@@ -1036,6 +1069,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>decimal sum</returns>
         public static decimal SumToDecimalSseFaster(this long[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumToDecimalSseFasterInner(0, arrayToSum.Length - 1);
         }
 
@@ -1049,6 +1084,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>decimal sum</returns>
         public static decimal SumToDecimalSseFaster(this long[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumToDecimalSseFasterInner(startIndex, startIndex + length - 1);
         }
 
@@ -1141,6 +1178,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>BigInteger sum</returns>
         public static BigInteger SumToBigIntegerSseFaster(this long[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumToBigIntegerSseFasterInner(0, arrayToSum.Length - 1);
         }
 
@@ -1154,6 +1193,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>BigInteger sum</returns>
         public static BigInteger SumToBigIntegerSseFaster(this long[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumToBigIntegerSseFasterInner(startIndex, startIndex + length - 1);
         }
 
@@ -1247,6 +1288,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <exception>TSource:System.OverflowException: when the sum value is greater than UInt64.MaxValue</exception>
         public static ulong SumSse(this ulong[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumSseInner(0, arrayToSum.Length - 1);
         }
 
@@ -1261,6 +1304,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <exception>TSource:System.OverflowException: when the sum value is greater than UInt64.MaxValue</exception>
         public static ulong SumSse(this ulong[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumSseInner(startIndex, startIndex + length - 1);
         }
 
@@ -1301,6 +1346,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <exception>TSource:System.OverflowException: when the sum value is greater than UInt64.MaxValue</exception>
         public static ulong SumCheckedSse(this ulong[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumCheckedSseInner(0, arrayToSum.Length - 1);
         }
 
@@ -1315,6 +1362,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <exception>TSource:System.OverflowException: when the sum value is greater than UInt64.MaxValue</exception>
         public static ulong SumCheckedSse(this ulong[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumCheckedSseInner(startIndex, startIndex + length - 1);
         }
 
@@ -1355,6 +1404,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>decimal sum</returns>
         public static decimal SumToDecimalSseFaster(this ulong[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumToDecimalSseFasterInner(0, arrayToSum.Length - 1);
         }
 
@@ -1368,6 +1419,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>decimal sum</returns>
         public static decimal SumToDecimalSseFaster(this ulong[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumToDecimalSseFasterInner(startIndex, startIndex + length - 1);
         }
 
@@ -1413,6 +1466,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>decimal sum</returns>
         public static decimal SumToDecimalSseEvenFaster(this ulong[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumToDecimalSseEvenFasterInner(0, arrayToSum.Length - 1);
         }
 
@@ -1426,6 +1481,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>decimal sum</returns>
         public static decimal SumToDecimalSseEvenFaster(this ulong[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumToDecimalSseEvenFasterInner(startIndex, startIndex + length - 1);
         }
 
@@ -1472,6 +1529,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>BigInteger sum</returns>
         public static BigInteger SumToBigIntegerSseEvenFaster(this ulong[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return (BigInteger)arrayToSum.SumToDecimalSseEvenFasterInner(0, arrayToSum.Length - 1);
         }
 
@@ -1485,6 +1544,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>BigInteger sum</returns>
         public static BigInteger SumToBigIntegerSseEvenFaster(this ulong[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return (BigInteger)arrayToSum.SumToDecimalSseEvenFasterInner(startIndex, startIndex + length - 1);
         }
 
@@ -1496,6 +1557,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>BigInteger sum</returns>
         public static BigInteger SumToBigIntegerSseFaster(this ulong[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumToBigIntegerSseFasterInner(0, arrayToSum.Length - 1);
         }
 
@@ -1509,6 +1572,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>BigInteger sum</returns>
         public static BigInteger SumToBigIntegerSseFaster(this ulong[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumToBigIntegerSseFasterInner(startIndex, startIndex + length - 1);
         }
 
@@ -1553,6 +1618,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>float sum</returns>
         public static float SumSse(this float[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumSseInner(0, arrayToSum.Length - 1);
         }
 
@@ -1565,6 +1632,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>float sum</returns>
         public static float SumSse(this float[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumSseInner(startIndex, startIndex + length - 1);
         }
 
@@ -1593,6 +1662,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>double sum</returns>
         public static double SumToDoubleSse(this float[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumSseDoubleInner(0, arrayToSum.Length - 1);
         }
 
@@ -1605,6 +1676,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>double sum</returns>
         public static double SumToDoubleSse(this float[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumSseDoubleInner(startIndex, startIndex + length - 1);
         }
 
@@ -1639,6 +1712,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>double sum</returns>
         public static double SumSse(this double[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumSseInner(0, arrayToSum.Length - 1);
         }
 
@@ -1651,6 +1726,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>double sum</returns>
         public static double SumSse(this double[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumSseInner(startIndex, startIndex + length - 1);
         }
 
@@ -1679,6 +1756,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>float sum</returns>
         public static float SumSseMostAccurate(this float[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumSseNeumaierInner(0, arrayToSum.Length - 1);
         }
 
@@ -1691,6 +1770,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>float sum</returns>
         public static float SumSseMostAccurate(this float[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumSseNeumaierInner(startIndex, startIndex + length - 1);
         }
 
@@ -1742,6 +1823,8 @@ namespace HPCsharp.ParallelAlgorithms
        /// <returns>double sum</returns>
         public static double SumToDoubleSseMostAccurate(this float[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumSseNeumaierDoubleInner(0, arrayToSum.Length - 1);
         }
 
@@ -1754,6 +1837,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>double sum</returns>
         public static double SumToDoubleSseMostAccurate(this float[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumSseNeumaierDoubleInner(startIndex, startIndex + length - 1);
         }
 
@@ -1814,6 +1899,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>double sum</returns>
         public static double SumSseMostAccurate(this double[] arrayToSum)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumSseNeumaierInner(0, arrayToSum.Length - 1);
         }
 
@@ -1826,6 +1913,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>double sum</returns>
         public static double SumSseMostAccurate(this double[] arrayToSum, int startIndex, int length)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumSseNeumaierInner(startIndex, startIndex + length - 1);
         }
 
@@ -1892,6 +1981,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>long sum</returns>
         public static long SumToLongSseParDac(this sbyte[] arrayToSum, int thresholdParallel = 16 * 1024, int degreeOfParallelism = 0)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, 0, arrayToSum.Length, SumToLongSse, (x, y) => x + y, thresholdParallel, degreeOfParallelism);
         }
 
@@ -1916,11 +2007,15 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>ulong sum</returns>
         public static ulong SumToUlongSsePar(this byte[] arrayToSum, int thresholdParallel = 16 * 1024, int degreeOfParallelism = 0)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, 0, arrayToSum.Length, SumToUlongSse, (x, y) => x + y, thresholdParallel, degreeOfParallelism);
         }
 
         public static ulong SumToUlongSseParInvoke(this byte[] arrayToSum, int degreeOfParallelism = 0)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             int maxDegreeOfPar = degreeOfParallelism <= 0 ? Environment.ProcessorCount : degreeOfParallelism;
             var options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfPar };
 // TODO: Need to deal with small arrays and small quantas, possibly 0
@@ -1993,6 +2088,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>ulong sum</returns>
         public static ulong SumToUlongPar(this byte[] arrayToSum, int degreeOfParallelism = 0)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumToUlongPar(0, arrayToSum.Length, degreeOfParallelism);
         }
         /// <summary>
@@ -2006,6 +2103,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>ulong sum</returns>
         public static ulong SumToUlongPar(this byte[] arrayToSum, int startIndex, int length, int degreeOfParallelism = 0)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             var concurrentSums = new ConcurrentBag<ulong>();
 
             int maxDegreeOfPar = degreeOfParallelism <= 0 ? Environment.ProcessorCount : degreeOfParallelism;
@@ -2036,6 +2135,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>ulong sum</returns>
         public static ulong SumToUlongPar(this ushort[] arrayToSum, int degreeOfParallelism = 0)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumToUlongPar(0, arrayToSum.Length, degreeOfParallelism);
         }
         /// <summary>
@@ -2049,6 +2150,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>ulong sum</returns>
         public static ulong SumToUlongPar(this ushort[] arrayToSum, int startIndex, int length, int degreeOfParallelism = 0)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             var concurrentSums = new ConcurrentBag<ulong>();
 
             int maxDegreeOfPar = degreeOfParallelism <= 0 ? Environment.ProcessorCount : degreeOfParallelism;
@@ -2078,6 +2181,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>ulong sum</returns>
         public static ulong SumToUlongPar(this uint[] arrayToSum, int degreeOfParallelism = 0)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumToUlongPar(0, arrayToSum.Length, degreeOfParallelism);
         }
         /// <summary>
@@ -2091,6 +2196,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>ulong sum</returns>
         public static ulong SumToUlongPar(this uint[] arrayToSum, int startIndex, int length, int degreeOfParallelism = 0)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             var concurrentSums = new ConcurrentBag<ulong>();
 
             int maxDegreeOfPar = degreeOfParallelism <= 0 ? Environment.ProcessorCount : degreeOfParallelism;
@@ -2120,6 +2227,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>ulong sum</returns>
         public static long SumToLongPar(this sbyte[] arrayToSum, int degreeOfParallelism = 0)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumToLongPar(0, arrayToSum.Length, degreeOfParallelism);
         }
         /// <summary>
@@ -2133,6 +2242,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>ulong sum</returns>
         public static long SumToLongPar(this sbyte[] arrayToSum, int startIndex, int length, int degreeOfParallelism = 0)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             var concurrentSums = new ConcurrentBag<long>();
 
             int maxDegreeOfPar = degreeOfParallelism <= 0 ? Environment.ProcessorCount : degreeOfParallelism;
@@ -2162,6 +2273,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>ulong sum</returns>
         public static long SumToLongPar(this short[] arrayToSum, int degreeOfParallelism = 0)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumToLongPar(0, arrayToSum.Length, degreeOfParallelism);
         }
         /// <summary>
@@ -2175,6 +2288,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>ulong sum</returns>
         public static long SumToLongPar(this short[] arrayToSum, int startIndex, int length, int degreeOfParallelism = 0)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             var concurrentSums = new ConcurrentBag<long>();
 
             int maxDegreeOfPar = degreeOfParallelism <= 0 ? Environment.ProcessorCount : degreeOfParallelism;
@@ -2204,6 +2319,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>ulong sum</returns>
         public static long SumToLongPar(this int[] arrayToSum, int degreeOfParallelism = 0)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumToLongPar(0, arrayToSum.Length, degreeOfParallelism);
         }
         /// <summary>
@@ -2217,6 +2334,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>ulong sum</returns>
         public static long SumToLongPar(this int[] arrayToSum, int startIndex, int length, int degreeOfParallelism = 0)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             var concurrentSums = new ConcurrentBag<long>();
 
             int maxDegreeOfPar = degreeOfParallelism <= 0 ? Environment.ProcessorCount : degreeOfParallelism;
@@ -2266,6 +2385,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>ulong sum</returns>
         public static long SumToLongSsePar(this sbyte[] arrayToSum, int degreeOfParallelism = 0)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumToLongSsePar(0, arrayToSum.Length, degreeOfParallelism);
         }
         /// <summary>
@@ -2306,6 +2427,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>ulong sum</returns>
         public static long SumToLongSsePar(this short[] arrayToSum, int degreeOfParallelism = 0)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumToLongSsePar(0, arrayToSum.Length, degreeOfParallelism);
         }
         /// <summary>
@@ -2346,6 +2469,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>ulong sum</returns>
         public static long SumToLongSsePar(this int[] arrayToSum, int degreeOfParallelism = 0)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumToLongSsePar(0, arrayToSum.Length, degreeOfParallelism);
         }
         /// <summary>
@@ -2387,6 +2512,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>ulong sum</returns>
         public static long SumSsePar(this long[] arrayToSum, int degreeOfParallelism = 0)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumSsePar(0, arrayToSum.Length, degreeOfParallelism);
         }
         /// <summary>
@@ -2428,6 +2555,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>ulong sum</returns>
         public static ulong SumToUlongSsePar(this byte[] arrayToSum, int degreeOfParallelism = 0)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumToUlongSsePar(0, arrayToSum.Length, degreeOfParallelism);
         }
         /// <summary>
@@ -2469,6 +2598,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>ulong sum</returns>
         public static ulong SumToUlongSsePar(this ushort[] arrayToSum, int degreeOfParallelism = 0)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumToUlongSsePar(0, arrayToSum.Length, degreeOfParallelism);
         }
         /// <summary>
@@ -2509,6 +2640,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>ulong sum</returns>
         public static ulong SumToUlongSsePar(this uint[] arrayToSum, int degreeOfParallelism = 0)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumToUlongSsePar(0, arrayToSum.Length, degreeOfParallelism);
         }
         /// <summary>
@@ -2550,6 +2683,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>ulong sum</returns>
         public static ulong SumSsePar(this ulong[] arrayToSum, int degreeOfParallelism = 0)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return arrayToSum.SumSsePar(0, arrayToSum.Length, degreeOfParallelism);
         }
         /// <summary>
@@ -2808,6 +2943,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>decimal sum</returns>
         public static decimal SumToDecimalPar(this long[] arrayToSum, int thresholdParallel = 16 * 1024, int degreeOfParallelism = 0)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, 0, arrayToSum.Length, Algorithms.Sum.SumToDecimal, (x, y) => x + y, thresholdParallel, degreeOfParallelism);
         }
 
@@ -2833,6 +2970,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>decimal sum</returns>
         public static decimal SumToDecimalFasterPar(this long[] arrayToSum, int thresholdParallel = 16 * 1024, int degreeOfParallelism = 0)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, 0, arrayToSum.Length, Algorithms.Sum.SumToDecimalFaster, (x, y) => x + y, thresholdParallel, degreeOfParallelism);
         }
         /// <summary>
@@ -2858,6 +2997,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>decimal sum</returns>
         public static decimal SumToDecimalSseFasterPar(this long[] arrayToSum, int thresholdParallel = 16 * 1024, int degreeOfParallelism = 0)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, 0, arrayToSum.Length, ParallelAlgorithms.Sum.SumToDecimalSseFaster, (x, y) => x + y, thresholdParallel, degreeOfParallelism);
         }
         /// <summary>
@@ -2883,6 +3024,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>BigInteger sum</returns>
         public static BigInteger SumToBigIntegerFasterPar(this long[] arrayToSum, int thresholdParallel = 16 * 1024, int degreeOfParallelism = 0)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return SumToBigIntegerFasterParInner(arrayToSum, 0, arrayToSum.Length - 1, thresholdParallel);
             //return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, 0, arrayToSum.Length, Algorithms.Sum.SumToBigIntegerFaster, (x, y) => x + y, thresholdParallel, degreeOfParallelism);
         }
@@ -2911,6 +3054,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>BigInteger sum</returns>
         public static BigInteger SumToBigIntegerSseFasterPar(this long[] arrayToSum, int thresholdParallel = 16 * 1024, int degreeOfParallelism = 0)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return SumToBigIntegerSseFasterParInner(arrayToSum, 0, arrayToSum.Length - 1, thresholdParallel);
             //return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, 0, arrayToSum.Length, ParallelAlgorithms.Sum.SumToBigIntegerSseFaster, (x, y) => x + y, thresholdParallel, degreeOfParallelism);
         }
@@ -2938,6 +3083,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>decimal sum</returns>
         public static decimal SumToDecimalPar(this ulong[] arrayToSum, int thresholdParallel = 16 * 1024, int degreeOfParallelism = 0)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, 0, arrayToSum.Length, Algorithms.Sum.SumToDecimal, (x, y) => x + y, thresholdParallel, degreeOfParallelism);
         }
         /// <summary>
@@ -2962,6 +3109,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>decimal sum</returns>
         public static decimal SumToDecimalFasterPar(this ulong[] arrayToSum, int thresholdParallel = 16 * 1024, int degreeOfParallelism = 0)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, 0, arrayToSum.Length, Algorithms.Sum.SumToDecimalFaster, (x, y) => x + y, thresholdParallel, degreeOfParallelism);
         }
         /// <summary>
@@ -2987,6 +3136,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>decimal sum</returns>
         public static decimal SumToDecimalSseFasterPar(this ulong[] arrayToSum, int thresholdParallel = 16 * 1024, int degreeOfParallelism = 0)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, 0, arrayToSum.Length, ParallelAlgorithms.Sum.SumToDecimalSseFaster, (x, y) => x + y, thresholdParallel, degreeOfParallelism);
         }
         /// <summary>
@@ -3012,6 +3163,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>decimal sum</returns>
         public static decimal SumToDecimalSseEvenFasterPar(this ulong[] arrayToSum, int thresholdParallel = 16 * 1024, int degreeOfParallelism = 0)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, 0, arrayToSum.Length, ParallelAlgorithms.Sum.SumToDecimalSseEvenFaster, (x, y) => x + y, thresholdParallel, degreeOfParallelism);
         }
         /// <summary>
@@ -3036,6 +3189,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>BigInteger sum</returns>
         public static BigInteger SumToBigIntegerPar(this ulong[] arrayToSum, int thresholdParallel = 16 * 1024, int degreeOfParallelism = 0)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, 0, arrayToSum.Length, Algorithms.Sum.SumToBigInteger, (x, y) => x + y, thresholdParallel, degreeOfParallelism);
         }
         /// <summary>
@@ -3060,6 +3215,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>BigInteger sum</returns>
         public static BigInteger SumToBigIntegerFasterPar(this ulong[] arrayToSum, int thresholdParallel = 16 * 1024, int degreeOfParallelism = 0)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return SumToBigIntegerFasterParInner(arrayToSum, 0, arrayToSum.Length - 1, thresholdParallel);
             //return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, 0, arrayToSum.Length, Algorithms.Sum.SumToBigIntegerFaster, (x, y) => x + y, thresholdParallel, degreeOfParallelism);
         }
@@ -3087,6 +3244,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>BigInteger sum</returns>
         public static BigInteger SumToBigIntegerSseFasterPar(this ulong[] arrayToSum, int thresholdParallel = 16 * 1024, int degreeOfParallelism = 0)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return SumToBigIntegerSseFasterParInner(arrayToSum, 0, arrayToSum.Length - 1, thresholdParallel);
             //return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, 0, arrayToSum.Length, ParallelAlgorithms.Sum.SumToBigIntegerSseFaster, (x, y) => x + y, thresholdParallel, degreeOfParallelism);
         }
@@ -3162,6 +3321,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>float sum</returns>
         public static float SumPar(this float[] arrayToSum, int thresholdParallel = 16 * 1024, int degreeOfParallelism = 0)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return AlgorithmPatterns.DivideAndConquerPar(arrayToSum, 0, arrayToSum.Length, Algorithms.Sum.SumHpc, (x, y) => x + y, thresholdParallel, degreeOfParallelism);
         }
 
@@ -3185,6 +3346,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>float sum</returns>
         public static double SumToDoublePar(this float[] arrayToSum, int thresholdParallel = 16 * 1024, int degreeOfParallelism = 0)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, 0, arrayToSum.Length, Algorithms.Sum.SumToDouble, (x, y) => x + y, thresholdParallel, degreeOfParallelism);
         }
 
@@ -3208,6 +3371,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>float sum</returns>
         public static float SumSsePar(this float[] arrayToSum, int thresholdParallel = 16 * 1024, int degreeOfParallelism = 0)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return AlgorithmPatterns.DivideAndConquerPar(arrayToSum, 0, arrayToSum.Length, SumSse, (x, y) => x + y, thresholdParallel, degreeOfParallelism);
         }
 
@@ -3231,6 +3396,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>double sum</returns>
         public static double SumToDoubleSsePar(this float[] arrayToSum, int thresholdParallel = 16 * 1024, int degreeOfParallelism = 0)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, 0, arrayToSum.Length, SumSse, (x, y) => x + y, thresholdParallel, degreeOfParallelism);
         }
 
@@ -3254,6 +3421,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>double sum</returns>
         public static double SumPar(this double[] arrayToSum, int thresholdParallel = 16 * 1024, int degreeOfParallelism = 0)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return AlgorithmPatterns.DivideAndConquerPar(arrayToSum, 0, arrayToSum.Length, Algorithms.Sum.SumHpc, (x, y) => x + y, thresholdParallel, degreeOfParallelism);
         }
 
@@ -3276,6 +3445,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>double sum</returns>
         public static double SumSsePar(this double[] arrayToSum, int thresholdParallel = 16 * 1024, int degreeOfParallelism = 0)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return AlgorithmPatterns.DivideAndConquerPar(arrayToSum, 0, arrayToSum.Length, SumSse, (x, y) => x + y, thresholdParallel, degreeOfParallelism);
         }
 
@@ -3299,6 +3470,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>float sum</returns>
         public static float SumParMostAccurate(this float[] arrayToSum, int thresholdParallel = 16 * 1024, int degreeOfParallelism = 0)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, 0, arrayToSum.Length, Algorithms.Sum.SumMostAccurate, Algorithms.Sum.SumMostAccurate, thresholdParallel, degreeOfParallelism);
         }
 
@@ -3322,6 +3495,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>double sum</returns>
         public static double SumToDoubleParMostAccurate(this float[] arrayToSum, int thresholdParallel = 16 * 1024, int degreeOfParallelism = 0)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, 0, arrayToSum.Length, Algorithms.Sum.SumToDoubleMostAccurate, Algorithms.Sum.SumMostAccurate, thresholdParallel, degreeOfParallelism);
         }
 
@@ -3346,6 +3521,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>float sum</returns>
         public static float SumSseParMostAccurate(this float[] arrayToSum, int thresholdParallel = 16 * 1024, int degreeOfParallelism = 0)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return AlgorithmPatterns.DivideAndConquerPar(arrayToSum, 0, arrayToSum.Length, SumSseMostAccurate, Algorithms.Sum.SumMostAccurate, thresholdParallel, degreeOfParallelism);
         }
 
@@ -3370,6 +3547,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>double sum</returns>
         public static double SumToDoubleSseParMostAccurate(this float[] arrayToSum, int thresholdParallel = 16 * 1024, int degreeOfParallelism = 0)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return AlgorithmPatterns.DivideAndConquerTwoTypesPar(arrayToSum, 0, arrayToSum.Length, SumToDoubleSseMostAccurate, Algorithms.Sum.SumMostAccurate, thresholdParallel, degreeOfParallelism);
         }
 
@@ -3394,6 +3573,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>double sum</returns>
         public static double SumParMostAccurate(this double[] arrayToSum, int thresholdParallel = 16 * 1024, int degreeOfParallelism = 0)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return AlgorithmPatterns.DivideAndConquerPar(arrayToSum, 0, arrayToSum.Length, Algorithms.Sum.SumMostAccurate, Algorithms.Sum.SumMostAccurate, thresholdParallel, degreeOfParallelism);
         }
 
@@ -3418,6 +3599,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>double sum</returns>
         public static double SumSseParMostAccurate(this double[] arrayToSum, int thresholdParallel = 16 * 1024, int degreeOfParallelism = 0)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return AlgorithmPatterns.DivideAndConquerPar(arrayToSum, 0, arrayToSum.Length, SumSseMostAccurate, Algorithms.Sum.SumMostAccurate, thresholdParallel, degreeOfParallelism);
         }
 
@@ -3441,6 +3624,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>decimal sum</returns>
         public static decimal SumPar(this decimal[] arrayToSum, int thresholdParallel = 16 * 1024, int degreeOfParallelism = 0)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return AlgorithmPatterns.DivideAndConquerPar(arrayToSum, 0, arrayToSum.Length, Algorithms.Sum.SumHpc, (x, y) => x + y, thresholdParallel, degreeOfParallelism);
         }
 
@@ -3463,6 +3648,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <returns>BigInteger sum</returns>
         public static BigInteger SumPar(this BigInteger[] arrayToSum, int thresholdParallel = 16 * 1024, int degreeOfParallelism = 0)
         {
+            if (arrayToSum == null)
+                throw new ArgumentNullException(nameof(arrayToSum));
             return AlgorithmPatterns.DivideAndConquerPar(arrayToSum, 0, arrayToSum.Length, Algorithms.Sum.SumHpc, (x, y) => x + y, thresholdParallel, degreeOfParallelism);
         }
 

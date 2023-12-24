@@ -49,6 +49,9 @@
 // TODO: Implement Average computing using integer division and modulo method, as this method does not require use of BigInteger, and does not overflow, and thus does not need
 //       extended precision support, and may turn out to be faster and simpler. However, this may be only good for computing average, whereas sum is useful for many other things.
 //       There are no SEE instructions to accelerate it - i.e. no integer division and no integer modulo. Are there SSE double-precision floating-point division instructions?
+
+#pragma warning disable CA1510
+
 using System.Collections.Generic;
 using System.Text;
 using System.Numerics;
