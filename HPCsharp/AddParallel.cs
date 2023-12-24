@@ -4,6 +4,9 @@
 //       which benefit from it.
 // TODO: Implement AddKernelSSE() function that can be composed with other kernels, to make more complex molecules out atomic
 //       functions, and keep performance high. No loops, no if statements, no overhead.
+
+#pragma warning disable CA1510
+
 using System.Collections.Generic;
 using System.Text;
 using System.Numerics;
@@ -25,6 +28,10 @@ namespace HPCsharp.ParallelAlgorithms
 
         public static int[] AddSse(this int[] arrayA, int[] arrayB, int start, int length)
         {
+            if (arrayA == null)
+                throw new ArgumentNullException(nameof(arrayA));
+            if (arrayB == null)
+                throw new ArgumentNullException(nameof(arrayB));
             return arrayA.AddSseInner(arrayB, start, start + length - 1);
         }
 
@@ -212,6 +219,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <param name="arrayB">Second input array</param>
         public static void AddToPar(this int[] arrayA, int[] arrayB, int thresholdParallel = 16 * 1024)
         {
+            if (arrayA == null)
+                throw new ArgumentNullException(nameof(arrayA));
             arrayA.AddToParInner(arrayB, 0, arrayA.Length - 1, thresholdParallel);
         }
 

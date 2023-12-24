@@ -1,4 +1,6 @@
-﻿using System;
+﻿#pragma warning disable CA1510
+
+using System;
 using System.Collections.Generic;
 
 namespace HPCsharp
@@ -17,6 +19,10 @@ namespace HPCsharp
         static public void Copy<T>(T[] sourceArray, Int32 sourceIndex,
                                    T[] destinationArray, Int32 destinationIndex, Int32 length, Int32 threshold = 128)
         {
+            if (sourceArray == null)
+                throw new ArgumentNullException(nameof(sourceArray));
+            if (destinationArray == null)
+                throw new ArgumentNullException(nameof(destinationArray));
             if (length >= threshold)
                 Array.Copy(sourceArray, sourceIndex, destinationArray, destinationIndex, length);
             else

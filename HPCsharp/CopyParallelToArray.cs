@@ -14,11 +14,15 @@
 // TODO: Check if it's faster to convert List to Array in parallel and then to create a List from an array
 // TODO: Would it be faster to page in a new Array when returning a new Array, followed by copying to it? Could we page in a new array in parallel?
 // TODO: Could we create a List from an Array in parallel? Possibly create a .CopyToPar() and/or .ToListPar() and bring parallelism to construction.
+
+#pragma warning disable CA1510
+
 using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Linq;
+using System.Collections;
 
 namespace HPCsharp.ParallelAlgorithms
 {
@@ -59,7 +63,7 @@ namespace HPCsharp.ParallelAlgorithms
             if (length <= 0)      // zero elements to copy
                 return;
             if (length > (src.Count - srcStart) || length > (dst.Length - dstStart))
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(length));
 
             (Int32 minWorkQuanta, Int32 degreeOfParallelism) = parSettings ?? (64 * 1024, 0);      // default values for parallelThreshold and degreeOfParallelism to use all processor cores
 
@@ -97,6 +101,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <param name="parSettings">minWorkQuanta = number of array elements efficient to process per core; degreeOfParallelism = maximum number of CPU cores that will be used</param>
         public static T[] ToArrayPar<T>(this List<T> src, (Int32 minWorkQuanta, Int32 degreeOfParallelism)? parSettings = null)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
             (Int32 minWorkQuanta, Int32 degreeOfParallelism) = parSettings ?? (64 * 1024, Environment.ProcessorCount / SystemAttributes.HyperthreadingNumberOfWays);      // default values for parallelThreshold and degreeOfParallelism
             T[] dst = new T[src.Count];
             if ((minWorkQuanta * degreeOfParallelism) < src.Count)
@@ -114,6 +120,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <param name="parSettings">minWorkQuanta = number of array elements efficient to process per core; degreeOfParallelism = maximum number of CPU cores that will be used</param>
         public static T[] ToArrayPar<T>(this List<T> src, Int32 srcStart, Int32 length, (Int32 minWorkQuanta, Int32 degreeOfParallelism)? parSettings = null )
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
             (Int32 minWorkQuanta, Int32 degreeOfParallelism) = parSettings ?? (64 * 1024, Environment.ProcessorCount / SystemAttributes.HyperthreadingNumberOfWays);      // default values for parallelThreshold and degreeOfParallelism
             T[] dst = new T[length];
             if ((minWorkQuanta * degreeOfParallelism) < src.Count)
@@ -132,6 +140,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <param name="parSettings">minWorkQuanta = number of array elements efficient to process per core; degreeOfParallelism = maximum number of CPU cores that will be used</param>
         public static T[] ToArrayPar<T>(this List<T> src, Int32 srcStart, Int32 dstStart, Int32 length, (Int32 minWorkQuanta, Int32 degreeOfParallelism)? parSettings = null)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
             (Int32 minWorkQuanta, Int32 degreeOfParallelism) = parSettings ?? (64 * 1024, Environment.ProcessorCount / SystemAttributes.HyperthreadingNumberOfWays);      // default values for parallelThreshold and degreeOfParallelism
             T[] dst = new T[src.Count];
             if ((minWorkQuanta * degreeOfParallelism) < src.Count)
@@ -148,6 +158,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <param name="parSettings">minWorkQuanta = number of array elements efficient to process per core; degreeOfParallelism = maximum number of CPU cores that will be used</param>
         public static void CopyToPar<T>(this List<T> src, T[] dst, (Int32 minWorkQuanta, Int32 degreeOfParallelism)? parSettings = null)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
             (Int32 minWorkQuanta, Int32 degreeOfParallelism) = parSettings ?? (64 * 1024, Environment.ProcessorCount / SystemAttributes.HyperthreadingNumberOfWays);      // default values for parallelThreshold and degreeOfParallelism
             if ((minWorkQuanta * degreeOfParallelism) < src.Count)
                 minWorkQuanta = src.Count / degreeOfParallelism;
@@ -163,6 +175,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <param name="parSettings">minWorkQuanta = number of array elements efficient to process per core; degreeOfParallelism = maximum number of CPU cores that will be used</param>
         public static void CopyToPar<T>(this List<T> src, T[] dst, Int32 dstStart, (Int32 minWorkQuanta, Int32 degreeOfParallelism)? parSettings = null)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
             (Int32 minWorkQuanta, Int32 degreeOfParallelism) = parSettings ?? (64 * 1024, Environment.ProcessorCount / SystemAttributes.HyperthreadingNumberOfWays);      // default values for parallelThreshold and degreeOfParallelism
             if ((minWorkQuanta * degreeOfParallelism) < src.Count)
                 minWorkQuanta = src.Count / degreeOfParallelism;
@@ -180,6 +194,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <param name="parSettings">minWorkQuanta = number of array elements efficient to process per core; degreeOfParallelism = maximum number of CPU cores that will be used</param>
         public static void CopyToPar<T>(this List<T> src, Int32 srcStart, T[] dst, Int32 dstStart, Int32 length, (Int32 minWorkQuanta, Int32 degreeOfParallelism)? parSettings = null)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
             (Int32 minWorkQuanta, Int32 degreeOfParallelism) = parSettings ?? (64 * 1024, Environment.ProcessorCount / SystemAttributes.HyperthreadingNumberOfWays);      // default values for parallelThreshold and degreeOfParallelism
             if ((minWorkQuanta * degreeOfParallelism) < src.Count)
                 minWorkQuanta = src.Count / degreeOfParallelism;

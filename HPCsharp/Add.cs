@@ -1,4 +1,6 @@
 ﻿// TODO: Add these algorithms to the Readme table/list of algorithms. Now, that we have SSE that's way faster than scalar.
+#pragma warning disable CA1510
+
 using System.Collections.Generic;
 using System.Text;
 using System.Numerics;

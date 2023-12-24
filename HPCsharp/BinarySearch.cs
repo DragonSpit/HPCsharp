@@ -1,4 +1,6 @@
-﻿using System;
+﻿#pragma warning disable CA1510
+
+using System;
 using System.Collections.Generic;
 
 namespace HPCsharp

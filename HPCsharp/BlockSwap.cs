@@ -11,6 +11,9 @@
 //       half has to be "fixed". There may be certain ratios between halves that work well using one algorithm versus another.
 // TODO: Fix a bug with Bentley's Juggling algorithm when the starting index is non-zero.
 // TODO: Use Array.Copy to copy 3X faster for those algorithms that don't reverse, which is as fast as SSE copy.
+
+#pragma warning disable CA1510
+
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -180,6 +183,8 @@ namespace HPCsharp
 
         public static void BlockSwapJugglingBentley<T>(T[] array, int l, int m, int r)
         {
+            if (array == null)
+                throw new ArgumentNullException(nameof(array));
             int uLength = m - l + 1;
             int vLength = r - m;
             if (uLength <= 0 || vLength <= 0) return;

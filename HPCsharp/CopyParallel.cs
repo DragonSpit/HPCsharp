@@ -35,6 +35,8 @@
 // TODO: For those functions that create a new Array that is going to be returned, would it help to page that new Array in? Could we page it in using multiple cores faster
 //       than using a single core?
 
+#pragma warning disable CA1510
+
 using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -82,7 +84,7 @@ namespace HPCsharp.ParallelAlgorithms
             if (length <= 0)      // zero elements to copy
                 return;
             if (length > (src.Length - srcStart) || length > (dst.Length - dstStart))
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(length));
 
             (Int32 minWorkQuanta, Int32 degreeOfParallelism) = parSettings ?? (64 * 1024, 0);      // default values for parallelThreshold and degreeOfParallelism
 
@@ -114,10 +116,14 @@ namespace HPCsharp.ParallelAlgorithms
         /// <param name="parSettings">minWorkQuanta = number of array elements efficient to process per core; degreeOfParallelism = maximum number of CPU cores that will be used</param>
         public static void CopyPar<T>(this T[] src, Int32 srcStart, T[] dst, Int32 dstStart, Int32 length, (Int32 minWorkQuanta, Int32 degreeOfParallelism)? parSettings = null)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
+            if (dst == null)
+                throw new ArgumentNullException(nameof(dst));
             if (length <= 0)      // zero elements to copy
                 return;
             if ((srcStart + length) > src.Length || (dstStart + length) > dst.Length)
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(length));
 
             (Int32 minWorkQuanta, Int32 degreeOfParallelism) = parSettings ?? (64 * 1024, Environment.ProcessorCount / SystemAttributes.HyperthreadingNumberOfWays);      // default values for parallelThreshold and degreeOfParallelism
 
@@ -137,10 +143,14 @@ namespace HPCsharp.ParallelAlgorithms
         /// <param name="parSettings">minWorkQuanta = number of array elements efficient to process per core; degreeOfParallelism = maximum number of CPU cores that will be used</param>
         public static void CopyPar<T>(this T[] src, T[] dst, Int32 length, (Int32 minWorkQuanta, Int32 degreeOfParallelism)? parSettings = null)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
+            if (dst == null)
+                throw new ArgumentNullException(nameof(dst));
             if (length <= 0)      // zero elements to copy
                 return;
             if (length > src.Length || length > dst.Length)
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(length));
 
             (Int32 minWorkQuanta, Int32 degreeOfParallelism) = parSettings ?? (64 * 1024, Environment.ProcessorCount / SystemAttributes.HyperthreadingNumberOfWays);      // default values for parallelThreshold and degreeOfParallelism
 
@@ -160,8 +170,12 @@ namespace HPCsharp.ParallelAlgorithms
         /// <param name="parSettings">minWorkQuanta = number of array elements efficient to process per core; degreeOfParallelism = maximum number of CPU cores that will be used</param>
         public static void CopyPar<T>(this T[] src, T[] dst, (Int32 minWorkQuanta, Int32 degreeOfParallelism)? parSettings = null)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
+            if (dst == null)
+                throw new ArgumentNullException(nameof(dst));
             if (src.Length > dst.Length)
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(src));
 
             (Int32 minWorkQuanta, Int32 degreeOfParallelism) = parSettings ?? (64 * 1024, Environment.ProcessorCount / SystemAttributes.HyperthreadingNumberOfWays);      // default values for parallelThreshold and degreeOfParallelism
 
@@ -182,8 +196,12 @@ namespace HPCsharp.ParallelAlgorithms
         // Note: Private because of a conflict between several overloaded functions. Need to resolve.
         public static void CopyToPar<T>(this T[] src, T[] dst, Int32 dstStart, (Int32 minWorkQuanta, Int32 degreeOfParallelism)? parSettings = null)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
+            if (dst == null)
+                throw new ArgumentNullException(nameof(dst));
             if (src.Length > (dst.Length - dstStart))
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(src));
 
             (Int32 minWorkQuanta, Int32 degreeOfParallelism) = parSettings ?? (64 * 1024, Environment.ProcessorCount / SystemAttributes.HyperthreadingNumberOfWays);      // default values for parallelThreshold and degreeOfParallelism
 
@@ -204,10 +222,14 @@ namespace HPCsharp.ParallelAlgorithms
         /// <param name="length">number of array elements to copy</param>
         public static void CopySse(this int[] src, Int32 srcStart, int[] dst, Int32 dstStart, Int32 length)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
+            if (dst == null)
+                throw new ArgumentNullException(nameof(dst));
             if (length <= 0)      // zero elements to copy
                 return;
             if (length > (src.Length - srcStart) || length > (dst.Length - dstStart))
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(length));
 
             int sseSrcIndexEnd = srcStart + (length / Vector<int>.Count) * Vector<int>.Count;
             int i, j;
@@ -232,10 +254,14 @@ namespace HPCsharp.ParallelAlgorithms
         /// <param name="parSettings">minWorkQuanta = number of array elements efficient to process per core; degreeOfParallelism = maximum number of CPU cores that will be used</param>
         public static void CopySsePar(this int[] src, Int32 srcStart, int[] dst, Int32 dstStart, Int32 length, (Int32 minWorkQuanta, Int32 degreeOfParallelism)? parSettings = null)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
+            if (dst == null)
+                throw new ArgumentNullException(nameof(dst));
             if (length <= 0)      // zero elements to copy
                 return;
             if (length > (src.Length - srcStart) || length > (dst.Length - dstStart))
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(length));
 
             (Int32 minWorkQuanta, Int32 degreeOfParallelism) = parSettings ?? (64 * 1024, 0);      // default values for parallelThreshold and degreeOfParallelism
 
@@ -267,10 +293,12 @@ namespace HPCsharp.ParallelAlgorithms
         /// <param name="parSettings">minWorkQuanta = number of array elements efficient to process per core; degreeOfParallelism = maximum number of CPU cores that will be used</param>
         public static T[] ToArrayPar<T>(this T[] src, Int32 srcStart, Int32 length, (Int32 minWorkQuanta, Int32 degreeOfParallelism)? parSettings = null)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
             if (length <= 0)      // zero elements to copy
-                return new T[0];
+                return Array.Empty<T>();
             if (length > (src.Length - srcStart))
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(length));
 
             (Int32 minWorkQuanta, Int32 degreeOfParallelism) = parSettings ?? (64 * 1024, Environment.ProcessorCount / SystemAttributes.HyperthreadingNumberOfWays);      // default values for parallelThreshold and degreeOfParallelism
 
@@ -292,10 +320,12 @@ namespace HPCsharp.ParallelAlgorithms
         /// <param name="parSettings">minWorkQuanta = number of array elements efficient to process per core; degreeOfParallelism = maximum number of CPU cores that will be used</param>
         public static T[] ToArrayPar<T>(this T[] src, Int32 length, (Int32 minWorkQuanta, Int32 degreeOfParallelism)? parSettings = null)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
             if (length <= 0)      // zero elements to copy
-                return new T[0];
+                return Array.Empty<T>();
             if (length > src.Length)
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(length));
 
             (Int32 minWorkQuanta, Int32 degreeOfParallelism) = parSettings ?? (64 * 1024, Environment.ProcessorCount / SystemAttributes.HyperthreadingNumberOfWays);      // default values for parallelThreshold and degreeOfParallelism
 
@@ -315,6 +345,8 @@ namespace HPCsharp.ParallelAlgorithms
         /// <param name="parSettings">minWorkQuanta = number of array elements efficient to process per core; degreeOfParallelism = maximum number of CPU cores that will be used</param>
         public static T[] ToArrayPar<T>(this T[] src, (Int32 minWorkQuanta, Int32 degreeOfParallelism)? parSettings = null)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
             (Int32 minWorkQuanta, Int32 degreeOfParallelism) = parSettings ?? (64 * 1024, Environment.ProcessorCount / SystemAttributes.HyperthreadingNumberOfWays);      // default values for parallelThreshold and degreeOfParallelism
 
             if ((minWorkQuanta * degreeOfParallelism) < src.Length)
@@ -356,6 +388,10 @@ namespace HPCsharp.ParallelAlgorithms
 
         public static void CopyTo<T>(this List<T> src, Int32 srcStart, List<T> dst, Int32 dstStart, Int32 length)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
+            if (dst == null)
+                throw new ArgumentNullException(nameof(dst));
             for (Int32 i = 0; i < length; i++)
                 dst[dstStart++] = src[srcStart++];
         }
