@@ -64,6 +64,9 @@
 // TODO: Implement ascending/descending options for all LSD Radix Sort algorithms, like is done for the byte[] case, as this can be done without any performance penalties. Show that
 //       Array.Sort has performance penalties due to the need to create a lambda function to reverse the comparison.
 // TODO: Implement adaptive Radix Sort (serial and parallel) where if there is enough memory, LSD Radix Sort is used for faster performance, otherwise MSD Radix Sort kicks in when memory is tight.
+
+#pragma warning disable CA1510
+
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -362,6 +365,8 @@ namespace HPCsharp
         /// <returns>sorted array of unsigned integers</returns>
         public static uint[] SortRadix(this uint[] inputArray)
         {
+            if (inputArray == null)
+                throw new ArgumentNullException(nameof(inputArray));
             const int bitsPerDigit = 8;
             uint numberOfBins = 1 << bitsPerDigit;
             uint numberOfDigits = (sizeof(uint) * 8 + bitsPerDigit - 1) / bitsPerDigit;
@@ -430,6 +435,8 @@ namespace HPCsharp
         /// <returns>sorted array of unsigned integers</returns>
         public static void SortRadix(this uint[] inOutArray, int startIndex, int length)
         {
+            if (inOutArray == null)
+                throw new ArgumentNullException(nameof(inOutArray));
             const int bitsPerDigit = 8;
             uint numberOfBins = 1 << bitsPerDigit;
             uint numberOfDigits = (sizeof(uint) * 8 + bitsPerDigit - 1) / bitsPerDigit;
@@ -495,6 +502,8 @@ namespace HPCsharp
         /// <returns>sorted array of unsigned integers</returns>
         public static void SortRadixInPlaceInterface(this uint[] inputArray)
         {
+            if (inputArray == null)
+                throw new ArgumentNullException(nameof(inputArray));
             SortRadix(inputArray, 0, inputArray.Length);
         }
         /// <summary>
@@ -505,6 +514,8 @@ namespace HPCsharp
         /// <returns>sorted array of unsigned long integers</returns>
         public static ulong[] SortRadix(this ulong[] inputArray)
         {
+            if (inputArray == null)
+                throw new ArgumentNullException(nameof(inputArray));
             const int bitsPerDigit = 8;
             uint numberOfBins = 1 << bitsPerDigit;
             uint numberOfDigits = (sizeof(ulong) * 8 + bitsPerDigit - 1) / bitsPerDigit;
@@ -554,6 +565,8 @@ namespace HPCsharp
         /// <returns>sorted array of unsigned long integers</returns>
         public static void SortRadixInPlaceInterface(this ulong[] inputArray)
         {
+            if (inputArray == null)
+                throw new ArgumentNullException(nameof(inputArray));
             var sortedArray = SortRadix(inputArray);
             Array.Copy(sortedArray, inputArray, inputArray.Length);
         }
@@ -633,6 +646,8 @@ namespace HPCsharp
         /// <returns>sorted array of integers</returns>
         public static int[] SortRadix2(this int[] inputArray, bool ascending = true)
         {
+            if (inputArray == null)
+                throw new ArgumentNullException(nameof(inputArray));
             var sortedArray = inputArray.SortRadix();
             sortedArray.Reversal(0, sortedArray.Length - 1);
             return sortedArray;
@@ -645,6 +660,8 @@ namespace HPCsharp
         /// <returns>sorted array of integers</returns>
         public static int[] SortRadix(this int[] inputArray)
         {
+            if (inputArray == null)
+                throw new ArgumentNullException(nameof(inputArray));
             const int bitsPerDigit = 8;
             const uint numberOfBins = 1 << bitsPerDigit;
             uint numberOfDigits = (sizeof(uint) * 8 + bitsPerDigit - 1) / bitsPerDigit;
@@ -699,6 +716,8 @@ namespace HPCsharp
         /// <returns>sorted array of signed long integers</returns>
         public static long[] SortRadix(this long[] inputArray)
         {
+            if (inputArray == null)
+                throw new ArgumentNullException(nameof(inputArray));
             const int bitsPerDigit = 8;
             const uint numberOfBins = 1 << bitsPerDigit;
             uint numberOfDigits = (sizeof(ulong) * 8 + bitsPerDigit - 1) / bitsPerDigit;
@@ -755,6 +774,8 @@ namespace HPCsharp
         /// <returns>sorted array of signed long integers</returns>
         public static long[] SortRadixWithPresortedDetection(this long[] inputArray, double fractionPresorted)
         {
+            if (inputArray == null)
+                throw new ArgumentNullException(nameof(inputArray));
             const int bitsPerDigit = 8;
             const uint numberOfBins = 1 << bitsPerDigit;
             uint numberOfDigits = (sizeof(ulong) * 8 + bitsPerDigit - 1) / bitsPerDigit;
@@ -827,6 +848,8 @@ namespace HPCsharp
         /// <returns>sorted array of signed long integers</returns>
         public static long[] SortRadix3(this long[] inputArray)
         {
+            if (inputArray == null)
+                throw new ArgumentNullException(nameof(inputArray));
             const int bitsPerDigit = 8;
             const int numberOfBins = 1 << bitsPerDigit;
             uint numberOfDigits = (sizeof(ulong) * 8 + bitsPerDigit - 1) / bitsPerDigit;
@@ -919,6 +942,8 @@ namespace HPCsharp
         /// <returns>sorted array of signed long integers</returns>
         public static void SortRadixInPlaceInterface(this long[] inputArray)
         {
+            if (inputArray == null)
+                throw new ArgumentNullException(nameof(inputArray));
             var sortedArray = SortRadix(inputArray);
             if (sortedArray != inputArray)
                 Array.Copy(sortedArray, inputArray, inputArray.Length);
@@ -1041,6 +1066,8 @@ namespace HPCsharp
         /// <returns>sorted List of unsigned integers</returns>
         public static List<uint> SortRadix(this List<uint> inputArray)
         {
+            if (inputArray == null)
+                throw new ArgumentNullException(nameof(inputArray));
             var srcCopy = inputArray.ToArray();
             var sortedArray = srcCopy.SortRadix();
             var sortedList = new List<uint>(sortedArray);
@@ -1054,6 +1081,8 @@ namespace HPCsharp
         /// <returns>sorted array of unsigned integers</returns>
         public static uint[] SortRadixDerandomizedWrites(this uint[] inputArray)
         {
+            if (inputArray == null)
+                throw new ArgumentNullException(nameof(inputArray));
             int numberOfBins = 256;
             int Log2ofPowerOfTwoRadix = 8;
             uint cacheLineSizeInBytes = 64 * 4;
@@ -1128,6 +1157,8 @@ namespace HPCsharp
         }
         public static uint[] SortRadixDerandomizedWrites3(this uint[] inputArray)
         {
+            if (inputArray == null)
+                throw new ArgumentNullException(nameof(inputArray));
             const int numberOfBins = 256;
             const int Log2ofPowerOfTwoRadix = 8;
             const int numberOfDigits = 4;
@@ -1215,6 +1246,8 @@ namespace HPCsharp
         // Improved version (hopefully) with various optimization ideas developed since the time the above was written
         public static uint[] SortRadixDerandomizedWrites2(this uint[] inputArray)
         {
+            if (inputArray == null)
+                throw new ArgumentNullException(nameof(inputArray));
             const int numberOfBins = 256;
             const int Log2ofPowerOfTwoRadix = 8;
             const int bitsPerDigit = Log2ofPowerOfTwoRadix;
@@ -1307,6 +1340,8 @@ namespace HPCsharp
         /// <returns>sorted array of unsigned integers</returns>
         public static uint[] SortRadixDerandomizeWrites(this uint[] inputArray, Int32 start, Int32 length)
         {
+            if (inputArray == null)
+                throw new ArgumentNullException(nameof(inputArray));
             int numberOfBins = 256;
             int Log2ofPowerOfTwoRadix = 8;
             uint cacheLineSizeInBytes = 64 * 4;
@@ -1387,6 +1422,10 @@ namespace HPCsharp
         /// <returns>sorted array of unsigned integers</returns>
         public static void SortRadixDerandomizedWrites<T>(this T[] inputArray, Int32 start, Int32 length, T[] dst, Func<T, UInt32> getKey)
         {
+            if (inputArray == null)
+                throw new ArgumentNullException(nameof(inputArray));
+            if (dst == null)
+                throw new ArgumentNullException(nameof(dst));
             int numberOfBins = 256;
             int Log2ofPowerOfTwoRadix = 8;
             uint cacheLineSizeInBytes = 64 * 4;
@@ -1465,6 +1504,8 @@ namespace HPCsharp
         /// <returns>sorted array of user defined class</returns>
         public static T[] SortRadix<T>(this T[] inputArray, Func<T, UInt32> getKey)
         {
+            if (inputArray == null)
+                throw new ArgumentNullException(nameof(inputArray));
             int numberOfBins = 256;
             int Log2ofPowerOfTwoRadix = 8;
             var outputArray = new T[inputArray.Length];
@@ -1503,6 +1544,8 @@ namespace HPCsharp
         }
         public static T[] SortRadixNew<T>(this T[] inputArray, Func<T, UInt32> getKey)
         {
+            if (inputArray == null)
+                throw new ArgumentNullException(nameof(inputArray));
             uint numberOfBins = 256;
             int Log2ofPowerOfTwoRadix = 8;
             int numberOfDigits = sizeof(UInt32) * 8 / Log2ofPowerOfTwoRadix;
@@ -1550,6 +1593,8 @@ namespace HPCsharp
         /// <returns>sorted array of user defined class</returns>
         public static T[] SortRadix<T>(this T[] inputArray, Func<T, UInt64> getKey)
         {
+            if (inputArray == null)
+                throw new ArgumentNullException(nameof(inputArray));
             int numberOfBins = 256;
             int Log2ofPowerOfTwoRadix = 8;
             var outputArray = new T[inputArray.Length];
@@ -1588,6 +1633,8 @@ namespace HPCsharp
         }
         public static T[] SortRadixNew<T>(this T[] inputArray, Func<T, UInt64> getKey)
         {
+            if (inputArray == null)
+                throw new ArgumentNullException(nameof(inputArray));
             int numberOfBins = 256;
             int Log2ofPowerOfTwoRadix = 8;
             int numberOfDigits = sizeof(UInt64) * 8 / Log2ofPowerOfTwoRadix;
@@ -1645,6 +1692,8 @@ namespace HPCsharp
         /// <returns>sorted array of user defined class</returns>
         public static T[] SortRadixFaster<T>(this T[] inputArray, Func<T, UInt32> getKey)
         {
+            if (inputArray == null)
+                throw new ArgumentNullException(nameof(inputArray));
             int numberOfBins = 256;
             int NumberOfBitsPerDigit = 8;
             var outputArray = new T[inputArray.Length];
@@ -1697,6 +1746,8 @@ namespace HPCsharp
         }
         public static T[] SortRadixFasterNew<T>(this T[] inputArray, Func<T, UInt32> getKey)
         {
+            if (inputArray == null)
+                throw new ArgumentNullException(nameof(inputArray));
             const int NumberOfBitsPerDigit = 8;
             const int NumberOfBins = 1 << NumberOfBitsPerDigit;
             const int NumberOfDigits = sizeof(UInt32) * 8 / NumberOfBitsPerDigit;
@@ -1754,6 +1805,8 @@ namespace HPCsharp
         /// <returns>sorted array of user defined class</returns>
         public static T[] SortRadixFaster<T>(this T[] inputArray, Func<T, UInt64> getKey)
         {
+            if (inputArray == null)
+                throw new ArgumentNullException(nameof(inputArray));
             int numberOfBins = 256;
             int Log2ofPowerOfTwoRadix = 8;
             var outputArray = new T[inputArray.Length];
@@ -1807,6 +1860,8 @@ namespace HPCsharp
 
         public static T[] SortRadixFasterNew<T>(this T[] inputArray, Func<T, UInt64> getKey)
         {
+            if (inputArray == null)
+                throw new ArgumentNullException(nameof(inputArray));
             int numberOfBins = 256;
             int Log2ofPowerOfTwoRadix = 8;
             int numberOfDigits = 4;
@@ -1866,6 +1921,8 @@ namespace HPCsharp
         /// <returns>sorted List of user defined class</returns>
         public static List<T> SortRadixFaster<T>(this List<T> inputList, Func<T, UInt32> getKey)
         {
+            if (inputList == null)
+                throw new ArgumentNullException(nameof(inputList));
             var srcCopy = inputList.ToArray();
             var sortedArray = srcCopy.SortRadixFaster(getKey);
             var sortedList = new List<T>(sortedArray);
@@ -1880,6 +1937,8 @@ namespace HPCsharp
         /// <returns>sorted List of user defined class</returns>
         public static List<T> SortRadixFaster<T>(this List<T> inputList, Func<T, UInt64> getKey)
         {
+            if (inputList == null)
+                throw new ArgumentNullException(nameof(inputList));
             var srcCopy = inputList.ToArray();
             var sortedArray = srcCopy.SortRadixFaster(getKey);
             var sortedList = new List<T>(sortedArray);
@@ -1894,6 +1953,10 @@ namespace HPCsharp
         /// <returns>sorted array of user defined class</returns>
         public static void SortRadix<T>(this T[] inputArray, Int32 start, Int32 length, T[] outputArray, Func<T, UInt32> getKey)
         {
+            if (inputArray == null)
+                throw new ArgumentNullException(nameof(inputArray));
+            if (outputArray == null)
+                throw new ArgumentNullException(nameof(outputArray));
             int numberOfBins = 256;
             int Log2ofPowerOfTwoRadix = 8;
             uint[] count = new uint[numberOfBins];
@@ -1948,6 +2011,8 @@ namespace HPCsharp
         /// <returns>sorted List of user defined class</returns>
         public static List<T> SortRadix<T>(this List<T> inputList, Func<T, UInt32> getKey)
         {
+            if (inputList == null)
+                throw new ArgumentNullException(nameof(inputList));
             var srcCopy = inputList.ToArray();
             var sortedArray = srcCopy.SortRadix(getKey);
             var sortedList = new List<T>(sortedArray);
@@ -1962,6 +2027,8 @@ namespace HPCsharp
         /// <returns>sorted List of user defined class</returns>
         public static List<T> SortRadix<T>(this List<T> inputList, Func<T, UInt64> getKey)
         {
+            if (inputList == null)
+                throw new ArgumentNullException(nameof(inputList));
             var srcCopy = inputList.ToArray();
             var sortedArray = srcCopy.SortRadix(getKey);
             var sortedList = new List<T>(sortedArray);
@@ -1976,6 +2043,10 @@ namespace HPCsharp
         /// <returns>Tuple consisting of a sorted array of user defined class and a sorted array of unsigned integer keys (UInt32)</returns>
         public static Tuple<T[], UInt32[]> SortRadix<T>(this T[] inputArray, UInt32[] inKeys)
         {
+            if (inputArray == null)
+                throw new ArgumentNullException(nameof(inputArray));
+            if (inKeys == null)
+                throw new ArgumentNullException(nameof(inKeys));
             int numberOfBins = 256;
             int Log2ofPowerOfTwoRadix = 8;
             UInt32[] outSortedKeys = new UInt32[inputArray.Length];
@@ -2038,6 +2109,10 @@ namespace HPCsharp
         /// <returns>Tuple consisting of a sorted array of user defined class and a sorted array of unsigned long keys (UInt64)</returns>
         public static Tuple<T[], UInt64[]> SortRadix<T>(this T[] inputArray, UInt64[] inKeys)
         {
+            if (inputArray == null)
+                throw new ArgumentNullException(nameof(inputArray));
+            if (inKeys == null)
+                throw new ArgumentNullException(nameof(inKeys));
             int numberOfBins = 256;
             int Log2ofPowerOfTwoRadix = 8;
             UInt64[] outSortedKeys = new UInt64[inputArray.Length];
@@ -2100,6 +2175,8 @@ namespace HPCsharp
         /// <returns>Tuple consisting of a sorted List of user defined class and a sorted array of unsigned integer keys (UInt32)</returns>
         public static Tuple<List<T>, UInt32[]> SortRadix<T>(this List<T> inputList, UInt32[] inKeys)
         {
+            if (inputList == null)
+                throw new ArgumentNullException(nameof(inputList));
             var srcCopy = inputList.ToArray();
             var sortedArrayAndKeys = srcCopy.SortRadix(inKeys);
             var sortedList = new List<T>(sortedArrayAndKeys.Item1);
@@ -2114,6 +2191,8 @@ namespace HPCsharp
         /// <returns>sorted List of user defined class</returns>
         public static Tuple<List<T>, UInt64[]> SortRadix<T>(this List<T> inputList, UInt64[] inKeys)
         {
+            if (inputList == null)
+                throw new ArgumentNullException(nameof(inputList));
             var srcCopy = inputList.ToArray();
             var sortedArrayAndKeys = srcCopy.SortRadix(inKeys);
             var sortedList = new List<T>(sortedArrayAndKeys.Item1);
@@ -2132,6 +2211,8 @@ namespace HPCsharp
         /// <returns>array of sorted indexes</returns>
         public static Int32[] SortRadixReturnIndexes(this byte[] inputArray, SortOrder sortOrder = SortOrder.Ascending)
         {
+            if (inputArray == null)
+                throw new ArgumentNullException(nameof(inputArray));
             int numberOfBins = 256;
             var outputIndexArray = new Int32[inputArray.Length];
             int[] count          = new int[numberOfBins];

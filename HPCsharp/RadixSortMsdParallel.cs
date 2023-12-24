@@ -11,6 +11,9 @@
 //       hybrid algorithm (can we then make it stable too? Also, in my Dr. Dobbs papers?)
 // TODO: Try the idea of using Parallel Count during the MSD pass, and then switch to Serial Count during the rest since these are running in parallel already. Maybe only if
 //       there is enough parallelism at that level of recursion.
+
+#pragma warning disable CA1510
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -238,6 +241,8 @@ namespace HPCsharp
         /// <param name="arrayToBeSorted">array that is to be sorted in place</param>
         public static void SortRadixMsdPar(this long[] arrayToBeSorted)
         {
+            if (arrayToBeSorted == null)
+                throw new ArgumentNullException(nameof(arrayToBeSorted));
             int shiftRightAmount = sizeof(ulong) * 8 - Log2ofPowerOfTwoRadix;
             // InsertionSort could be passed in as another base case since it's in-place
             //RadixSortMsdLongParInner(arrayToBeSorted, 0, arrayToBeSorted.Length, shiftRightAmount, Array.Sort);
@@ -392,6 +397,8 @@ namespace HPCsharp
         /// <param name="arrayToBeSorted">array that is to be sorted in place</param>
         public static void SortRadixMsdPar(this uint[] arrayToBeSorted)
         {
+            if (arrayToBeSorted == null)
+                throw new ArgumentNullException(nameof(arrayToBeSorted));
             int shiftRightAmount = sizeof(uint) * 8 - Log2ofPowerOfTwoRadix;
             // InsertionSort could be passed in as another base case since it's in-place
             //RadixSortMsdLongParInner(arrayToBeSorted, 0, arrayToBeSorted.Length, shiftRightAmount, Array.Sort);

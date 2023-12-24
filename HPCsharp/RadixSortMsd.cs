@@ -44,6 +44,9 @@
 // Failed Experiments: Implemented reduction of memory allocations for the Histogram array - allocate it once and pass it around (need to clear it every time before using). Take this optimization ide further
 //       by reducing other memory allocations, such as reduce Start/EndOfBin into a single array (like Sedgewick does). Allocating startOfBin and endOfBin on the stack didn't help performance for random, pre-sorted and
 //       slowed constant arrays by 20%. Count array was also allocated only once at the top-level wrapper.
+
+#pragma warning disable CA1510
+
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -408,6 +411,8 @@ namespace HPCsharp
         /// <param name="threshold">for array size smaller than threshold Array.Sort will be used instead</param>
         public static void SortRadixMsd(this uint[] arrayToBeSorted, Int32 start, Int32 length, Int32 threshold = 1024)
         {
+            if (arrayToBeSorted == null)
+                throw new ArgumentNullException(nameof(arrayToBeSorted));
             int shiftRightAmount = sizeof(uint) * 8 - Log2ofPowerOfTwoRadix;
             // Insertion Sort or Heap Sort could be passed in as another base case since they are both in-place
             RadixSortMsdUIntInner(arrayToBeSorted, start, length, shiftRightAmount, Array.Sort, threshold);
@@ -422,6 +427,8 @@ namespace HPCsharp
         /// <param name="threshold">for array size smaller than threshold Array.Sort will be used instead</param>
         public static void SortRadixMsd(this uint[] arrayToBeSorted, Int32 threshold = 1024)
         {
+            if (arrayToBeSorted == null)
+                throw new ArgumentNullException(nameof(arrayToBeSorted));
             int shiftRightAmount = sizeof(uint) * 8 - Log2ofPowerOfTwoRadix;
             // Insertion Sort or Heap Sort could be passed in as another base case since they are both in-place
             RadixSortMsdUIntInner(arrayToBeSorted, 0, arrayToBeSorted.Length, shiftRightAmount, Array.Sort, threshold);
@@ -499,6 +506,8 @@ namespace HPCsharp
         /// <param name="arrayToBeSorted">array that is to be sorted in place</param>
         public static void SortRadixMsd(this ulong[] arrayToBeSorted, Int32 start, Int32 length)
         {
+            if (arrayToBeSorted == null)
+                throw new ArgumentNullException(nameof(arrayToBeSorted));
             int shiftRightAmount = sizeof(ulong) * 8 - Log2ofPowerOfTwoRadix;
             // InsertionSort could be passed in as another base case since it's in-place
             RadixSortMsdULongInner(arrayToBeSorted, start, length, shiftRightAmount, Array.Sort);
@@ -510,6 +519,8 @@ namespace HPCsharp
         /// <param name="arrayToBeSorted">array that is to be sorted in place</param>
         public static void SortRadixMsd(this ulong[] arrayToBeSorted)
         {
+            if (arrayToBeSorted == null)
+                throw new ArgumentNullException(nameof(arrayToBeSorted));
             int shiftRightAmount = sizeof(ulong) * 8 - Log2ofPowerOfTwoRadix;
             // InsertionSort could be passed in as another base case since it's in-place
             RadixSortMsdULongInner(arrayToBeSorted, 0, arrayToBeSorted.Length, shiftRightAmount, Array.Sort);
@@ -927,6 +938,8 @@ namespace HPCsharp
         /// <param name="arrayToBeSorted">array that is to be sorted in-place</param>
         public static void SortRadixMsd(this int[] arrayToBeSorted)
         {
+            if (arrayToBeSorted == null)
+                throw new ArgumentNullException(nameof(arrayToBeSorted));
             int shiftRightAmount = sizeof(int) * 8 - Log2ofPowerOfTwoRadix;
             // InsertionSort could be passed in as another base case since it's in-place
             RadixSortMsdIntInner(arrayToBeSorted, 0, arrayToBeSorted.Length, shiftRightAmount, Array.Sort);
@@ -948,6 +961,8 @@ namespace HPCsharp
         /// <param name="arrayToBeSorted">array that is to be sorted in-place</param>
         public static void SortRadixMsd(this long[] arrayToBeSorted)
         {
+            if (arrayToBeSorted == null)
+                throw new ArgumentNullException(nameof(arrayToBeSorted));
             int shiftRightAmount = sizeof(long) * 8 - Log2ofPowerOfTwoRadix;
             // InsertionSort could be passed in as another base case since it's in-place
             RadixSortMsdLongInner(arrayToBeSorted, 0, arrayToBeSorted.Length, shiftRightAmount, Array.Sort);
@@ -968,6 +983,8 @@ namespace HPCsharp
         /// <param name="arrayToBeSorted">array that is to be sorted in place</param>
         public static void SortRadixNbitMsd(this long[] arrayToBeSorted, int numberOfBitsPerDigit = 10)
         {
+            if (arrayToBeSorted == null)
+                throw new ArgumentNullException(nameof(arrayToBeSorted));
             int shiftRightAmount = sizeof(long) * 8 - numberOfBitsPerDigit;
             // InsertionSort could be passed in as another base case since it's in-place
             RadixSortMsdLongNbitInner(arrayToBeSorted, 0, arrayToBeSorted.Length, shiftRightAmount, numberOfBitsPerDigit, Array.Sort);
@@ -1199,6 +1216,8 @@ namespace HPCsharp
         /// <param name="arrayToBeSorted">array that is to be sorted in place</param>
         public static void SortRadixMsd(this float[] arrayToBeSorted)
         {
+            if (arrayToBeSorted == null)
+                throw new ArgumentNullException(nameof(arrayToBeSorted));
             int shiftRightAmount = sizeof(float) * 8 - Log2ofPowerOfTwoRadixFloat;
             uint bitMask = ((uint)(PowerOfTwoRadixFloat - 1)) << shiftRightAmount;  // bitMask controls/selects how many and which bits we process at a time - a digit consists of this many bits
             // InsertionSort could be passed in as another base case since it's in-place
@@ -1221,6 +1240,8 @@ namespace HPCsharp
         /// <param name="arrayToBeSorted">array that is to be sorted in place</param>
         public static void SortRadixMsd(this double[] arrayToBeSorted)
         {
+            if (arrayToBeSorted == null)
+                throw new ArgumentNullException(nameof(arrayToBeSorted));
             int shiftRightAmount = sizeof(double) * 8 - Log2ofPowerOfTwoRadixDouble;
             ulong bitMask = ((ulong)(PowerOfTwoRadixDouble - 1)) << shiftRightAmount;
             // InsertionSort could be passed in as another base case since it's in-place

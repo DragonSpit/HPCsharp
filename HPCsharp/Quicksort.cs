@@ -1,4 +1,6 @@
-﻿using System;
+﻿#pragma warning disable CA1510
+
+using System;
 using System.Collections.Generic;
 using System.Xml.Schema;
 
@@ -16,6 +18,8 @@ namespace HPCsharp
         /// <param name="comparer">method to compare array elements</param>
         public static void Quicksort<T>(this T[] src, Int32 b, Int32 e, IComparer<T> comparer = null)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
             if (b >= e) return;
 
             var equalityComparer = comparer ?? Comparer<T>.Default;
@@ -43,6 +47,8 @@ namespace HPCsharp
 
         public static void Quicksort(this uint[] src, Int32 b, Int32 e)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
             if (b >= e) return;
 
             uint tmp;
@@ -70,6 +76,8 @@ namespace HPCsharp
         // 2X faster than the generic version
         public static void QuicksortHoare(this uint[] src, Int32 b, Int32 e)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
             if ((e - b) < 2)
                 return;
 
@@ -100,6 +108,8 @@ namespace HPCsharp
         // 2X slower for built-in data types
         public static void QuicksortHoare<T>(this T[] src, Int32 b, Int32 e, IComparer<T> comparer = null)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
             if ((e - b) < 2)
                 return;
 
@@ -130,6 +140,8 @@ namespace HPCsharp
         // From Sedgewick "Algorithms in C++" 3rd edition p. 338
         public static void QuicksortThreeWayPartition(this uint[] src, Int32 l, Int32 r)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
             int k;
             uint v = src[r];
 

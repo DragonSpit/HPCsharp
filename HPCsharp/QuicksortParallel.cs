@@ -1,10 +1,14 @@
 ﻿// FROM:https://stackoverflow.com/questions/53722004/generic-quicksort-implemented-with-vector-and-iterators-c
+
+#pragma warning disable CA1510
+
 using System;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using HPCsharp.ParallelAlgorithms;
+using System.Collections;
 
 namespace HPCsharp
 {
@@ -59,11 +63,15 @@ namespace HPCsharp
         /// <param name="comparer">method to compare array elements</param>
         public static void QuicksortPar<T>(this T[] src, Int32 aStart, Int32 aLength, Comparer<T> comparer = null)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
             QuicksortInnerPar(src, aStart, aStart + aLength, comparer);
         }
 
         public static void QuicksortPar<T>(this T[] src, Comparer<T> comparer = null)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
             QuicksortInnerPar(src, 0, src.Length, comparer);
         }
 
@@ -109,11 +117,15 @@ namespace HPCsharp
         /// <param name="aLength">number of array elements</param>
         public static void QuicksortPar(this uint[] src, Int32 aStart, Int32 aLength)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
             QuicksortInnerPar(src, aStart, aStart + aLength);
         }
 
         public static void QuicksortPar(this uint[] src)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
             QuicksortInnerPar(src, 0, src.Length);
         }
     }

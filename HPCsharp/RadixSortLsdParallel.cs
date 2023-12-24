@@ -9,7 +9,11 @@
 // TODO: In parallel LSD Radix Sort, optimize this division out by using nested loops, as division even integer is slow
 // TODO: It seems like ComputeStartOfBinsPar needs to have the parallel threshold to be passed in and optimized
 // TODO: Optimize digit extraction in LSD and MSD Radix algorithms by doing shift right first and then masking, to keep the mask a constant value, and not needing to shift the mask.
+
+#pragma warning disable CA1510
+
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
@@ -43,6 +47,8 @@ namespace HPCsharp
 
         public static uint[][] ComputeStartOfBinsPar(this uint[] inputArray, int workQuanta, uint numberOfQuantas, uint digit)
         {
+            if (inputArray == null)
+                throw new ArgumentNullException(nameof(inputArray));
             uint numberOfBins = 256;
 
             //uint[][] count = Algorithm.HistogramByteComponentsAcrossWorkQuantasQC(inputArray, workQuanta, digit);
@@ -137,6 +143,8 @@ namespace HPCsharp
         /// <returns>sorted array of unsigned integers</returns>
         public static uint[] SortRadixPar(this uint[] inputArray, int ParallelWorkQuantum = 64 * 1024)
         {
+            if (inputArray == null)
+                throw new ArgumentNullException(nameof(inputArray));
             const int NumberOfBins = 256;
             int Log2ofPowerOfTwoRadix = 8;
             uint[] outputArray = new uint[inputArray.Length];
@@ -230,6 +238,8 @@ namespace HPCsharp
         /// <returns>sorted array of unsigned integers</returns>
         public static void SortRadixInPlaceInterfacePar(this uint[] inputArray)
         {
+            if (inputArray == null)
+                throw new ArgumentNullException(nameof(inputArray));
             var sortedArray = SortRadixPar(inputArray);
             Array.Copy(sortedArray, inputArray, inputArray.Length);
         }
@@ -243,6 +253,8 @@ namespace HPCsharp
         /// <returns>sorted array of unsigned integers</returns>
         public static uint[] SortRadixPartialPar(this uint[] inputArray, int parallelThresholdHistogram = 16 * 1024)
         {
+            if (inputArray == null)
+                throw new ArgumentNullException(nameof(inputArray));
             int numberOfBins = 256;
             int numberOfDigits = 4;
             int Log2ofPowerOfTwoRadix = 8;
@@ -301,6 +313,8 @@ namespace HPCsharp
         /// <returns>sorted array of unsigned integers</returns>
         public static void SortRadixPartialPar(this uint[] inOutArray, int startIndex, int length, int parallelThresholdHistogram = 16 * 1024)
         {
+            if (inOutArray == null)
+                throw new ArgumentNullException(nameof(inOutArray));
             const int bitsPerDigit = 8;
             uint numberOfBins = 1 << bitsPerDigit;
             uint numberOfDigits = (sizeof(uint) * 8 + bitsPerDigit - 1) / bitsPerDigit;
@@ -374,6 +388,8 @@ namespace HPCsharp
         /// <returns>sorted array of unsigned integers</returns>
         public static uint[] SortRadixSsePar(this uint[] inputArray)
         {
+            if (inputArray == null)
+                throw new ArgumentNullException(nameof(inputArray));
             int numberOfBins = 256;
             int numberOfDigits = 4;
             int Log2ofPowerOfTwoRadix = 8;
@@ -428,6 +444,8 @@ namespace HPCsharp
         /// <returns>sorted array of signed long integers</returns>
         public static int[] SortRadixPar(this int[] inputArray)
         {
+            if (inputArray == null)
+                throw new ArgumentNullException(nameof(inputArray));
             const int bitsPerDigit = 8;
             const uint numberOfBins = 1 << bitsPerDigit;
             const uint numberOfDigits = (sizeof(uint) * 8 + bitsPerDigit - 1) / bitsPerDigit;
@@ -483,6 +501,8 @@ namespace HPCsharp
         /// <returns>sorted array of signed long integers</returns>
         public static int[] SortRadixSsePar(this int[] inputArray)
         {
+            if (inputArray == null)
+                throw new ArgumentNullException(nameof(inputArray));
             const int bitsPerDigit = 8;
             const uint numberOfBins = 1 << bitsPerDigit;
             const uint numberOfDigits = (sizeof(uint) * 8 + bitsPerDigit - 1) / bitsPerDigit;
@@ -538,6 +558,8 @@ namespace HPCsharp
         /// <returns>sorted array of signed long integers</returns>
         public static long[] SortRadixPar(this long[] inputArray)
         {
+            if (inputArray == null)
+                throw new ArgumentNullException(nameof(inputArray));
             const int bitsPerDigit = 8;
             const uint numberOfBins = 1 << bitsPerDigit;
             const uint numberOfDigits = (sizeof(ulong) * 8 + bitsPerDigit - 1) / bitsPerDigit;
@@ -595,6 +617,8 @@ namespace HPCsharp
         /// <returns>sorted array of signed long integers</returns>
         public static long[] SortRadixSsePar(this long[] inputArray)
         {
+            if (inputArray == null)
+                throw new ArgumentNullException(nameof(inputArray));
             const int bitsPerDigit = 8;
             const uint numberOfBins = 1 << bitsPerDigit;
             const uint numberOfDigits = (sizeof(ulong) * 8 + bitsPerDigit - 1) / bitsPerDigit;
@@ -664,6 +688,8 @@ namespace HPCsharp
         /// <returns>sorted array of unsigned long integers</returns>
         public static ulong[] SortRadixPar(this ulong[] inputArray)
         {
+            if (inputArray == null)
+                throw new ArgumentNullException(nameof(inputArray));
             const int bitsPerDigit = 8;
             uint numberOfBins = 1 << bitsPerDigit;
             uint numberOfDigits = (sizeof(ulong) * 8 + bitsPerDigit - 1) / bitsPerDigit;
@@ -859,6 +885,8 @@ namespace HPCsharp
         // Brought Histogram outside of the main loop, to separate into two phases: Histogram/counting and permutation
         public static uint[] SortRadixPar2(this uint[] inputArray)
         {
+            if (inputArray == null)
+                throw new ArgumentNullException(nameof(inputArray));
             uint numberOfBins = 256;
             int Log2ofPowerOfTwoRadix = 8;
             int numDigits = 4;
