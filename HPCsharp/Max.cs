@@ -3,6 +3,9 @@
 // TODO: Add multi-core versions of these
 // TODO: Add the ability for the user to pass in their own comparer function
 // TODO: Add SIMD/SSE accelerated version where the user passes in a function to extract a key from their user defined class to perform a Max operation. Multi-core will still be possible, but not SSE.
+
+#pragma warning disable CA1510
+
 using System;
 using System.Collections.Generic;
 
@@ -45,9 +48,9 @@ namespace HPCsharp
             if (a == null)
                 throw new ArgumentNullException(nameof(a));
             if (l > r)      // zero elements to compare
-                throw new System.ArgumentOutOfRangeException();
+                throw new System.ArgumentOutOfRangeException(nameof(l));
             if (!(l >= 0 && r < a.Length))
-                throw new System.ArgumentOutOfRangeException();
+                throw new System.ArgumentOutOfRangeException(nameof(l));
 
             var equalityComparer = Comparer<TSource>.Default;
             TSource currMax = a[l];
@@ -81,7 +84,7 @@ namespace HPCsharp
         public static TSource MaxHpc<TSource>(this TSource[] a)
         {
             if (a == null)
-                throw new System.ArgumentNullException();
+                throw new System.ArgumentNullException(nameof(a));
 
             var equalityComparer = Comparer<TSource>.Default;
             TSource currMax = a[0];
@@ -125,9 +128,9 @@ namespace HPCsharp
         public static TSource MaxHpc<TSource>(this List<TSource> a, Int32 l, Int32 r)
         {
             if (a == null)
-                throw new System.ArgumentNullException();
+                throw new System.ArgumentNullException(nameof(a));
             if (!(l >= 0 && r < a.Count))
-                throw new System.ArgumentOutOfRangeException();
+                throw new System.ArgumentOutOfRangeException(nameof(l));
 
             var equalityComparer = Comparer<TSource>.Default;
             TSource currMax = a[l];
@@ -161,7 +164,7 @@ namespace HPCsharp
         public static TSource MaxHpc<TSource>(this List<TSource> a)
         {
             if (a == null)
-                throw new System.ArgumentNullException();
+                throw new System.ArgumentNullException(nameof(a));
 
             var equalityComparer = Comparer<TSource>.Default;
             TSource currMax = a[0];

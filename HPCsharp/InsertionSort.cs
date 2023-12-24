@@ -1,7 +1,11 @@
 ﻿// TODO: Implement Selection Sort, and especially the double Selection Sort (or Cocktail Sort), which looks for min and max elements in every pass, since it requires half as many passes, but more comparisons,
 //       as this may end up faster than Insertion Sort (see Wikipedia page) and my DDJ article from Sept. 2009
 // TODO: Implement Insertion Sort for arrays of built-in data types without the comparer function, as this should be faster
+
+#pragma warning disable CA1510
+
 using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace HPCsharp
@@ -47,6 +51,8 @@ namespace HPCsharp
         /// </summary>
         public static void InsertionSort<T>(T[] a, Int32 l, Int32 size, IComparer<T> comparer = null)
         {
+            if (a == null)
+                throw new ArgumentNullException(nameof(a));
             var equalityComparer = comparer ?? Comparer<T>.Default;
             Int32 r = l + size;
             for (Int32 i = l + 1; i < r; i++)
@@ -75,6 +81,10 @@ namespace HPCsharp
         /// </summary>
         public static void InsertionSort<T1, T2>(T1[] a, T2[] b, Int32 l, Int32 size, IComparer<T1> comparer = null)
         {
+            if (a == null)
+                throw new ArgumentNullException(nameof(a));
+            if (b == null)
+                throw new ArgumentNullException(nameof(b));
             var equalityComparer = comparer ?? Comparer<T1>.Default;
             Int32 r = l + size;
             for (Int32 i = l + 1; i < r; i++)

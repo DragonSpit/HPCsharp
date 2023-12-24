@@ -1,9 +1,12 @@
-﻿using System;
+﻿#pragma warning disable CA1510
+
+using System;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using System.Text;
+using System.Collections;
 
 namespace HPCsharp
 {
@@ -54,8 +57,10 @@ namespace HPCsharp
 		// A utility function to begin the Introsort module
 		public static void IntroSortPar(uint[] src)
 		{
-			// Initialise the depthLimit as 2*log(length(data))
-			int depthLimit = (int)(2 * Math.Floor(Math.Log(src.Length) / Math.Log(2)));
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
+            // Initialise the depthLimit as 2*log(length(data))
+            int depthLimit = (int)(2 * Math.Floor(Math.Log(src.Length) / Math.Log(2)));
 
 			IntroSortInnerPar(src, 0, src.Length - 1, depthLimit);
 		}

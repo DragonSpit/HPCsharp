@@ -14,7 +14,11 @@
 //       with left-over pieces of A and B. This method would pay even higher dividends for multi-way merge. I may have done this already in C++ and need to check.
 //       This idea may be more CPU architecture friendly, due to fewer mispredictions, since the for loop one is easy to predict.
 // TODO: Test Array.Copy versus copying using a for loop for the merge algorithms. Figure out the size threshold when the for loop is faster.
+
+#pragma warning disable CA1510
+
 using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace HPCsharp
@@ -44,6 +48,12 @@ namespace HPCsharp
                                     List<T> dst, Int32 dstStart,
                                     IComparer<T> comparer = null)
         {
+            if (a == null)
+                throw new ArgumentNullException(nameof(a));
+            if (b == null)
+                throw new ArgumentNullException(nameof(b));
+            if (dst == null)
+                throw new ArgumentNullException(nameof(dst));
             var equalityComparer = comparer ?? Comparer<T>.Default;
             Int32 aEnd = aStart + aLength - 1;
             Int32 bEnd = bStart + bLength - 1;
@@ -81,6 +91,10 @@ namespace HPCsharp
         static public void Merge<T>(List<T> src, Int32 aStart, Int32 aLength, Int32 bStart, Int32 bLength,
                                     List<T> dst, Int32 dstStart, IComparer<T> comparer = null)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
+            if (dst == null)
+                throw new ArgumentNullException(nameof(dst));
             var equalityComparer = comparer ?? Comparer<T>.Default;
             Int32 aEnd = aStart + aLength - 1;
             Int32 bEnd = bStart + bLength - 1;
@@ -121,6 +135,12 @@ namespace HPCsharp
                                  int[] b,   Int32 bStart, Int32 bLength,
                                  int[] dst, Int32 dstStart)
         {
+            if (a == null)
+                throw new ArgumentNullException(nameof(a));
+            if (b == null)
+                throw new ArgumentNullException(nameof(b));
+            if (dst == null)
+                throw new ArgumentNullException(nameof(dst));
             Int32 aEnd = aStart + aLength - 1;
             Int32 bEnd = bStart + bLength - 1;
             while (aStart <= aEnd && bStart <= bEnd)
@@ -148,6 +168,10 @@ namespace HPCsharp
         static public void Merge(int[] src, Int32 aStart, Int32 aLength, Int32 bStart, Int32 bLength,
                                  int[] dst, Int32 dstStart)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
+            if (dst == null)
+                throw new ArgumentNullException(nameof(dst));
             Int32 aEnd = aStart + aLength - 1;
             Int32 bEnd = bStart + bLength - 1;
             while (aStart <= aEnd && bStart <= bEnd)
@@ -180,6 +204,10 @@ namespace HPCsharp
         static public void MergeWithCopy(int[] src, Int32 aStart, Int32 aLength, Int32 bStart, Int32 bLength,
                                          int[] dst, Int32 dstStart)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
+            if (dst == null)
+                throw new ArgumentNullException(nameof(dst));
             Int32 aEnd = aStart + aLength - 1;
             Int32 bEnd = bStart + bLength - 1;
             while (aStart <= aEnd && bStart <= bEnd)
@@ -212,6 +240,10 @@ namespace HPCsharp
         static public void MergeFaster(int[] src, Int32 aStart, Int32 aLength, Int32 bStart, Int32 bLength,
                                        int[] dst, Int32 dstStart)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
+            if (dst == null)
+                throw new ArgumentNullException(nameof(dst));
             Int32 aEnd = aStart + aLength - 1;
             Int32 bEnd = bStart + bLength - 1;
             if (aStart <= aEnd && bStart <= bEnd)
@@ -246,8 +278,12 @@ namespace HPCsharp
         /// <param name="dst">destination Array where the result of two merged Arrays is to be placed</param>
         /// <param name="dstStart">starting index within the destination Array where the merged sorted Array is to be placed</param>
         static public void MergeFasterWithCopy(int[] src, Int32 aStart, Int32 aLength, Int32 bStart, Int32 bLength,
-                                          int[] dst, Int32 dstStart)
+                                               int[] dst, Int32 dstStart)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
+            if (dst == null)
+                throw new ArgumentNullException(nameof(dst));
             Int32 aEnd = aStart + aLength - 1;
             Int32 bEnd = bStart + bLength - 1;
             if (aStart <= aEnd && bStart <= bEnd)
@@ -281,6 +317,10 @@ namespace HPCsharp
         static public void MergeBySpans(int[] src, Int32 aStart, Int32 aLength, Int32 bStart, Int32 bLength,
                                         int[] dst, Int32 dstStart)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
+            if (dst == null)
+                throw new ArgumentNullException(nameof(dst));
             Int32 aEnd = aStart + aLength - 1;      // inclusive
             Int32 bEnd = bStart + bLength - 1;
             while (aLength > 0 && bLength > 0)
@@ -315,6 +355,10 @@ namespace HPCsharp
                                   int[] dst, Int32 dstStart,
                                   Int32 threshold = 1024)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
+            if (dst == null)
+                throw new ArgumentNullException(nameof(dst));
             Int32 numElements;
             Int32 aEnd = aStart + aLength - 1;      // inclusive
             Int32 bEnd = bStart + bLength - 1;
@@ -359,6 +403,10 @@ namespace HPCsharp
                                   int[] dst, Int32 dstStart,
                                   Int32 threshold = 1024)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
+            if (dst == null)
+                throw new ArgumentNullException(nameof(dst));
             Int32 numElements;
             Int32 aEnd = aStart + aLength - 1;      // inclusive
             Int32 bEnd = bStart + bLength - 1;
@@ -416,6 +464,12 @@ namespace HPCsharp
                                     T[] dst, Int32 dstStart,
                                     IComparer<T> comparer = null)
         {
+            if (a == null)
+                throw new ArgumentNullException(nameof(a));
+            if (b == null)
+                throw new ArgumentNullException(nameof(b));
+            if (dst == null)
+                throw new ArgumentNullException(nameof(dst));
             var equalityComparer = comparer ?? Comparer<T>.Default;
             Int32 aEnd = aStart + aLength - 1;
             Int32 bEnd = bStart + bLength - 1;
@@ -450,6 +504,12 @@ namespace HPCsharp
                                             T[] dst, Int32 dstStart,
                                             IComparer<T> comparer = null)
         {
+            if (a == null)
+                throw new ArgumentNullException(nameof(a));
+            if (b == null)
+                throw new ArgumentNullException(nameof(b));
+            if (dst == null)
+                throw new ArgumentNullException(nameof(dst));
             var equalityComparer = comparer ?? Comparer<T>.Default;
             Int32 aEnd = aStart + aLength - 1;
             Int32 bEnd = bStart + bLength - 1;
@@ -481,10 +541,16 @@ namespace HPCsharp
         /// <param name="dstStart">starting index within the destination Array where the merged sorted Array is to be placed</param>
         /// <param name="comparer">optional method to compare array elements</param>
         static public void MergeFaster<T>(T[] a, Int32 aStart, Int32 aLength,
-                                            T[] b, Int32 bStart, Int32 bLength,
-                                            T[] dst, Int32 dstStart,
-                                            IComparer<T> comparer = null)
+                                          T[] b, Int32 bStart, Int32 bLength,
+                                          T[] dst, Int32 dstStart,
+                                          IComparer<T> comparer = null)
         {
+            if (a == null)
+                throw new ArgumentNullException(nameof(a));
+            if (b == null)
+                throw new ArgumentNullException(nameof(b));
+            if (dst == null)
+                throw new ArgumentNullException(nameof(dst));
             var equalityComparer = comparer ?? Comparer<T>.Default;
             Int32 aEnd = aStart + aLength - 1;
             Int32 bEnd = bStart + bLength - 1;
@@ -527,6 +593,10 @@ namespace HPCsharp
                                     T[] dst, Int32 dstStart,
                                     IComparer<T> comparer = null)
         {
+            if (a == null)
+                throw new ArgumentNullException(nameof(a));
+            if (dst == null)
+                throw new ArgumentNullException(nameof(dst));
             var equalityComparer = comparer ?? Comparer<T>.Default;
             Int32 aEnd = aStart + aLength - 1;
             Int32 bEnd = bStart + bLength - 1;
@@ -558,6 +628,10 @@ namespace HPCsharp
         static public void MergeFaster<T>(T[] src, Int32 aStart, Int32 aLength, Int32 bStart, Int32 bLength,
                                           T[] dst, Int32 dstStart, IComparer<T> comparer = null)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
+            if (dst == null)
+                throw new ArgumentNullException(nameof(dst));
             var equalityComparer = comparer ?? Comparer<T>.Default;
             Int32 aEnd = aStart + aLength - 1;
             Int32 bEnd = bStart + bLength - 1;
@@ -600,6 +674,18 @@ namespace HPCsharp
                                          T1[] dstKeys, T2[] dstItems, Int32 dstStart,
                                          IComparer<T1> comparer = null)
         {
+            if (aItems == null)
+                throw new ArgumentNullException(nameof(aItems));
+            if (aKeys == null)
+                throw new ArgumentNullException(nameof(aKeys));
+            if (bKeys == null)
+                throw new ArgumentNullException(nameof(bKeys));
+            if (bItems == null)
+                throw new ArgumentNullException(nameof(bItems));
+            if (dstKeys == null)
+                throw new ArgumentNullException(nameof(dstKeys));
+            if (dstItems == null)
+                throw new ArgumentNullException(nameof(dstItems));
             var equalityComparer = comparer ?? Comparer<T1>.Default;
             Int32 aEnd = aStart + aLength - 1;
             Int32 bEnd = bStart + bLength - 1;
@@ -635,6 +721,10 @@ namespace HPCsharp
         static public void MergeBySpans<T>(T[] src, Int32 aStart, Int32 aLength, Int32 bStart, Int32 bLength,
                                            T[] dst, Int32 dstStart, IComparer<T> comparer = null)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
+            if (dst == null)
+                throw new ArgumentNullException(nameof(dst));
             var equalityComparer = comparer ?? Comparer<T>.Default;
             Int32 aEnd = aStart + aLength - 1;      // inclusive
             Int32 bEnd = bStart + bLength - 1;
@@ -657,6 +747,10 @@ namespace HPCsharp
         static public void MergeBySpans<T>(T[] src, Int32 aStart, Int32 aLength, Int32 bStart, Int32 bLength,
                                            T[] dst, Int32 dstStart, IComparer<T> comparer = null, Int32 threshold = 100)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
+            if (dst == null)
+                throw new ArgumentNullException(nameof(dst));
             var equalityComparer = comparer ?? Comparer<T>.Default;
             Int32 aEnd = aStart + aLength - 1;      // inclusive
             Int32 bEnd = bStart + bLength - 1;
@@ -694,6 +788,10 @@ namespace HPCsharp
                                     T[] dst,
                                     IComparer<T> comparer = null)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
+            if (dst == null)
+                throw new ArgumentNullException(nameof(dst));
             if (dst.Length != src.Length)
             {
                 throw new ArgumentException("Destination array must be the same size as the source array");
@@ -755,6 +853,10 @@ namespace HPCsharp
                                          T[] dst,
                                          IComparer<T> comparer = null)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
+            if (dst == null)
+                throw new ArgumentNullException(nameof(dst));
             if (dst.Length != src.Length)
             {
                 throw new ArgumentException("Destination array must be the same size as the source array");
@@ -811,6 +913,10 @@ namespace HPCsharp
                                             T[] dst, Int32 dstStart,
                                             IComparer<T> comparer = null)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
+            if (dst == null)
+                throw new ArgumentNullException(nameof(dst));
             var equalityComparer = comparer ?? Comparer<T>.Default;
             Int32 aEnd = aStart + aLength - 1;
             Int32 bEnd = bStart + bLength - 1;
@@ -852,6 +958,10 @@ namespace HPCsharp
                                              T[] dst, Int32 dstStart,
                                              IComparer<T> comparer = null)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
+            if (dst == null)
+                throw new ArgumentNullException(nameof(dst));
             var equalityComparer = comparer ?? Comparer<T>.Default;
             Int32 aEnd = aStart + aLength - 1;
             Int32 bEnd = bStart + bLength - 1;
@@ -916,6 +1026,10 @@ namespace HPCsharp
                                            T[] dst, Int32 dstStart,
                                            IComparer<T> comparer = null)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
+            if (dst == null)
+                throw new ArgumentNullException(nameof(dst));
             var equalityComparer = comparer ?? Comparer<T>.Default;
             Int32 aEnd = aStart + aLength - 1;
             Int32 bEnd = bStart + bLength - 1;
@@ -978,6 +1092,10 @@ namespace HPCsharp
                                             T[] dst, Int32 dstStart,
                                             IComparer<T> comparer = null)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
+            if (dst == null)
+                throw new ArgumentNullException(nameof(dst));
             var equalityComparer = comparer ?? Comparer<T>.Default;
             Int32 aEnd = aStart + aLength - 1;
             Int32 bEnd = bStart + bLength - 1;
@@ -1090,6 +1208,10 @@ namespace HPCsharp
         /// <param name="comparer">method to compare array elements</param>
         public static void MergeDivideAndConquer<T>(T[] src, Int32 aStart, Int32 aEnd, Int32 bStart, Int32 bEnd, T[] dst, Int32 p3, IComparer<T> comparer = null)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
+            if (dst == null)
+                throw new ArgumentNullException(nameof(dst));
             //Console.WriteLine("#1 " + aStart + " " + aEnd + " " + bStart + " " + bEnd);
             Int32 length1 = aEnd - aStart + 1;
             Int32 length2 = bEnd - bStart + 1;
@@ -1123,6 +1245,8 @@ namespace HPCsharp
         // and my Dr. Dobb's paper https://www.drdobbs.com/parallel/parallel-in-place-merge/240008783
         public static void MergeInPlaceDivideAndConquer<T>(T[] arr, int startIndex, int midIndex, int endIndex, IComparer<T> comparer = null)
         {
+            if (arr == null)
+                throw new ArgumentNullException(nameof(arr));
             //Console.WriteLine("merge: start = {0}, mid = {1}, end = {2}", startIndex, midIndex, endIndex);
             int length1 = midIndex - startIndex + 1;
             int length2 = endIndex - midIndex;
@@ -1232,6 +1356,10 @@ namespace HPCsharpExperimental
     {
         public static void MergeDivideAndConquerExperimental<T>(T[] src, Int32 aStart, Int32 aEnd, Int32 bStart, Int32 bEnd, T[] dst, Int32 p3, IComparer<T> comparer = null)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
+            if (dst == null)
+                throw new ArgumentNullException(nameof(dst));
             //var equalityComparer = comparer ?? Comparer<T>.Default;
             //Console.WriteLine("#1 " + p1 + " " + r1 + " " + p2 + " " + r2);
             Int32 length1 = aEnd - aStart + 1;
@@ -1295,6 +1423,10 @@ namespace HPCsharpExperimental
         // Unrolled version, which is useful for debug
         public static void MergeDivideAndConquerUnrolled<T>(T[] src, Int32 aStart, Int32 aEnd, Int32 bStart, Int32 bEnd, T[] dst, Int32 p3, IComparer<T> comparer = null)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
+            if (dst == null)
+                throw new ArgumentNullException(nameof(dst));
             //var equalityComparer = comparer ?? Comparer<T>.Default;
             //Console.WriteLine("#1 " + p1 + " " + r1 + " " + p2 + " " + r2);
             Int32 length1 = aEnd - aStart + 1;

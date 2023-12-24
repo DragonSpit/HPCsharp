@@ -15,7 +15,10 @@
 // TODO: Port my median-of-two-sorted-arrays algorithm from Dr. Dobb's to reduce the number of levels in the parallel merge to be exactly Log2(N).
 // TODO: Improve termination case of Parallel Merge to a better measure than (length1 + length2) < threshold, to possibly include the case of one of the lengths being smaller than a threshold
 
+#pragma warning disable CA1510
+
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -170,11 +173,19 @@ namespace HPCsharp
         /// <param name="comparer">method to compare array elements</param>
         public static void MergePar<T>(T[] src, Int32 aStart, Int32 aLength, Int32 bStart, Int32 bLength, T[] dst, Int32 dstStart, IComparer<T> comparer = null)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
+            if (dst == null)
+                throw new ArgumentNullException(nameof(dst));
             MergeInnerPar<T>(src, aStart, aStart + aLength - 1, bStart, bStart + bLength - 1, dst, dstStart, comparer);
         }
 
         public static void MergeParNew<T>(T[] src, Int32 aStart, Int32 aLength, Int32 bStart, Int32 bLength, T[] dst, Int32 dstStart, IComparer<T> comparer = null)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
+            if (dst == null)
+                throw new ArgumentNullException(nameof(dst));
             MergeInnerParNew<T>(src, aStart, aStart + aLength - 1, bStart, bStart + bLength - 1, dst, dstStart, comparer);
         }
 
@@ -230,6 +241,8 @@ namespace HPCsharp
         // and my Dr. Dobb's paper https://www.drdobbs.com/parallel/parallel-in-place-merge/240008783 or https://web.archive.org/web/20141217133856/http://www.drdobbs.com/parallel/parallel-in-place-merge/240008783
         public static void MergeDivideAndConquerInPlacePar<T>(T[] arr, int startIndex, int midIndex, int endIndex, IComparer<T> comparer = null, int threshold0 = 16 * 1024, int threshold1 = 16 * 1024)
         {
+            if (arr == null)
+                throw new ArgumentNullException(nameof(arr));
             //Console.WriteLine("MergeDivideAndConquerInPlacePar: start = {0}, mid = {1}, end = {2}", startIndex, midIndex, endIndex);
             int length1 = midIndex - startIndex + 1;
             int length2 = endIndex - midIndex;
@@ -295,6 +308,8 @@ namespace HPCsharp
         /// <param name="comparer">method to compare array elements</param>
         public static void MergeInPlaceAdaptivePar<T>(T[] arr, int startIndex, int midIndex, int endIndex, IComparer<T> comparer = null, int threshold = 16 * 1024)
         {
+            if (arr == null)
+                throw new ArgumentNullException(nameof(arr));
             if ((endIndex - startIndex) < threshold)
             {
                 Algorithm.MergeInPlaceDivideAndConquer(arr, startIndex, midIndex, endIndex, comparer);          // Serial In-Place Merge
@@ -392,6 +407,10 @@ namespace HPCsharp
                                         T[] destinationArray,
                                         Comparer<T> comparer = null)
         {
+            if (sourceArray == null)
+                throw new ArgumentNullException(nameof(sourceArray));
+            if (destinationArray == null)
+                throw new ArgumentNullException(nameof(destinationArray));
             if (destinationArray.Length != sourceArray.Length)
             {
                 throw new ArgumentException("Destination array must be the same size as the source array");
