@@ -1,4 +1,7 @@
 ﻿// TODO: Implement Min SSE versions as generic and use the data type run-time detection, as other algorithms do and a switch statement to route to the proper SSE implementation
+
+#pragma warning disable CA1510
+
 using System.Collections.Generic;
 using System.Text;
 using System.Numerics;
@@ -12,7 +15,7 @@ namespace HPCsharp
         public static int MinSse(this int[] arrayToMin)
         {
             if (arrayToMin == null)
-                throw new ArgumentNullException("Min cannot be determined for a null array");
+                throw new ArgumentNullException(nameof(arrayToMin));
             if (arrayToMin.Length == 0)
                 throw new ArgumentException("Min cannot be determined for an empty array");
             return arrayToMin.MinSseInner(0, arrayToMin.Length - 1);
@@ -21,7 +24,7 @@ namespace HPCsharp
         public static int MinSse(this int[] arrayToMin, int start, int length)
         {
             if (arrayToMin == null)
-                throw new ArgumentNullException("Min cannot be determined for a null array");
+                throw new ArgumentNullException(nameof(arrayToMin));
             if (arrayToMin.Length == 0 || length == 0)
                 throw new ArgumentException("Min cannot be determined for an empty array or length argument of zero");
             return arrayToMin.MinSseInner(start, start + length - 1);
@@ -74,7 +77,7 @@ namespace HPCsharp
         public static int MinSsePar(this int[] arrayToMin)
         {
             if (arrayToMin == null)
-                throw new ArgumentNullException("Min cannot be determined for a null array");
+                throw new ArgumentNullException(nameof(arrayToMin));
             if (arrayToMin.Length == 0)
                 throw new ArgumentException("Min cannot be determined for an empty array");
             return MinSseParInner(arrayToMin, 0, arrayToMin.Length - 1);
@@ -83,7 +86,7 @@ namespace HPCsharp
         public static int MinSsePar(this int[] arrayToMin, int start, int length)
         {
             if (arrayToMin == null)
-                throw new ArgumentNullException("Min cannot be determined for a null array");
+                throw new ArgumentNullException(nameof(arrayToMin));
             if (arrayToMin.Length == 0 || length == 0)
                 throw new ArgumentException("Min cannot be determined for an empty array or length argument of zero");
             return arrayToMin.MinSseParInner(start, start + length - 1);

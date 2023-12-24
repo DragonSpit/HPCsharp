@@ -33,12 +33,15 @@
 //       for the not-in-place part of the algorithm. It would mean two smaller allocations, where both need to succeed to be able to proceed.
 // TODO: Implement functional usage equivalent methods for in-place sorting methods that return the source array, to make functional style usage convenient for functional programming use.
 
+#pragma warning disable CA1510
+
 using System;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using HPCsharp.ParallelAlgorithms;
+using System.Collections;
 
 namespace HPCsharp
 {
@@ -202,7 +205,7 @@ namespace HPCsharp
             if (length <= 0)      // zero elements to sort
                 return;
             if (length > (src.Length - srcStart) || length > (dst.Length - dstStart))
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(length));
 
             int maxDegreeOfPar = degreeOfParallelism <= 0 ? Environment.ProcessorCount : degreeOfParallelism;
             int segmentLength = length / maxDegreeOfPar;
@@ -330,6 +333,8 @@ namespace HPCsharp
         /// <returns>returns a newly allocated sorted array</returns>
         public static T[] SortMergePar<T>(this T[] src, IComparer<T> comparer = null, Int32 parallelThreshold = 24 * 1024, Int32 parallelMergeThreshold = 128 * 1024)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
             var dst = new T[src.Length];
             if ((parallelThreshold * Environment.ProcessorCount) < src.Length)
                 parallelThreshold = src.Length / Environment.ProcessorCount;
@@ -374,6 +379,8 @@ namespace HPCsharp
         /// <returns>returns a newly allocated sorted array</returns>
         public static T[] SortMergeFourWayPar<T>(this T[] src, IComparer<T> comparer = null, Int32 parallelThreshold = 24 * 1024)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
             var dst = new T[src.Length];
             if ((parallelThreshold * Environment.ProcessorCount) < src.Length)
                 parallelThreshold = src.Length / Environment.ProcessorCount;
@@ -392,6 +399,8 @@ namespace HPCsharp
         /// <returns>returns a sorted array of length specified</returns>
         public static T[] SortMergeStablePar<T>(this T[] src, IComparer<T> comparer = null, Int32 parallelThreshold = 24 * 1024)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
             var dst = new T[src.Length];
             if ((parallelThreshold * Environment.ProcessorCount) < src.Length)
                 parallelThreshold = src.Length / Environment.ProcessorCount;
@@ -411,6 +420,8 @@ namespace HPCsharp
         /// <returns>returns an array of length specified</returns>
         static public T[] SortMergeStablePar<T>(this T[] src, int startIndex, int length, IComparer<T> comparer = null, Int32 parallelThreshold = 8 * 1024)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
             T[] srcTrimmed = new T[length];
             T[] dst        = new T[length];
             if ((parallelThreshold * Environment.ProcessorCount) < src.Length)
@@ -432,6 +443,8 @@ namespace HPCsharp
         /// <param name="parallelThreshold">arrays larger than this value will be sorted using multiple cores</param>
         static public void SortMergeInPlaceAdaptivePar<T>(this T[] src, IComparer<T> comparer = null, Int32 parallelThreshold = 24 * 1024)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
             try
             {
                 T[] dst = new T[src.Length];
@@ -458,6 +471,8 @@ namespace HPCsharp
         /// <param name="parallelThreshold">arrays larger than this value will be sorted using multiple cores</param>
         static public void SortMergeInPlaceAdaptivePar<T>(this T[] src, int startIndex, int length, IComparer<T> comparer = null, Int32 parallelThreshold = 24 * 1024)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
             try
             {
                 T[] dst = new T[src.Length];
@@ -480,6 +495,8 @@ namespace HPCsharp
         /// <param name="parallelThreshold">arrays larger than this value will be sorted using multiple cores</param>
         public static void SortMergeInPlacePar<T>(this T[] src, IComparer<T> comparer = null, int parallelThreshold = 16 * 1024)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
             SortMergeInPlaceHybridInnerPar<T>(src, 0, src.Length - 1, comparer, parallelThreshold);
         }
         /// <summary>
@@ -491,13 +508,15 @@ namespace HPCsharp
         /// <param name="length">number of elements starting with startIndex to be sorted</param>
         /// <param name="comparer">comparer used to compare two array elements of type T</param>
         /// <param name="parallelThreshold">arrays larger than this value will be sorted using multiple cores</param>
-public static void SortMergeInPlacePar<T>(this T[] src, int startIndex, int length, IComparer<T> comparer = null, int parallelThreshold = 16 * 1024)
-{
-    if ((parallelThreshold * Environment.ProcessorCount) < src.Length)
-        parallelThreshold = src.Length / Environment.ProcessorCount;
+        public static void SortMergeInPlacePar<T>(this T[] src, int startIndex, int length, IComparer<T> comparer = null, int parallelThreshold = 16 * 1024)
+        {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
+            if ((parallelThreshold * Environment.ProcessorCount) < src.Length)
+                parallelThreshold = src.Length / Environment.ProcessorCount;
 
-    SortMergeInPlaceHybridInnerPar<T>(src, startIndex, startIndex + length - 1, comparer, parallelThreshold);
-}
+            SortMergeInPlaceHybridInnerPar<T>(src, startIndex, startIndex + length - 1, comparer, parallelThreshold);
+        }
         // start and end indexes are inclusive
         private static void SortMergeInPlaceHybridInnerPar<T>(this T[] src, int startIndex, int endIndex, IComparer<T> comparer = null, int threshold0 = 16 * 1024,
                                                               int threshold1 = 256 * 1024, int threshold2 = 256 * 1024 )
@@ -529,6 +548,10 @@ public static void SortMergeInPlacePar<T>(this T[] src, int startIndex, int leng
         /// <param name="parallelThreshold">arrays larger than this value will be sorted using multiple cores</param>
         public static void SortMergePseudoInPlacePar<T1, T2>(this T1[] keys, T2[] items, IComparer<T1> comparer = null, Int32 parallelThreshold = 24 * 1024)
         {
+            if (keys == null)
+                throw new ArgumentNullException(nameof(keys));
+            if (items == null)
+                throw new ArgumentNullException(nameof(items));
             T1[] dstKeys  = new T1[ keys.Length];
             T2[] dstItems = new T2[items.Length];
             if ((parallelThreshold * Environment.ProcessorCount) < items.Length)
@@ -551,6 +574,10 @@ public static void SortMergeInPlacePar<T>(this T[] src, int startIndex, int leng
         static public void SortMergePseudoInPlacePar<T1, T2>(this T1[] keys, T2[] items, int startIndex, int length,
                                                              IComparer<T1> comparer = null, Int32 parallelThreshold = 24 * 1024)
         {
+            if (keys == null)
+                throw new ArgumentNullException(nameof(keys));
+            if (items == null)
+                throw new ArgumentNullException(nameof(items));
             T1[] dstKeys  = new T1[ keys.Length];
             T2[] dstItems = new T2[items.Length];
             if ((parallelThreshold * Environment.ProcessorCount) < items.Length)
@@ -568,6 +595,8 @@ public static void SortMergeInPlacePar<T>(this T[] src, int startIndex, int leng
         /// <param name="parallelThreshold">arrays larger than this value will be sorted using multiple cores</param>
         public static void SortMergePseudoInPlaceStablePar<T>(this T[] array, IComparer<T> comparer = null, Int32 parallelThreshold = 24 * 1024)
         {
+            if (array == null)
+                throw new ArgumentNullException(nameof(array));
             T[] dst = new T[array.Length];
             if ((parallelThreshold * Environment.ProcessorCount) < array.Length)
                 parallelThreshold = array.Length / Environment.ProcessorCount;
@@ -587,6 +616,8 @@ public static void SortMergeInPlacePar<T>(this T[] src, int startIndex, int leng
         static public void SortMergePseudoInPlaceStablePar<T>(this T[] array, int startIndex, int length,
                                                               IComparer<T> comparer = null, Int32 parallelThreshold = 8 * 1024)
         {
+            if (array == null)
+                throw new ArgumentNullException(nameof(array));
             T[] dst = new T[array.Length];
             if ((parallelThreshold * Environment.ProcessorCount) < array.Length)
                 parallelThreshold = array.Length / Environment.ProcessorCount;
@@ -869,6 +900,8 @@ public static void SortMergeInPlacePar<T>(this T[] src, int startIndex, int leng
         /// <returns>returns an array of length specified</returns>
         public static void SortMergePseudoInPlaceHybridWithRadixPar<T>(this T[] src, Func<T, UInt32> getKey, IComparer<T> comparer = null, Int32 parallelThreshold = 24 * 1024)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
             T[] workBuffer = new T[src.Length];
             if ((parallelThreshold * Environment.ProcessorCount) < src.Length)
                 parallelThreshold = src.Length / Environment.ProcessorCount;
@@ -890,6 +923,8 @@ public static void SortMergeInPlacePar<T>(this T[] src, int startIndex, int leng
         public static T[] SortMergePseudoInPlaceHybridWithRadixPar<T>(this T[] src, int startIndex, int length,
                                                                       Func<T, UInt32> getKey, IComparer<T> comparer = null, Int32 parallelThreshold = 24 * 1024)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
             T[] srcTrimmed = new T[length];
             T[] dst        = new T[length];
             if ((parallelThreshold * Environment.ProcessorCount) < src.Length)
@@ -910,6 +945,8 @@ public static void SortMergeInPlacePar<T>(this T[] src, int startIndex, int leng
         /// <returns>returns an array of length specified</returns>
         public static void SortMergePseudoInPlaceHybridWithRadixPar(this UInt32[] src, Int32 parallelThreshold = 128 * 1024)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
             UInt32[] dst = new UInt32[src.Length];
             if ((parallelThreshold * Environment.ProcessorCount) < src.Length)
                 parallelThreshold = src.Length / Environment.ProcessorCount;
@@ -943,6 +980,8 @@ public static void SortMergeInPlacePar<T>(this T[] src, int startIndex, int leng
         /// <returns>returns an array of length specified</returns>
         public static void SortMergeInPlaceHybridWithRadixPar(this ulong[] src, Int32 threshold0 = 24 * 1024, Int32 threshold1 = 16 * 1024, Int32 threshold2 = 16 * 1024)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
             //if ((parallelThreshold * Environment.ProcessorCount) < src.Length)
             //    parallelThreshold = src.Length / Environment.ProcessorCount;
 
@@ -991,6 +1030,8 @@ public static void SortMergeInPlacePar<T>(this T[] src, int startIndex, int leng
         /// <returns>returns an array of length specified</returns>
         public static void SortMergeInPlaceHybridWithRadixPar(this uint[] src, Int32 threshold0 = 24 * 1024, Int32 threshold1 = 16 * 1024, Int32 threshold2 = 128 * 1024)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
             //if ((threshold0 * Environment.ProcessorCount) < src.Length)
             //    threshold0 = src.Length / Environment.ProcessorCount;
 
@@ -1004,6 +1045,8 @@ public static void SortMergeInPlacePar<T>(this T[] src, int startIndex, int leng
         /// <returns>returns an array of length specified</returns>
         public static void SortMergeInPlaceHybridWithRadixPar(this uint[] src, int startIndex, int length, Int32 threshold0 = 24 * 1024, Int32 threshold1 = 16 * 1024, Int32 threshold2 = 16 * 1024)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
             if ((threshold0 * Environment.ProcessorCount) < src.Length)
                 threshold0 = src.Length / Environment.ProcessorCount;
 
@@ -1040,6 +1083,8 @@ public static void SortMergeInPlacePar<T>(this T[] src, int startIndex, int leng
         /// <returns>returns an array of length specified</returns>
         public static void SortMergeInPlaceAdaptiveHybridWithRadixPar(this uint[] src, Int32 threshold0 = 24 * 1024, Int32 threshold1 = 16 * 1024, Int32 threshold2 = 16 * 1024)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
             if ((threshold0 * Environment.ProcessorCount) < src.Length)
                 threshold0 = src.Length / Environment.ProcessorCount;
 
@@ -1053,6 +1098,8 @@ public static void SortMergeInPlacePar<T>(this T[] src, int startIndex, int leng
         /// <returns>returns an array of length specified</returns>
         public static void SortMergeInPlaceAdaptiveHybridWithRadixPar(this uint[] src, int startIndex, int length, Int32 threshold0 = 24 * 1024, Int32 threshold1 = 16 * 1024, Int32 threshold2 = 16 * 1024)
         {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
             if ((threshold0 * Environment.ProcessorCount) < src.Length)
                 threshold0 = src.Length / Environment.ProcessorCount;
 

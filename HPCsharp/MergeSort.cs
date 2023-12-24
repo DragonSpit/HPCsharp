@@ -25,6 +25,8 @@
 // TODO: Use Heap Sort or Array.Sort for faster bottom of the recursion tree, especially for in-place versions.
 // TODO: Fix all average calculation to not cause over/underflow.
 
+#pragma warning disable CA1510
+
 using System;
 using System.Collections.Generic;
 using System.Xml.Schema;
@@ -138,6 +140,8 @@ namespace HPCsharp
         /// <returns>returns a sorted array of full length</returns>
         static public T[] SortMerge<T>(this T[] source, bool stable = true, IComparer<T> comparer = null, int threshold = 1024)
         {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
             T[] dst = new T[source.Length];
 
             source.SortMergeInner<T>(0, source.Length - 1, dst, stable, true, comparer, threshold);
@@ -187,6 +191,8 @@ namespace HPCsharp
         /// <returns>returns a sorted array of full length</returns>
         static public T[] SortMergeFourWay<T>(this T[] source, IComparer<T> comparer = null)
         {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
             T[] dst = new T[source.Length];
 
             source.SortMergeFourWayInner<T>(0, source.Length - 1, dst, true, comparer);
@@ -238,6 +244,8 @@ namespace HPCsharp
         /// <param name="comparer">comparer used to compare two array elements of type T</param>
         static public void SortMergeInPlaceUsingAdaptiveMerge<T>(this T[] arr, IComparer<T> comparer = null)
         {
+            if (arr == null)
+                throw new ArgumentNullException(nameof(arr));
             arr.SortMergeInPlaceAdaptiveInner<T>(0, arr.Length - 1, comparer);
         }
 
@@ -268,6 +276,8 @@ namespace HPCsharp
         static public void SortMergeInPlaceAdaptive<T>(this T[] arr, bool stable = true, IComparer<T> comparer = null,
                                                        int thresholdInPlacePure = 16 * 1024)
         {
+            if (arr == null)
+                throw new ArgumentNullException(nameof(arr));
             SortMergeInPlaceAdaptive(arr, 0, arr.Length - 1, stable, comparer, thresholdInPlacePure);
         }
         /// <summary>
@@ -282,6 +292,8 @@ namespace HPCsharp
         static public void SortMergeInPlaceAdaptive<T>(this T[] arr, int startIndex, int length, bool stable = true, IComparer<T> comparer = null,
                                                        int thresholdInPlacePure = 16 * 1024)
         {
+            if (arr == null)
+                throw new ArgumentNullException(nameof(arr));
             // Any time memory is allocated, it should be checked for out-of-memory exception/condition (i.e., memory exhaustion)
             try
             {
@@ -302,6 +314,8 @@ namespace HPCsharp
         /// <param name="comparer">comparer used to compare two array elements of type T</param>
         static public void SortMergeInPlace<T>(this T[] array, IComparer<T> comparer = null, int threshold = 16 * 1024)
         {
+            if (array == null)
+                throw new ArgumentNullException(nameof(array));
             SortMergeInPlaceHybridInner(array, 0, array.Length - 1, comparer, threshold);
         }
 
