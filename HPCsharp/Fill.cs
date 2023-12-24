@@ -12,6 +12,9 @@
 // TODO: Change SSE Fill to look at alignment of the buffer first and do scalar up to 32-byte alignment and then do SSE - otherwise performance is abysmal.
 // TODO: Something strange is going on with performance of BlockCopy for ushort when the offset is not zero. I'm guessing that Microsoft messed up the implementation and
 //       if they use SSE instructions, then forgot to align these on 32-byte/256-bit boundary, and when SSE is not aligned then performance is abysmal.
+
+#pragma warning disable CA1510
+
 using System;
 
 namespace HPCsharp
@@ -20,12 +23,16 @@ namespace HPCsharp
     {
         public static void Fill<T>(this T[] arrayToFill, T value)
         {
+            if (arrayToFill == null)
+                throw new ArgumentNullException(nameof(arrayToFill));
             for (int i = 0; i < arrayToFill.Length; i++)
                 arrayToFill[i] = value;
         }
 
         public static void Fill<T>(this T[] arrayToFill, T value, int startIndex, int length)
         {
+            if (arrayToFill == null)
+                throw new ArgumentNullException(nameof(arrayToFill));
             int endIndex = startIndex + length;
             for (int i = startIndex; i < endIndex; i++)
                 arrayToFill[i] = value;
@@ -34,6 +41,8 @@ namespace HPCsharp
         // From StackOverflow fast fill question https://stackoverflow.com/questions/1897555/what-is-the-equivalent-of-memset-in-c
         public static void FillUsingBlockCopy<T>(this T[] array, T value) where T : struct
         {
+            if (array == null)
+                throw new ArgumentNullException(nameof(array));
             int numBytesInItem = ValidateTypeIsIntegralAndGetByteSize<T>();
 
             int block = 32, index = 0;
@@ -52,6 +61,8 @@ namespace HPCsharp
 
         public static void FillUsingBlockCopy<T>(this T[] array, T value, int startIndex, int count) where T : struct
         {
+            if (array == null)
+                throw new ArgumentNullException(nameof(array));
             int numBytesInItem = ValidateTypeIsIntegralAndGetByteSize<T>();
 
             int block = 32, index = startIndex;

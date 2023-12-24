@@ -7,6 +7,9 @@
 // TODO: Create a generic Counting Sort that lets you set any number of bits, to let you experiment with how big of data sets Counting Sort will sort. As cache sizes grow
 //       or memory systems user non-DRAM memory, this may pay off big. This version can also detect if there are values outside this range and either return an error code
 //       or throw an exception.
+
+#pragma warning disable CA1510
+
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -19,6 +22,8 @@ namespace HPCsharp
     {
         public static byte[] SortCounting(this byte[] inputArray)
         {
+            if (inputArray == null)
+                throw new ArgumentNullException(nameof(inputArray));
             byte[] sortedArray = new byte[inputArray.Length];
 
             int[] counts = inputArray.Histogram();
@@ -55,6 +60,8 @@ namespace HPCsharp
 
         public static sbyte[] SortCounting(this sbyte[] inputArray)
         {
+            if (inputArray == null)
+                throw new ArgumentNullException(nameof(inputArray));
             sbyte[] sortedArray = new sbyte[inputArray.Length];
 
             int[] counts = inputArray.Histogram();
@@ -91,6 +98,8 @@ namespace HPCsharp
 
         public static ushort[] SortCounting(this ushort[] inputArray)
         {
+            if (inputArray == null)
+                throw new ArgumentNullException(nameof(inputArray));
             ushort[] sortedArray = new ushort[inputArray.Length];
 
             int[] counts = inputArray.Histogram();
@@ -125,6 +134,8 @@ namespace HPCsharp
 
         public static short[] SortCounting(this short[] inputArray)
         {
+            if (inputArray == null)
+                throw new ArgumentNullException(nameof(inputArray));
             short[] sortedArray = new short[inputArray.Length];
 
             int[] counts = inputArray.Histogram();

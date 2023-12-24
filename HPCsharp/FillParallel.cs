@@ -13,6 +13,7 @@
 // TODO: Fix a array-out-of-bounds bug in         public static void FillSse(this byte[] arrayToFill, byte value, int startIndex, int length)
 // TODO: Fix an out-of-bounds bug in FillSse method. Only then put it back as being public
 
+#pragma warning disable CA1510
 
 using System;
 using System.Collections.Generic;
@@ -26,6 +27,8 @@ namespace HPCsharp
     {
         public static void FillPar<T>(this T[] arrayToFill, T value, int parallelThreshold = 16 * 1024) where T : struct
         {
+            if (arrayToFill == null)
+                throw new ArgumentNullException(nameof(arrayToFill));
             FillPar(arrayToFill, value, 0, arrayToFill.Length, parallelThreshold);
         }
 

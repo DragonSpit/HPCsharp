@@ -1,5 +1,8 @@
 ﻿// TODO: Implement performance improvement from my C++ code, where in the counting 2-D part, instead of using a 2-D array for the increment computation, a 1-D array is used, which gets initialized before the for loop. C++ comment is that it's faster.
 // TODO: Fix the subtle bug with long[] Histogram, which seems to have an issue when the parallelThreshold is == array.length/#cores
+
+#pragma warning disable CA1510
+
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -34,6 +37,8 @@ namespace HPCsharp
         // Does not seem to be faster than the scaler version, probably because it's not limited by memory bandwidth
         public static int[] HistogramOneByteComponentSse(long[] inArray, Int32 l, Int32 r, int shiftRightAmount)
         {
+            if (inArray == null)
+                throw new ArgumentNullException(nameof(inArray));
             const int numberOfBins = 256;
             //const ulong byteMask = numberOfBins - 1;
             int[] count = new int[numberOfBins];
@@ -75,6 +80,8 @@ namespace HPCsharp
 
         public static int[] HistogramInnerPar(byte[] inArray, Int32 l, Int32 r, int parallelThreshold = 16 * 1024)
         {
+            if (inArray == null)
+                throw new ArgumentNullException(nameof(inArray));
             int numberOfBins = 256;
             int[] countLeft  = null;
             int[] countRight = null;
@@ -107,11 +114,15 @@ namespace HPCsharp
 
         public static int[] HistogramPar(this byte[] inArray, int parallelThreshold = 16 * 1024)
         {
+            if (inArray == null)
+                throw new ArgumentNullException(nameof(inArray));
             return HistogramInnerPar(inArray, 0, inArray.Length - 1, parallelThreshold);
         }
 
         public static int[] HistogramInnerPar(ushort[] inArray, Int32 l, Int32 r, int parallelThreshold = 16 * 1024)
         {
+            if (inArray == null)
+                throw new ArgumentNullException(nameof(inArray));
             int numberOfBins = 256 * 256;
             int[] countLeft  = null;
             int[] countRight = null;
@@ -144,6 +155,8 @@ namespace HPCsharp
 
         public static int[] HistogramPar(this ushort[] inArray)
         {
+            if (inArray == null)
+                throw new ArgumentNullException(nameof(inArray));
             return HistogramInnerPar(inArray, 0, inArray.Length - 1);
         }
 
@@ -200,6 +213,8 @@ namespace HPCsharp
 
         public static uint[][] HistogramByteComponentsPar(uint[] inArray, Int32 l, Int32 r, int parallelThreshold = 16 * 1024)
         {
+            if (inArray == null)
+                throw new ArgumentNullException(nameof(inArray));
             int length = r - l + 1;
             if ((parallelThreshold * Environment.ProcessorCount) < length)
                 parallelThreshold = length / Environment.ProcessorCount;
@@ -259,6 +274,8 @@ namespace HPCsharp
 
         public static uint[][] HistogramByteComponentsSsePar(uint[] inArray, Int32 l, Int32 r, int parallelThreshold = 16 * 1024)
         {
+            if (inArray == null)
+                throw new ArgumentNullException(nameof(inArray));
             int length = r - l + 1;
             if ((parallelThreshold * Environment.ProcessorCount) < length)
                 parallelThreshold = length / Environment.ProcessorCount;
@@ -351,6 +368,8 @@ namespace HPCsharp
 
         public static uint[][] HistogramByteComponentsPar(int[] inArray, Int32 l, Int32 r, int parallelThreshold = 16 * 1024)
         {
+            if (inArray == null)
+                throw new ArgumentNullException(nameof(inArray));
             int length = r - l + 1;
             if ((parallelThreshold * Environment.ProcessorCount) < length)
                 parallelThreshold = length / Environment.ProcessorCount;
@@ -410,6 +429,8 @@ namespace HPCsharp
 
         public static uint[][] HistogramByteComponentsSsePar(int[] inArray, Int32 l, Int32 r, int parallelThreshold = 16 * 1024)
         {
+            if (inArray == null)
+                throw new ArgumentNullException(nameof(inArray));
             int length = r - l + 1;
             if ((parallelThreshold * Environment.ProcessorCount) < length)
                 parallelThreshold = length / Environment.ProcessorCount;
@@ -478,6 +499,8 @@ namespace HPCsharp
 
         public static uint[][] HistogramByteComponentsPar(ulong[] inArray, Int32 l, Int32 r, int parallelThreshold = 16 * 1024)
         {
+            if (inArray == null)
+                throw new ArgumentNullException(nameof(inArray));
             int length = r - l + 1;
             if ((parallelThreshold * Environment.ProcessorCount) < length)
                 parallelThreshold = length / Environment.ProcessorCount;
@@ -546,6 +569,8 @@ namespace HPCsharp
 
         public static uint[][] HistogramByteComponentsPar(long[] inArray, Int32 l, Int32 r, int parallelThreshold = 16 * 1024)
         {
+            if (inArray == null)
+                throw new ArgumentNullException(nameof(inArray));
             int length = r - l + 1;
             if ((parallelThreshold * Environment.ProcessorCount) < length)
                 parallelThreshold = length / Environment.ProcessorCount;
@@ -613,6 +638,8 @@ namespace HPCsharp
 
         public static uint[][] HistogramByteComponentsSsePar(long[] inArray, Int32 l, Int32 r, int parallelThreshold = 16 * 1024)
         {
+            if (inArray == null)
+                throw new ArgumentNullException(nameof(inArray));
             int length = r - l + 1;
             if ((parallelThreshold * Environment.ProcessorCount) < length)
                 parallelThreshold = length / Environment.ProcessorCount;

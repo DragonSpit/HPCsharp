@@ -11,6 +11,9 @@
 // TODO: Switch from mask-shift to shift-mask which makes the mask be the same for all bytes, which may make it faster than union. Try also casting to a byte instead of masking. Look at assembly to see
 //       which is better. Time to see which is faster.
 // TODO: To support small histograms, support the count arrays to be passed in, so that the caller can allocate them potentially on the stack or re-use previously allocated ones.
+
+#pragma warning disable CA1510
+
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -23,6 +26,8 @@ namespace HPCsharp
     {
         public static int[] Histogram(this byte[] inArray)
         {
+            if (inArray == null)
+                throw new ArgumentNullException(nameof(inArray));
             const int numberOfBins = 256;
             int[] counts = new int[numberOfBins];
 
@@ -34,6 +39,8 @@ namespace HPCsharp
 
         public static int[] Histogram(this sbyte[] inArray)
         {
+            if (inArray == null)
+                throw new ArgumentNullException(nameof(inArray));
             const int numberOfBins = 256;
             int[] counts = new int[numberOfBins];
 
@@ -45,6 +52,8 @@ namespace HPCsharp
 
         public static int[] Histogram(this ushort[] inArray)
         {
+            if (inArray == null)
+                throw new ArgumentNullException(nameof(inArray));
             const int numberOfBins = 256 * 256;
             int[] counts = new int[numberOfBins];
 
@@ -56,6 +65,8 @@ namespace HPCsharp
 
         public static int[] Histogram(this short[] inArray)
         {
+            if (inArray == null)
+                throw new ArgumentNullException(nameof(inArray));
             const int numberOfBins = 256 * 256;
             int[] counts = new int[numberOfBins];
 
@@ -67,8 +78,10 @@ namespace HPCsharp
 
         public static int[] Histogram(this uint[] inArray, int numberOfBits)
         {
+            if (inArray == null)
+                throw new ArgumentNullException(nameof(inArray));
             if (numberOfBits > 31)
-                throw new ArgumentOutOfRangeException("numberOfBits must be <= 31");
+                throw new ArgumentOutOfRangeException(nameof(numberOfBits));
 
             int numberOfBins = 1 << numberOfBits;
             int[] counts = new int[numberOfBins];
@@ -82,6 +95,8 @@ namespace HPCsharp
 
         public static uint[][] HistogramByteComponents(uint[] inArray, Int32 l, Int32 r)
         {
+            if (inArray == null)
+                throw new ArgumentNullException(nameof(inArray));
             const int numberOfBins = 256;
             const int numberOfDigits = sizeof(uint);
             uint[][] count = new uint[numberOfDigits][];
@@ -117,6 +132,8 @@ namespace HPCsharp
 
         public static uint[][][] HistogramByteComponentsAcrossWorkQuantas(uint[] inArray, uint workQuanta)
         {
+            if (inArray == null)
+                throw new ArgumentNullException(nameof(inArray));
             const int numberOfBins = 256;
             const int numberOfDigits = sizeof(uint);
             uint numberOfQuantas = (inArray.Length % workQuanta) == 0 ? (uint)(inArray.Length / workQuanta) : (uint)(inArray.Length / workQuanta + 1);
@@ -161,6 +178,8 @@ namespace HPCsharp
         // Produces counts for each bin per work quanta, with the left-most dimention being the work-quanta and the right-most dimention being the counts
         public static uint[][] HistogramByteComponentsAcrossWorkQuantasQC(uint[] inArray, int workQuanta, uint numberOfQuantas, uint whichByte)
         {
+            if (inArray == null)
+                throw new ArgumentNullException(nameof(inArray));
             const int numberOfBins = 256;
             //Console.WriteLine("Histogram: inArray.Length = {0}, workQuanta = {1}, numberOfQuantas = {2}, whichByte = {3}", inArray.Length, workQuanta, numberOfQuantas, whichByte);
 
@@ -257,6 +276,8 @@ namespace HPCsharp
         // r is the right-most index, inclusive
         public static uint[][] HistogramByteComponentsAcrossWorkQuantasQC(uint[] inArray, Int32 l, Int32 r, int workQuanta, uint numberOfQuantas, uint whichByte)
         {
+            if (inArray == null)
+                throw new ArgumentNullException(nameof(inArray));
             const int numberOfBins = 256;
             const uint mask = 0xff;
             int shiftRightAmount = (int)(8 * whichByte);
@@ -320,6 +341,8 @@ namespace HPCsharp
         // Different index order
         public static uint[][][] HistogramByteComponentsAcrossWorkQuantasDQC(uint[] inArray, uint workQuanta)
         {
+            if (inArray == null)
+                throw new ArgumentNullException(nameof(inArray));
             const int numberOfBins = 256;
             const int numberOfDigits = sizeof(uint);
             uint numberOfQuantas = (inArray.Length % workQuanta) == 0 ? (uint)(inArray.Length / workQuanta) : (uint)(inArray.Length / workQuanta + 1);
@@ -376,6 +399,8 @@ namespace HPCsharp
 
         public static uint[][] HistogramByteComponents<T>(T[] inArray, Int32 l, Int32 r, Func<T, UInt32> getKey)
         {
+            if (inArray == null)
+                throw new ArgumentNullException(nameof(inArray));
             const int numberOfBins = 256;
             const int numberOfDigits = sizeof(UInt32);
             uint[][] count = new uint[numberOfDigits][];
@@ -411,6 +436,8 @@ namespace HPCsharp
 
         public static uint[][] HistogramByteComponents<T>(T[] inArray, Int32 l, Int32 r, Func<T, UInt64> getKey)
         {
+            if (inArray == null)
+                throw new ArgumentNullException(nameof(inArray));
             const int numberOfBins = 256;
             const int numberOfDigits = sizeof(UInt64);
             uint[][] count = new uint[numberOfDigits][];
@@ -454,6 +481,8 @@ namespace HPCsharp
 
         public static Tuple<uint[][], UInt32[]> HistogramByteComponentsAndKeyArray<T>(T[] inArray, Int32 l, Int32 r, Func<T, UInt32> getKey)
         {
+            if (inArray == null)
+                throw new ArgumentNullException(nameof(inArray));
             const int numberOfBins = 256;
             const int numberOfDigits = sizeof(UInt32);
             var inKeys = new UInt32[inArray.Length];
@@ -491,6 +520,8 @@ namespace HPCsharp
 
         public static Tuple<uint[][], UInt64[]> HistogramByteComponentsAndKeyArray<T>(T[] inArray, Int32 l, Int32 r, Func<T, UInt64> getKey)
         {
+            if (inArray == null)
+                throw new ArgumentNullException(nameof(inArray));
             const int numberOfBins = 256;
             const int numberOfDigits = sizeof(UInt32);
             var inKeys = new UInt64[inArray.Length];
@@ -537,6 +568,8 @@ namespace HPCsharp
         // whereas with jagged array they may depending on how each row happens to be allocated on the heap
         public static uint[] HistogramByteComponents1D(uint[] inArray, Int32 l, Int32 r)
         {
+            if (inArray == null)
+                throw new ArgumentNullException(nameof(inArray));
             const int numberOfBins = 256;
             const int numberOfDigits = sizeof(uint);
             uint[] count = new uint[numberOfDigits * numberOfBins];
@@ -555,6 +588,8 @@ namespace HPCsharp
 
         public static uint[][] HistogramByteComponents(ulong[] inArray, Int32 l, Int32 r)
         {
+            if (inArray == null)
+                throw new ArgumentNullException(nameof(inArray));
             const int numberOfBins = 256;
             const int numberOfDigits = sizeof(ulong);
             uint[][] count = new uint[numberOfDigits][];
@@ -588,6 +623,8 @@ namespace HPCsharp
 
         public static uint[][] HistogramByteComponents(int[] inArray, Int32 l, Int32 r)
         {
+            if (inArray == null)
+                throw new ArgumentNullException(nameof(inArray));
             const int numberOfBins = 256;
             const int numberOfDigits = sizeof(ulong);
             uint[][] count = new uint[numberOfDigits][];
@@ -613,6 +650,8 @@ namespace HPCsharp
 
         public static uint[][] HistogramByteComponents(long[] inArray, Int32 l, Int32 r)
         {
+            if (inArray == null)
+                throw new ArgumentNullException(nameof(inArray));
             const int numberOfBins = 256;
             const int numberOfDigits = sizeof(ulong);
             uint[][] count = new uint[numberOfDigits][];
@@ -646,6 +685,8 @@ namespace HPCsharp
 
         public static Tuple<uint[][], int> HistogramByteComponentsAndStatistics(long[] inArray, Int32 l, Int32 r)
         {
+            if (inArray == null)
+                throw new ArgumentNullException(nameof(inArray));
             const int numberOfBins = 256;
             const int numberOfDigits = sizeof(ulong);
             uint[][] count = new uint[numberOfDigits][];
@@ -703,6 +744,8 @@ namespace HPCsharp
 
         public static int[] HistogramOneByteComponent(uint[] inArray, Int32 l, Int32 r, int shiftRightAmount)
         {
+            if (inArray == null)
+                throw new ArgumentNullException(nameof(inArray));
             const int numberOfBins = 256;
             //const ulong byteMask = numberOfBins - 1;
             int[] count = new int[numberOfBins];
@@ -718,6 +761,8 @@ namespace HPCsharp
 
         public static int[] HistogramOneByteComponent(ulong[] inArray, Int32 l, Int32 r, int shiftRightAmount)
         {
+            if (inArray == null)
+                throw new ArgumentNullException(nameof(inArray));
             const int numberOfBins = 256;
             //const ulong byteMask = numberOfBins - 1;
             int[] count = new int[numberOfBins];
@@ -733,6 +778,8 @@ namespace HPCsharp
 
         public static int[] HistogramOneByteComponent(long[] inArray, Int32 l, Int32 r, int shiftRightAmount)
         {
+            if (inArray == null)
+                throw new ArgumentNullException(nameof(inArray));
             const int numberOfBins = 256;
             int[] count = new int[numberOfBins];
 
@@ -756,6 +803,8 @@ namespace HPCsharp
 
         public static int[] HistogramOneByteComponent(int[] inArray, Int32 l, Int32 r, int shiftRightAmount)
         {
+            if (inArray == null)
+                throw new ArgumentNullException(nameof(inArray));
             const int numberOfBins = 256;
             int[] count = new int[numberOfBins];
 
@@ -778,6 +827,8 @@ namespace HPCsharp
         }
         public static int[] HistogramOneByteComponent(float[] inArray, Int32 l, Int32 r, int shiftRightAmount)
         {
+            if (inArray == null)
+                throw new ArgumentNullException(nameof(inArray));
             const int numberOfBins = 256;
             int[] count = new int[numberOfBins];
             var f2i = default(FloatUInt32Union);
@@ -816,6 +867,8 @@ namespace HPCsharp
 
         public static int[] HistogramOneByteComponent(double[] inArray, Int32 l, Int32 r, int shiftRightAmount)
         {
+            if (inArray == null)
+                throw new ArgumentNullException(nameof(inArray));
             const int numberOfBins = 256;
             int[] count = new int[numberOfBins];
             var d2i = default(DoubleUInt64Union);
@@ -854,6 +907,8 @@ namespace HPCsharp
 
         public static int[] HistogramNbitComponents(long[] inArray, Int32 l, Int32 r, int shiftRightAmount, int numberOfBitPerComponent)
         {
+            if (inArray == null)
+                throw new ArgumentNullException(nameof(inArray));
             const int NumBitsInLong = sizeof(long) * 8;
             ulong numberOfBins      = 1UL << numberOfBitPerComponent;
             ulong halfOfNumBins     = numberOfBins / 2;
@@ -881,6 +936,8 @@ namespace HPCsharp
 
         public static int[] HistogramByteComponentsUsingUnion(ulong[] inArray, Int32 l, Int32 r, int shiftRightAmount)
         {
+            if (inArray == null)
+                throw new ArgumentNullException(nameof(inArray));
             const int numberOfBins = 256;
             int[] count = new int[numberOfBins];
             int whichByte = shiftRightAmount / 8;
@@ -951,6 +1008,8 @@ namespace HPCsharp
 
         public static int[] HistogramByteComponentsUsingUnion(long[] inArray, Int32 l, Int32 r, int shiftRightAmount)
         {
+            if (inArray == null)
+                throw new ArgumentNullException(nameof(inArray));
             const int numberOfBins = 256;
             int[] count = new int[numberOfBins];
             int whichByte = shiftRightAmount / 8;
@@ -1020,6 +1079,8 @@ namespace HPCsharp
 
         public static int[] Histogram9bitComponents(float[] inArray, Int32 l, Int32 r, uint bitMask, int shiftRightAmount)
         {
+            if (inArray == null)
+                throw new ArgumentNullException(nameof(inArray));
             const int numberOfBins = 512;
             //const uint bitMask = numberOfBins - 1;
             int[] count = new int[numberOfBins];
@@ -1040,6 +1101,8 @@ namespace HPCsharp
 
         public static int[] Histogram12bitComponents(double[] inArray, Int32 l, Int32 r, ulong bitMask, int shiftRightAmount)
         {
+            if (inArray == null)
+                throw new ArgumentNullException(nameof(inArray));
             const int numberOfBins = 4096;
             int[] count = new int[numberOfBins];
 
@@ -1065,6 +1128,8 @@ namespace HPCsharp
 
         public static uint[][] HistogramNBitsPerComponents(uint[] inArray, Int32 l, Int32 r, int bitsPerComponent)
         {
+            if (inArray == null)
+                throw new ArgumentNullException(nameof(inArray));
             int numberOfBins = 1 << bitsPerComponent;
             int numberOfDigits = (sizeof(uint) * 8 + bitsPerComponent - 1) / bitsPerComponent;  // round up
             //Console.WriteLine("HistogramNBitsPerComponents: NumberOfDigits = {0}", numberOfDigits);
@@ -1193,6 +1258,8 @@ namespace HPCsharp
 
         public static uint[][] HistogramNBitsPerComponents(ulong[] inArray, Int32 l, Int32 r, int bitsPerComponent)
         {
+            if (inArray == null)
+                throw new ArgumentNullException(nameof(inArray));
             int numberOfBins = 1 << bitsPerComponent;
             int numberOfDigits = (sizeof(uint) * 8 + bitsPerComponent - 1) / bitsPerComponent;  // round up
             uint[][] countLeft = new uint[numberOfDigits][];
