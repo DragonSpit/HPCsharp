@@ -2,6 +2,7 @@
 // TODO: Implement SIMD/SSE acceleration for MinMax (bounds)
 
 #pragma warning disable CA1510
+#pragma warning disable CA1512
 
 using System;
 using System.Collections.Generic;

@@ -66,6 +66,7 @@
 // TODO: Implement adaptive Radix Sort (serial and parallel) where if there is enough memory, LSD Radix Sort is used for faster performance, otherwise MSD Radix Sort kicks in when memory is tight.
 
 #pragma warning disable CA1510
+#pragma warning disable CA1002
 
 using System;
 using System.Collections.Generic;
@@ -344,7 +345,7 @@ namespace HPCsharp
         public struct FloatUInt32Union
         {
             [FieldOffset(0)]
-            public uint uinteger;
+            public uint uintegerValue;
             [FieldOffset(0)]
             public float floatValue;
         }
@@ -1426,6 +1427,8 @@ namespace HPCsharp
                 throw new ArgumentNullException(nameof(inputArray));
             if (dst == null)
                 throw new ArgumentNullException(nameof(dst));
+            if (getKey == null)
+                throw new ArgumentNullException(nameof(getKey));
             int numberOfBins = 256;
             int Log2ofPowerOfTwoRadix = 8;
             uint cacheLineSizeInBytes = 64 * 4;
@@ -1506,6 +1509,8 @@ namespace HPCsharp
         {
             if (inputArray == null)
                 throw new ArgumentNullException(nameof(inputArray));
+            if (getKey == null)
+                throw new ArgumentNullException(nameof(getKey));
             int numberOfBins = 256;
             int Log2ofPowerOfTwoRadix = 8;
             var outputArray = new T[inputArray.Length];
@@ -1542,7 +1547,7 @@ namespace HPCsharp
 
             return outputArrayHasResult ? outputArray : inputArray;
         }
-        public static T[] SortRadixNew<T>(this T[] inputArray, Func<T, UInt32> getKey)
+        public static T[] SortRadix2<T>(this T[] inputArray, Func<T, UInt32> getKey)
         {
             if (inputArray == null)
                 throw new ArgumentNullException(nameof(inputArray));
@@ -1595,6 +1600,8 @@ namespace HPCsharp
         {
             if (inputArray == null)
                 throw new ArgumentNullException(nameof(inputArray));
+            if (getKey == null)
+                throw new ArgumentNullException(nameof(getKey));
             int numberOfBins = 256;
             int Log2ofPowerOfTwoRadix = 8;
             var outputArray = new T[inputArray.Length];
@@ -1631,7 +1638,7 @@ namespace HPCsharp
 
             return outputArrayHasResult ? outputArray : inputArray;
         }
-        public static T[] SortRadixNew<T>(this T[] inputArray, Func<T, UInt64> getKey)
+        public static T[] SortRadix2<T>(this T[] inputArray, Func<T, UInt64> getKey)
         {
             if (inputArray == null)
                 throw new ArgumentNullException(nameof(inputArray));
@@ -1694,6 +1701,8 @@ namespace HPCsharp
         {
             if (inputArray == null)
                 throw new ArgumentNullException(nameof(inputArray));
+            if (getKey == null)
+                throw new ArgumentNullException(nameof(getKey));
             int numberOfBins = 256;
             int NumberOfBitsPerDigit = 8;
             var outputArray = new T[inputArray.Length];
@@ -1744,7 +1753,7 @@ namespace HPCsharp
 
             return outputArrayHasResult ? outputArray : inputArray;
         }
-        public static T[] SortRadixFasterNew<T>(this T[] inputArray, Func<T, UInt32> getKey)
+        public static T[] SortRadixFaster2<T>(this T[] inputArray, Func<T, UInt32> getKey)
         {
             if (inputArray == null)
                 throw new ArgumentNullException(nameof(inputArray));
@@ -1807,6 +1816,8 @@ namespace HPCsharp
         {
             if (inputArray == null)
                 throw new ArgumentNullException(nameof(inputArray));
+            if (getKey == null)
+                throw new ArgumentNullException(nameof(getKey));
             int numberOfBins = 256;
             int Log2ofPowerOfTwoRadix = 8;
             var outputArray = new T[inputArray.Length];
@@ -1858,7 +1869,7 @@ namespace HPCsharp
             return outputArrayHasResult ? outputArray : inputArray;
         }
 
-        public static T[] SortRadixFasterNew<T>(this T[] inputArray, Func<T, UInt64> getKey)
+        public static T[] SortRadixFaster2<T>(this T[] inputArray, Func<T, UInt64> getKey)
         {
             if (inputArray == null)
                 throw new ArgumentNullException(nameof(inputArray));
@@ -1957,6 +1968,8 @@ namespace HPCsharp
                 throw new ArgumentNullException(nameof(inputArray));
             if (outputArray == null)
                 throw new ArgumentNullException(nameof(outputArray));
+            if (getKey == null)
+                throw new ArgumentNullException(nameof(getKey));
             int numberOfBins = 256;
             int Log2ofPowerOfTwoRadix = 8;
             uint[] count = new uint[numberOfBins];

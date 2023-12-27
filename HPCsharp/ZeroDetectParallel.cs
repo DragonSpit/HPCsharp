@@ -211,7 +211,7 @@ namespace HPCsharp.ParallelAlgorithms
             if ((r - l + 1) <= thresholdParallel)
                 return ZeroDetectSseUnrolledInner(arrayToProcess, l, r - l + 1);
 
-            int m = (r + l) / 2;
+            int m = r / 2 + l / 2 + (r % 2 + l % 2) / 2;    // (r + l) / 2    without overflow
 
             bool partRight = false;
 
@@ -245,7 +245,7 @@ namespace HPCsharp.ParallelAlgorithms
             if ((r - l + 1) <= thresholdParallel)
                 return ZeroDetectSseInner(arrayToProcess, l, r - l + 1);
 
-            int m = (r + l) / 2;
+            int m = r / 2 + l / 2 + (r % 2 + l % 2) / 2;    // (r + l) / 2    without overflow
 
             bool partRight = false;
 
@@ -279,7 +279,7 @@ namespace HPCsharp.ParallelAlgorithms
             if ((r - l + 1) <= thresholdParallel)
                 return HPCsharp.ZeroDetect.ByFixedLongUnrolled(arrayToProcess, l, r - l + 1);
 
-            int m = (r + l) / 2;
+            int m = r / 2 + l / 2 + (r % 2 + l % 2) / 2;    // (r + l) / 2    without overflow
 
             bool partRight = false;
 

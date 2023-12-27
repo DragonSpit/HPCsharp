@@ -12,7 +12,7 @@ namespace HPCsharp
 	static public partial class Algorithm
 	{
 		// The utility function to swap two elements
-		internal static void swap(int[] src, int i, int j)
+		internal static void swap_(int[] src, int i, int j)
 		{
 			int temp = src[i];
 			src[i] = src[j];
@@ -62,7 +62,7 @@ namespace HPCsharp
 			for (int i = heapN; i >= 1; i--)
 			{
 				// Move current root to end
-				swap(src, begin, begin + i);
+				swap_(src, begin, begin + i);
 
 				// call maxHeap() on the reduced heap
 				maxHeap(src, 1, i, begin);
@@ -70,7 +70,7 @@ namespace HPCsharp
 		}
 
 		// function that implements insertion sort
-		internal static void insertionSort(int[] src, int left, int right)
+		internal static void insertionSort_(int[] src, int left, int right)
 		{
 			for (int i = left; i <= right; i++)
 			{
@@ -119,10 +119,10 @@ namespace HPCsharp
 				{
 					// increment index of smaller element
 					i++;
-					swap(src, i, j);
+					swap_(src, i, j);
 				}
 			}
-			swap(src, i + 1, high);
+			swap_(src, i + 1, high);
 			return (i + 1);
 		}
 
@@ -141,7 +141,7 @@ namespace HPCsharp
 
 				depthLimit = depthLimit - 1;
 				int pivot = findPivot(src, begin, begin + ((end - begin) / 2) + 1, end);
-				swap(src, pivot, end);
+				swap_(src, pivot, end);
 
 				// p is partitioning index, arr[p] is now at right place
 				int p = partition(src, begin, end);
@@ -153,7 +153,7 @@ namespace HPCsharp
 			else
 			{
 				// if the data set is small, call insertion sort
-				insertionSort(src, begin, end);
+				insertionSort_(src, begin, end);
 			}
 		}
 
@@ -169,7 +169,7 @@ namespace HPCsharp
 		}
 
 		// The utility function to swap two elements
-		internal static void swap(uint[] src, int i, int j)
+		internal static void swap_(uint[] src, int i, int j)
 		{
 			uint temp = src[i];
 			src[i] = src[j];
@@ -219,7 +219,7 @@ namespace HPCsharp
 			for (int i = heapN; i >= 1; i--)
 			{
 				// Move current root to end
-				swap(src, begin, begin + i);
+				swap_(src, begin, begin + i);
 
 				// call maxHeap() on the reduced heap
 				maxHeap(src, 1, i, begin);
@@ -227,7 +227,7 @@ namespace HPCsharp
 		}
 
 		// function that implements insertion sort
-		internal static void insertionSort(uint[] src, int left, int right)
+		internal static void insertionSort_(uint[] src, int left, int right)
 		{
 			for (int i = left; i <= right; i++)
 			{
@@ -276,10 +276,10 @@ namespace HPCsharp
 				{
 					// increment index of smaller element
 					i++;
-					swap(src, i, j);
+					swap_(src, i, j);
 				}
 			}
-			swap(src, i + 1, high);
+			swap_(src, i + 1, high);
 			return (i + 1);
 		}
 
@@ -298,7 +298,7 @@ namespace HPCsharp
 
 				depthLimit = depthLimit - 1;
 				int pivot = findPivot(src, begin, begin + ((end - begin) / 2) + 1, end);
-				swap(src, pivot, end);
+				swap_(src, pivot, end);
 
 				// p is partitioning index, arr[p] is now at right place
 				int p = partition(src, begin, end);
@@ -310,7 +310,7 @@ namespace HPCsharp
 			else
 			{
 				// if the data set is small, call insertion sort
-				insertionSort(src, begin, end);
+				insertionSort_(src, begin, end);
 			}
 		}
 

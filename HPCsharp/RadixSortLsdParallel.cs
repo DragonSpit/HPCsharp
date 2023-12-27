@@ -11,6 +11,7 @@
 // TODO: Optimize digit extraction in LSD and MSD Radix algorithms by doing shift right first and then masking, to keep the mask a constant value, and not needing to shift the mask.
 
 #pragma warning disable CA1510
+#pragma warning disable CA1303
 
 using System;
 using System.Collections;
@@ -746,7 +747,7 @@ namespace HPCsharp
         }
     }
 
-    class CustomData
+    sealed class CustomData
     {
         public uint current;
         public uint q;

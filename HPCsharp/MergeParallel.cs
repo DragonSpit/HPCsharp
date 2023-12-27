@@ -16,6 +16,7 @@
 // TODO: Improve termination case of Parallel Merge to a better measure than (length1 + length2) < threshold, to possibly include the case of one of the lengths being smaller than a threshold
 
 #pragma warning disable CA1510
+#pragma warning disable CA1002
 
 using System;
 using System.Collections;
@@ -180,7 +181,7 @@ namespace HPCsharp
             MergeInnerPar<T>(src, aStart, aStart + aLength - 1, bStart, bStart + bLength - 1, dst, dstStart, comparer);
         }
 
-        public static void MergeParNew<T>(T[] src, Int32 aStart, Int32 aLength, Int32 bStart, Int32 bLength, T[] dst, Int32 dstStart, IComparer<T> comparer = null)
+        public static void MergePar2<T>(T[] src, Int32 aStart, Int32 aLength, Int32 bStart, Int32 bLength, T[] dst, Int32 dstStart, IComparer<T> comparer = null)
         {
             if (src == null)
                 throw new ArgumentNullException(nameof(src));

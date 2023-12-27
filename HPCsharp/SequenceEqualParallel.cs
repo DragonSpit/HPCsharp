@@ -3,6 +3,11 @@
 //       Comparer in the same way we did for Merge Sort.
 // TODO: See if converting List to array then doing the operation and then converting back to List, like we do for sorting, is faster.
 // TODO: Add SIMD/SSE acceleration for sequence comparison for additional speedup, for all built-in data types
+
+#pragma warning disable CA1510
+#pragma warning disable CA1512
+#pragma warning disable CA1002
+
 using System;
 using System.Collections.Generic;
 using System.Collections;
@@ -33,7 +38,7 @@ namespace HPCsharp
                 return true;
             }
 
-            int m = ((r + l) / 2);
+            int m = r / 2 + l / 2 + (r % 2 + l % 2) / 2;    // (r + l) / 2    without overflow
             bool leftHalfEqual = false;
             bool rightHalfEqual = false;
             Parallel.Invoke(() =>
@@ -62,7 +67,7 @@ namespace HPCsharp
                 return true;
             }
 
-            int m = ((r + l) / 2);
+            int m = r / 2 + l / 2 + (r % 2 + l % 2) / 2;
             bool leftHalfEqual = false;
             bool rightHalfEqual = false;
             Parallel.Invoke(() =>
@@ -91,7 +96,7 @@ namespace HPCsharp
                 return true;
             }
 
-            int m = ((r + l) / 2);
+            int m = r / 2 + l / 2 + (r % 2 + l % 2) / 2;
             bool leftHalfEqual = false;
             bool rightHalfEqual = false;
             Parallel.Invoke(() =>
@@ -119,10 +124,14 @@ namespace HPCsharp
         /// <exception>TSource:System.ArgumentOutOfRangeException: if l or r is not inside the array bounds.</exception>
         public static bool SequenceEqualHpcPar<T>(this T[] first, T[] second, Int32 l, Int32 r)
         {
-            if (first == null || second == null)
-                throw new System.ArgumentNullException();
-            if (!(l >= 0 && r < first.Length && r >= 0 && r < second.Length))
-                throw new System.ArgumentOutOfRangeException();
+            if (first == null)
+                throw new System.ArgumentNullException(nameof(first));
+            if (second == null)
+                throw new System.ArgumentNullException(nameof(second));
+            if (l < 0)
+                throw new System.ArgumentOutOfRangeException(nameof(l));
+            if (!(r < first.Length && r < second.Length))
+                throw new System.ArgumentOutOfRangeException(nameof(r));
             return SequenceEqualInner<T>(first, second, l, r);
         }
         /// <summary>
@@ -140,10 +149,16 @@ namespace HPCsharp
         /// <exception>TSource:System.ArgumentOutOfRangeException: if l or r is not inside the array bounds.</exception>
         public static bool SequenceEqualHpcPar<T>(this T[] first, T[] second, Int32 l, Int32 r, IEqualityComparer<T> equalityComparer)
         {
-            if (first == null || second == null)
-                throw new System.ArgumentNullException();
-            if (!(l >= 0 && r < first.Length && r >= 0 && r < second.Length))
-                throw new System.ArgumentOutOfRangeException();
+            if (first == null)
+                throw new System.ArgumentNullException(nameof(first));
+            if (second == null)
+                throw new System.ArgumentNullException(nameof(second));
+            if (equalityComparer == null)
+                throw new ArgumentNullException(nameof(equalityComparer));
+            if (l < 0)
+                throw new System.ArgumentOutOfRangeException(nameof(l));
+            if (!(r < first.Length && r < second.Length))
+                throw new System.ArgumentOutOfRangeException(nameof(r));
             return SequenceEqualInner<T>(first, second, l, r, equalityComparer);
         }
         /// <summary>
@@ -161,10 +176,16 @@ namespace HPCsharp
         /// <exception>TSource:System.ArgumentOutOfRangeException: if l or r is not inside the array bounds.</exception>
         public static bool SequenceEqualHpcPar<T>(this T[] first, T[] second, Int32 l, Int32 r, Func<T, T, bool> equalityComparer)
         {
-            if (first == null || second == null)
-                throw new System.ArgumentNullException();
-            if (!(l >= 0 && r < first.Length && r >= 0 && r < second.Length))
-                throw new System.ArgumentOutOfRangeException();
+            if (first == null)
+                throw new System.ArgumentNullException(nameof(first));
+            if (second == null)
+                throw new System.ArgumentNullException(nameof(second));
+            if (equalityComparer == null)
+                throw new ArgumentNullException(nameof(equalityComparer));
+            if (l < 0)
+                throw new System.ArgumentOutOfRangeException(nameof(l));
+            if (!(r < first.Length && r < second.Length))
+                throw new System.ArgumentOutOfRangeException(nameof(r));
             return SequenceEqualInner<T>(first, second, l, r, equalityComparer);
         }
         /// <summary>
@@ -179,8 +200,10 @@ namespace HPCsharp
         public static bool SequenceEqualHpcPar<T>(this T[] first, T[] second)
         {
             // Performance lesson: Changing the interface to IEnumerable hugely reduces performance, to the point of parallelism not being worthwhile
-            if (first == null || second == null)
-                throw new System.ArgumentNullException();
+            if (first == null)
+                throw new System.ArgumentNullException(nameof(first));
+            if (second == null)
+                throw new System.ArgumentNullException(nameof(second));
             if (first.Length != second.Length)
                 return false;
             return SequenceEqualInner<T>(first, second, 0, first.Length - 1);
@@ -198,8 +221,12 @@ namespace HPCsharp
         public static bool SequenceEqualHpcPar<T>(this T[] first, T[] second, IEqualityComparer<T> equalityComparer)
         {
             // Performance lesson: Changing the interface to IEnumerable hugely reduces performance, to the point of parallelism not being worthwhile
-            if (first == null || second == null)
-                throw new System.ArgumentNullException();
+            if (first == null)
+                throw new System.ArgumentNullException(nameof(first));
+            if (second == null)
+                throw new System.ArgumentNullException(nameof(second));
+            if (equalityComparer == null)
+                throw new ArgumentNullException(nameof(equalityComparer));
             if (first.Length != second.Length)
                 return false;
             return SequenceEqualInner<T>(first, second, 0, first.Length - 1, equalityComparer);
@@ -220,7 +247,7 @@ namespace HPCsharp
                 return true;
             }
 
-            int m = ((r + l) / 2);
+            int m = r / 2 + l / 2 + (r % 2 + l % 2) / 2;
             bool leftHalfEqual = false;
             bool rightHalfEqual = false;
             Parallel.Invoke(() =>
@@ -249,7 +276,7 @@ namespace HPCsharp
                 return true;
             }
 
-            int m = ((r + l) / 2);
+            int m = r / 2 + l / 2 + (r % 2 + l % 2) / 2;    // (r + l) / 2    without overflow
             bool leftHalfEqual = false;
             bool rightHalfEqual = false;
             Parallel.Invoke(() =>
@@ -282,10 +309,14 @@ namespace HPCsharp
         public static bool SequenceEqualHpcPar<T>(this List<T> first, List<T> second, Int32 l, Int32 r)
         {
             // Performance lesson: Changing the interface to IEnumerable hugely reduces performance, to the point of parallelism not being worthwhile
-            if (first == null || second == null)
-                throw new System.ArgumentNullException();
-            if (!(l >= 0 && r < first.Count && r >= 0 && r < second.Count))
-                throw new System.ArgumentOutOfRangeException();
+            if (first == null)
+                throw new System.ArgumentNullException(nameof(first));
+            if (second == null)
+                throw new System.ArgumentNullException(nameof(second));
+            if (l < 0)
+                throw new System.ArgumentOutOfRangeException(nameof(l));
+            if (!(r < first.Count && r < second.Count))
+                throw new System.ArgumentOutOfRangeException(nameof(r));
             return SequenceEqualInner<T>(first, second, l, r);
         }
         /// <summary>
@@ -308,10 +339,16 @@ namespace HPCsharp
         public static bool SequenceEqualHpcPar<T>(this List<T> first, List<T> second, Int32 l, Int32 r, IEqualityComparer<T> equalityComparer)
         {
             // Performance lesson: Changing the interface to IEnumerable hugely reduces performance, to the point of parallelism not being worthwhile
-            if (first == null || second == null)
-                throw new System.ArgumentNullException();
-            if (!(l >= 0 && r < first.Count && r >= 0 && r < second.Count))
-                throw new System.ArgumentOutOfRangeException();
+            if (first == null)
+                throw new System.ArgumentNullException(nameof(first));
+            if (second == null)
+                throw new System.ArgumentNullException(nameof(second));
+            if (equalityComparer == null)
+                throw new System.ArgumentNullException(nameof(equalityComparer));
+            if (l < 0)
+                throw new System.ArgumentOutOfRangeException(nameof(l));
+            if (!(r < first.Count && r < second.Count))
+                throw new System.ArgumentOutOfRangeException(nameof(r));
             return SequenceEqualInner<T>(first, second, l, r, equalityComparer);
         }
         /// <summary>
@@ -331,8 +368,10 @@ namespace HPCsharp
         public static bool SequenceEqualHpcPar<T>(this List<T> first, List<T> second)
         {
             // Performance lesson: Changing the interface to IEnumerable hugely reduces performance, to the point of parallelism not being worthwhile
-            if (first == null || second == null)
-                throw new System.ArgumentNullException();
+            if (first == null)
+                throw new System.ArgumentNullException(nameof(first));
+            if (second == null)
+                throw new System.ArgumentNullException(nameof(second));
             if (first.Count != second.Count)
                 return false;
             return SequenceEqualInner<T>(first, second, 0, first.Count - 1);
@@ -355,8 +394,12 @@ namespace HPCsharp
         public static bool SequenceEqualHpcPar<T>(this List<T> first, List<T> second, IEqualityComparer<T> equalityComparer)
         {
             // Performance lesson: Changing the interface to IEnumerable hugely reduces performance, to the point of parallelism not being worthwhile
-            if (first == null || second == null)
-                throw new System.ArgumentNullException();
+            if (first == null)
+                throw new System.ArgumentNullException(nameof(first));
+            if (second == null)
+                throw new System.ArgumentNullException(nameof(second));
+            if (equalityComparer == null)
+                throw new ArgumentNullException(nameof(equalityComparer));
             if (first.Count != second.Count)
                 return false;
             return SequenceEqualInner<T>(first, second, 0, first.Count - 1, equalityComparer);
@@ -364,19 +407,33 @@ namespace HPCsharp
 
         public static bool EqualSse(this int[] first, int[] second)
         {
-            if (first == null || second == null)
-                throw new System.ArgumentNullException("Equality cannot be determined when one or both arrays are null");
-            if (first.Length == 0 || second.Length == 0)
-                throw new ArgumentException("Equality cannot be determined when one or both arrays are empty");
+            if (first == null)
+                throw new System.ArgumentNullException(nameof(first));
+            if (second == null)
+                throw new System.ArgumentNullException(nameof(second));
+            if (first.Length == 0)
+                throw new System.ArgumentOutOfRangeException(nameof(first));
+            if (second.Length == 0)
+                throw new System.ArgumentOutOfRangeException(nameof(second));
+            if (first.Length != second.Length)
+                return false;
             return first.EqualSseInner(second, 0, first.Length - 1);
         }
 
         public static bool EqualSse(this int[] first, int[] second, int start, int length)
         {
-            if (first == null || second == null)
-                throw new System.ArgumentNullException("Equality cannot be determined when one or both arrays are null");
-            if (first.Length == 0 || second.Length == 0 || length == 0)
-                throw new ArgumentException("Equality cannot be determined when one or both arrays are empty, or length is zero");
+            if (first == null)
+                throw new System.ArgumentNullException(nameof(first));
+            if (second == null)
+                throw new System.ArgumentNullException(nameof(second));
+            if (first.Length == 0)
+                throw new System.ArgumentOutOfRangeException(nameof(first));
+            if (second.Length == 0)
+                throw new System.ArgumentOutOfRangeException(nameof(second));
+            if (length == 0)
+                throw new System.ArgumentOutOfRangeException(nameof(length));
+            if (length > (first.Length - start) || length > (second.Length - start))
+                throw new System.ArgumentOutOfRangeException(nameof(length));
             return first.EqualSseInner(second, start, start + length - 1);
         }
 

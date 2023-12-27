@@ -16,6 +16,8 @@
 // TODO: Test Array.Copy versus copying using a for loop for the merge algorithms. Figure out the size threshold when the for loop is faster.
 
 #pragma warning disable CA1510
+#pragma warning disable CA1303
+#pragma warning disable CA1002
 
 using System;
 using System.Collections;

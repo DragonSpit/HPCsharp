@@ -36,6 +36,8 @@
 //       than using a single core?
 
 #pragma warning disable CA1510
+#pragma warning disable CA1512
+#pragma warning disable CA1002
 
 using System;
 using System.Threading.Tasks;

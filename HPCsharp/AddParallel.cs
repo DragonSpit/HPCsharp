@@ -159,7 +159,7 @@ namespace HPCsharp.ParallelAlgorithms
                 return;
             }
 
-            int m = (r + l) / 2;
+            int m = r / 2 + l / 2 + (r % 2 + l % 2) / 2;    // (r + l) / 2    without overflow
 
             Parallel.Invoke(
                 () => { arrayA.AddToSseParInner(arrayB, l,     m, thresholdParallel); },
@@ -204,7 +204,7 @@ namespace HPCsharp.ParallelAlgorithms
                 return;
             }
 
-            int m = (r + l) / 2;
+            int m = r / 2 + l / 2 + (r % 2 + l % 2) / 2;    // (r + l) / 2    without overflow
 
             Parallel.Invoke(
                 () => { arrayA.AddToParInner(arrayB, l,     m, thresholdParallel); },

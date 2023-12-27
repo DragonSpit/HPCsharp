@@ -13,6 +13,7 @@
 // TODO: To support small histograms, support the count arrays to be passed in, so that the caller can allocate them potentially on the stack or re-use previously allocated ones.
 
 #pragma warning disable CA1510
+#pragma warning disable CA1512
 
 using System;
 using System.Collections.Generic;
@@ -401,6 +402,8 @@ namespace HPCsharp
         {
             if (inArray == null)
                 throw new ArgumentNullException(nameof(inArray));
+            if (getKey == null)
+                throw new ArgumentNullException(nameof(getKey));
             const int numberOfBins = 256;
             const int numberOfDigits = sizeof(UInt32);
             uint[][] count = new uint[numberOfDigits][];
@@ -438,6 +441,8 @@ namespace HPCsharp
         {
             if (inArray == null)
                 throw new ArgumentNullException(nameof(inArray));
+            if (getKey == null)
+                throw new ArgumentNullException(nameof(getKey));
             const int numberOfBins = 256;
             const int numberOfDigits = sizeof(UInt64);
             uint[][] count = new uint[numberOfDigits][];
@@ -483,6 +488,8 @@ namespace HPCsharp
         {
             if (inArray == null)
                 throw new ArgumentNullException(nameof(inArray));
+            if (getKey == null)
+                throw new ArgumentNullException(nameof(getKey));
             const int numberOfBins = 256;
             const int numberOfDigits = sizeof(UInt32);
             var inKeys = new UInt32[inArray.Length];
@@ -522,6 +529,8 @@ namespace HPCsharp
         {
             if (inArray == null)
                 throw new ArgumentNullException(nameof(inArray));
+            if (getKey == null)
+                throw new ArgumentNullException(nameof(getKey));
             const int numberOfBins = 256;
             const int numberOfDigits = sizeof(UInt32);
             var inKeys = new UInt64[inArray.Length];
@@ -839,10 +848,10 @@ namespace HPCsharp
                 {
                     uint digit;
                     f2i.floatValue = inArray[current];
-                    if ((f2i.uinteger & 0x80000000U) == 0)
-                        digit = f2i.uinteger >> shiftRightAmount;                   // positive values => don't flip anything
+                    if ((f2i.uintegerValue & 0x80000000U) == 0)
+                        digit = f2i.uintegerValue >> shiftRightAmount;                   // positive values => don't flip anything
                     else
-                        digit = (f2i.uinteger ^ 0xFFFFFFFFU) >> shiftRightAmount;   // negative values => flip the whole value
+                        digit = (f2i.uintegerValue ^ 0xFFFFFFFFU) >> shiftRightAmount;   // negative values => flip the whole value
 
                     count[(byte)digit]++;
                 }
@@ -853,10 +862,10 @@ namespace HPCsharp
                 {
                     uint digit;
                     f2i.floatValue = inArray[current];
-                    if ((f2i.uinteger & 0x80000000U) == 0)
-                        digit = (f2i.uinteger >> shiftRightAmount) ^ 128;               // positive values => flip just the sign bit
+                    if ((f2i.uintegerValue & 0x80000000U) == 0)
+                        digit = (f2i.uintegerValue >> shiftRightAmount) ^ 128;               // positive values => flip just the sign bit
                     else
-                        digit = (f2i.uinteger ^ 0xFFFFFFFFU) >> shiftRightAmount;       // negative values => flip the whole value including the sign bit
+                        digit = (f2i.uintegerValue ^ 0xFFFFFFFFU) >> shiftRightAmount;       // negative values => flip the whole value including the sign bit
 
                     count[(byte)digit]++;
                 }

@@ -7,6 +7,11 @@
 //       along the array to combine the results of each from the previous step. MapReduce - the user would pass in a Map function and a Reduce function. Linq has some functionality
 //       but may not work across multiple arrays (need to verify).
 // TODO: Create a sequence equals that understands "sorting stability" and does an equals on stable or unstable sorted arrays.
+
+#pragma warning disable CA1510
+#pragma warning disable CA1512
+#pragma warning disable CA1002
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -32,12 +37,16 @@ namespace HPCsharp
         /// <exception>TSource:System.ArgumentOutOfRangeException: if l or r is not inside the array bounds.</exception>
         public static bool SequenceEqualHpc<T>(this T[] first, T[] second, Int32 l, Int32 r)
         {
-            if (first == null || second == null)
-                throw new System.ArgumentNullException();
+            if (first == null)
+                throw new System.ArgumentNullException(nameof(first));
+            if (second == null)
+                throw new System.ArgumentNullException(nameof(second));
             if (l > r)      // zero elements to compare
-                return true;
-            if (!(l >= 0 && r < first.Length && r >= 0 && r < second.Length))
-                throw new System.ArgumentOutOfRangeException();
+                throw new System.ArgumentOutOfRangeException(nameof(l));
+            if (l < 0)
+                throw new System.ArgumentOutOfRangeException(nameof(l));
+            if (!(r < first.Length && r < second.Length))
+                throw new System.ArgumentOutOfRangeException(nameof(r));
 
             var equalityComparer = Comparer<T>.Default;
             for (Int32 i = l; i <= r; i++)     // inclusive of l and r
@@ -62,12 +71,18 @@ namespace HPCsharp
         /// <exception>TSource:System.ArgumentOutOfRangeException: if l or r is not inside the array bounds.</exception>
         public static bool SequenceEqualHpc<T>(this T[] first, T[] second, Int32 l, Int32 r, IEqualityComparer<T> equalityComparer)
         {
-            if (first == null || second == null)
-                throw new System.ArgumentNullException();
+            if (first == null)
+                throw new System.ArgumentNullException(nameof(first));
+            if (second == null)
+                throw new System.ArgumentNullException(nameof(second));
+            if (equalityComparer == null)
+                throw new ArgumentNullException(nameof(equalityComparer));
             if (l > r)      // zero elements to compare
-                return true;
-            if (!(l >= 0 && r < first.Length && r >= 0 && r < second.Length))
-                throw new System.ArgumentOutOfRangeException();
+                throw new System.ArgumentOutOfRangeException(nameof(l));
+            if (l < 0)
+                throw new System.ArgumentOutOfRangeException(nameof(l));
+            if (!(r < first.Length && r < second.Length))
+                throw new System.ArgumentOutOfRangeException(nameof(r));
 
             for (Int32 i = l; i <= r; i++)     // inclusive of l and r
             {
@@ -87,8 +102,10 @@ namespace HPCsharp
         /// <exception>TSource:System.ArgumentNullException: first or second is null.</exception>
         public static bool SequenceEqualHpc<T>(this T[] first, T[] second)
         {
-            if (first == null || second == null)
-                throw new System.ArgumentNullException();
+            if (first == null)
+                throw new System.ArgumentNullException(nameof(first));
+            if (second == null)
+                throw new System.ArgumentNullException(nameof(second));
             if (first.Length != second.Length)
                 return false;
 
@@ -112,8 +129,12 @@ namespace HPCsharp
         /// <exception>TSource:System.ArgumentNullException: first or second is null.</exception>
         public static bool SequenceEqualHpc<T>(this T[] first, T[] second, IEqualityComparer<T> equalityComparer)
         {
-            if (first == null || second == null)
-                throw new System.ArgumentNullException();
+            if (first == null)
+                throw new System.ArgumentNullException(nameof(first));
+            if (second == null)
+                throw new System.ArgumentNullException(nameof(second));
+            if (equalityComparer == null)
+                throw new System.ArgumentNullException(nameof(equalityComparer));
             if (first.Length != second.Length)
                 return false;
 
@@ -139,10 +160,14 @@ namespace HPCsharp
         public static bool SequenceEqualHpc<T>(this List<T> first, List<T> second, Int32 l, Int32 r)
         {
             // Performance lesson: Changing the interface to IEnumerable hugely reduces performance, to the point of parallelism not being worthwhile
-            if (first == null || second == null)
-                throw new System.ArgumentNullException();
-            if (!(l >= 0 && r < first.Count && r >= 0 && r < second.Count))
-                throw new System.ArgumentOutOfRangeException();
+            if (first == null)
+                throw new System.ArgumentNullException(nameof(first));
+            if (second == null)
+                throw new System.ArgumentNullException(nameof(second));
+            if (l < 0)
+                throw new System.ArgumentOutOfRangeException(nameof(l));
+            if (!(r < first.Count && r < second.Count))
+                throw new System.ArgumentOutOfRangeException(nameof(r));
 
             var equalityComparer = Comparer<T>.Default;
             for (Int32 i = l; i <= r; i++)     // inclusive of l and r
@@ -168,10 +193,16 @@ namespace HPCsharp
         public static bool SequenceEqualHpc<T>(this List<T> first, List<T> second, Int32 l, Int32 r, IEqualityComparer<T> equalityComparer)
         {
             // Performance lesson: Changing the interface to IEnumerable hugely reduces performance, to the point of parallelism not being worthwhile
-            if (first == null || second == null)
-                throw new System.ArgumentNullException();
-            if (!(l >= 0 && r < first.Count && r >= 0 && r < second.Count))
-                throw new System.ArgumentOutOfRangeException();
+            if (first == null)
+                throw new System.ArgumentNullException(nameof(first));
+            if (second == null)
+                throw new System.ArgumentNullException(nameof(second));
+            if (equalityComparer == null)
+                throw new ArgumentNullException(nameof(equalityComparer));
+            if (l < 0)
+                throw new System.ArgumentOutOfRangeException(nameof(l));
+            if (!(r < first.Count && r < second.Count))
+                throw new System.ArgumentOutOfRangeException(nameof(r));
 
             for (Int32 i = l; i <= r; i++)     // inclusive of l and r
             {
@@ -192,8 +223,10 @@ namespace HPCsharp
         /// <exception>TSource:System.ArgumentOutOfRangeException: if l or r is not inside the List bounds.</exception>
         public static bool SequenceEqualHpc<T>(this List<T> first, List<T> second)
         {
-            if (first == null || second == null)
-                throw new System.ArgumentNullException();
+            if (first == null)
+                throw new System.ArgumentNullException(nameof(first));
+            if (second == null)
+                throw new System.ArgumentNullException(nameof(second));
             if (first.Count != second.Count)
                 return false;
 
@@ -218,8 +251,12 @@ namespace HPCsharp
         /// <exception>TSource:System.ArgumentOutOfRangeException: if l or r is not inside the List bounds.</exception>
         public static bool SequenceEqualHpc<T>(this List<T> first, List<T> second, IEqualityComparer<T> equalityComparer)
         {
-            if (first == null || second == null)
-                throw new System.ArgumentNullException();
+            if (first == null)
+                throw new System.ArgumentNullException(nameof(first));
+            if (second == null)
+                throw new System.ArgumentNullException(nameof(second));
+            if (equalityComparer == null)
+                throw new ArgumentNullException(nameof(equalityComparer));
             if (first.Count != second.Count)
                 return false;
 

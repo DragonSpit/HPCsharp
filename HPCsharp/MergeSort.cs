@@ -26,6 +26,7 @@
 // TODO: Fix all average calculation to not cause over/underflow.
 
 #pragma warning disable CA1510
+#pragma warning disable CA1002
 
 using System;
 using System.Collections.Generic;

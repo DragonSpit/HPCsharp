@@ -61,7 +61,7 @@ namespace HPCsharp
             if ((r - l + 1) <= ThresholdParallelMin || (r - l + 1) <= 2)    // protect against either half of divide-and-conquer from having zero elements
                 return MinSseInner(arrayToMin, l, r - l + 1);
 
-            int m = (r + l) / 2;
+            int m = r / 2 + l / 2 + (r % 2 + l % 2) / 2;    // (r + l) / 2    without overflow
 
             int minLeft  = 0;
             int minRight = 0;

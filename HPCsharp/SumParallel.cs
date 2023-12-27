@@ -2727,7 +2727,7 @@ namespace HPCsharp.ParallelAlgorithms
             if ((r - l + 1) <= thresholdParallel)
                 return Algorithms.Sum.SumToBigIntegerFaster(arrayToSum, l, r - l + 1);
 
-            int m = (r + l) / 2;
+            int m = r / 2 + l / 2 + (r % 2 + l % 2) / 2;    // (r + l) / 2    without overflow
 
             BigInteger sumRight = 0;
 
@@ -2748,7 +2748,7 @@ namespace HPCsharp.ParallelAlgorithms
             if ((r - l + 1) <= thresholdParallel)
                 return Algorithms.Sum.SumToBigIntegerFaster(arrayToSum, l, r - l + 1);
 
-            int m = (r + l) / 2;
+            int m = r / 2 + l / 2 + (r % 2 + l % 2) / 2;    // (r + l) / 2    without overflow
 
             BigInteger sumRight = 0;
 
@@ -2769,7 +2769,7 @@ namespace HPCsharp.ParallelAlgorithms
             if ((r - l + 1) <= thresholdParallel)
                 return ParallelAlgorithms.Sum.SumToBigIntegerSseFasterInner(arrayToSum, l, r);
 
-            int m = (r + l) / 2;
+            int m = r / 2 + l / 2 + (r % 2 + l % 2) / 2;    // (r + l) / 2    without overflow
 
             BigInteger sumRight = 0;
 
@@ -2790,7 +2790,7 @@ namespace HPCsharp.ParallelAlgorithms
             if ((r - l + 1) <= thresholdParallel)
                 return ParallelAlgorithms.Sum.SumToBigIntegerSseFasterInner(arrayToSum, l, r);
 
-            int m = (r + l) / 2;
+            int m = r / 2 + l / 2 + (r % 2 + l % 2) / 2;    // (r + l) / 2    without overflow
 
             BigInteger sumRight = 0;
 

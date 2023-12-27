@@ -35,7 +35,7 @@ namespace HPCsharp
 
 					depthLimit = depthLimit - 1;
 					int pivot = Algorithm.findPivot(src, begin, begin + ((end - begin) / 2) + 1, end);
-					Algorithm.swap(src, pivot, end);
+					Algorithm.swap_(src, pivot, end);
 
 					// p is partitioning index, arr[p] is now at right place
 					int p = Algorithm.partition(src, begin, end);
@@ -49,7 +49,7 @@ namespace HPCsharp
 				else
 				{
 					// if the data set is small, call insertion sort
-					Algorithm.insertionSort(src, begin, end);
+					Algorithm.insertionSort_(src, begin, end);
 				}
 			}
 		}

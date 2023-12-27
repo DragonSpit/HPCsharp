@@ -1990,7 +1990,7 @@ namespace HPCsharp.Algorithms
             if ((r - l + 1) <= thresholdDivideAndConquerSum)
                 return baseCase(arrayToSum, l, r);
 
-            int m = (r + l) / 2;
+            int m = r / 2 + l / 2 + (r % 2 + l % 2) / 2;    // (r + l) / 2    without overflow
 
             float sumRight = 0;
 
@@ -2009,7 +2009,7 @@ namespace HPCsharp.Algorithms
             if ((r - l + 1) <= thresholdDivideAndConquerSum)
                 return baseCase(arrayToSum, l, r);
 
-            int m = (r + l) / 2;
+            int m = r / 2 + l / 2 + (r % 2 + l % 2) / 2;    // (r + l) / 2    without overflow
 
             double sumRight = 0;
 
@@ -2028,7 +2028,7 @@ namespace HPCsharp.Algorithms
             if ((r - l + 1) <= thresholdDivideAndConquerSum)
                 return baseCase(arrayToSum, l, r);
 
-            int m = (r + l) / 2;
+            int m = r / 2 + l / 2 + (r % 2 + l % 2) / 2;    // (r + l) / 2    without overflow
 
             double sumRight = 0;
 

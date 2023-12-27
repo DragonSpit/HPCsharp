@@ -1,6 +1,9 @@
 ﻿// TODO: Implement a cache-aligned divide-and-conquer split. This is useful and fundamental when writing to cache lines, otherwise false sharing causes performance, and cache line boundary
 //       divide-and-conquer is needed to improve consistency of performance - i.e. reduce veriability in performance. However, for algorithms such as .Sum() which only read from memory, this is not needed.
 // TODO: Either figure out how to control the degree of parallelism or remove it from the interface since currently it only works for all cores or one.
+
+#pragma warning disable CA1510
+
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -22,6 +25,10 @@ namespace HPCsharp
         /// <returns>result value</returns>
         public static T DivideAndConquer<T>(this T[] arrayToProcess, int start, int length, Func<T[], int, int, T> baseCase, Func<T, T, T> reduce, int threshold = 16 * 1024)
         {
+            if (reduce == null)
+                throw new ArgumentNullException(nameof(reduce));
+            if (baseCase == null)
+                throw new System.ArgumentNullException(nameof(baseCase));
             return DivideAndConquerLR(arrayToProcess, start, start + length - 1, baseCase, reduce, threshold);
         }
         /// baseCase function is on (start, length) interface and not (left, right) because the pulic divide-and-conquer function has that interface
@@ -56,6 +63,10 @@ namespace HPCsharp
         public static T2 DivideAndConquerTwoTypes<T, T2>(this T[] arrayToProcess, int start, int length, Func<T[], int, int, T2> baseCase, Func<T2, T2, T2> reduce,
                                                          int threshold = 16 * 1024)
         {
+            if (reduce == null)
+                throw new ArgumentNullException(nameof(reduce));
+            if (baseCase == null)
+                throw new System.ArgumentNullException(nameof(baseCase));
             return DivideAndConquerTwoTypesLR(arrayToProcess, start, start + length - 1, baseCase, reduce, threshold);
         }
         /// Note that the baseCase function is on (start, length) interface and not (left, right) because the pulic divide-and-conquer function has that interface
@@ -94,6 +105,10 @@ namespace HPCsharp
         public static T DivideAndConquerPar<T>(this T[] arrayToProcess, int start, int length, Func<T[], int, int, T> baseCase, Func<T, T, T> reduce,
                                                int thresholdPar = 16 * 1024, int degreeOfParallelism = 0)
         {
+            if (reduce == null)
+                throw new ArgumentNullException(nameof(reduce));
+            if (baseCase == null)
+                throw new System.ArgumentNullException(nameof(baseCase));
             return DivideAndConquerParLR(arrayToProcess, start, start + length - 1, baseCase, reduce, thresholdPar, degreeOfParallelism);
         }
         /// Note that the baseCase function is on (start, length) interface and not (left, right) because the pulic divide-and-conquer function has that interface
@@ -149,11 +164,19 @@ namespace HPCsharp
         public static T2 DivideAndConquerTwoTypesPar<T, T2>(this T[] arrayToProcess, int start, int length, Func<T[], int, int, T2> baseCase,
                                                             Func<T2, T2, T2> reduce, int thresholdPar = 16 * 1024, int degreeOfParallelism = 0)
         {
+            if (reduce == null)
+                throw new ArgumentNullException(nameof(reduce));
+            if (baseCase == null)
+                throw new System.ArgumentNullException(nameof(baseCase));
             return DivideAndConquerTwoTypesParLR(arrayToProcess, start, start + length - 1, baseCase, reduce, thresholdPar, degreeOfParallelism);
         }
         public static T2 DivideAndConquerTwoTypesPar2<T, T2>(this T[] arrayToProcess, int start, int length, Func<T[], int, int, T2> baseCase,
                                                             Func<T2, T2, T2> reduce, int thresholdPar = 16 * 1024, int degreeOfParallelism = 0)
         {
+            if (reduce == null)
+                throw new ArgumentNullException(nameof(reduce));
+            if (baseCase == null)
+                throw new System.ArgumentNullException(nameof(baseCase));
             return DivideAndConquerTwoTypesParLR2(arrayToProcess, start, start + length - 1, baseCase, reduce, thresholdPar, degreeOfParallelism);
         }
         /// Note that the baseCase function is on (start, length) interface and not (left, right) because the pulic divide-and-conquer function has that interface
@@ -211,7 +234,7 @@ namespace HPCsharp
 
             if (degreeOfParallelism == 1)
             {
-                resultLeft = DivideAndConquerTwoTypesParLR(arrayToProcess, left, mid, baseCase, reduce, thresholdPar);
+                resultLeft  = DivideAndConquerTwoTypesParLR(arrayToProcess, left,    mid,   baseCase, reduce, thresholdPar);
                 resultRight = DivideAndConquerTwoTypesParLR(arrayToProcess, mid + 1, right, baseCase, reduce, thresholdPar);
             }
             else if (degreeOfParallelism > 1)

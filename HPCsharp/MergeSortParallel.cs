@@ -34,6 +34,7 @@
 // TODO: Implement functional usage equivalent methods for in-place sorting methods that return the source array, to make functional style usage convenient for functional programming use.
 
 #pragma warning disable CA1510
+#pragma warning disable CA1002
 
 using System;
 using System.Collections.Generic;
@@ -273,7 +274,7 @@ namespace HPCsharp
                     }
                 return;
             }
-            int m = ((r + l) / 2);
+            int m = r / 2 + l / 2 + (r % 2 + l % 2) / 2;    // (r + l) / 2    without overflow
             Parallel.Invoke(
                 () => { SortMergeInnerPar<T1, T2>(srcKeys, srcItems, l,     m, dstKeys, dstItems, !srcToDst, comparer, parallelThreshold); },      // reverse direction of srcToDst for the next level of recursion
                 () => { SortMergeInnerPar<T1, T2>(srcKeys, srcItems, m + 1, r, dstKeys, dstItems, !srcToDst, comparer, parallelThreshold); }
@@ -312,7 +313,7 @@ namespace HPCsharp
                 HPCsharp.Algorithm.SortMergeInner<T>(src, l, r, dst, true, srcToDst, comparer);
                 return;
             }
-            int m = ((r + l) / 2);
+            int m = r / 2 + l / 2 + (r % 2 + l % 2) / 2;    // (r + l) / 2    without overflow
             Parallel.Invoke(
                 () => { SortMergeStableInnerPar<T>(src, l,     m, dst, !srcToDst, comparer, parallelThreshold); },      // reverse direction of srcToDst for the next level of recursion
                 () => { SortMergeStableInnerPar<T>(src, m + 1, r, dst, !srcToDst, comparer, parallelThreshold); }

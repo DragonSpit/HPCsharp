@@ -5,6 +5,7 @@
 // TODO: Add SIMD/SSE accelerated version where the user passes in a function to extract a key from their user defined class to perform a Max operation. Multi-core will still be possible, but not SSE.
 
 #pragma warning disable CA1510
+#pragma warning disable CA1512
 
 using System;
 using System.Collections.Generic;
