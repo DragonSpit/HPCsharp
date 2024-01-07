@@ -120,6 +120,8 @@ namespace HPCsharp
         /// <returns>returns a sorted array of length specified</returns>
         static public T[] SortMerge<T>(this T[] source, int startIndex, int length, bool stable = true, IComparer<T> comparer = null, int threshold = 1024)
         {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
             T[] srcTrimmed = new T[length];
             T[] dst = new T[length];
 
@@ -148,6 +150,49 @@ namespace HPCsharp
             source.SortMergeInner<T>(0, source.Length - 1, dst, stable, true, comparer, threshold);
 
             return dst;
+        }
+
+        /// <summary>
+        /// Take a segment of the src array, sort it using the Merge Sort algorithm, and then return just the sorted range
+        /// </summary>
+        /// <typeparam name="T">array of type T</typeparam>
+        /// <param name="source">source array</param>
+        /// <param name="startIndex">index within the src array where sorting starts</param>
+        /// <param name="length">number of elements to be sorted</param>
+        /// <param name="dst">destination array</param>
+        /// <param name="comparer">comparer used to compare two array elements of type T</param>
+        /// <returns>returns a sorted array of length specified</returns>
+        static public void SortMerge<T>(this T[] source, int startIndex, int length, T[] dst, IComparer<T> comparer = null, int threshold = 1024)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+            if (dst == null)
+                throw new ArgumentNullException(nameof(dst));
+
+            source.SortMergeInner2<T>(startIndex, startIndex + length - 1, dst, true, comparer, threshold);
+
+            return;
+        }
+
+        /// <summary>
+        /// Take the source array, sort it using the Merge Sort algorithm, and return a sorted array of full length.
+        /// Not in-place algorithm.
+        /// </summary>
+        /// <typeparam name="T">array of type T</typeparam>
+        /// <param name="source">source array</param>
+        /// <param name="dst">destination array</param>
+        /// <param name="comparer">comparer used to compare two array elements of type T</param>
+        /// <returns>returns a sorted array of full length</returns>
+        static public void SortMerge<T>(this T[] source, T[] dst, IComparer<T> comparer = null, int threshold = 1024)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+            if (dst == null)
+                throw new ArgumentNullException(nameof(dst));
+
+            source.SortMergeInner2<T>(0, source.Length - 1, dst, true, comparer, threshold);
+
+            return;
         }
 
         static internal void SortMergeFourWayInner<T>(this T[] src, int l, int r, T[] dst, bool srcToDst = true, IComparer<T> comparer = null)
