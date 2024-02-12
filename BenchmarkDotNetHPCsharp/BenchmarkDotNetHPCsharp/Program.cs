@@ -10,13 +10,14 @@ namespace MyBenchmarks
     [RPlotExporter]
     public class HPCsharpSum
     {
-        //[Params(100000, 1000000, 10000000, 100000000)]
-        public int N = 10000000;
+        [Params(100000, 1000000, 10000000, 100000000)]
+        public int N;
 
         private int[] dataRandom;
         private int[] dataConstant;
 
-        public HPCsharpSum()
+        [GlobalSetup]
+        public void Setup()
         {
             dataRandom   = new int[N];
             dataConstant = new int[N];
