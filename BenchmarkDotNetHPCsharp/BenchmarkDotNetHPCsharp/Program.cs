@@ -7,15 +7,18 @@ using BenchmarkDotNet.Running;
 
 namespace MyBenchmarks
 {
+    [RPlotExporter]
     public class HPCsharpSum
     {
-        private const int N = 1000000;
-        private readonly int[] dataRandom;
-        private readonly int[] dataConstant;
+        //[Params(100000, 1000000, 10000000, 100000000)]
+        public int N = 10000000;
+
+        private int[] dataRandom;
+        private int[] dataConstant;
 
         public HPCsharpSum()
         {
-            dataRandom = new int[N];
+            dataRandom   = new int[N];
             dataConstant = new int[N];
             Random randNum = new Random(42);
             for (int i = 0; i < dataRandom.Length; i++)
@@ -29,13 +32,22 @@ namespace MyBenchmarks
         }
 
         [Benchmark]
-        public long StdSumRandom() => dataRandom.Sum(v => (long)v);     // extending from int to long is safer (avoids numeric overflow) but is slower
+        public long StdSumRandom() => dataRandom.Sum(v => (long)v);                        // extending from int to long is safer (avoids numeric overflow) but is slower
 
         [Benchmark]
-        public int StdSumConstant() => dataConstant.Sum();             // using dataRandom causes a numeric overflow exception, using dataConstant instead to show speed (but not safe)
+        public long StdParallelSumRandom() => dataRandom.AsParallel().Sum(v => (long)v);   // extending from int to long is safer (avoids numeric overflow) but is slower
 
         [Benchmark]
-        public long HPCsharpSumRandom() => HPCsharp.ParallelAlgorithms.Sum.SumToLongSsePar(dataRandom);  // HPCsharp extends from int to long to avoid overflow and uses SIMD/SSE and multi-core to stay fast
+        public int StdSumConstant() => dataConstant.Sum();                                 // using dataRandom causes a numeric overflow exception, using dataConstant instead to show speed (but not safe)
+
+        [Benchmark]
+        public int StdParallelSumConstant() => dataConstant.AsParallel().Sum();            // using dataRandom causes a numeric overflow exception, using dataConstant instead to show speed (but not safe)
+
+        [Benchmark]
+        public long HPCsharpSumRandom() => HPCsharp.ParallelAlgorithms.Sum.SumToLongSse(dataRandom);             // HPCsharp extends from int to long to avoid overflow and uses SIMD/SSE on a single core
+
+        [Benchmark]
+        public long HPCsharpParallelSumRandom() => HPCsharp.ParallelAlgorithms.Sum.SumToLongSsePar(dataRandom);  // HPCsharp extends from int to long to avoid overflow and uses SIMD/SSE and multi-core to stay fast
     }
 
     public class Program
