@@ -162,7 +162,7 @@ namespace HPCsharp
         /// <param name="dst">destination array</param>
         /// <param name="comparer">comparer used to compare two array elements of type T</param>
         /// <returns>returns a sorted array of length specified</returns>
-        static public void SortMerge<T>(this T[] source, int startIndex, int length, T[] dst, IComparer<T> comparer = null, int threshold = 1024)
+        static public void SortMerge<T>(this T[] source, int startIndex, int length, T[] dst, IComparer<T> comparer = null, int threshold = 32)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));

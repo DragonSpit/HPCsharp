@@ -1,4 +1,6 @@
-﻿// TODO: To speedup summing up of long to decimal accumulation, Josh suggested using a long accumulator and catching the overflow exception and then adding to decimal - i.e. most of the time accumulate to long and once in
+﻿// TODO: Improve Parallel Sum performance for small arrays, as discussion and BenchmarkDotNetSum project showed, where for small arrays (100K and smaller) parallel performance is worse than sequential/serial.
+//       Need to implement "Perform no worse" principle where parallelism ramps up with array size.
+// TODO: To speedup summing up of long to decimal accumulation, Josh suggested using a long accumulator and catching the overflow exception and then adding to decimal - i.e. most of the time accumulate to long and once in
 //       a while accumulate to decimal instead of always accumulating to decimal (offer this version as an alternate)
 // TODO: Implement a for loop instead of divide-and-conquer, since they really accomplish the same thing, and the for loop will be more efficient and easier to make cache line boundary divisible.
 //       Combining will be slightly harder, but we could create an array of sums, where each task has its own array element to fill in, then we combine all of the sums at the end serially. Still has the issue of managed memory

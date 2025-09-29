@@ -217,8 +217,11 @@ namespace HPCsharp
             }
         }
 
-        private static void RadixSortStableMsdUIntInner(uint[] input_array, int first, int length, uint[] tmp_array, int shiftRightAmount, bool outputInTmpArray, int threshold = 1024)
+        private static void RadixSortStableMsdUIntInner(uint[] input_array, int first, int length, uint[] tmp_array, int shiftRightAmount, bool outputInTmpArray, int threshold = 256)
         {
+            if (length < threshold)
+                SortMerge(tmp_array, first, length, input_array);
+
             int last = first + length - 1;
             const uint bitMask = PowerOfTwoRadix - 1;
 
@@ -229,6 +232,7 @@ namespace HPCsharp
             startOfBin[0] = endOfBin[0] = first; startOfBin[PowerOfTwoRadix] = -1;         // sentinal
             for (int i = 1; i < PowerOfTwoRadix; i++)
                 startOfBin[i] = endOfBin[i] = startOfBin[i - 1] + count[i - 1];
+            // TODO: Add detection of a single bin case, where no permuting is needed and copy can be used instead
 
             for (int current = first; current <= last; current++)
             {
@@ -243,14 +247,12 @@ namespace HPCsharp
 
                 for (int i = 0; i < PowerOfTwoRadix; i++)
                 {
-                    if (length >= threshold)
-                        RadixSortStableMsdUIntInner(tmp_array, startOfBin[i], endOfBin[i] - startOfBin[i], input_array, shiftRightAmount, !outputInTmpArray);  // swap which is an input and an output array
-                    else
-                        SortMerge(input_array, first, length, tmp_array);
+                    RadixSortStableMsdUIntInner(tmp_array, startOfBin[i], endOfBin[i] - startOfBin[i], input_array, shiftRightAmount, !outputInTmpArray);  // swap which is an input and an output array
                 }
             }
             else
             {
+                // Only necessary when digits are not byte-size
                 if (outputInTmpArray)
                 {
                     for (int current = first; current <= last; current++)   // TODO: replace with C# Copy or parallel copy
@@ -572,7 +574,7 @@ namespace HPCsharp
             uint[] workBuffer = new uint[arrayToBeSorted.Length];
             int shiftRightAmount = sizeof(uint) * 8 - Log2ofPowerOfTwoRadix;
             // Insertion Sort or Heap Sort could be passed in as another base case since they are both in-place
-            RadixSortStableMsdUIntInner(arrayToBeSorted, 0, arrayToBeSorted.Length, workBuffer, shiftRightAmount, true,threshold);
+            RadixSortStableMsdUIntInner(arrayToBeSorted, 0, arrayToBeSorted.Length, workBuffer, shiftRightAmount, true, threshold);
             // The following does not work: Need to figure out how to pass InsertionSort method as an Action
             //RadixSortMsdUIntInner(arrayToBeSorted, 0, arrayToBeSorted.Length, shiftRightAmount, (arr, startIndex, lengthOfArray) => { InsertionSort(arrayToBeSorted, 0, arrayToBeSorted.Length); }, threshold);
             return arrayToBeSorted;

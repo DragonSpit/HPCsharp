@@ -11,7 +11,7 @@ namespace HPCsharpExamples
         public static void SortMeasureArraySpeedup(bool parallel, bool vsLinq, bool radixSort)
         {
             Random randNum = new Random(5);
-            int arraySize = 10 * 1000 * 1000;
+            int arraySize = 100 * 1000 * 1000;
             uint[] benchArrayOne  = new uint[arraySize];
             uint[] benchArrayTwo  = new uint[arraySize];
             uint[] sortedArrayOne = new uint[arraySize];
@@ -19,9 +19,9 @@ namespace HPCsharpExamples
 
             for (int i = 0; i < arraySize; i++)
             {
-                benchArrayOne[i] = (uint)randNum.Next(0, Int32.MaxValue);    // fill array with random       values between min and max
+                //benchArrayOne[i] = (uint)randNum.Next(0, Int32.MaxValue);    // fill array with random       values between min and max
                 //benchArrayOne[i] = (uint)i;                                // fill array with incrementing values
-                //benchArrayOne[i] = 0;                                      // fill array with constant     values
+                benchArrayOne[i] = 0;                                      // fill array with constant     values
                 benchArrayTwo[i] = benchArrayOne[i];
             }
 
