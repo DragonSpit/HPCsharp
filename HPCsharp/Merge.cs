@@ -31,7 +31,7 @@ namespace HPCsharp
         public Int32 Length;
     }
 
-    static public partial class Algorithm
+    public static partial class Algorithm
     {
         /// <summary>
         /// Merge two sorted Lists within a range, placing the result into a destination List, starting at an index.
@@ -45,17 +45,15 @@ namespace HPCsharp
         /// <param name="dst">destination List where the result of two merged Lists is to be placed</param>
         /// <param name="dstStart">starting index within the destination List where the merged sorted List is to be placed</param>
         /// <param name="comparer">optional method to compare array elements</param>
-        static public void Merge<T>(List<T> a,   Int32 aStart, Int32 aLength,
-                                    List<T> b,   Int32 bStart, Int32 bLength,
+        public static void Merge<T>(List<T> a, Int32 aStart, Int32 aLength,
+                                    List<T> b, Int32 bStart, Int32 bLength,
                                     List<T> dst, Int32 dstStart,
                                     IComparer<T> comparer = null)
         {
-            if (a == null)
-                throw new ArgumentNullException(nameof(a));
-            if (b == null)
-                throw new ArgumentNullException(nameof(b));
-            if (dst == null)
-                throw new ArgumentNullException(nameof(dst));
+            if (a == null) throw new ArgumentNullException(nameof(a));
+            if (b == null) throw new ArgumentNullException(nameof(b));
+            if (dst == null) throw new ArgumentNullException(nameof(dst));
+
             var equalityComparer = comparer ?? Comparer<T>.Default;
             Int32 aEnd = aStart + aLength - 1;
             Int32 bEnd = bStart + bLength - 1;
@@ -838,7 +836,7 @@ namespace HPCsharp
                     var tmp = src;          // swap src and dst arrays
                     src = dst;
                     dst = tmp;
-                    srcToDst = srcToDst ? false : true; // keep track of merge direction
+                    srcToDst = !srcToDst; // keep track of merge direction
                 }
             }
         }
@@ -896,7 +894,7 @@ namespace HPCsharp
                     var tmp = src;          // swap src and dst arrays
                     src = dst;
                     dst = tmp;
-                    srcToDst = srcToDst ? false : true; // keep track of merge direction
+                    srcToDst = !srcToDst; // keep track of merge direction
                 }
                 if (srcSpans.Count == 2)
                 {

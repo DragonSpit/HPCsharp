@@ -6,7 +6,7 @@
     <id>HPCsharp</id>
 
     <!-- The package version number that is used when resolving dependencies -->
-    <version>3.1.2</version>
+    <version>3.17.1</version>
 
     <!-- Authors contain text that appears directly on the gallery -->
     <authors>Victor J. Duvanenko</authors>
@@ -27,7 +27,7 @@
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
 
     <!-- Any details about this particular release -->
-    <releaseNotes>Added Stable Parallel Merge Sort. Updated HPCsharp examples solution to use the latest HPCsharp library and demonstrate speedup and sorting user defined classes. Improved parallel Radix Sort performance by 15%, but still slower than serial.</releaseNotes>
+    <releaseNotes>Added support for .NET 9. Added Selection algorithm - QuickSelect which is linear in expected time, but is quadratic in worst-case. It is 5-20X faster than sorting.</releaseNotes>
 
     <!-- The description can be used in package manager UI. Note that the
             nuget.org gallery uses information you add in the portal. -->
@@ -36,7 +36,7 @@ Includes parallel stable Merge Sort, parallel Merge, O(N) stable Radix Sort algo
 Parallel Sorting is several times faster, capable of sorting user defined classes, providing familiar interfaces to C# Array.Sort and Linq.</description>
 
     <!-- Copyright information -->
-    <copyright>Copyright ©2019 Foostate</copyright>
+    <copyright>Copyright Â©2019 Foostate</copyright>
 
     <!-- Tags appear in the gallery and can be used for tag searches -->
     <tags>high perfromance algorithms, C#, high performance, high performance computing, HPC, algorithm, algorithms, Linq, parallel, parallel algorithm, stable sorting, parallel sorting, sort, sorting</tags>

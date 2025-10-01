@@ -1,14 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;netstandard2.1;net6.0;net8.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.1;net6.0;net8.0;net9.0</TargetFrameworks>
     <Authors>Victor J. Duvanenko</Authors>
     <Company>FooState</Company>
     <Product>HPCsharp</Product>
     <Description>Parallel high performance cross-platform C#/.NET algorithms. 28+ algorithms with familiar interfaces and examples. Multi-core and data parallel (SIMD/SSE). Open source and free. See project Readme, blog, and videos...</Description>
     <Copyright>© 2018 FooState</Copyright>
     <PackageLicenseUrl></PackageLicenseUrl>
-    <PackageReleaseNotes>Added support for .NET 8. Fixed majority of warnings for .NET 8 support.</PackageReleaseNotes>
+    <PackageReleaseNotes>Added a generic version of a Selection algorithm - QuickSelect which is linear in expected time, but is quadratic in worst-case.</PackageReleaseNotes>
     <PackageId>HPCsharp</PackageId>
     <PackageTags>high perfromance algorithms, C#, high performance, high performance computing, HPC, algorithm, algorithms, Linq, parallel, parallel algorithm, sort, sorting, sum, summation</PackageTags>
     <PackageIconUrl>https://foostate.com/images/default_lib_icon_64.png</PackageIconUrl>
@@ -17,14 +17,14 @@
     <PackageProjectUrl>https://github.com/DragonSpit/HPCsharp</PackageProjectUrl>
     <RepositoryUrl>https://github.com/DragonSpit/HPCsharp</RepositoryUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <AssemblyVersion>3.17.0.0</AssemblyVersion>
-    <FileVersion>3.17.0.0</FileVersion>
-    <Version>3.17.0</Version>
+    <AssemblyVersion>3.17.2.0</AssemblyVersion>
+    <FileVersion>3.17.2.0</FileVersion>
+    <Version>3.17.2</Version>
     <Platforms>AnyCPU;x64</Platforms>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <Title>High Performance C#</Title>
     <AnalysisLevel>preview-all</AnalysisLevel>
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>x64</PlatformTarget>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
