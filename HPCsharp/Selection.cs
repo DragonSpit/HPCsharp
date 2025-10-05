@@ -1,4 +1,5 @@
-﻿using System;
+﻿// TODO: Implement nonrecursive version of QuickSelect (p. 343 Algorithms in C++, Sedgewick).
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -6,6 +7,23 @@ namespace HPCsharp
 {
     public static partial class Algorithm
     {
+        // AI generated code for finding the median of five elements directly
+        //private static int FindMedianOfFiveDirect(int[] arr, int start)
+        //{
+        //    if (arr[start] > arr[start + 1])
+        //        (arr[start], arr[start + 1]) = (arr[start + 1], arr[start]); // arr[start] <= arr[start + 1]
+        //    if (arr[start + 2] > arr[start + 3])
+        //        (arr[start + 2], arr[start + 3]) = (arr[start + 3], arr[start + 2]); // arr[start + 2] <= arr[start + 3]
+        //    if (arr[start] > arr[start + 2])
+        //        (arr[start], arr[start + 2]) = (arr[start + 2], arr[start]); // arr[start] <= arr[start + 2], arr[start + 1]
+        //    if (arr[start + 1] > arr[start + 3])
+        //        (arr[start + 1], arr[start + 3]) = (arr[start + 3], arr[start + 1]); // arr[start] <= arr[start + 2], arr[start + 1] <= arr[start + 3]
+        //    if (arr[start + 1] > arr[start + 2])
+        //        (arr[start + 1], arr[start + 2]) = (arr[start + 2], arr[start + 1]); // arr[start] <= arr[start + 1] <= arr[start + 2] <= arr[start + 3]
+        //    if (arr[start + 4] < arr[start + 2]) // arr[start + 4] < arr[start + 2] <= arr[start + 3]
+        //        return arr[start + 2];
+        //}
+
         // C# implementation of the Worst Case Linear Time algorithm
         // to find the k-th smallest element using Median of Medians
         // Returns median of a small group (size <= 5)
@@ -97,6 +115,138 @@ namespace HPCsharp
         private static int KthSmallest(int[] arr, int k)
         {
             return SelectKthSmallest(arr, 0, arr.Length - 1, k);
+        }
+
+        // l and r are inclusive
+        private static int MedianOfMedians(int[] arr, int l, int r)
+        {
+            if (r == l) return arr[l];
+
+            int i, n = r - l + 1;
+            var medians = new List<int>();
+
+            // Divide array into groups of 5 and store their medians
+            for (i = 0; i < n / 5; i++)
+            {
+                var group = new int[5];
+                Array.Copy(arr, l + i * 5, group, 0, 5);
+                medians.Add(GetMedian(group));
+            }
+            // Handle the last group with less than 5 elements
+            if (i * 5 < n)
+            {
+                int len = n % 5;
+                int[] lastGroup = new int[len];
+                Array.Copy(arr, l + i * 5, lastGroup, 0, len);
+                medians.Add(GetMedian(lastGroup));
+            }
+            int[] medArr = medians.ToArray();
+            return MedianOfMedians(medArr, 0, medArr.Length - 1);
+        }
+
+        // l and r are inclusive
+        private static int MedianOfMedians2(int[] arr, int l, int r)
+        {
+            if (r == l) return arr[l];
+
+            int i, n = r - l + 1;
+            var medians = new List<int>();
+
+            // Divide array into groups of 5 and store their medians
+            for (i = 0; i < n / 5; i++)
+            {
+                var group = new int[5];
+                Array.Copy(arr, l + i * 5, group, 0, 5);
+                medians.Add(GetMedian(group));
+            }
+            // Handle the last group with less than 5 elements
+            if (i * 5 < n)
+            {
+                int len = n % 5;
+                int[] lastGroup = new int[len];
+                Array.Copy(arr, l + i * 5, lastGroup, 0, len);
+                medians.Add(GetMedian(lastGroup));
+            }
+            int[] medArr = medians.ToArray();
+            return MedianOfMedians(medArr, 0, medArr.Length - 1);
+        }
+
+        // QuickSelect partition
+        private static int Partition(int[] arr, int l, int r, Random rand)
+        {
+            int i = l - 1, j = r; // index of smaller element
+            int r_index = rand.Next(l, r + 1);
+            (arr[r], arr[r_index]) = (arr[r_index], arr[r]); // Move pivot to end
+            int v = arr[r];       // pivot arbitrarily chosen as last element
+
+            //int v = MedianOfMedians(arr, l, r); // pivot chosen as median of medians
+            //for (i = l; i < r; i++) if (arr[i] == v) break;
+            //(arr[r], arr[i]) = (arr[i], arr[r]); // Move pivot to end
+
+            while (true)
+            {
+                // find item on left to swap
+                while (arr[++i] < v) ;
+                // find item on right to swap
+                while (v < arr[--j]) if (j == l) break;
+                // check if pointers cross
+                if (i >= j) break;
+                // swap
+                (arr[i], arr[j]) = (arr[j], arr[i]);
+            }
+            // swap arr[i+1] and arr[r] (or pivot)
+            (arr[i], arr[r]) = (arr[r], arr[i]);
+            return i;
+        }
+
+        private static int Partition(int[] arr, int l, int r)
+        {
+            int i = l - 1, j = r; // index of smaller element
+            int v = arr[r];       // pivot arbitrarily chosen as last element
+
+            while (true)
+            {
+                // find item on left to swap
+                while (arr[++i] < v) ;
+                // find item on right to swap
+                while (v < arr[--j]) if (j == l) break;
+                // check if pointers cross
+                if (i >= j) break;
+                // swap
+                (arr[i], arr[j]) = (arr[j], arr[i]);
+            }
+            // swap arr[i+1] and arr[r] (or pivot)
+            (arr[i], arr[r]) = (arr[r], arr[i]);
+            return i;
+        }
+
+        // QuickSelect recursive
+        public static void QuickSelect(int[] arr, int l, int r, int k)
+        {
+            if (r <= l) return;
+            int i = Partition(arr, l, r);
+            if (i > k) QuickSelect(arr, l,     i - 1, k);
+            if (i < k) QuickSelect(arr, i + 1, r,     k);
+        }
+
+        private static void QuickSelectRandom_loc(int[] arr, int l, int r, int k, Random rand)
+        {
+            if (r <= l) return;
+            int i = Partition(arr, l, r, rand);
+            if (i > k) QuickSelectRandom_loc(arr, l, i - 1, k, rand);
+            if (i < k) QuickSelectRandom_loc(arr, i + 1, r, k, rand);
+        }
+
+        public static void QuickSelectRandom(int[] arr, int l, int r, int k, int randSeed = -1)
+        {
+            Random rand = (randSeed < 0) ? new Random() : new Random(randSeed);
+            QuickSelectRandom_loc(arr, l, r, k, rand);
+        }
+
+        public static void QuickSelectRandom(int[] arr, int k, int randSeed = -1)
+        {
+            Random rand = (randSeed < 0) ? new Random() : new Random(randSeed);
+            QuickSelectRandom_loc(arr, 0, arr.Length - 1, k, rand);
         }
 
         // partition function similar to quick sort 
@@ -201,7 +351,6 @@ namespace HPCsharp
         {
             return KthSmallestQuickSelect_int(arr, 0, arr.Length - 1, k, comparer);
         }
-
     }
 }
 
