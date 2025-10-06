@@ -8,7 +8,7 @@
     <Description>Parallel high performance cross-platform C#/.NET algorithms. 28+ algorithms with familiar interfaces and examples. Multi-core and data parallel (SIMD/SSE). Open source and free. See project Readme, blog, and videos...</Description>
     <Copyright>© 2018 FooState</Copyright>
     <PackageLicenseUrl></PackageLicenseUrl>
-    <PackageReleaseNotes>Added a generic version of a Selection algorithm - QuickSelect which is linear in expected time, but is quadratic in worst-case.</PackageReleaseNotes>
+    <PackageReleaseNotes>Added a generic version of Randomized Selection algorithm - QuickSelect - which is linear in expected time, with miniscule chance of going quadratic.</PackageReleaseNotes>
     <PackageId>HPCsharp</PackageId>
     <PackageTags>high perfromance algorithms, C#, high performance, high performance computing, HPC, algorithm, algorithms, Linq, parallel, parallel algorithm, sort, sorting, sum, summation</PackageTags>
     <PackageIconUrl>https://foostate.com/images/default_lib_icon_64.png</PackageIconUrl>
