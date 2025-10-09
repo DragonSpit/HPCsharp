@@ -8,7 +8,7 @@
     <Description>Parallel high performance cross-platform C#/.NET algorithms. 28+ algorithms with familiar interfaces and examples. Multi-core and data parallel (SIMD/SSE). Open source and free. See project Readme, blog, and videos...</Description>
     <Copyright>© 2018 FooState</Copyright>
     <PackageLicenseUrl></PackageLicenseUrl>
-    <PackageReleaseNotes>Added a generic version of Randomized Selection algorithm - QuickSelect - which is linear in expected time, with miniscule chance of going quadratic.</PackageReleaseNotes>
+    <PackageReleaseNotes>Implemented nonrecursive randomized Selection algorithm - QuickSelect - which is linear in expected time, with miniscule chance of going quadratic. Simplified several QuickSort implementations.</PackageReleaseNotes>
     <PackageId>HPCsharp</PackageId>
     <PackageTags>high perfromance algorithms, C#, high performance, high performance computing, HPC, algorithm, algorithms, Linq, parallel, parallel algorithm, sort, sorting, sum, summation</PackageTags>
     <PackageIconUrl>https://foostate.com/images/default_lib_icon_64.png</PackageIconUrl>
@@ -17,9 +17,9 @@
     <PackageProjectUrl>https://github.com/DragonSpit/HPCsharp</PackageProjectUrl>
     <RepositoryUrl>https://github.com/DragonSpit/HPCsharp</RepositoryUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <AssemblyVersion>3.17.2.0</AssemblyVersion>
-    <FileVersion>3.17.2.0</FileVersion>
-    <Version>3.17.2</Version>
+    <AssemblyVersion>3.17.3.0</AssemblyVersion>
+    <FileVersion>3.17.3.0</FileVersion>
+    <Version>3.17.3</Version>
     <Platforms>AnyCPU;x64</Platforms>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <Title>High Performance C#</Title>
@@ -53,6 +53,7 @@
   <ItemGroup>
     <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
     <PackageReference Include="System.Runtime.Numerics" Version="4.3.0" />
+    <PackageReference Include="System.ValueTuple" Version="4.6.1" />
   </ItemGroup>
 
   <ItemGroup>

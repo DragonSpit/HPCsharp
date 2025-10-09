@@ -6,7 +6,7 @@ using System.Xml.Schema;
 
 namespace HPCsharp
 {
-    static public partial class Algorithm
+    public static partial class Algorithm
     {
         /// <summary>
         /// Parallel Merge Sort that is not-in-place. Also, not stable, since Array.Sort is not stable, and is used as the recursion base-case.
@@ -152,49 +152,31 @@ namespace HPCsharp
             int j = r;
             int p = l - 1;
             int q = r;
-            uint tmp;
 
             while(true)
             {
                 while (src[++i] < v) ;
-                while (v < src[--j])
-                    if (j == l) break;
+                while (v < src[--j]) if (j == l) break;
                 if (i >= j) break;
-                tmp    = src[i];
-                src[i] = src[j];
-                src[j] = tmp;
+                (src[i], src[j]) = (src[j], src[i]);
                 if (src[i] == v)
                 {
                     p++;
-                    tmp    = src[i];
-                    src[i] = src[p];
-                    src[p] = tmp;
+                    (src[i], src[p]) = (src[p], src[i]);
                 }
                 if (v == src[j])
                 {
                     q--;
-                    tmp    = src[q];
-                    src[q] = src[j];
-                    src[j] = tmp;
+                    (src[q], src[j]) = (src[j], src[q]);
                 }
             }
-            tmp    = src[r];
-            src[r] = src[i];
-            src[i] = tmp;
+            (src[i], src[r]) = (src[r], src[i]);
             j = i - 1;
             i++;
             for (k = l; k <= p; k++, j--)
-            {
-                tmp    = src[k];
-                src[k] = src[j];
-                src[j] = tmp;
-            }
+                (src[k], src[j]) = (src[j], src[k]);
             for (k = r - 1; k >= q; k--, i++)
-            {
-                tmp    = src[k];
-                src[k] = src[i];
-                src[i] = tmp;
-            }
+                (src[i], src[k]) = (src[k], src[i]);
 
             QuicksortThreeWayPartition(src, l, j);
             QuicksortThreeWayPartition(src, i, r);

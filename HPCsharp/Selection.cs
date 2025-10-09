@@ -95,7 +95,6 @@ namespace HPCsharp
         /// Avoids worst-case O(n^2) behavior by randomly choosing pivot element.
         /// The input array is modified during the process.
         /// </summary>
-        /// <typeparam name="T">Array of type T</typeparam>
         /// <param name="arr">source array</param>
         /// <param name="l">left index of the subarray, inclusive</param>
         /// <param name="r">right index of the subarray, inclusive</param>
@@ -118,7 +117,6 @@ namespace HPCsharp
         /// Avoids worst-case O(n^2) behavior by randomly choosing pivot element.
         /// The input array is modified during the process.
         /// </summary>
-        /// <typeparam name="T">Array of type T</typeparam>
         /// <param name="arr">source array</param>
         /// <param name="k">index of the desired element</param>
         /// <param name="randSeed">Seed for the random number generator. Negative value makes random not-repeatable.</param>
@@ -138,6 +136,16 @@ namespace HPCsharp
             int i = Partition(arr, l, r, rand, comparer);
             if (i > k) QuickSelectRandomGeneric_loc(arr, l, i - 1, k, rand, comparer);
             if (i < k) QuickSelectRandomGeneric_loc(arr, i + 1, r, k, rand, comparer);
+        }
+
+        private static void QuickSelectRandomGenericNonRecursive_loc<T>(T[] arr, int l, int r, int k, Random rand, IComparer<T> comparer = null)
+        {
+            while (r > l)
+            {
+                int i = Partition(arr, l, r, rand, comparer);
+                if (i >= k) r = i - 1;
+                if (i <= k) l = i + 1;
+            }
         }
 
         /// <summary>
@@ -160,7 +168,7 @@ namespace HPCsharp
             if (k < l || k > r)
                 throw new ArgumentOutOfRangeException(nameof(k), "k must be between l and r");
             Random rand = (randSeed < 0) ? new Random() : new Random(randSeed);
-            QuickSelectRandomGeneric_loc(arr, l, r, k, rand, comparer);
+            QuickSelectRandomGenericNonRecursive_loc(arr, l, r, k, rand, comparer);
             return arr[k];
         }
 
@@ -180,7 +188,7 @@ namespace HPCsharp
             if (k < 0 || k >= arr.Length)
                 throw new ArgumentOutOfRangeException(nameof(k), "k must be between 0 and arr.Length-1");
             Random rand = (randSeed < 0) ? new Random() : new Random(randSeed);
-            QuickSelectRandomGeneric_loc(arr, 0, arr.Length - 1, k, rand, comparer);
+            QuickSelectRandomGenericNonRecursive_loc(arr, 0, arr.Length - 1, k, rand, comparer);
             return arr[k];
         }
     }
