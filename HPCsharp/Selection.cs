@@ -62,7 +62,7 @@ namespace HPCsharp
             return i;
         }
 
-        private static int Partition<T>(T[] arr, int l, int r, Random rand, IComparer<T> comparer = null)
+        public static int Partition<T>(this T[] arr, int l, int r, Random rand, IComparer<T> comparer = null)
         {
             var equalityComparer = comparer ?? Comparer<T>.Default;
             int i = l - 1;   // start index of smaller elements
@@ -101,7 +101,7 @@ namespace HPCsharp
         /// <param name="k">index of the desired element</param>
         /// <param name="randSeed">Seed for the random number generator. Negative value makes random not-repeatable.</param>
         /// <returns>returns the k-th element of the array</returns>
-        public static int QuickSelectRandom(int[] arr, int l, int r, int k, int randSeed = -1)
+        public static int QuickSelectRandom(this int[] arr, int l, int r, int k, int randSeed = -1)
         {
             if (l < 0 || r >= arr.Length || l > r)
                 throw new ArgumentOutOfRangeException(nameof(k), "l or r are invalid");
@@ -121,7 +121,7 @@ namespace HPCsharp
         /// <param name="k">index of the desired element</param>
         /// <param name="randSeed">Seed for the random number generator. Negative value makes random not-repeatable.</param>
         /// <returns>returns the k-th element of the array</returns>
-        public static int QuickSelectRandom(int[] arr, int k, int randSeed = -1)
+        public static int QuickSelectRandom(this int[] arr, int k, int randSeed = -1)
         {
             if (k < 0 || k >= arr.Length)
                 throw new ArgumentOutOfRangeException(nameof(k), "k must be between 0 and arr.Length-1");
@@ -161,7 +161,7 @@ namespace HPCsharp
         /// <param name="randSeed">Seed for the random number generator. Negative value makes random not-repeatable.</param>
         /// <param name="comparer">comparer used to compare two array elements of type T</param>
         /// <returns>returns the k-th element of the array</returns>
-        public static T QuickSelectRandomGeneric<T>(T[] arr, int l, int r, int k, int randSeed = -1, IComparer<T> comparer = null)
+        public static T QuickSelectRandomGeneric<T>(this T[] arr, int l, int r, int k, int randSeed = -1, IComparer<T> comparer = null)
         {
             if (l < 0 || r >= arr.Length || l > r)
                 throw new ArgumentOutOfRangeException(nameof(k), "l or r are invalid");
@@ -183,7 +183,7 @@ namespace HPCsharp
         /// <param name="randSeed">Seed for the random number generator. Negative value makes random not-repeatable.</param>
         /// <param name="comparer">comparer used to compare two array elements of type T</param>
         /// <returns>returns the k-th element of the array</returns>
-        public static T QuickSelectRandomGeneric<T>(T[] arr, int k, int randSeed = -1, IComparer<T> comparer = null)
+        public static T QuickSelectRandomGeneric<T>(this T[] arr, int k, int randSeed = -1, IComparer<T> comparer = null)
         {
             if (k < 0 || k >= arr.Length)
                 throw new ArgumentOutOfRangeException(nameof(k), "k must be between 0 and arr.Length-1");
