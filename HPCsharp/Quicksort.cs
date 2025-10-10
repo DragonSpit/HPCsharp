@@ -33,13 +33,9 @@ namespace HPCsharp
             {
                 while (i != j && (equalityComparer.Compare(pivot_value, src[j]) <  0)) --j;
                 while (i != j && (equalityComparer.Compare(src[i], pivot_value) <= 0)) ++i;
-                tmp    = src[i];
-                src[i] = src[j];
-                src[j] = tmp;
+                (src[i], src[j]) = (src[j], src[i]);
             }
-            tmp    = src[i];
-            src[i] = src[b];
-            src[b] = tmp;
+            (src[i], src[b]) = (src[b], src[i]);
 
             Quicksort(src, b,     i, comparer);
             Quicksort(src, i + 1, e, comparer);
@@ -61,13 +57,9 @@ namespace HPCsharp
             {
                 while (i != j && pivot_value < src[j] ) --j;
                 while (i != j && src[i] <= pivot_value) ++i;
-                tmp    = src[i];
-                src[i] = src[j];
-                src[j] = tmp;
+                (src[i], src[j]) = (src[j], src[i]);
             }
-            tmp    = src[i];
-            src[i] = src[b];
-            src[b] = tmp;
+            (src[i], src[b]) = (src[b], src[i]);
 
             Quicksort(src, b,     i);
             Quicksort(src, i + 1, e);
@@ -81,8 +73,6 @@ namespace HPCsharp
             if ((e - b) < 2)
                 return;
 
-            uint tmp;
-
             Int32 i = b;
             Int32 j = e - 1;
             uint pivot_value = src[i + (j - i) / 2];
@@ -92,9 +82,7 @@ namespace HPCsharp
                 while (src[--j] > pivot_value) ;
             while (i < j)
             {
-                tmp    = src[i];
-                src[i] = src[j];
-                src[j] = tmp;
+                (src[i], src[j]) = (src[j], src[i]);
                 while (src[++i] < pivot_value) ;
                 while (src[--j] > pivot_value) ;
             }
@@ -112,9 +100,7 @@ namespace HPCsharp
                 throw new ArgumentNullException(nameof(src));
             if ((e - b) < 2)
                 return;
-
             var equalityComparer = comparer ?? Comparer<T>.Default;
-            T tmp;
 
             Int32 i = b;
             Int32 j = e - 1;
@@ -125,9 +111,7 @@ namespace HPCsharp
                 while (equalityComparer.Compare(src[--j], pivot_value) > 0) ;
             while (i < j)
             {
-                tmp = src[i];
-                src[i] = src[j];
-                src[j] = tmp;
+                (src[i], src[j]) = (src[j], src[i]);
                 while (equalityComparer.Compare(src[++i], pivot_value) < 0) ;
                 while (equalityComparer.Compare(src[--j], pivot_value) > 0) ;
             }

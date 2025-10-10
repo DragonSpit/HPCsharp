@@ -7,7 +7,7 @@ namespace HPCsharp
     public static partial class Algorithm
     {
         // ported from Sedgewick "Algorithms in C++" p. 319
-        private static int Partition(int[] arr, int l, int r)
+        public static int Partition(this int[] arr, int l, int r)
         {
             int i = l - 1;   // start index of smaller elements
             int j = r;       // start index of larger  elements
@@ -24,7 +24,7 @@ namespace HPCsharp
             return i;
         }
 
-        private static int Partition<T>(T[] arr, int l, int r, IComparer<T> comparer = null)
+        public static int Partition<T>(this T[] arr, int l, int r, IComparer<T> comparer = null)
         {
             var equalityComparer = comparer ?? Comparer<T>.Default;
             int i = l - 1;   // start index of smaller elements
@@ -43,7 +43,7 @@ namespace HPCsharp
         }
 
         // Partition for QuickSelect or QuickSort with randomly chosen pivot within arr[l..r]
-        private static int Partition(int[] arr, int l, int r, Random rand)
+        public static int Partition(this int[] arr, int l, int r, Random rand)
         {
             int i = l - 1;                     // start index of smaller elements
             int j = r;                         // start index of larger  elements
@@ -103,6 +103,8 @@ namespace HPCsharp
         /// <returns>returns the k-th element of the array</returns>
         public static int QuickSelectRandom(this int[] arr, int l, int r, int k, int randSeed = -1)
         {
+            if (arr == null)
+                throw new ArgumentNullException(nameof(arr));
             if (l < 0 || r >= arr.Length || l > r)
                 throw new ArgumentOutOfRangeException(nameof(k), "l or r are invalid");
             if (k < l || k > r)
@@ -123,6 +125,8 @@ namespace HPCsharp
         /// <returns>returns the k-th element of the array</returns>
         public static int QuickSelectRandom(this int[] arr, int k, int randSeed = -1)
         {
+            if (arr == null)
+                throw new ArgumentNullException(nameof(arr));
             if (k < 0 || k >= arr.Length)
                 throw new ArgumentOutOfRangeException(nameof(k), "k must be between 0 and arr.Length-1");
             Random rand = (randSeed < 0) ? new Random() : new Random(randSeed);
@@ -163,6 +167,8 @@ namespace HPCsharp
         /// <returns>returns the k-th element of the array</returns>
         public static T QuickSelectRandomGeneric<T>(this T[] arr, int l, int r, int k, int randSeed = -1, IComparer<T> comparer = null)
         {
+            if (arr == null)
+                throw new ArgumentNullException(nameof(arr));
             if (l < 0 || r >= arr.Length || l > r)
                 throw new ArgumentOutOfRangeException(nameof(k), "l or r are invalid");
             if (k < l || k > r)
@@ -185,6 +191,8 @@ namespace HPCsharp
         /// <returns>returns the k-th element of the array</returns>
         public static T QuickSelectRandomGeneric<T>(this T[] arr, int k, int randSeed = -1, IComparer<T> comparer = null)
         {
+            if (arr == null)
+                throw new ArgumentNullException(nameof(arr));
             if (k < 0 || k >= arr.Length)
                 throw new ArgumentOutOfRangeException(nameof(k), "k must be between 0 and arr.Length-1");
             Random rand = (randSeed < 0) ? new Random() : new Random(randSeed);
