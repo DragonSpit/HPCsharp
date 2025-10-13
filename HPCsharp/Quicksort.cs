@@ -9,7 +9,7 @@ namespace HPCsharp
     public static partial class Algorithm
     {
         /// <summary>
-        /// Parallel Merge Sort that is not-in-place. Also, not stable, since Array.Sort is not stable, and is used as the recursion base-case.
+        /// QuickSort algorithm, in-place sort, unstable sort.
         /// </summary>
         /// <typeparam name="T">data type of each array element</typeparam>
         /// <param name="src">source array</param>
@@ -23,7 +23,6 @@ namespace HPCsharp
             if (b >= e) return;
 
             var equalityComparer = comparer ?? Comparer<T>.Default;
-            T tmp;
 
             // do shuffle
             T pivot_value = src[b];
@@ -46,8 +45,6 @@ namespace HPCsharp
             if (src == null)
                 throw new ArgumentNullException(nameof(src));
             if (b >= e) return;
-
-            uint tmp;
 
             // do shuffle
             uint pivot_value = src[b];
