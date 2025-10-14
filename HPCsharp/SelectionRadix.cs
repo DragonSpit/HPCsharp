@@ -52,8 +52,8 @@ namespace HPCsharp
                     for (_current_ib = startOfBin[kthBin]; _current_ib < startOfBin[kthBin + 1]; _current_ib++)
                         if (((a[_current_ib] >> shiftRightAmount) & bitMask) != kthBin) break;
 
-                    a[_current_ib++] = a[_current_ob++];    // Move the element that belongs in the bin into the bin
                     if (_current_ib >= startOfBin[kthBin + 1] || _current_ob >= startOfBin[kthBin]) break; // The bin that k is in is full or all the element outside the bin to the left have been exhausted
+                    a[_current_ib++] = a[_current_ob++];    // Move the element that belongs in the bin into the bin
                 }
             }
             Console.WriteLine("Radix Selection inner: _current_ob = {0}   startOfBin[kthBin] = {1}   startOfBin[kthBin + 1] = {2}   _current_ib = {3}",
@@ -70,8 +70,8 @@ namespace HPCsharp
                     for (_current_ib = startOfBin[kthBin]; _current_ib < startOfBin[kthBin + 1]; _current_ib++)
                         if (((a[_current_ib] >> shiftRightAmount) & bitMask) != kthBin) break;
 
-                    a[_current_ib++] = a[_current_ob++];    // Move the element that belongs in the bin into the bin
                     if (_current_ib >= startOfBin[kthBin + 1] || _current_ob > last) break; // The bin that k is in is full or all the element outside the bin to the right have been exhausted
+                    a[_current_ib++] = a[_current_ob++];    // Move the element that belongs in the bin into the bin
                 }
             }
             Console.WriteLine("Radix Selection inner: _current_ob = {0}   startOfBin[kthBin] = {1}   startOfBin[kthBin + 1] = {2}   _current_ib = {3}   last = {4}",
