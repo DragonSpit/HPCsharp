@@ -21,10 +21,10 @@ namespace HPCsharp
             int last = first + length - 1;
             const uint bitMask = PowerOfTwoRadix - 1;
 
-            var count = HistogramOneByteComponent(a, first, last, shiftRightAmount);
+            var count = HPCsharp.Algorithm.HistogramOneByteComponent(a, first, last, shiftRightAmount);
 
             var startOfBin = new int[PowerOfTwoRadix + 1];
-            var endOfBin   = new int[PowerOfTwoRadix];
+            var endOfBin = new int[PowerOfTwoRadix];
             startOfBin[0] = endOfBin[0] = first; startOfBin[PowerOfTwoRadix] = last + 1;
             //Console.WriteLine("startOfBin[{0}] = {1}", 0, startOfBin[0]);
             for (int i = 1; i < PowerOfTwoRadix; i++)
@@ -36,10 +36,11 @@ namespace HPCsharp
             // Determine which bin contains the k-th smallest element. kthBin will hold the bin number.
             int kthBin = 0;
             for (; kthBin < PowerOfTwoRadix; kthBin++)
-                if (k < startOfBin[kthBin])
-                {
-                    kthBin--; break;
-                }
+            {
+                int binLength = startOfBin[kthBin + 1] - startOfBin[kthBin];
+                if (binLength == 0) continue; // skip empty bins
+                if (k >= startOfBin[kthBin] && k <= (startOfBin[kthBin + 1] - 1)) break;
+            }
             //Console.WriteLine("Radix Selection inner: shiftRightAmount = {0}   kthBin = {1}", shiftRightAmount, kthBin);
             int _current_ob = first, _current_ib = startOfBin[kthBin]; // _ob = outside of bin, _ib = inside of bin
             while (true) // process elements outside the bin that k is in, which are to the left of that bin
@@ -54,8 +55,8 @@ namespace HPCsharp
                 if (_current_ib >= startOfBin[kthBin + 1] || _current_ob >= startOfBin[kthBin]) break; // The bin that k is in is full or all the element outside the bin to the left have been exhausted
                 a[_current_ib++] = a[_current_ob++];    // Move the element that belongs in the bin into the bin
             }
-           // Console.WriteLine("Radix Selection inner: _current_ob = {0}   startOfBin[kthBin] = {1}   startOfBin[kthBin + 1] = {2}   _current_ib = {3}",
-           //     _current_ob, startOfBin[kthBin], startOfBin[kthBin + 1], _current_ib);
+            // Console.WriteLine("Radix Selection inner: _current_ob = {0}   startOfBin[kthBin] = {1}   startOfBin[kthBin + 1] = {2}   _current_ib = {3}",
+            //     _current_ob, startOfBin[kthBin], startOfBin[kthBin + 1], _current_ib);
 
             _current_ob = startOfBin[kthBin + 1]; _current_ib = startOfBin[kthBin];
             while (true) // process elements outside the bin that k is in, which are to the right of that bin
