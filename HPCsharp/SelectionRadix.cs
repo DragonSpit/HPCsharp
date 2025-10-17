@@ -38,15 +38,16 @@ namespace HPCsharp
                 if (binLength == 0) continue; // skip empty bins
                 if (k >= startOfBin[kthBin] && k <= (startOfBin[kthBin + 1] - 1)) break;
             }
-            int _current_ob = first, _current_ib = startOfBin[kthBin]; // _ob = outside of bin, _ib = inside of bin
+            int _current_ob = first, _current_ib = startOfBin[kthBin], found_ob; // _ob = outside of bin, _ib = inside of bin
             while (true) // process elements outside the bin that k is in, which are to the left of that bin
             {
                 // Look for the element that belongs in the bin that k is in, to move into that bin
-                for (; _current_ob < startOfBin[kthBin]; _current_ob++)
-                    if (((a[_current_ob] >> shiftRightAmount) & bitMask) == kthBin) break;
+                for (found_ob = 0; _current_ob < startOfBin[kthBin]; _current_ob++)
+                    if (((a[_current_ob] >> shiftRightAmount) & bitMask) == kthBin) { found_ob = 1; break; }
                 // Look for the first location in the bin that k is in, which has an element that does not belong in that bin
-                for (; _current_ib < startOfBin[kthBin + 1]; _current_ib++)
-                    if (((a[_current_ib] >> shiftRightAmount) & bitMask) != kthBin) break;
+                if (found_ob == 1)
+                    for (; _current_ib < startOfBin[kthBin + 1]; _current_ib++)
+                        if (((a[_current_ib] >> shiftRightAmount) & bitMask) != kthBin) break;
 
                 if (_current_ib >= startOfBin[kthBin + 1] || _current_ob >= startOfBin[kthBin]) break; // The bin that k is in is full or all the element outside the bin to the left have been exhausted
                 a[_current_ib++] = a[_current_ob++];    // Move the element that belongs in the bin into the bin
@@ -55,11 +56,12 @@ namespace HPCsharp
             while (true) // process elements outside the bin that k is in, which are to the right of that bin
             {
                 // Look for the element that belongs in the bin that k is in, to move into that bin
-                for (; _current_ob <= last; _current_ob++)
-                    if (((a[_current_ob] >> shiftRightAmount) & bitMask) == kthBin) break;
+                for (found_ob = 0; _current_ob <= last; _current_ob++)
+                    if (((a[_current_ob] >> shiftRightAmount) & bitMask) == kthBin) { found_ob = 1; break; }
                 // Look for the first location in the bin that k is in, which has an element that does not belong in that bin
-                for (; _current_ib < startOfBin[kthBin + 1]; _current_ib++)
-                    if (((a[_current_ib] >> shiftRightAmount) & bitMask) != kthBin) break;
+                if (found_ob == 1)
+                    for (; _current_ib < startOfBin[kthBin + 1]; _current_ib++)
+                        if (((a[_current_ib] >> shiftRightAmount) & bitMask) != kthBin) break;
 
                 if (_current_ib >= startOfBin[kthBin + 1] || _current_ob > last) break; // The bin that k is in is full or all the element outside the bin to the right have been exhausted
                 a[_current_ib++] = a[_current_ob++];    // Move the element that belongs in the bin into the bin
