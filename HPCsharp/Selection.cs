@@ -207,7 +207,7 @@ namespace HPCsharp
         /// <param name="arr">source array</param>
         /// <param name="l">left index of the subarray, inclusive</param>
         /// <param name="r">right index of the subarray, inclusive</param>
-        /// <param name="k">index of the desired element</param>
+        /// <param name="k">index of the desired element to be selected</param>
         /// <param name="randSeed">Seed for the random number generator. Negative value makes random not-repeatable.</param>
         /// <param name="comparer">comparer used to compare two array elements of type T. Null uses teh default comparer.</param>
         /// <returns>returns the k-th element of the array</returns>
@@ -231,7 +231,7 @@ namespace HPCsharp
         /// </summary>
         /// <typeparam name="T">Array of type T</typeparam>
         /// <param name="arr">source array</param>
-        /// <param name="k">index of the desired element</param>
+        /// <param name="k">index of the desired element to be selected</param>
         /// <param name="randSeed">Seed for the random number generator. Negative value makes random not-repeatable.</param>
         /// <param name="comparer">comparer used to compare two array elements of type T</param>
         /// <returns>returns the k-th element of the array</returns>
@@ -254,7 +254,7 @@ namespace HPCsharp
         /// <param name="arr">source array</param>
         /// <param name="l">left index of the subarray, inclusive</param>
         /// <param name="r">right index of the subarray, inclusive</param>
-        /// <param name="k">index of the desired element</param>
+        /// <param name="k">index of the desired element to be selected</param>
         /// <param name="randSeed">Seed for the random number generator. Negative value makes random not-repeatable.</param>
         /// <param name="comparer">comparer used to compare two array elements of type T. Null uses teh default comparer.</param>
         /// <returns>returns the k-th element of the array</returns>
@@ -284,7 +284,7 @@ namespace HPCsharp
         /// </summary>
         /// <typeparam name="T">Array of type T</typeparam>
         /// <param name="arr">source array</param>
-        /// <param name="k">index of the desired element</param>
+        /// <param name="k">index of the desired element to be selected</param>
         /// <param name="randSeed">Seed for the random number generator. Negative value makes random not-repeatable.</param>
         /// <param name="comparer">comparer used to compare two array elements of type T</param>
         /// <returns>returns the k-th element of the array</returns>
