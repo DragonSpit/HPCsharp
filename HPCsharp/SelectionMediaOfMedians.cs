@@ -12,6 +12,7 @@ namespace HPCsharp
         /// Median of Medians computation.
         /// </summary>
         /// <param name="arr">array that is to be selected from in place</param>
+        /// <param name="arr_working">and additional array which is used as a scratchpad for median-of-medians computation</param>
         /// <param name="start">starting index of the subarray</param>
         /// <param name="length">length of the subarray</param>
         /// <param name="comparer">optional method to compare array elements</param>
@@ -26,6 +27,9 @@ namespace HPCsharp
                 throw new ArgumentOutOfRangeException(nameof(length), "length is invalid");
             if (chunkSize < 5 || chunkSize > 31)
                 throw new ArgumentOutOfRangeException(nameof(chunkSize), "5 <= chunkSize <= 31");
+
+            Array.Copy(arr, start, arr_working, start, length);
+
             int halfChunkSize = chunkSize / 2;
             int length_working = length;
             //Console.WriteLine("MedianOfMedians: starting with chunkSize = {0}", chunkSize);
@@ -89,7 +93,6 @@ namespace HPCsharp
         {
             while (r > l)
             {
-                Array.Copy(arr, l, copy_arr, l, r - l + 1); // keep the working copy updated
                 //Console.WriteLine("SelectMoMGenericNonRecursive_loc: l = {0}, r = {1}, k = {2}", l, r, k);
                 int i = PartitionMoM(arr, l, r, copy_arr, comparer, chunkSize);
                 //Console.WriteLine("SelectMoMGenericNonRecursive_loc: PartitionMoM returned i = {0}", i);
