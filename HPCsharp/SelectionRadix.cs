@@ -1,11 +1,10 @@
 ﻿// Explanation and Reasoning:
 // This file implements an in-place Radix Selection algorithm using the Most Significant Digit (MSD) approach for unsigned integers (uint).
 // It provides linear order and in-place operation for the Selection algorithm. It is possible because only one bin
-// or half is needed (for QuickSelect), while elements in other bins (or the other half) can be ignored or thrown away, which is not the case with sorting algorithms.
+// or half is needed (for QuickSelect), while elements in other bins (or the other half) can be ignored or thrown away, which is not the case with sorting algorithms,
+// where all bins (or both halves) are sorted.
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
 
 namespace HPCsharp
 {
@@ -92,7 +91,7 @@ namespace HPCsharp
             return arrayToBeSelected[k];
         }
         /// <summary>
-        /// In-place Radix Selection (Most Significant Digit), not a stable sort.
+        /// In-place Radix Selection (Most Significant Digit).
         /// </summary>
         /// <param name="arrayToBeSelected">array that is to be sorted in place</param>
         /// <param name="k">index of the desired element to be selected</param>

@@ -1,5 +1,4 @@
-﻿// TODO: Consider implementing shuffle and randomized pivot selection to avoid worst-case scenarios even further.
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace HPCsharp
@@ -10,9 +9,9 @@ namespace HPCsharp
         /// ported from Sedgewick "Algorithms in C++" p. 319
         /// Partition for QuickSelect or QuickSort which chooses the last element within arr[l..r] as the pivot.
         /// For the presorted array case, it will cause the worst-case O(n^2) performance for QuickSort or QuickSelect.
-        /// The input array is modified during the process.
+        /// The input array is modified during the partitioning process.
         /// </summary>
-        /// <param name="arr">source array</param>
+        /// <param name="arr">source array of integers</param>
         /// <param name="l">left index of the subarray, inclusive</param>
         /// <param name="r">right index of the subarray, inclusive</param>
         /// <returns>returns the index of where the pivot element ended up at</returns>
@@ -36,11 +35,12 @@ namespace HPCsharp
         /// <summary>
         /// Partition for QuickSelect or QuickSort which chooses the last element within arr[l..r] as the pivot.
         /// For the presorted array case, it will cause the worst-case O(n^2) performance for QuickSort or QuickSelect.
-        /// The input array is modified during the process.
+        /// The input array is modified during the partitioning process.
         /// </summary>
         /// <param name="arr">source array</param>
         /// <param name="l">left index of the subarray, inclusive</param>
         /// <param name="r">right index of the subarray, inclusive</param>
+        /// <param name="comparer">optional method to compare array elements</param>
         /// <returns>returns the index of where the pivot element ended up at</returns>
         public static int Partition<T>(this T[] arr, int l, int r, IComparer<T> comparer = null)
         {
@@ -63,7 +63,7 @@ namespace HPCsharp
         /// <summary>
         /// Partition for QuickSelect or QuickSort with randomly chosen pivot within arr[l..r]
         /// Minimizes the chance of worst-case O(n^2) behavior for QuickSort or QuickSelect by randomly choosing pivot element.
-        /// The input array is modified during the process.
+        /// The input array is modified during the partitioning process.
         /// </summary>
         /// <param name="arr">source array</param>
         /// <param name="l">left index of the subarray, inclusive</param>
@@ -91,12 +91,13 @@ namespace HPCsharp
         /// <summary>
         /// Partition for QuickSelect or QuickSort with randomly chosen pivot element within arr[l..r]
         /// Minimizes the chance of worst-case O(n^2) behavior for QuickSort or QuickSelect by randomly choosing pivot element.
-        /// The input array is modified during the process.
+        /// The input array is modified during the partitioning process.
         /// </summary>
         /// <param name="arr">source array</param>
         /// <param name="l">left index of the subarray, inclusive</param>
         /// <param name="r">right index of the subarray, inclusive</param>
         /// <param name="rand">random number generator.</param>
+        /// <param name="comparer">optional method to compare array elements</param>
         /// <returns>returns the index of where the pivot element ended up at</returns>
         public static int Partition<T>(this T[] arr, int l, int r, Random rand, IComparer<T> comparer = null)
         {
@@ -153,7 +154,7 @@ namespace HPCsharp
         /// <summary>
         /// QuickSelect algorithm. Takes an unsorted array of integers and returns the k-th element. Runs in O(n) time on average.
         /// Minimizes the chance of worst-case O(n^2) behavior by randomly choosing pivot element.
-        /// The input array is modified during the process.
+        /// The input array is modified during the selection process.
         /// </summary>
         /// <param name="arr">source array</param>
         /// <param name="k">index of the desired element</param>
@@ -201,7 +202,7 @@ namespace HPCsharp
         /// <summary>
         /// Generic QuickSelect algorithm. Takes an unsorted array of any type with a comparer and returns the k-th element. Runs in O(n) time on average.
         /// Minimizes the chance of worst-case O(n^2) behavior by randomly choosing pivot element.
-        /// The input array is modified during the process.
+        /// The input array is modified during the selection process.
         /// </summary>
         /// <typeparam name="T">Array of type T</typeparam>
         /// <param name="arr">source array</param>
@@ -209,7 +210,7 @@ namespace HPCsharp
         /// <param name="r">right index of the subarray, inclusive</param>
         /// <param name="k">index of the desired element to be selected</param>
         /// <param name="randSeed">Seed for the random number generator. Negative value makes random not-repeatable.</param>
-        /// <param name="comparer">comparer used to compare two array elements of type T. Null uses teh default comparer.</param>
+        /// <param name="comparer">comparer used to compare two array elements of type T. Null uses the default comparer.</param>
         /// <returns>returns the k-th element of the array</returns>
         public static T QuickSelectRandomGeneric<T>(this T[] arr, int l, int r, int k, int randSeed = -1, IComparer<T> comparer = null)
         {
@@ -227,7 +228,7 @@ namespace HPCsharp
         /// <summary>
         /// Generic QuickSelect algorithm. Takes an unsorted array of any type with a comparer and returns the k-th element. Runs in O(n) time on average.
         /// Minimizes the chance of worst-case O(n^2) behavior by randomly choosing pivot element.
-        /// The input array is modified during the process.
+        /// The input array is modified during the selection process.
         /// </summary>
         /// <typeparam name="T">Array of type T</typeparam>
         /// <param name="arr">source array</param>
@@ -248,7 +249,7 @@ namespace HPCsharp
         /// <summary>
         /// Generic QuickSelect algorithm. Takes an unsorted array of any type with a comparer and returns the k-th element. Runs in O(n) time on average.
         /// Minimizes the chance of worst-case O(n^2) behavior by randomly shuffling the array before using it.
-        /// The input array is modified during the process.
+        /// The input array is modified during the selection process.
         /// </summary>
         /// <typeparam name="T">Array of type T</typeparam>
         /// <param name="arr">source array</param>

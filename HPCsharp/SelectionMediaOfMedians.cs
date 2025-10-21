@@ -14,6 +14,7 @@ namespace HPCsharp
         /// <param name="arr">array that is to be selected from in place</param>
         /// <param name="start">starting index of the subarray</param>
         /// <param name="length">length of the subarray</param>
+        /// <param name="comparer">optional method to compare array elements</param>
         /// <returns>returns the index of an approximate median of the subarray</returns>
         public static int MedianOfMedians<T>(T[] arr, T[] arr_working, int start, int length, IComparer<T> comparer = null, int chunkSize = 5)
         {
@@ -63,6 +64,7 @@ namespace HPCsharp
         /// <param name="arr">source array</param>
         /// <param name="l">left index of the subarray, inclusive</param>
         /// <param name="r">right index of the subarray, inclusive</param>
+        /// <param name="comparer">optional method to compare array elements</param>
         /// <returns>returns the index of where the pivot element ended up at</returns>
         public static int PartitionMoM<T>(this T[] arr, int l, int r, T[] copy_arr, IComparer<T> comparer = null, int chunkSize = 5)
         {
@@ -102,6 +104,8 @@ namespace HPCsharp
         /// <param name="start">starting index of the subarray</param>
         /// <param name="length">length of the subarray</param>
         /// <param name="k">index of the desired element to be selected</param>
+        /// <param name="comparer">optional method to compare array elements</param>
+        /// <returns>returns the k-th element of the array</returns>
         public static T SelectMoM<T>(T[] arrayToBeSelected, Int32 start, Int32 length, Int32 k, IComparer<T> comparer = null, int chunkSize = 5)
         {
             if (arrayToBeSelected == null)
@@ -122,6 +126,8 @@ namespace HPCsharp
         /// </summary>
         /// <param name="arrayToBeSelected">array that is to be sorted in place</param>
         /// <param name="k">index of the desired element to be selected</param>
+        /// <param name="comparer">optional method to compare array elements</param>
+        /// <returns>returns the k-th element of the array</returns>
         public static T SelectMoM<T>(T[] arrayToBeSelected, Int32 k, IComparer<T> comparer = null, int chunkSize = 5)
         {
             if (arrayToBeSelected == null)
@@ -135,6 +141,5 @@ namespace HPCsharp
             SelectMoMGenericNonRecursive_loc(arrayToBeSelected, 0, arrayToBeSelected.Length - 1, k, copy_arr, comparer, chunkSize);
             return arrayToBeSelected[k];
         }
-
     }
 }
