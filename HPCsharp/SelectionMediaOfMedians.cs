@@ -12,7 +12,7 @@ namespace HPCsharp
         /// Median of Medians computation.
         /// </summary>
         /// <param name="arr">array that is to be selected from in place</param>
-        /// <param name="arr_working">and additional array which is used as a scratchpad for median-of-medians computation</param>
+        /// <param name="arr_working">an additional array which is used as a scratchpad for median-of-medians computation</param>
         /// <param name="start">starting index of the subarray</param>
         /// <param name="length">length of the subarray</param>
         /// <param name="comparer">optional method to compare array elements</param>
