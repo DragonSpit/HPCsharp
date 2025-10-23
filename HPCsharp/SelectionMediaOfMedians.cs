@@ -39,13 +39,15 @@ namespace HPCsharp
                 int numFullFiveTuples = length_working / chunkSize;
                 for (int i = 0; i < numFullFiveTuples; i++)
                 {
-                    Array.Sort(arr_working, start + i * chunkSize, chunkSize, comparer);
+                    //Array.Sort(arr_working, start + i * chunkSize, chunkSize, comparer);
+                    HPCsharp.Algorithm.InsertionSort<T>(arr_working, start + i * chunkSize, chunkSize, comparer);
                     arr_working[start + i] = arr_working[start + i * chunkSize + halfChunkSize]; // Move the median to the front
                 }
                 int remainingElements = length_working % chunkSize;
                 if (remainingElements > 0)
                 {
-                    Array.Sort(arr_working, start + numFullFiveTuples * chunkSize, remainingElements, comparer);
+                    //Array.Sort(arr_working, start + numFullFiveTuples * chunkSize, remainingElements, comparer);
+                    HPCsharp.Algorithm.InsertionSort<T>(arr_working, start + numFullFiveTuples * chunkSize, remainingElements, comparer);
                     arr_working[start + numFullFiveTuples] = arr_working[start + numFullFiveTuples * chunkSize + remainingElements / 2]; // Move the median to the front
                 }
                 length_working = numFullFiveTuples + (remainingElements > 0 ? 1 : 0);

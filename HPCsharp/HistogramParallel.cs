@@ -707,13 +707,13 @@ namespace HPCsharp
             return countLeft;
         }
 
-        public static int[] HistogramOneByteComponentPar(uint[] inArray, Int32 l, Int32 r, int parallelThreshold = 16 * 1024)
+        public static int[] HistogramOneByteComponentPar(uint[] inArray, Int32 l, Int32 r, int shiftRightAmount, int parallelThreshold = 16 * 1024)
         {
             //int length = r - l + 1;
             //if ((parallelThreshold * Environment.ProcessorCount) < length)        // Mystery: This causes array out of bounds error
             //    parallelThreshold = length / Environment.ProcessorCount;
             //Console.WriteLine("parallelThreshold = {0}   # Cores = {1}   Array length = {2}", parallelThreshold, Environment.ProcessorCount, length);
-            return HistogramOneByteComponentParInner(inArray, l, r, parallelThreshold);
+            return HistogramOneByteComponentParInner(inArray, l, r, shiftRightAmount, parallelThreshold);
         }
     }
 }
