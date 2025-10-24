@@ -29,11 +29,12 @@ namespace HPCsharp
                 throw new ArgumentOutOfRangeException(nameof(chunkSize), "5 <= chunkSize <= 31");
 
             Array.Copy(arr, start, arr_working, start, length);
+            //Console.WriteLine("MedianOfMedians: arr[start] = {0}, arr[start+length] = {1}", arr[start], arr[start + length - 1]);
 
             int halfChunkSize = chunkSize / 2;
             int length_working = length;
             //Console.WriteLine("MedianOfMedians: starting with chunkSize = {0}", chunkSize);
-            while (length_working > 1)
+            while (length_working > 24)  // never let the last level have fewer than 5 elements to choose the median from
             {
                 //Console.WriteLine("MedianOfMedians: length_working = {0}", length_working);
                 int numFullFiveTuples = length_working / chunkSize;
@@ -51,8 +52,11 @@ namespace HPCsharp
                     arr_working[start + numFullFiveTuples] = arr_working[start + numFullFiveTuples * chunkSize + remainingElements / 2]; // Move the median to the front
                 }
                 length_working = numFullFiveTuples + (remainingElements > 0 ? 1 : 0);
+               // Console.WriteLine("MedianOfMedians: length = {0}, arr[start] = {1}, arr[start+length] = {2}", length_working, arr_working[start], arr_working[start + length_working - 1]);
             }
-            //Console.WriteLine("MedianOfMedians: last length_working = {0}", length_working);
+            HPCsharp.Algorithm.InsertionSort<T>(arr_working, start, length_working, comparer);
+            arr_working[start] = arr_working[start + length_working / 2]; // Move the median to the front
+            //Console.WriteLine("MedianOfMedians: last length_working = {0}, median value = {1}", length_working, arr_working[start]);
             int j = 0;
             var equalityComparer = comparer ?? Comparer<T>.Default;
             for (; j < length; j++)
@@ -93,13 +97,17 @@ namespace HPCsharp
         }
         private static void SelectMoMGenericNonRecursive_loc<T>(T[] arr, int l, int r, int k, T[] copy_arr, IComparer<T> comparer = null, int chunkSize = 5)
         {
+            //int count = 0;
             while (r > l)
             {
-                //Console.WriteLine("SelectMoMGenericNonRecursive_loc: l = {0}, r = {1}, k = {2}", l, r, k);
                 int i = PartitionMoM(arr, l, r, copy_arr, comparer, chunkSize);
-                //Console.WriteLine("SelectMoMGenericNonRecursive_loc: PartitionMoM returned i = {0}", i);
+                //Console.WriteLine("SelectMoMGenericNonRecursive_loc: l = {0}, r = {1}, k = {2}, PartitionMoM = {3}", l, r, k, i);
                 if (i >= k) r = i - 1;
                 if (i <= k) l = i + 1;
+               // count++;
+                //if (count > 2)
+                //    throw new Exception("MedianOfMedians: forced end");
+
             }
         }
         /// <summary>
