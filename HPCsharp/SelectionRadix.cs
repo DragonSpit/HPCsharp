@@ -10,7 +10,28 @@ namespace HPCsharp
 {
     public static partial class Algorithm
     {
-        private static void RadixSelectiontMsdUIntInner(uint[] a, int first, int length, int shiftRightAmount, int k)
+        // Move elements outside the k-th bin, the bin that k is in, into the k-th bin
+        private static void RadixSelectiontMsdParUIntScan(uint[] a, int startOfOb, int lengthOfOb, int startOfKthBin, int lengthOfKthBin,
+                                                          int shiftRightAmount, uint bitMask, int kthBin)
+        {
+            int _current_ob = startOfOb, _current_ib = startOfKthBin, found_ob; // _ob = outside of bin, _ib = inside of bin
+            while (true)
+            {
+                int endOfKthBin = startOfKthBin + lengthOfKthBin - 1;
+                // Look for the element that belongs in the bin that k is in, to move into that bin
+                for (found_ob = 0; _current_ob < startOfKthBin; _current_ob++)
+                    if (((a[_current_ob] >> shiftRightAmount) & bitMask) == kthBin) { found_ob = 1; break; }
+                // Look for the first location in the bin that k is in, which has an element that does not belong in that bin
+                if (found_ob == 1)
+                    for (; _current_ib <= endOfKthBin; _current_ib++)
+                        if (((a[_current_ib] >> shiftRightAmount) & bitMask) != kthBin) break;
+
+                if (_current_ob >= startOfKthBin || _current_ib > endOfKthBin) break; // The bin that k is in is full or all the element outside the bin have been exhausted
+                a[_current_ib++] = a[_current_ob++];    // Move the element that belongs in the bin into the bin
+            }
+        }
+
+        private static void RadixSelectiontMsdInner(uint[] a, int first, int length, int shiftRightAmount, int k)
         {
             int last = first + length - 1;
             const uint bitMask = PowerOfTwoRadix - 1;
@@ -18,10 +39,9 @@ namespace HPCsharp
             var count = HPCsharp.Algorithm.HistogramOneByteComponent(a, first, last, shiftRightAmount);
 
             var startOfBin = new int[PowerOfTwoRadix + 1];
-            var endOfBin = new int[PowerOfTwoRadix];
-            startOfBin[0] = endOfBin[0] = first; startOfBin[PowerOfTwoRadix] = last + 1;
+            startOfBin[0] = first; startOfBin[PowerOfTwoRadix] = last + 1;
             for (int i = 1; i < PowerOfTwoRadix; i++)
-                startOfBin[i] = endOfBin[i] = startOfBin[i - 1] + count[i - 1];
+                startOfBin[i] = startOfBin[i - 1] + count[i - 1];
 
             // Determine which bin contains the k-th smallest element. kthBin will hold the bin number.
             int kthBin = 0;
@@ -66,9 +86,9 @@ namespace HPCsharp
                 else shiftRightAmount = 0;
                 // Only recurse into the bin that contains the k-th smallest element and if more than one element is in that bin
                 if ((startOfBin[kthBin + 1] - startOfBin[kthBin]) > 1)
-                    RadixSelectiontMsdUIntInner(a, startOfBin[kthBin], startOfBin[kthBin + 1] - startOfBin[kthBin], shiftRightAmount, k);
+                    RadixSelectiontMsdInner(a, startOfBin[kthBin], startOfBin[kthBin + 1] - startOfBin[kthBin], shiftRightAmount, k);
                 else if ((startOfBin[kthBin + 1] - startOfBin[kthBin]) == 1) return; // Only one element in the bin that k is in, so it must be the k-th smallest element
-                else throw new Exception("RadixSelectiontMsdUIntInner: No elements in the bin that k is in, which should never happen");
+                else throw new Exception("RadixSelectiontMsdInner: No elements in the bin that k is in, which should never happen");
             }
         }
         /// <summary>
@@ -87,7 +107,7 @@ namespace HPCsharp
             if (k < start || k > (start + arrayToBeSelected.Length))
                 throw new ArgumentOutOfRangeException(nameof(k), "k must be between start and (start + length)");
             int shiftRightAmount = (sizeof(uint) * 8) - Log2ofPowerOfTwoRadix;
-            RadixSelectiontMsdUIntInner(arrayToBeSelected, start, length, shiftRightAmount, k);
+            RadixSelectiontMsdInner(arrayToBeSelected, start, length, shiftRightAmount, k);
             return arrayToBeSelected[k];
         }
         /// <summary>
@@ -104,7 +124,7 @@ namespace HPCsharp
             if (k < 0 || k > arrayToBeSelected.Length)
                 throw new ArgumentOutOfRangeException(nameof(k), "k must be between start and (start + length)");
             int shiftRightAmount = (sizeof(uint) * 8) - Log2ofPowerOfTwoRadix;
-            RadixSelectiontMsdUIntInner(arrayToBeSelected, 0, arrayToBeSelected.Length, shiftRightAmount, k);
+            RadixSelectiontMsdInner(arrayToBeSelected, 0, arrayToBeSelected.Length, shiftRightAmount, k);
             return arrayToBeSelected[k];
         }
     }
@@ -132,8 +152,9 @@ namespace HPCsharp
                 if (k >= startOfBin[kthBin] && k <= (startOfBin[kthBin + 1] - 1)) break;
             }
             // TODO: Turn the two while loops into a function, since they do the same work
+            // Process elements outside the bin that k is in, which are to the left of that bin
             int _current_ob = first, _current_ib = startOfBin[kthBin], found_ob; // _ob = outside of bin, _ib = inside of bin
-            while (true) // process elements outside the bin that k is in, which are to the left of that bin
+            while (true)
             {
                 // Look for the element that belongs in the bin that k is in, to move into that bin
                 for (found_ob = 0; _current_ob < startOfBin[kthBin]; _current_ob++)
@@ -146,8 +167,9 @@ namespace HPCsharp
                 if (_current_ib >= startOfBin[kthBin + 1] || _current_ob >= startOfBin[kthBin]) break; // The bin that k is in is full or all the element outside the bin to the left have been exhausted
                 a[_current_ib++] = a[_current_ob++];    // Move the element that belongs in the bin into the bin
             }
+            // Process elements outside the bin that k is in, which are to the right of that bin
             _current_ob = startOfBin[kthBin + 1]; _current_ib = startOfBin[kthBin];
-            while (true) // process elements outside the bin that k is in, which are to the right of that bin
+            while (true)
             {
                 // Look for the element that belongs in the bin that k is in, to move into that bin
                 for (found_ob = 0; _current_ob <= last; _current_ob++)
@@ -168,7 +190,7 @@ namespace HPCsharp
                 if ((startOfBin[kthBin + 1] - startOfBin[kthBin]) > 1)
                     RadixSelectiontMsdParUIntInner(a, startOfBin[kthBin], startOfBin[kthBin + 1] - startOfBin[kthBin], shiftRightAmount, k);
                 else if ((startOfBin[kthBin + 1] - startOfBin[kthBin]) == 1) return; // Only one element in the bin that k is in, so it must be the k-th smallest element
-                else throw new Exception("RadixSelectiontMsdUIntInner: No elements in the bin that k is in, which should never happen");
+                else throw new Exception("RadixSelectiontMsdInner: No elements in the bin that k is in, which should never happen");
             }
         }
         /// <summary>
