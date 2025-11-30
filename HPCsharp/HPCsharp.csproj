@@ -1,14 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.1;net6.0;net8.0;net9.0</TargetFrameworks>
+    <TargetFrameworks>net7.0;net8.0;net9.0</TargetFrameworks>
     <Authors>Victor J. Duvanenko</Authors>
     <Company>FooState</Company>
     <Product>HPCsharp</Product>
     <Description>Parallel high performance cross-platform C#/.NET algorithms. 30+ algorithms with familiar interfaces and examples. Multi-core and data parallel (SIMD/SSE). Open source and free. See project Readme, blog, and videos...</Description>
     <Copyright>© 2018 FooState</Copyright>
     <PackageLicenseUrl></PackageLicenseUrl>
-    <PackageReleaseNotes>Implemented nonrecursive randomized Selection algorithm - QuickSelect - which is linear in expected time, with miniscule chance of going quadratic and is 9X faster than Array.Sort. Implemented Radix Select for unsigned integer array - nearly 50X faster than Array.Sort. Implemented Median-of-Medians Select - which is 2X faster than Array.Sort. Simplified several QuickSort implementations.</PackageReleaseNotes>
+    <PackageReleaseNotes>Added Select() which an introspective-style implementation using quickselect backed up by median-of-medians for when quickselect goes O(n^2).</PackageReleaseNotes>
     <PackageId>HPCsharp</PackageId>
     <PackageTags>high perfromance algorithms, C#, high performance, high performance computing, HPC, algorithm, algorithms, Linq, parallel, parallel algorithm, sort, sorting, sum, summation, selection</PackageTags>
     <PackageIconUrl>https://foostate.com/images/default_lib_icon_64.png</PackageIconUrl>
@@ -17,9 +17,9 @@
     <PackageProjectUrl>https://github.com/DragonSpit/HPCsharp</PackageProjectUrl>
     <RepositoryUrl>https://github.com/DragonSpit/HPCsharp</RepositoryUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <AssemblyVersion>3.17.3.0</AssemblyVersion>
-    <FileVersion>3.17.3.0</FileVersion>
-    <Version>3.18.0</Version>
+    <AssemblyVersion>3.18.0</AssemblyVersion>
+    <FileVersion>3.18.0</FileVersion>
+    <Version>3.18.1</Version>
     <Platforms>AnyCPU;x64</Platforms>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <Title>High Performance C#</Title>

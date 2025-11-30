@@ -128,7 +128,7 @@ namespace HPCsharp
         }
 
         /// <summary>
-        /// QuickSelect algorithm. Takes an unsorted array of integers and returns the k-th element. Runs in O(n) time on average.
+        /// QuickSelect algorithm. Takes an unsorted array of distinct integers and returns the k-th element. Runs in O(n) time on average.
         /// Minimizes the chance of worst-case O(n^2) behavior by randomly choosing pivot element.
         /// The input array is modified during the process.
         /// </summary>
@@ -138,7 +138,7 @@ namespace HPCsharp
         /// <param name="k">index of the desired element</param>
         /// <param name="randSeed">Seed for the random number generator. Negative value makes random not-repeatable.</param>
         /// <returns>returns the k-th element of the array</returns>
-        public static int QuickSelectRandom(this int[] arr, int l, int r, int k, int randSeed = -1)
+        private static int QuickSelectRandom(this int[] arr, int l, int r, int k, int randSeed = -1)
         {
             if (arr == null)
                 throw new ArgumentNullException(nameof(arr));
@@ -152,7 +152,7 @@ namespace HPCsharp
         }
 
         /// <summary>
-        /// QuickSelect algorithm. Takes an unsorted array of integers and returns the k-th element. Runs in O(n) time on average.
+        /// QuickSelect algorithm. Takes an unsorted array of distinct integers and returns the k-th element. Runs in O(n) time on average.
         /// Minimizes the chance of worst-case O(n^2) behavior by randomly choosing pivot element.
         /// The input array is modified during the selection process.
         /// </summary>
@@ -160,7 +160,7 @@ namespace HPCsharp
         /// <param name="k">index of the desired element</param>
         /// <param name="randSeed">Seed for the random number generator. Negative value makes random not-repeatable.</param>
         /// <returns>returns the k-th element of the array</returns>
-        public static int QuickSelectRandom(this int[] arr, int k, int randSeed = -1)
+        private static int QuickSelectRandom(this int[] arr, int k, int randSeed = -1)
         {
             if (arr == null)
                 throw new ArgumentNullException(nameof(arr));
@@ -200,7 +200,8 @@ namespace HPCsharp
         }
 
         /// <summary>
-        /// Generic QuickSelect algorithm. Takes an unsorted array of any type with a comparer and returns the k-th element. Runs in O(n) time on average.
+        /// Generic QuickSelect algorithm. Takes an unsorted array of any type filled with distinct values and a comparer and returns the k-th element.
+        /// Runs in O(n) time on average.
         /// Minimizes the chance of worst-case O(n^2) behavior by randomly choosing pivot element.
         /// The input array is modified during the selection process.
         /// </summary>
@@ -212,7 +213,7 @@ namespace HPCsharp
         /// <param name="randSeed">Seed for the random number generator. Negative value makes random not-repeatable.</param>
         /// <param name="comparer">comparer used to compare two array elements of type T. Null uses the default comparer.</param>
         /// <returns>returns the k-th element of the array</returns>
-        public static T QuickSelectRandomGeneric<T>(this T[] arr, int l, int r, int k, int randSeed = -1, IComparer<T> comparer = null)
+        private static T QuickSelectRandomGeneric<T>(this T[] arr, int l, int r, int k, int randSeed = -1, IComparer<T> comparer = null)
         {
             if (arr == null)
                 throw new ArgumentNullException(nameof(arr));
@@ -226,7 +227,8 @@ namespace HPCsharp
         }
 
         /// <summary>
-        /// Generic QuickSelect algorithm. Takes an unsorted array of any type with a comparer and returns the k-th element. Runs in O(n) time on average.
+        /// Generic QuickSelect algorithm. Takes an unsorted array of any type filled with distinct values and a comparer and returns the k-th element.
+        /// Runs in O(n) time on average.
         /// Minimizes the chance of worst-case O(n^2) behavior by randomly choosing pivot element.
         /// The input array is modified during the selection process.
         /// </summary>
@@ -236,7 +238,7 @@ namespace HPCsharp
         /// <param name="randSeed">Seed for the random number generator. Negative value makes random not-repeatable.</param>
         /// <param name="comparer">comparer used to compare two array elements of type T</param>
         /// <returns>returns the k-th element of the array</returns>
-        public static T QuickSelectRandomGeneric<T>(this T[] arr, int k, int randSeed = -1, IComparer<T> comparer = null)
+        private static T QuickSelectRandomGeneric<T>(this T[] arr, int k, int randSeed = -1, IComparer<T> comparer = null)
         {
             if (arr == null)
                 throw new ArgumentNullException(nameof(arr));
@@ -247,7 +249,8 @@ namespace HPCsharp
             return arr[k];
         }
         /// <summary>
-        /// Generic QuickSelect algorithm. Takes an unsorted array of any type with a comparer and returns the k-th element. Runs in O(n) time on average.
+        /// Generic QuickSelect algorithm. Takes an unsorted array of any type filled with distinct values and a comparer and returns the k-th element.
+        /// Runs in O(n) time on average.
         /// Minimizes the chance of worst-case O(n^2) behavior by randomly shuffling the array before using it.
         /// The input array is modified during the selection process.
         /// </summary>
@@ -259,7 +262,7 @@ namespace HPCsharp
         /// <param name="randSeed">Seed for the random number generator. Negative value makes random not-repeatable.</param>
         /// <param name="comparer">comparer used to compare two array elements of type T. Null uses teh default comparer.</param>
         /// <returns>returns the k-th element of the array</returns>
-        public static T QuickSelectShuffleGeneric<T>(this T[] arr, int l, int r, int k, int randSeed = -1, IComparer<T> comparer = null)
+        private static T QuickSelectShuffleGeneric<T>(this T[] arr, int l, int r, int k, int randSeed = -1, IComparer<T> comparer = null)
         {
             if (arr == null)
                 throw new ArgumentNullException(nameof(arr));
@@ -279,7 +282,8 @@ namespace HPCsharp
         }
 
         /// <summary>
-        /// Generic QuickSelect algorithm. Takes an unsorted array of any type with a comparer and returns the k-th element. Runs in O(n) time on average.
+        /// Generic QuickSelect algorithm. Takes an unsorted array of any type filled with distinct values and a comparer and returns the k-th element.
+        /// Runs in O(n) time on average.
         /// Minimizes the chance of worst-case O(n^2) behavior by randomly shuffling the array before using it.
         /// The input array is modified during the process.
         /// </summary>
@@ -289,7 +293,7 @@ namespace HPCsharp
         /// <param name="randSeed">Seed for the random number generator. Negative value makes random not-repeatable.</param>
         /// <param name="comparer">comparer used to compare two array elements of type T</param>
         /// <returns>returns the k-th element of the array</returns>
-        public static T QuickSelectShuffleGeneric<T>(this T[] arr, int k, int randSeed = -1, IComparer<T> comparer = null)
+        private static T QuickSelectShuffleGeneric<T>(this T[] arr, int k, int randSeed = -1, IComparer<T> comparer = null)
         {
             if (arr == null)
                 throw new ArgumentNullException(nameof(arr));
@@ -307,5 +311,3 @@ namespace HPCsharp
         }
     }
 }
-
-
