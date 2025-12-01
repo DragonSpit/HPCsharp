@@ -50,7 +50,7 @@ namespace HPCsharp
             if (after.Item1 < after.Item2)
             {
                 //Console.WriteLine("SelectionMoM: l = {0}  r = {1}", after.Item1, after.Item2);
-                SelectMoM(arr, after.Item1, after.Item2 - after.Item1 + 1, k, comparer);
+                SelectMomInplace(arr, after.Item1, after.Item2 - after.Item1 + 1, k, comparer);
             }
             return arr[k];
         }
@@ -78,7 +78,7 @@ namespace HPCsharp
             if (after.Item1 < after.Item2)
             {
                 //Console.WriteLine("SelectionMoM: l = {0}  r = {1}", after.Item1, after.Item2);
-                SelectMoM(arr, after.Item1, after.Item2 - after.Item1 + 1, k, comparer);
+                SelectMomInplace(arr, after.Item1, after.Item2 - after.Item1 + 1, k, comparer);
             }
             return arr[k];
         }
