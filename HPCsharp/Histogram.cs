@@ -94,6 +94,29 @@ namespace HPCsharp
             return counts;
         }
 
+        public static int[][] Histogram(this uint[] inArray)
+        {
+            if (inArray == null)
+                throw new ArgumentNullException(nameof(inArray));
+
+            int numberOfBins = 1 << 30;
+            int[][] counts = new int[4][];    // Array.MaxLength = 0x7FFFFFC7, which is slightly less than 2^31 => need to split into more than two arrays
+            counts[0] = new int[numberOfBins];
+            counts[1] = new int[numberOfBins];
+            counts[2] = new int[numberOfBins];
+            counts[3] = new int[numberOfBins];
+
+            for (int currIndex = 0; currIndex < inArray.Length; currIndex++)
+            {
+                uint value = inArray[currIndex];
+                if      ((value & 0xC0000000) == 0)          counts[0][value]++;
+                else if ((value & 0xC0000000) == 0x40000000) counts[1][value & 0x3fffffff]++;
+                else if ((value & 0xC0000000) == 0x80000000) counts[2][value & 0x3fffffff]++;
+                else                                         counts[3][value & 0x3fffffff]++;
+            }
+            return counts;
+        }
+
         public static uint[][] HistogramByteComponents(uint[] inArray, Int32 l, Int32 r)
         {
             if (inArray == null)

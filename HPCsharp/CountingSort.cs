@@ -167,5 +167,27 @@ namespace HPCsharp
             arrayToSort.SortCountingInPlace();
             return arrayToSort;
         }
+
+        public static void SortCountingInPlace(this uint[] arrayToSort)
+        {
+            int[][] counts = arrayToSort.Histogram();
+
+            uint [] reconstructValues = new uint[4];
+            reconstructValues[0] = 0x00000000;
+            reconstructValues[1] = 0x40000000;
+            reconstructValues[2] = 0x80000000;
+            reconstructValues[3] = 0xC0000000;
+
+            int startIndex = 0;
+            for (int countsIndex = 0; countsIndex < counts.Length; countsIndex++)
+            {
+                for (int countIndex = 0; countIndex < counts[countsIndex].Length; countIndex++)
+                {
+                    uint valueToFill = (uint)countIndex | reconstructValues[countsIndex];
+                    arrayToSort.FillUsingBlockCopy(valueToFill, startIndex, counts[countsIndex][countIndex]);
+                    startIndex += counts[countsIndex][countIndex];
+                }
+            }
+        }
     }
 }
