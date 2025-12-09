@@ -31,11 +31,10 @@ namespace HPCsharp
             int startIndex = 0;
             for (uint countIndex = 0; countIndex < counts.Length; countIndex++)
             {
-                //sortedArray.FillUsingBlockCopy((byte)countIndex, startIndex, counts[countIndex]);
-                sortedArray.Fill((byte)countIndex, startIndex, counts[countIndex]);
+                sortedArray.FillUsingBlockCopy((byte)countIndex, startIndex, counts[countIndex]);  // Faster than Fill
+                //sortedArray.Fill((byte)countIndex, startIndex, counts[countIndex]);
                 startIndex += counts[countIndex];
             }
-
             return sortedArray;
         }
 
@@ -73,7 +72,6 @@ namespace HPCsharp
                 sortedArray.Fill((sbyte)countIndex, startIndex, counts[countIndex]);
                 startIndex += counts[countIndex];
             }
-
             return sortedArray;
         }
 
@@ -107,10 +105,10 @@ namespace HPCsharp
             int startIndex = 0;
             for (uint countIndex = 0; countIndex < counts.Length; countIndex++)
             {
-                sortedArray.FillUsingBlockCopy((ushort)countIndex, startIndex, counts[countIndex]);
+                //sortedArray.FillUsingBlockCopy((ushort)countIndex, startIndex, counts[countIndex]);
+                sortedArray.Fill((ushort)countIndex, startIndex, counts[countIndex]);   // Similar speed to FillUsingBlockCopy
                 startIndex += counts[countIndex];
             }
-
             return sortedArray;
         }
 
@@ -121,7 +119,8 @@ namespace HPCsharp
             int startIndex = 0;
             for (uint countIndex = 0; countIndex < counts.Length; countIndex++)
             {
-                arrayToSort.FillUsingBlockCopy((ushort)countIndex, startIndex, counts[countIndex]);
+                //arrayToSort.FillUsingBlockCopy((ushort)countIndex, startIndex, counts[countIndex]);
+                arrayToSort.Fill((ushort)countIndex, startIndex, counts[countIndex]);
                 startIndex += counts[countIndex];
             }
         }
@@ -143,10 +142,10 @@ namespace HPCsharp
             int startIndex = 0;
             for (uint countIndex = 0; countIndex < counts.Length; countIndex++)
             {
-                sortedArray.FillUsingBlockCopy((short)(countIndex - 32768), startIndex, counts[countIndex]);
+                //sortedArray.FillUsingBlockCopy((short)(countIndex - 32768), startIndex, counts[countIndex]);
+                sortedArray.Fill((short)(countIndex - 32768), startIndex, counts[countIndex]);
                 startIndex += counts[countIndex];
             }
-
             return sortedArray;
         }
 
@@ -157,7 +156,8 @@ namespace HPCsharp
             int startIndex = 0;
             for (uint countIndex = 0; countIndex < counts.Length; countIndex++)
             {
-                arrayToSort.FillUsingBlockCopy((short)(countIndex - 32768), startIndex, counts[countIndex]);
+                //arrayToSort.FillUsingBlockCopy((short)(countIndex - 32768), startIndex, counts[countIndex]);
+                arrayToSort.Fill((short)(countIndex - 32768), startIndex, counts[countIndex]);
                 startIndex += counts[countIndex];
             }
         }
@@ -184,7 +184,8 @@ namespace HPCsharp
                 for (int countIndex = 0; countIndex < counts[countsIndex].Length; countIndex++)
                 {
                     uint valueToFill = (uint)countIndex | reconstructValues[countsIndex];
-                    arrayToSort.FillUsingBlockCopy(valueToFill, startIndex, counts[countsIndex][countIndex]);
+                    //arrayToSort.FillUsingBlockCopy(valueToFill, startIndex, counts[countsIndex][countIndex]);
+                    arrayToSort.Fill(valueToFill, startIndex, counts[countsIndex][countIndex]);     // Faster than FillUsingBlockCopy
                     startIndex += counts[countsIndex][countIndex];
                 }
             }

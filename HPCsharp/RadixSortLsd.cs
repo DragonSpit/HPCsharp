@@ -383,16 +383,14 @@ namespace HPCsharp
             uint bitMask = numberOfBins - 1;
             int shiftRightAmount = 0;
 
-            //Stopwatch stopwatch = new Stopwatch();
-            //long frequency = Stopwatch.Frequency;
-            ////Console.WriteLine("  Timer frequency in ticks per second = {0}", frequency);
-            //long nanosecPerTick = (1000L * 1000L * 1000L) / frequency;
+            Stopwatch stopwatch = new Stopwatch();
+            long nanosecPerTick = (1000L * 1000L * 1000L) / Stopwatch.Frequency;
 
-            //stopwatch.Restart();
+            stopwatch.Restart();
             uint[][] count = HistogramByteComponents(inputArray, 0, inputArray.Length - 1);
-            //stopwatch.Stop();
-            //double timeForCounting = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
-            //Console.WriteLine("Time for counting: {0}", timeForCounting);
+            stopwatch.Stop();
+            double timeForCounting = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
+            Console.WriteLine("Time for counting: {0}", timeForCounting);
 
             for (d = 0; d < numberOfDigits; d++)
             {
@@ -404,16 +402,16 @@ namespace HPCsharp
             d = 0;
             while (bitMask != 0)    // end processing digits when all the mask bits have been processed and shifted out, leaving no bits set in the bitMask
             {
-                //stopwatch.Restart();
+                stopwatch.Restart();
                 uint[] startOfBinLoc = startOfBin[d];
                 for (uint current = 0; current < inputArray.Length; current++)
                 {
                     outputArray[startOfBinLoc[(inputArray[current] & bitMask) >> shiftRightAmount]++] = inputArray[current];
                     //Console.WriteLine("curr: {0}, index: {1}, startOfBin: {2}", current, (inputArray[current] & bitMask) >> shiftRightAmount, startOfBinLoc[(inputArray[current] & bitMask) >> shiftRightAmount]);
                 }
-                //stopwatch.Stop();
-                //double timeForPermuting = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
-                //Console.WriteLine("Time for permuting: {0}", timeForPermuting);
+                stopwatch.Stop();
+                double timeForPermuting = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
+                Console.WriteLine("Time for permuting: {0}", timeForPermuting);
 
                 bitMask <<= bitsPerDigit;
                 shiftRightAmount += bitsPerDigit;
@@ -453,16 +451,14 @@ namespace HPCsharp
             uint bitMask = numberOfBins - 1;
             int shiftRightAmount = 0;
 
-            //Stopwatch stopwatch = new Stopwatch();
-            //long frequency = Stopwatch.Frequency;
-            ////Console.WriteLine("  Timer frequency in ticks per second = {0}", frequency);
-            //long nanosecPerTick = (1000L * 1000L * 1000L) / frequency;
+            Stopwatch stopwatch = new Stopwatch();
+            long nanosecPerTick = (1000L * 1000L * 1000L) / Stopwatch.Frequency;
 
-            //stopwatch.Restart();
+            stopwatch.Restart();
             uint[][] count = HistogramByteComponents(inOutArray, startIndex, startIndex + length - 1);
-            //stopwatch.Stop();
-            //double timeForCounting = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
-            //Console.WriteLine("Time for counting: {0}", timeForCounting);
+            stopwatch.Stop();
+            double timeForCounting = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
+            Console.WriteLine("Time for counting: {0}", timeForCounting);
 
             for (d = 0; d < numberOfDigits; d++)
             {
@@ -474,16 +470,16 @@ namespace HPCsharp
             d = 0;
             while (bitMask != 0)    // end processing digits when all the mask bits have been processed and shifted out, leaving no bits set in the bitMask
             {
-                //stopwatch.Restart();
+                stopwatch.Restart();
                 uint[] startOfBinLoc = startOfBin[d];
                 for (int current = startIndex; current < (startIndex + length); current++)
                 {
                     workBuffer[startOfBinLoc[(inOutArray[current] & bitMask) >> shiftRightAmount]++] = inOutArray[current];
                     //Console.WriteLine("curr: {0}, index: {1}, startOfBin: {2}", current, (inputArray[current] & bitMask) >> shiftRightAmount, startOfBinLoc[(inputArray[current] & bitMask) >> shiftRightAmount]);
                 }
-                //stopwatch.Stop();
-                //double timeForPermuting = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
-                //Console.WriteLine("Time for permuting: {0}", timeForPermuting);
+                stopwatch.Stop();
+                double timeForPermuting = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
+                Console.WriteLine("Time for permuting: {0}", timeForPermuting);
 
                 bitMask <<= bitsPerDigit;
                 shiftRightAmount += bitsPerDigit;
@@ -506,6 +502,73 @@ namespace HPCsharp
             if (inputArray == null)
                 throw new ArgumentNullException(nameof(inputArray));
             SortRadix(inputArray, 0, inputArray.Length);
+        }
+        /// <summary>
+        /// Sort an array of unsigned integers using Radix Sorting algorithm (least significant digit variation - LSD)
+        /// This algorithm is not in-place. This algorithm is stable. Two-phase implementation.
+        /// </summary>
+        /// <param name="inOutArray">array of unsigned integers to be sorted, and where the sorted array will be returned</param>
+        /// <param name="startIndex">index of the first element where sorting is to start</param>
+        /// <param name="length">number of array elements to sort</param>
+        /// <returns>sorted array of unsigned integers</returns>
+        public static void SortRadixWord(this uint[] inOutArray, int startIndex, int length)
+        {
+            if (inOutArray == null)
+                throw new ArgumentNullException(nameof(inOutArray));
+            const int bitsPerDigit = 16;
+            uint numberOfBins = 1 << bitsPerDigit;
+            uint numberOfDigits = (sizeof(uint) * 8 + bitsPerDigit - 1) / bitsPerDigit;
+            //Console.WriteLine("SortRadix: NumberOfDigits = {0}", numberOfDigits);
+            uint[] workBuffer = new uint[inOutArray.Length];    // TODO: Reduce to length instead of inOutArray.Length
+            int d;
+
+            uint[][] startOfBin = new uint[numberOfDigits][];
+            for (int i = 0; i < numberOfDigits; i++)
+                startOfBin[i] = new uint[numberOfBins];
+            bool outputArrayHasResult = false;
+
+            uint bitMask = numberOfBins - 1;
+            int shiftRightAmount = 0;
+
+            Stopwatch stopwatch = new Stopwatch();
+            long nanosecPerTick = (1000L * 1000L * 1000L) / Stopwatch.Frequency;
+
+            stopwatch.Restart();
+            uint[][] count = HistogramWordComponents(inOutArray, startIndex, startIndex + length - 1);
+            stopwatch.Stop();
+            double timeForCounting = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
+            Console.WriteLine("Time for counting: {0}", timeForCounting);
+
+            for (d = 0; d < numberOfDigits; d++)
+            {
+                startOfBin[d][0] = (uint)startIndex;
+                for (uint i = 1; i < numberOfBins; i++)
+                    startOfBin[d][i] = startOfBin[d][i - 1] + count[d][i - 1];
+            }
+
+            d = 0;
+            while (bitMask != 0)    // end processing digits when all the mask bits have been processed and shifted out, leaving no bits set in the bitMask
+            {
+                stopwatch.Restart();
+                uint[] startOfBinLoc = startOfBin[d];
+                for (int current = startIndex; current < (startIndex + length); current++)
+                {
+                    workBuffer[startOfBinLoc[(inOutArray[current] & bitMask) >> shiftRightAmount]++] = inOutArray[current];
+                    //Console.WriteLine("curr: {0}, index: {1}, startOfBin: {2}", current, (inputArray[current] & bitMask) >> shiftRightAmount, startOfBinLoc[(inputArray[current] & bitMask) >> shiftRightAmount]);
+                }
+                stopwatch.Stop();
+                double timeForPermuting = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
+                Console.WriteLine("Time for permuting: {0}", timeForPermuting);
+
+                bitMask <<= bitsPerDigit;
+                shiftRightAmount += bitsPerDigit;
+                outputArrayHasResult = !outputArrayHasResult;
+                d++;
+
+                uint[] tmp = inOutArray;       // swap input and output arrays
+                inOutArray = workBuffer;
+                workBuffer = tmp;
+            }
         }
         /// <summary>
         /// Sort an array of unsigned long integers using Radix Sorting algorithm (least significant digit variation - LSD)

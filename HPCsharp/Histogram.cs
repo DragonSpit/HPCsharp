@@ -154,6 +154,54 @@ namespace HPCsharp
             return count;
         }
 
+        /// <summary>
+        /// Computes histograms of the word (16-bit) components of 32-bit unsigned integers within a specified range of an input
+        /// array.
+        /// </summary>
+        /// <remarks>This method processes the specified range of the input array and counts the
+        /// occurrences of each word value (0-64K) for each of the 2 word positions in the 32-bit integers. The
+        /// resulting histograms can be used for tasks such as  radix sorting or statistical analysis of word
+        /// distributions.</remarks>
+        /// <param name="inArray">The input array of 32-bit unsigned integers. Cannot be <see langword="null"/>.</param>
+        /// <param name="l">The inclusive starting index of the range to process. Must be within the bounds of <paramref
+        /// name="inArray"/>.</param>
+        /// <param name="r">The inclusive ending index of the range to process. Must be within the bounds of <paramref name="inArray"/>
+        /// and greater than or equal to <paramref name="l"/>.</param>
+        /// <returns>A jagged array of histograms, where each inner array represents the frequency of word values (0-64K) for a
+        /// specific word position (least significant to most significant) in the 32-bit integers. The outer array has a
+        /// length of 2, corresponding to the 2 word positions.</returns>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="inArray"/> is <see langword="null"/>.</exception>
+        public static uint[][] HistogramWordComponents(uint[] inArray, Int32 l, Int32 r)
+        {
+            if (inArray == null)
+                throw new ArgumentNullException(nameof(inArray));
+            const int numberOfBins = 256 * 256;
+            const int numberOfDigits = sizeof(uint) / 2;
+            uint[][] count = new uint[numberOfDigits][];
+            for (int i = 0; i < numberOfDigits; i++)
+                count[i] = new uint[numberOfBins];
+
+            uint[] count0 = count[0];
+            uint[] count1 = count[1];
+#if false
+            var union  = new UInt32UShortUnion();
+            for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
+            {
+                union.integer = inArray[current];
+                count0[union.ushort0]++;
+                count1[union.ushort1]++;
+            }
+#else
+            for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
+            {
+                uint value = inArray[current];
+                count0[value & 0xffff]++;
+                count1[(value >> 16) & 0xffff]++;
+            }
+#endif
+            return count;
+        }
+
         public static uint[][][] HistogramByteComponentsAcrossWorkQuantas(uint[] inArray, uint workQuanta)
         {
             if (inArray == null)
@@ -787,7 +835,22 @@ namespace HPCsharp
                 //count[(inArray[current] >> shiftRightAmount) & byteMask]++;
                 count[(byte)(inArray[current] >> shiftRightAmount)]++;          // ?? Which way is faster. Need to look at assembly language listing too
             }
+            return count;
+        }
 
+        public static int[] HistogramOneWordComponent(uint[] inArray, Int32 l, Int32 r, int shiftRightAmount)
+        {
+            if (inArray == null)
+                throw new ArgumentNullException(nameof(inArray));
+            const int numberOfBins = 256 * 256;
+            //const ulong wordMask = numberOfBins - 1;
+            int[] count = new int[numberOfBins];
+
+            for (int current = l; current <= r; current++)
+            {
+                //count[(inArray[current] >> shiftRightAmount) & wordMask]++;
+                count[(ushort)(inArray[current] >> shiftRightAmount)]++;          // ?? Which way is faster. Need to look at assembly language listing too
+            }
             return count;
         }
 
@@ -804,7 +867,6 @@ namespace HPCsharp
                 //count[(inArray[current] >> shiftRightAmount) & byteMask]++;
                 count[(byte)(inArray[current] >> shiftRightAmount)]++;          // ?? Which way is faster. Need to look at assembly language listing too
             }
-
             return count;
         }
 
