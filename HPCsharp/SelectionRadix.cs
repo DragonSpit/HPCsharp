@@ -3,6 +3,7 @@
 // It provides linear order and in-place operation for the Selection algorithm. It is possible because only one bin
 // or half is needed (for QuickSelect), while elements in other bins (or the other half) can be ignored or thrown away, which is not the case with sorting algorithms,
 // where all bins (or both halves) are sorted.
+// TODO: Improve the algorithm by doing the count for the next digit while moving elements into the bin that contains the k-th smallest element.
 
 using System;
 
@@ -11,24 +12,26 @@ namespace HPCsharp
     public static partial class Algorithm
     {
         // Move elements outside the k-th bin, the bin that k is in, into the k-th bin
-        private static void RadixSelectiontMsdParUIntScan(uint[] a, int startOfOb, int lengthOfOb, int startOfKthBin, int lengthOfKthBin,
-                                                          int shiftRightAmount, uint bitMask, int kthBin)
+        private static int RadixSelectiontMsdParUIntScan(uint[] a, int startOfOb, int lengthOfOb, int startOfKthBin, int lengthOfKthBin,
+                                                         int shiftRightAmount, uint bitMask, int kthBin)
         {
             int _current_ob = startOfOb, _current_ib = startOfKthBin, found_ob; // _ob = outside of bin, _ib = inside of bin
             while (true)
             {
                 int endOfKthBin = startOfKthBin + lengthOfKthBin - 1;
+                int endOfOb = startOfOb + lengthOfOb - 1;
                 // Look for the element that belongs in the bin that k is in, to move into that bin
-                for (found_ob = 0; _current_ob < startOfKthBin; _current_ob++)
+                for (found_ob = 0; _current_ob <= endOfOb; _current_ob++)
                     if (((a[_current_ob] >> shiftRightAmount) & bitMask) == kthBin) { found_ob = 1; break; }
                 // Look for the first location in the bin that k is in, which has an element that does not belong in that bin
                 if (found_ob == 1)
                     for (; _current_ib <= endOfKthBin; _current_ib++)
                         if (((a[_current_ib] >> shiftRightAmount) & bitMask) != kthBin) break;
 
-                if (_current_ob >= startOfKthBin || _current_ib > endOfKthBin) break; // The bin that k is in is full or all the element outside the bin have been exhausted
+                if (_current_ob > endOfOb || _current_ib > endOfKthBin) break; // The bin that k is in is full or all the element outside the bin have been exhausted
                 a[_current_ib++] = a[_current_ob++];    // Move the element that belongs in the bin into the bin
             }
+            return _current_ib;
         }
 
         private static void RadixSelectiontMsdInner(uint[] a, int first, int length, int shiftRightAmount, int k)
@@ -44,42 +47,18 @@ namespace HPCsharp
                 startOfBin[i] = startOfBin[i - 1] + count[i - 1];
 
             // Determine which bin contains the k-th smallest element. kthBin will hold the bin number.
-            int kthBin = 0;
+            int kthBin = 0, _current_ib;
             for (; kthBin < PowerOfTwoRadix; kthBin++)
             {
                 int binLength = startOfBin[kthBin + 1] - startOfBin[kthBin];
                 if (binLength == 0) continue; // skip empty bins
                 if (k >= startOfBin[kthBin] && k <= (startOfBin[kthBin + 1] - 1)) break;
             }
-            // TODO: Turn the two while loops into a function, since they do the same work
-            int _current_ob = first, _current_ib = startOfBin[kthBin], found_ob; // _ob = outside of bin, _ib = inside of bin
-            while (true) // process elements outside the bin that k is in, which are to the left of that bin
-            {
-                // Look for the element that belongs in the bin that k is in, to move into that bin
-                for (found_ob = 0; _current_ob < startOfBin[kthBin]; _current_ob++)
-                    if (((a[_current_ob] >> shiftRightAmount) & bitMask) == kthBin) { found_ob = 1; break; }
-                // Look for the first location in the bin that k is in, which has an element that does not belong in that bin
-                if (found_ob == 1)
-                    for (; _current_ib < startOfBin[kthBin + 1]; _current_ib++)
-                        if (((a[_current_ib] >> shiftRightAmount) & bitMask) != kthBin) break;
+            _current_ib = RadixSelectiontMsdParUIntScan(a, first, startOfBin[kthBin] - first, startOfBin[kthBin], startOfBin[kthBin + 1] - startOfBin[kthBin],
+                                                           shiftRightAmount, bitMask, kthBin);
+            _current_ib = RadixSelectiontMsdParUIntScan(a, startOfBin[kthBin + 1], last - startOfBin[kthBin + 1] + 1, _current_ib, startOfBin[kthBin + 1] - _current_ib,
+                                                           shiftRightAmount, bitMask, kthBin);
 
-                if (_current_ib >= startOfBin[kthBin + 1] || _current_ob >= startOfBin[kthBin]) break; // The bin that k is in is full or all the element outside the bin to the left have been exhausted
-                a[_current_ib++] = a[_current_ob++];    // Move the element that belongs in the bin into the bin
-            }
-            _current_ob = startOfBin[kthBin + 1]; _current_ib = startOfBin[kthBin];
-            while (true) // process elements outside the bin that k is in, which are to the right of that bin
-            {
-                // Look for the element that belongs in the bin that k is in, to move into that bin
-                for (found_ob = 0; _current_ob <= last; _current_ob++)
-                    if (((a[_current_ob] >> shiftRightAmount) & bitMask) == kthBin) { found_ob = 1; break; }
-                // Look for the first location in the bin that k is in, which has an element that does not belong in that bin
-                if (found_ob == 1)
-                    for (; _current_ib < startOfBin[kthBin + 1]; _current_ib++)
-                        if (((a[_current_ib] >> shiftRightAmount) & bitMask) != kthBin) break;
-
-                if (_current_ib >= startOfBin[kthBin + 1] || _current_ob > last) break; // The bin that k is in is full or all the element outside the bin to the right have been exhausted
-                a[_current_ib++] = a[_current_ob++];    // Move the element that belongs in the bin into the bin
-            }
             if (shiftRightAmount > 0)          // end recursion when all the bits have been processes
             {
                 if (shiftRightAmount >= Log2ofPowerOfTwoRadix) shiftRightAmount -= Log2ofPowerOfTwoRadix;
