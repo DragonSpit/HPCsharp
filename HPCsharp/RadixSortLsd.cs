@@ -386,11 +386,11 @@ namespace HPCsharp
             Stopwatch stopwatch = new Stopwatch();
             long nanosecPerTick = (1000L * 1000L * 1000L) / Stopwatch.Frequency;
 
-            stopwatch.Restart();
+            //stopwatch.Restart();
             uint[][] count = HistogramByteComponents(inputArray, 0, inputArray.Length - 1);
-            stopwatch.Stop();
-            double timeForCounting = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
-            Console.WriteLine("Time for counting: {0}", timeForCounting);
+            //stopwatch.Stop();
+            //double timeForCounting = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
+            //Console.WriteLine("Time for counting: {0}", timeForCounting);
 
             for (d = 0; d < numberOfDigits; d++)
             {
@@ -402,16 +402,16 @@ namespace HPCsharp
             d = 0;
             while (bitMask != 0)    // end processing digits when all the mask bits have been processed and shifted out, leaving no bits set in the bitMask
             {
-                stopwatch.Restart();
+                //stopwatch.Restart();
                 uint[] startOfBinLoc = startOfBin[d];
                 for (uint current = 0; current < inputArray.Length; current++)
                 {
                     outputArray[startOfBinLoc[(inputArray[current] & bitMask) >> shiftRightAmount]++] = inputArray[current];
                     //Console.WriteLine("curr: {0}, index: {1}, startOfBin: {2}", current, (inputArray[current] & bitMask) >> shiftRightAmount, startOfBinLoc[(inputArray[current] & bitMask) >> shiftRightAmount]);
                 }
-                stopwatch.Stop();
-                double timeForPermuting = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
-                Console.WriteLine("Time for permuting: {0}", timeForPermuting);
+                //stopwatch.Stop();
+                //double timeForPermuting = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
+                //Console.WriteLine("Time for permuting: {0}", timeForPermuting);
 
                 bitMask <<= bitsPerDigit;
                 shiftRightAmount += bitsPerDigit;

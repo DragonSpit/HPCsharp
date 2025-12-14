@@ -114,10 +114,9 @@ namespace HPCsharp
                 if (k >= startOfBin[kthBin] && k <= (startOfBin[kthBin + 1] - 1)) break;
             }
 
-            _current_ib = MoveRokElementsIntoKthBin(a, startOfBin[kthBin], startOfBin[kthBin + 1] - startOfBin[kthBin], startOfBin[kthBin + 1], last - startOfBin[kthBin + 1] + 1, shiftRightAmount, bitMask, kthBin);
-            // TODO: use _current_ib to optimize the following call. Use it instead of startOfBin[kthBin]
-            MoveRokElementsOutOfKthBin(             a, startOfBin[kthBin], startOfBin[kthBin + 1] - startOfBin[kthBin], startOfBin[kthBin + 1], last - startOfBin[kthBin + 1] + 1, shiftRightAmount, bitMask, kthBin);
-            MoveLobElements(a, first, startOfBin[kthBin] - first, startOfBin[kthBin], startOfBin[kthBin + 1] - startOfBin[kthBin], startOfBin[kthBin + 1], last - startOfBin[kthBin + 1] + 1, shiftRightAmount, bitMask, kthBin);
+            _current_ib = MoveRokElementsIntoKthBin( a, startOfBin[kthBin], startOfBin[kthBin + 1] - startOfBin[kthBin], startOfBin[kthBin + 1], last - startOfBin[kthBin + 1] + 1, shiftRightAmount, bitMask, kthBin);
+            MoveRokElementsOutOfKthBin( a, _current_ib, startOfBin[kthBin + 1] - _current_ib, startOfBin[kthBin + 1], last - startOfBin[kthBin + 1] + 1, shiftRightAmount, bitMask, kthBin);
+            MoveLobElements( a, first, startOfBin[kthBin] - first, startOfBin[kthBin], startOfBin[kthBin + 1] - startOfBin[kthBin], startOfBin[kthBin + 1], last - startOfBin[kthBin + 1] + 1, shiftRightAmount, bitMask, kthBin);
 
             if (shiftRightAmount > 0)          // end recursion when all the bits have been processes
             {
