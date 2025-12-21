@@ -4,6 +4,10 @@
 // or half is needed (for QuickSelect), while elements in other bins (or the other half) can be ignored or thrown away, which is not the case with sorting algorithms,
 // where all bins (or both halves) are sorted.
 // TODO: Improve the algorithm by doing the count for the next digit while moving elements into the bin that contains the k-th smallest element.
+// TODO: Implement parallel version of the Radix Selection algorithm by pre-allocating counts for all array chunks to keep them around after parallel histogramming.
+//       These will be used to determine how many elements are in each chunk that belong to the k-th bin. All chunks that have at least one
+//       element that belongs to the k-th bin can then be processed in parallel to move those elements into the k-th bin. Starting index within
+//       the k-th bin for each chunk can be determined by a prefix sum over the counts for each chunk.
 
 using System;
 
@@ -68,6 +72,47 @@ namespace HPCsharp
                 else throw new Exception("RadixSelectiontMsdInner: No elements in the bin that k is in, which should never happen");
             }
         }
+
+        private static void RadixSelectiontNonRecursiveInner(uint[] a, int first, int length, int shiftRightAmount, int k)
+        {
+            int last = first + length - 1;
+            const uint bitMask = PowerOfTwoRadix - 1;
+
+            while (shiftRightAmount >= 0)
+            {
+                var count = HPCsharp.Algorithm.HistogramOneByteComponent(a, first, last, shiftRightAmount);
+
+                var startOfBin = new int[PowerOfTwoRadix + 1];
+                startOfBin[0] = first; startOfBin[PowerOfTwoRadix] = last + 1;
+                for (int i = 1; i < PowerOfTwoRadix; i++)
+                    startOfBin[i] = startOfBin[i - 1] + count[i - 1];
+
+                // Determine which bin contains the k-th smallest element. kthBin will hold the bin number.
+                int kthBin = 0, _current_ib;
+                for (; kthBin < PowerOfTwoRadix; kthBin++)
+                {
+                    int binLength = startOfBin[kthBin + 1] - startOfBin[kthBin];
+                    if (binLength == 0) continue; // skip empty bins
+                    if (k >= startOfBin[kthBin] && k <= (startOfBin[kthBin + 1] - 1)) break;
+                }
+                _current_ib = MoveOutsideOfKthBinIn(a, first, startOfBin[kthBin] - first, startOfBin[kthBin], startOfBin[kthBin + 1] - startOfBin[kthBin], shiftRightAmount, bitMask, kthBin);
+                _current_ib = MoveOutsideOfKthBinIn(a, startOfBin[kthBin + 1], last - startOfBin[kthBin + 1] + 1, _current_ib, startOfBin[kthBin + 1] - _current_ib, shiftRightAmount, bitMask, kthBin);
+
+                if (shiftRightAmount == 0) break;
+                if (shiftRightAmount >= Log2ofPowerOfTwoRadix) shiftRightAmount -= Log2ofPowerOfTwoRadix;
+                else shiftRightAmount = 0;
+                // Only recurse into the bin that contains the k-th smallest element and if more than one element is in that bin
+                if ((startOfBin[kthBin + 1] - startOfBin[kthBin]) > 1)
+                {
+                    first  = startOfBin[kthBin];
+                    length = startOfBin[kthBin + 1] - startOfBin[kthBin];
+                    last   = first + length - 1;
+                }
+                else if ((startOfBin[kthBin + 1] - startOfBin[kthBin]) == 1) return; // Only one element in the bin that k is in, so it must be the k-th smallest element
+                else throw new Exception("RadixSelectiontMsdInner: No elements in the bin that k is in, which should never happen");
+            }
+        }
+
         /// <summary>
         /// In-place Radix Selection of the k-th element in an array. Processes one byte-digits at a time.
         /// </summary>
@@ -84,7 +129,7 @@ namespace HPCsharp
             if (k < start || k > (start + arrayToBeSelected.Length))
                 throw new ArgumentOutOfRangeException(nameof(k), "k must be between start and (start + length)");
             int shiftRightAmount = (sizeof(uint) * 8) - Log2ofPowerOfTwoRadix;
-            RadixSelectiontInner(arrayToBeSelected, start, length, shiftRightAmount, k);
+            RadixSelectiontNonRecursiveInner(arrayToBeSelected, start, length, shiftRightAmount, k);
             return arrayToBeSelected[k];
         }
         /// <summary>
@@ -101,7 +146,7 @@ namespace HPCsharp
             if (k < 0 || k > arrayToBeSelected.Length)
                 throw new ArgumentOutOfRangeException(nameof(k), "k must be between start and (start + length)");
             int shiftRightAmount = (sizeof(uint) * 8) - Log2ofPowerOfTwoRadix;
-            RadixSelectiontInner(arrayToBeSelected, 0, arrayToBeSelected.Length, shiftRightAmount, k);
+            RadixSelectiontNonRecursiveInner(arrayToBeSelected, 0, arrayToBeSelected.Length, shiftRightAmount, k);
             return arrayToBeSelected[k];
         }
 
@@ -143,7 +188,7 @@ namespace HPCsharp
             }
         }
         /// <summary>
-        /// In-place Radix Selection of the k-th element in an array. Processes one word-digits at a time.
+        /// In-place Radix Selection of the k-th element in an array. Processes one word-digit (16-bits) at a time.
         /// </summary>
         /// <param name="arrayToBeSelected">array that is to be selected from in place</param>
         /// <param name="start">starting index of the subarray</param>
@@ -163,7 +208,7 @@ namespace HPCsharp
             return arrayToBeSelected[k];
         }
         /// <summary>
-        /// In-place Radix Selection of the k-th element in an array. Processes one word-digits at a time.
+        /// In-place Radix Selection of the k-th element in an array. Processes one word-digit (16-bits) at a time.
         /// </summary>
         /// <param name="arrayToBeSelected">array that is to be sorted in place</param>
         /// <param name="k">index of the desired element to be selected</param>
@@ -244,7 +289,7 @@ namespace HPCsharp
             }
         }
         /// <summary>
-        /// In-place Radix Selection (Most Significant Digit).
+        /// In-place Radix Selection.
         /// </summary>
         /// <param name="arrayToBeSelected">array that is to be selected from in place</param>
         /// <param name="start">starting index of the subarray</param>
@@ -263,7 +308,7 @@ namespace HPCsharp
             return arrayToBeSelected[k];
         }
         /// <summary>
-        /// In-place Radix Selection (Most Significant Digit).
+        /// In-place Radix Selection.
         /// </summary>
         /// <param name="arrayToBeSelected">array that is to be sorted in place</param>
         /// <param name="k">index of the desired element to be selected</param>

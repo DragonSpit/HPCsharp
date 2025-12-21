@@ -12,8 +12,8 @@ namespace HPCsharp
     public static partial class Algorithm
     {
         // Move elements in the region to the right of the k-th bin (Rok) (i.e. greater than k-th bin) that belong in k-th bin into the k-th bin.
-        // Swap if the element in the k-th bin belongs to the Rok region.
-        // Generic implementation that work for regions to the left or to the right of the k-th bin, and for any digit size.
+        // Swap if the element in the k-th bin belongs to the Rok region, otherwise just move the element that belongs in the k-th bin into that bin.
+        // Generic implementation that for any digit size.
         private static int MoveRokElementsIntoKthBin(uint[] a, int startOfKthBin, int lengthOfKthBin, int startOfRok, int lengthOfRok, int shiftRightAmount, uint bitMask, int kthBin)
         {
             int endOfKthBin = startOfKthBin + lengthOfKthBin - 1;
@@ -24,16 +24,16 @@ namespace HPCsharp
                 // Look for the element that belongs in the bin that k is in, to move into that bin
                 for (; _current_rok <= endOfRok; _current_rok++)
                     if (((a[_current_rok] >> shiftRightAmount) & bitMask) == kthBin) break;
-                // Look for the first location in the bin that k is in, which has an element that does not belong to the right of k-th bin
+                // Look for the first location in the bin that k is in, which has an element that does not belong to the k-th bin
                 if (_current_rok <= endOfRok)
                     for (; _current_ib <= endOfKthBin; _current_ib++)
                         if (((a[_current_ib] >> shiftRightAmount) & bitMask) != kthBin) break;
 
-                if (_current_rok > endOfRok || _current_ib > endOfKthBin) break; // All the element outside the bin have been exhausted or the bin that k is in is full or
+                if (_current_rok > endOfRok || _current_ib > endOfKthBin) break; // All the elements have been exhausted from either area
                 if (((a[_current_ib] >> shiftRightAmount) & bitMask) > kthBin)
-                    (a[_current_ib], a[_current_rok]) = (a[_current_rok++], a[_current_ib++]);  // Swap
+                    (a[_current_ib], a[_current_rok]) = (a[_current_rok++], a[_current_ib++]);  // swap
                 else
-                    a[_current_ib++] = a[_current_rok++];    // Move the element that belongs in the bin into the bin
+                    a[_current_ib++] = a[_current_rok++];    // Move the element that belongs in the k-th bin into the bin
             }
             return _current_ib;
         }
