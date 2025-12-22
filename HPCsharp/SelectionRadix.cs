@@ -38,6 +38,32 @@ namespace HPCsharp
             return _current_ib;
         }
 
+        // Move elements outside the k-th bin, the bin that k is in, which belong to the k-th bin, into the k-th bin.
+        // Generic implementation that work for regions to the left or to the right of the k-th bin, and for any digit size.
+        private static int MoveOutsideOfKthBinInAndCount(uint[] a, int startOfOb, int lengthOfOb, int startOfKthBin, int lengthOfKthBin, int shiftRightAmount, uint bitMask, int kthBin, int[] count)
+        {
+            int endOfKthBin = startOfKthBin + lengthOfKthBin - 1;
+            int endOfOb = startOfOb + lengthOfOb - 1;
+            int _current_ob = startOfOb, _current_ib = startOfKthBin; // _ob = outside of bin, _ib = inside of bin
+            int shiftRightAmountNextDigit = shiftRightAmount - Log2ofPowerOfTwoRadix;
+            while (true)
+            {
+                // Look for the element that belongs in the bin that k is in, to move into that bin
+                for (; _current_ob <= endOfOb; _current_ob++)
+                    if (((a[_current_ob] >> shiftRightAmount) & bitMask) == kthBin) break;
+                // Look for the first location in the bin that k is in, which has an element that does not belong in that bin
+                if (_current_ob <= endOfOb)
+                    for (; _current_ib <= endOfKthBin; _current_ib++)
+                        if (((a[_current_ib] >> shiftRightAmount) & bitMask) != kthBin) break;
+                        else count[(byte)(a[_current_ib] >> shiftRightAmountNextDigit)]++;
+
+                if (_current_ob > endOfOb || _current_ib > endOfKthBin) break; // All the element outside the bin have been exhausted or the bin that k is in is full or 
+                count[(byte)(a[_current_ob] >> shiftRightAmountNextDigit)]++;
+                a[_current_ib++] = a[_current_ob++];    // Move the element that belongs in the bin into the bin
+            }
+            return _current_ib;
+        }
+
         private static void RadixSelectiontInner(uint[] a, int first, int length, int shiftRightAmount, int k)
         {
             int last = first + length - 1;
@@ -113,6 +139,52 @@ namespace HPCsharp
             }
         }
 
+        private static void RadixSelectiontNonRecursiveInner2(uint[] a, int first, int length, int shiftRightAmount, int k)
+        {
+            int last = first + length - 1;
+            const uint bitMask = PowerOfTwoRadix - 1;
+
+            var count = HPCsharp.Algorithm.HistogramOneByteComponent(a, first, last, shiftRightAmount);
+
+            while (shiftRightAmount >= 0)
+            {
+                var startOfBin = new int[PowerOfTwoRadix + 1];
+                startOfBin[0] = first; startOfBin[PowerOfTwoRadix] = last + 1;
+                for (int i = 1; i < PowerOfTwoRadix; i++)
+                    startOfBin[i] = startOfBin[i - 1] + count[i - 1];
+                for (int i = 0; i < PowerOfTwoRadix; i++)
+                    count[i] = 0;
+
+                // Determine which bin contains the k-th smallest element. kthBin will hold the bin number.
+                int kthBin = 0, _current_ib;
+                for (; kthBin < PowerOfTwoRadix; kthBin++)
+                {
+                    int binLength = startOfBin[kthBin + 1] - startOfBin[kthBin];
+                    if (binLength == 0) continue; // skip empty bins
+                    if (k >= startOfBin[kthBin] && k <= (startOfBin[kthBin + 1] - 1)) break;
+                }
+                _current_ib = MoveOutsideOfKthBinInAndCount(a, first, startOfBin[kthBin] - first, startOfBin[kthBin], startOfBin[kthBin + 1] - startOfBin[kthBin], shiftRightAmount, bitMask, kthBin, count);
+                _current_ib = MoveOutsideOfKthBinInAndCount(a, startOfBin[kthBin + 1], last - startOfBin[kthBin + 1] + 1, _current_ib, startOfBin[kthBin + 1] - _current_ib, shiftRightAmount, bitMask, kthBin, count);
+
+                int shiftRightAmountNextDigit = shiftRightAmount - Log2ofPowerOfTwoRadix;
+                for (; _current_ib < startOfBin[kthBin + 1]; _current_ib++)
+                    count[(byte)(a[_current_ib] >> shiftRightAmountNextDigit)]++;
+
+                if (shiftRightAmount == 0) break;
+                if (shiftRightAmount >= Log2ofPowerOfTwoRadix) shiftRightAmount -= Log2ofPowerOfTwoRadix;
+                else shiftRightAmount = 0;
+                // Only recurse into the bin that contains the k-th smallest element and if more than one element is in that bin
+                if ((startOfBin[kthBin + 1] - startOfBin[kthBin]) > 1)
+                {
+                    first = startOfBin[kthBin];
+                    length = startOfBin[kthBin + 1] - startOfBin[kthBin];
+                    last = first + length - 1;
+                }
+                else if ((startOfBin[kthBin + 1] - startOfBin[kthBin]) == 1) return; // Only one element in the bin that k is in, so it must be the k-th smallest element
+                else throw new Exception("RadixSelectiontMsdInner: No elements in the bin that k is in, which should never happen");
+            }
+        }
+
         /// <summary>
         /// In-place Radix Selection of the k-th element in an array. Processes one byte-digits at a time.
         /// </summary>
@@ -129,7 +201,7 @@ namespace HPCsharp
             if (k < start || k > (start + arrayToBeSelected.Length))
                 throw new ArgumentOutOfRangeException(nameof(k), "k must be between start and (start + length)");
             int shiftRightAmount = (sizeof(uint) * 8) - Log2ofPowerOfTwoRadix;
-            RadixSelectiontNonRecursiveInner(arrayToBeSelected, start, length, shiftRightAmount, k);
+            RadixSelectiontNonRecursiveInner2(arrayToBeSelected, start, length, shiftRightAmount, k);
             return arrayToBeSelected[k];
         }
         /// <summary>
@@ -146,7 +218,7 @@ namespace HPCsharp
             if (k < 0 || k > arrayToBeSelected.Length)
                 throw new ArgumentOutOfRangeException(nameof(k), "k must be between start and (start + length)");
             int shiftRightAmount = (sizeof(uint) * 8) - Log2ofPowerOfTwoRadix;
-            RadixSelectiontNonRecursiveInner(arrayToBeSelected, 0, arrayToBeSelected.Length, shiftRightAmount, k);
+            RadixSelectiontNonRecursiveInner2(arrayToBeSelected, 0, arrayToBeSelected.Length, shiftRightAmount, k);
             return arrayToBeSelected[k];
         }
 
