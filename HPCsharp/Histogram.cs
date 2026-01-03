@@ -1,4 +1,5 @@
-﻿// TODO: Add histogramming of arrays of other data types, with byte and ushort counts
+﻿// TODO: Change the interface from Int32 l, Int32 r to Span<T> inArray or Start/Length pair.
+// TODO: Add histogramming of arrays of other data types, with byte and ushort counts
 // TODO: Add histogramming of 2-D and jagged arrays of variety of data types, with byte and ushort counts
 // TODO: This may pay off big, and us being able to find the optimal number of bits for Radix Sort to minimize the number of passes or recursion levels.
 //       Counting array should fit into L1-cache and possibly as large as fitting into L2-cache, since these are separate for each core in Intel CPUs, whereas L3-cache is
@@ -17,14 +18,135 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Numerics;
+using System.Runtime.InteropServices;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace HPCsharp
 {
     static public partial class Algorithm
     {
+        [StructLayout(LayoutKind.Explicit)]
+        internal struct Int32ByteUnion
+        {
+            [FieldOffset(0)]
+            public byte byte0;
+            [FieldOffset(1)]
+            public byte byte1;
+            [FieldOffset(2)]
+            public byte byte2;
+            [FieldOffset(3)]
+            public byte byte3;
+
+            [FieldOffset(0)]
+            public Int32 integer;
+        }
+
+        [StructLayout(LayoutKind.Explicit)]
+        internal struct UInt32ByteUnion
+        {
+            [FieldOffset(0)]
+            public byte byte0;
+            [FieldOffset(1)]
+            public byte byte1;
+            [FieldOffset(2)]
+            public byte byte2;
+            [FieldOffset(3)]
+            public byte byte3;
+
+            [FieldOffset(0)]
+            public UInt32 integer;
+        }
+        [StructLayout(LayoutKind.Explicit)]
+        internal struct UInt64ByteUnion
+        {
+            [FieldOffset(0)]
+            public byte byte0;
+            [FieldOffset(1)]
+            public byte byte1;
+            [FieldOffset(2)]
+            public byte byte2;
+            [FieldOffset(3)]
+            public byte byte3;
+            [FieldOffset(4)]
+            public byte byte4;
+            [FieldOffset(5)]
+            public byte byte5;
+            [FieldOffset(6)]
+            public byte byte6;
+            [FieldOffset(7)]
+            public byte byte7;
+
+            [FieldOffset(0)]
+            public UInt64 integer;
+        }
+        [StructLayout(LayoutKind.Explicit)]
+        internal struct Int64ByteUnion
+        {
+            [FieldOffset(0)]
+            public byte byte0;
+            [FieldOffset(1)]
+            public byte byte1;
+            [FieldOffset(2)]
+            public byte byte2;
+            [FieldOffset(3)]
+            public byte byte3;
+            [FieldOffset(4)]
+            public byte byte4;
+            [FieldOffset(5)]
+            public byte byte5;
+            [FieldOffset(6)]
+            public byte byte6;
+            [FieldOffset(7)]
+            public byte byte7;
+
+            [FieldOffset(0)]
+            public Int64 integer;
+        }
+        [StructLayout(LayoutKind.Explicit)]
+        internal struct UInt32UShortUnion
+        {
+            [FieldOffset(0)]
+            public ushort ushort0;
+            [FieldOffset(1)]
+            public ushort ushort1;
+
+            [FieldOffset(0)]
+            public UInt32 integer;
+        }
+        [StructLayout(LayoutKind.Explicit)]
+        internal struct UInt64UShortUnion
+        {
+            [FieldOffset(0)]
+            public ushort ushort0;
+            [FieldOffset(1)]
+            public ushort ushort1;
+            [FieldOffset(2)]
+            public ushort ushort2;
+            [FieldOffset(3)]
+            public ushort ushort3;
+
+            [FieldOffset(0)]
+            public UInt64 integer;
+        }
+        [StructLayout(LayoutKind.Explicit)]
+        public struct FloatUInt32Union
+        {
+            [FieldOffset(0)]
+            public uint uintegerValue;
+            [FieldOffset(0)]
+            public float floatValue;
+        }
+        [StructLayout(LayoutKind.Explicit)]
+        public struct DoubleUInt64Union
+        {
+            [FieldOffset(0)]
+            public UInt64 ulongInteger;
+            [FieldOffset(0)]
+            public double doubleValue;
+        }
+
         public static int[] Histogram(this byte[] inArray)
         {
             if (inArray == null)
@@ -117,20 +239,20 @@ namespace HPCsharp
             return counts;
         }
 
-        public static uint[][] HistogramByteComponents(uint[] inArray, Int32 l, Int32 r)
+        public static int[][] HistogramByteComponents(uint[] inArray, Int32 l, Int32 r)
         {
             if (inArray == null)
                 throw new ArgumentNullException(nameof(inArray));
             const int numberOfBins = 256;
             const int numberOfDigits = sizeof(uint);
-            uint[][] count = new uint[numberOfDigits][];
+            int[][] count = new int[numberOfDigits][];
             for (int i = 0; i < numberOfDigits; i++)
-                count[i] = new uint[numberOfBins];
+                count[i] = new int[numberOfBins];
 
-            uint[] count0 = count[0];
-            uint[] count1 = count[1];
-            uint[] count2 = count[2];
-            uint[] count3 = count[3];
+            int[] count0 = count[0];
+            int[] count1 = count[1];
+            int[] count2 = count[2];
+            int[] count3 = count[3];
 #if false
             var union  = new UInt32ByteUnion();
             for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
@@ -149,6 +271,41 @@ namespace HPCsharp
                 count1[(value >>  8) & 0xff]++;
                 count2[(value >> 16) & 0xff]++;
                 count3[(value >> 24) & 0xff]++;
+            }
+#endif
+            return count;
+        }
+
+        public static int[][] Histogram11bitComponents(uint[] inArray, Int32 l, Int32 r)
+        {
+            if (inArray == null)
+                throw new ArgumentNullException(nameof(inArray));
+            const int bitsPerDigit = 11;
+            const int numberOfBins = 1 << bitsPerDigit;
+            int numberOfDigits = (sizeof(uint) * 8 + bitsPerDigit - 1) / bitsPerDigit;
+            int[][] count = new int[numberOfDigits][];
+            for (int i = 0; i < numberOfDigits; i++)
+                count[i] = new int[numberOfBins];
+
+            int[] count0 = count[0];
+            int[] count1 = count[1];
+            int[] count2 = count[2];
+#if false
+            var union  = new UInt32ByteUnion();
+            for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
+            {
+                union.integer = inArray[current];
+                count0[union.byte0]++;
+                count1[union.byte1]++;
+                count2[union.byte2]++;
+            }
+#else
+            for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
+            {
+                uint value = inArray[current];
+                count0[value         & 0x7ff]++;
+                count1[(value >> 11) & 0x7ff]++;
+                count2[(value >> 22) & 0x7ff]++;
             }
 #endif
             return count;
@@ -199,6 +356,54 @@ namespace HPCsharp
                 count1[(value >> 16) & 0xffff]++;
             }
 #endif
+            return count;
+        }
+
+        public static int[][] HistogramNbitComponents(uint[] inArray, Int32 l, Int32 r, int numberOfBitPerComponent)
+        {
+            if (inArray == null)
+                throw new ArgumentNullException(nameof(inArray));
+            const int NumBitsInUInt = sizeof(uint) * 8;
+            if (numberOfBitPerComponent > NumBitsInUInt)
+                throw new ArgumentOutOfRangeException(nameof(numberOfBitPerComponent));
+
+            ulong numberOfBins = 1UL << numberOfBitPerComponent;
+            int numberOfDigits = (NumBitsInUInt + numberOfBitPerComponent - 1) / numberOfBitPerComponent;  // ceiling division
+            int[][] count = new int[numberOfDigits][];
+            uint bitMask = (uint)(numberOfBins - 1);
+            for (int i = 0; i < numberOfDigits; i++)
+                count[i] = new int[numberOfBins];
+
+            for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
+            {
+                uint value = inArray[current];
+                for (int d = 0; d < numberOfDigits; d++)
+                    count[d][(value >> (d * numberOfBitPerComponent)) & bitMask]++;
+            }
+            return count;
+        }
+
+        public static int[][] HistogramNbitComponents(ulong[] inArray, Int32 l, Int32 r, int numberOfBitPerComponent)
+        {
+            if (inArray == null)
+                throw new ArgumentNullException(nameof(inArray));
+            const int NumBitsInULong = sizeof(ulong) * 8;
+            if (numberOfBitPerComponent > NumBitsInULong)
+                throw new ArgumentOutOfRangeException(nameof(numberOfBitPerComponent));
+
+            ulong numberOfBins = 1UL << numberOfBitPerComponent;
+            int numberOfDigits = (NumBitsInULong + numberOfBitPerComponent - 1) / numberOfBitPerComponent;  // ceiling division
+            int[][] count = new int[numberOfDigits][];
+            uint bitMask = (uint)(numberOfBins - 1);
+            for (int i = 0; i < numberOfDigits; i++)
+                count[i] = new int[numberOfBins];
+
+            for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
+            {
+                ulong value = inArray[current];
+                for (int d = 0; d < numberOfDigits; d++)
+                    count[d][(value >> (d * numberOfBitPerComponent)) & bitMask]++;
+            }
             return count;
         }
 
