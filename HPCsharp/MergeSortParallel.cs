@@ -839,7 +839,7 @@ namespace HPCsharp
             {
                 // TODO: this version of the algorithm isn't the fastest two phase version. Did I mean it could be the one with parallel Counting?
                 // TODO: Also, make/use a non-in-place version, where the dst array is provided to avoid allocations. Plus, current allocations are huge
-                HPCsharp.Algorithm.SortRadix(src, l, r - l + 1);                        // fastest
+                HPCsharp.Algorithm.SortRadixLsd(src, l, r - l + 1);                        // fastest
                 //SortRadixPartialPar(src, l, r - l + 1);                               // slower
                 //HPCsharp.Algorithm.SortRadixDerandomizeWrites(src, l, r - l + 1);     // slower
                 if (srcToDst)

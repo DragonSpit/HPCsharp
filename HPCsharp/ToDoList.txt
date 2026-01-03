@@ -1,5 +1,15 @@
-﻿// TODO: Add support for .NET 8
-// TODO: Fix all warnings the latest compiler in VS2022 is flagging
+﻿// TODO: For each algorithm be very protective of choice of algorithm that is exposed to the user to keep simplicity and quality high. Move the rest of the algorithms into Experimental namespace, from which only better algorithms
+//	     will be promoted to the HPCsharp root namespace. This will make it easier for new users to ramp up on HPCsharp and not be overwhelmed by all of the functions that are still experimental.
+//       For example, for LSD Radix Sort, only expose the derandomized #3 algorithm, since it fixes the issue with pre-sorted arrays that the standard LSD Radix Sort has (theory - some sort of C# array access issue, which makes accesses
+//       slower and slower), while this issue does not exist in C++ for the same implementation. Hide the rest of the LSD Radix Sort algorithms in Experimental namespace.
+// TODO: Write a blog about C# array access patterns and performance issue that I found with LSD Radix Sort on pre-sorted arrays, which does not exist in C++ for the same implementation.
+// TODO: Simplify the functions that HPCsharp user sees by hiding all of the experimental functions behind an Experimental namespace, leaving only the best
+//       functions in the HPCsharp root namespace. This will make it easier for new users to ramp up on HPCsharp and not be overwhelmed by all of the functions that are still experimental.
+// TODO: Fix all warnings the latest compiler in VS2022 is flagging.
+// TODO: Support UInt128 and Int128 data type for Radix and Sum algorithms.
+// TODO: Support BigInteger data type for Sum algorithm and MSD Radix agorithms (Sort and Selection).
+// TODO: Extend k-top selection to support k-bottom selection and k-range selection - comparison based and non-comparison based.
+// TODO: Develop a 16-bit/digit or more counting for Radix algorithms, which then adapts to data distribution to determine the optimal number of bits/digit to use for counting sort within Radix Sort for each region of the data.
 // TODO: Consider changing interface on Sum methods to follow C++ accumulate pattern, where an initialization value is provided which drives the data type that is returned,
 //       if this is possible in C#.
 // TODO: Bring in parallel Quick Sort from the link that John provided (http://dzmitryhuba.blogspot.com/2012/03/parallel-partition-phase-for-quick-sort.html)
