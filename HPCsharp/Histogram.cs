@@ -674,7 +674,7 @@ namespace HPCsharp
             return count;
         }
 
-        public static uint[][] HistogramByteComponents<T>(T[] inArray, Int32 l, Int32 r, Func<T, UInt32> getKey)
+        public static int[][] HistogramByteComponents<T>(T[] inArray, Int32 l, Int32 r, Func<T, UInt32> getKey)
         {
             if (inArray == null)
                 throw new ArgumentNullException(nameof(inArray));
@@ -682,14 +682,14 @@ namespace HPCsharp
                 throw new ArgumentNullException(nameof(getKey));
             const int numberOfBins = 256;
             const int numberOfDigits = sizeof(UInt32);
-            uint[][] count = new uint[numberOfDigits][];
+            int[][] count = new int[numberOfDigits][];
             for (int i = 0; i < numberOfDigits; i++)
-                count[i] = new uint[numberOfBins];
+                count[i] = new int[numberOfBins];
 #if true
-            uint[] count0 = count[0];
-            uint[] count1 = count[1];
-            uint[] count2 = count[2];
-            uint[] count3 = count[3];
+            int[] count0 = count[0];
+            int[] count1 = count[1];
+            int[] count2 = count[2];
+            int[] count3 = count[3];
 
             var union = new UInt32ByteUnion();
             for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
@@ -713,7 +713,7 @@ namespace HPCsharp
             return count;
         }
 
-        public static uint[][] HistogramByteComponents<T>(T[] inArray, Int32 l, Int32 r, Func<T, UInt64> getKey)
+        public static int[][] HistogramByteComponents<T>(T[] inArray, Int32 l, Int32 r, Func<T, UInt64> getKey)
         {
             if (inArray == null)
                 throw new ArgumentNullException(nameof(inArray));
@@ -721,18 +721,18 @@ namespace HPCsharp
                 throw new ArgumentNullException(nameof(getKey));
             const int numberOfBins = 256;
             const int numberOfDigits = sizeof(UInt64);
-            uint[][] count = new uint[numberOfDigits][];
+            int[][] count = new int[numberOfDigits][];
             for (int i = 0; i < numberOfDigits; i++)
-                count[i] = new uint[numberOfBins];
+                count[i] = new int[numberOfBins];
 #if true
-            uint[] count0 = count[0];
-            uint[] count1 = count[1];
-            uint[] count2 = count[2];
-            uint[] count3 = count[3];
-            uint[] count4 = count[4];
-            uint[] count5 = count[5];
-            uint[] count6 = count[6];
-            uint[] count7 = count[7];
+            int[] count0 = count[0];
+            int[] count1 = count[1];
+            int[] count2 = count[2];
+            int[] count3 = count[3];
+            int[] count4 = count[4];
+            int[] count5 = count[5];
+            int[] count6 = count[6];
+            int[] count7 = count[7];
 
             var union = new UInt64ByteUnion();
             for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
@@ -760,7 +760,7 @@ namespace HPCsharp
             return count;
         }
 
-        public static Tuple<uint[][], UInt32[]> HistogramByteComponentsAndKeyArray<T>(T[] inArray, Int32 l, Int32 r, Func<T, UInt32> getKey)
+        public static Tuple<int[][], UInt32[]> HistogramByteComponentsAndKeyArray<T>(T[] inArray, Int32 l, Int32 r, Func<T, UInt32> getKey)
         {
             if (inArray == null)
                 throw new ArgumentNullException(nameof(inArray));
@@ -769,14 +769,14 @@ namespace HPCsharp
             const int numberOfBins = 256;
             const int numberOfDigits = sizeof(UInt32);
             var inKeys = new UInt32[inArray.Length];
-            var count  = new uint[numberOfDigits][];
+            var count  = new int[numberOfDigits][];
             for (int i = 0; i < numberOfDigits; i++)
-                count[i] = new uint[numberOfBins];
+                count[i] = new int[numberOfBins];
 #if true
-            uint[] count0 = count[0];
-            uint[] count1 = count[1];
-            uint[] count2 = count[2];
-            uint[] count3 = count[3];
+            int[] count0 = count[0];
+            int[] count1 = count[1];
+            int[] count2 = count[2];
+            int[] count3 = count[3];
 
             var union = new UInt32ByteUnion();
             for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
@@ -798,10 +798,10 @@ namespace HPCsharp
                 count[3][(value & 0xff000000) >> 24]++;
             }
 #endif
-            return new Tuple<uint[][], UInt32[]>(count, inKeys);
+            return new Tuple<int[][], UInt32[]>(count, inKeys);
         }
 
-        public static Tuple<uint[][], UInt64[]> HistogramByteComponentsAndKeyArray<T>(T[] inArray, Int32 l, Int32 r, Func<T, UInt64> getKey)
+        public static Tuple<int[][], UInt64[]> HistogramByteComponentsAndKeyArray<T>(T[] inArray, Int32 l, Int32 r, Func<T, UInt64> getKey)
         {
             if (inArray == null)
                 throw new ArgumentNullException(nameof(inArray));
@@ -810,18 +810,18 @@ namespace HPCsharp
             const int numberOfBins = 256;
             const int numberOfDigits = sizeof(UInt32);
             var inKeys = new UInt64[inArray.Length];
-            var count  = new uint[numberOfDigits][];
+            var count  = new int[numberOfDigits][];
             for (int i = 0; i < numberOfDigits; i++)
-                count[i] = new uint[numberOfBins];
+                count[i] = new int[numberOfBins];
 #if true
-            uint[] count0 = count[0];
-            uint[] count1 = count[1];
-            uint[] count2 = count[2];
-            uint[] count3 = count[3];
-            uint[] count4 = count[4];
-            uint[] count5 = count[5];
-            uint[] count6 = count[6];
-            uint[] count7 = count[7];
+            int[] count0 = count[0];
+            int[] count1 = count[1];
+            int[] count2 = count[2];
+            int[] count3 = count[3];
+            int[] count4 = count[4];
+            int[] count5 = count[5];
+            int[] count6 = count[6];
+            int[] count7 = count[7];
 
             var union = new UInt64ByteUnion();
             for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
@@ -847,7 +847,7 @@ namespace HPCsharp
                 count[3][(value & 0xff000000) >> 24]++;
             }
 #endif
-            return new Tuple<uint[][], UInt64[]>(count, inKeys);
+            return new Tuple<int[][], UInt64[]>(count, inKeys);
         }
         // The idea of 1-D array is that the individual digit counts (256 per digit in case of 8-bit digits) don't interfere with each other in L1 cache
         // whereas with jagged array they may depending on how each row happens to be allocated on the heap
@@ -871,24 +871,24 @@ namespace HPCsharp
             return count;
         }
 
-        public static uint[][] HistogramByteComponents(ulong[] inArray, Int32 l, Int32 r)
+        public static int[][] HistogramByteComponents(ulong[] inArray, Int32 l, Int32 r)
         {
             if (inArray == null)
                 throw new ArgumentNullException(nameof(inArray));
             const int numberOfBins = 256;
             const int numberOfDigits = sizeof(ulong);
-            uint[][] count = new uint[numberOfDigits][];
+            int[][] count = new int[numberOfDigits][];
             for (int i = 0; i < numberOfDigits; i++)
-                count[i] = new uint[numberOfBins];
+                count[i] = new int[numberOfBins];
 
-            uint[] count0 = count[0];
-            uint[] count1 = count[1];
-            uint[] count2 = count[2];
-            uint[] count3 = count[3];
-            uint[] count4 = count[4];
-            uint[] count5 = count[5];
-            uint[] count6 = count[6];
-            uint[] count7 = count[7];
+            int[] count0 = count[0];
+            int[] count1 = count[1];
+            int[] count2 = count[2];
+            int[] count3 = count[3];
+            int[] count4 = count[4];
+            int[] count5 = count[5];
+            int[] count6 = count[6];
+            int[] count7 = count[7];
 
             var union  = new UInt64ByteUnion();
             for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
@@ -906,20 +906,20 @@ namespace HPCsharp
             return count;
         }
 
-        public static uint[][] HistogramByteComponents(int[] inArray, Int32 l, Int32 r)
+        public static int[][] HistogramByteComponents(int[] inArray, Int32 l, Int32 r)
         {
             if (inArray == null)
                 throw new ArgumentNullException(nameof(inArray));
             const int numberOfBins = 256;
-            const int numberOfDigits = sizeof(ulong);
-            uint[][] count = new uint[numberOfDigits][];
+            const int numberOfDigits = sizeof(int);
+            int[][] count = new int[numberOfDigits][];
             for (int i = 0; i < numberOfDigits; i++)
-                count[i] = new uint[numberOfBins];
+                count[i] = new int[numberOfBins];
 
-            uint[] count0 = count[0];
-            uint[] count1 = count[1];
-            uint[] count2 = count[2];
-            uint[] count3 = count[3];
+            int[] count0 = count[0];
+            int[] count1 = count[1];
+            int[] count2 = count[2];
+            int[] count3 = count[3];
 
             var union = new Int32ByteUnion();
             for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
@@ -933,24 +933,24 @@ namespace HPCsharp
             return count;
         }
 
-        public static uint[][] HistogramByteComponents(long[] inArray, Int32 l, Int32 r)
+        public static int[][] HistogramByteComponents(long[] inArray, Int32 l, Int32 r)
         {
             if (inArray == null)
                 throw new ArgumentNullException(nameof(inArray));
             const int numberOfBins = 256;
             const int numberOfDigits = sizeof(ulong);
-            uint[][] count = new uint[numberOfDigits][];
+            int[][] count = new int[numberOfDigits][];
             for (int i = 0; i < numberOfDigits; i++)
-                count[i] = new uint[numberOfBins];
+                count[i] = new int[numberOfBins];
 
-            uint[] count0 = count[0];
-            uint[] count1 = count[1];
-            uint[] count2 = count[2];
-            uint[] count3 = count[3];
-            uint[] count4 = count[4];
-            uint[] count5 = count[5];
-            uint[] count6 = count[6];
-            uint[] count7 = count[7];
+            int[] count0 = count[0];
+            int[] count1 = count[1];
+            int[] count2 = count[2];
+            int[] count3 = count[3];
+            int[] count4 = count[4];
+            int[] count5 = count[5];
+            int[] count6 = count[6];
+            int[] count7 = count[7];
 
             var union = new Int64ByteUnion();
             for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin

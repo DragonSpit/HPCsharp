@@ -86,6 +86,41 @@ namespace HPCsharp
 {
     static public partial class Algorithm
     {
+        public static byte[] SortRadixLsdInPlaceFunc(this byte[] arrayToBeSorted)
+        {
+            return arrayToBeSorted.SortCountingInPlaceFunc();
+        }
+
+        public static sbyte[] SortRadixLsdInPlaceFunc(this sbyte[] arrayToBeSorted)
+        {
+            return arrayToBeSorted.SortCountingInPlaceFunc();
+        }
+
+        public static ushort[] SortRadixLsdInPlaceFunc(this ushort[] arrayToBeSorted)
+        {
+            return arrayToBeSorted.SortCountingInPlaceFunc();
+        }
+
+        public static short[] SortRadixLsdInPlaceFunc(this short[] arrayToBeSorted)
+        {
+            return arrayToBeSorted.SortCountingInPlaceFunc();
+        }
+
+        private static int[][] ComputeStartOfBins(int numberOfDigits, int numberOfBins, int[][] count)
+        {
+            int[][] startOfBin = new int[numberOfDigits][];
+            for (int i = 0; i < numberOfDigits; i++)
+                startOfBin[i] = new int[numberOfBins];
+
+            for (int d = 0; d < numberOfDigits; d++)
+            {
+                startOfBin[d][0] = 0;
+                for (int i = 1; i < numberOfBins; i++)
+                    startOfBin[d][i] = startOfBin[d][i - 1] + count[d][i - 1];
+            }
+            return startOfBin;
+        }
+
         private static uint[] SortRadixLsdInner(this uint[] inOutArray, int startIndex, int length)
         {
             if (inOutArray == null)
@@ -96,11 +131,11 @@ namespace HPCsharp
             const int cacheLineSizeInBytes = 64;
             const int numOfCacheLines = 8;
             const int BufferDepth = cacheLineSizeInBytes * numOfCacheLines / sizeof(uint);
-            uint[] cacheBuffers = new uint[numberOfBins * BufferDepth];
-            int[] bufferIndexCurrent = new int[numberOfBins];
-            int[] bufferIndexStart = new int[numberOfBins];
-            int[] bufferIndexEnd = new int[numberOfBins];
-            uint[] outputArray = new uint[inOutArray.Length];
+            uint[] cacheBuffers       = new uint[numberOfBins * BufferDepth];
+            int[]  bufferIndexCurrent = new int[numberOfBins];
+            int[]  bufferIndexStart   = new int[numberOfBins];
+            int[]  bufferIndexEnd     = new int[numberOfBins];
+            uint[] outputArray        = new uint[inOutArray.Length];
             int d, endIndex = startIndex + length - 1;
             uint bitMask = 255;
             int shiftRightAmount = 0;
@@ -109,26 +144,15 @@ namespace HPCsharp
             //long nanosecPerTick = (1000L * 1000L * 1000L) / Stopwatch.Frequency;
             //stopwatch.Restart();
             int[][] count = HistogramByteComponents(inOutArray, startIndex, endIndex);
+            int[][] startOfBin = ComputeStartOfBins(numberOfDigits, numberOfBins, count);
             //stopwatch.Stop();
             //double timeForCounting = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
             //Console.WriteLine("Time for counting: {0}", timeForCounting);
-
-            int[][] startOfBin = new int[numberOfDigits][];
-            for (int i = 0; i < numberOfDigits; i++)
-                startOfBin[i] = new int[numberOfBins];
-
-            for (d = 0; d < numberOfDigits; d++)
-            {
-                startOfBin[d][0] = 0;
-                for (int i = 1; i < numberOfBins; i++)
-                    startOfBin[d][i] = startOfBin[d][i - 1] + count[d][i - 1];
-            }
 
             for (d = 0; d < numberOfDigits; d++)
             {
                 //stopwatch.Restart();
                 int[] startOfBinLoc = startOfBin[d];
-
                 for (int i = 0; i < numberOfBins; i++)
                 {
                     bufferIndexStart[i] = i * BufferDepth;
@@ -216,7 +240,7 @@ namespace HPCsharp
         {
             if (inOutArray == null)
                 throw new ArgumentNullException(nameof(inOutArray));
-            SortRadixLsd(inOutArray, startIndex, length);
+            SortRadixLsdInner(inOutArray, startIndex, length);
         }
         /// <summary>
         /// Sort an array of unsigned integers using Radix Sorting algorithm (least significant digit variation - LSD)
@@ -229,27 +253,104 @@ namespace HPCsharp
         {
             if (inOutArray == null)
                 throw new ArgumentNullException(nameof(inOutArray));
-            SortRadixLsd(inOutArray, 0, inOutArray.Length);
+            SortRadixLsdInner(inOutArray, 0, inOutArray.Length);
         }
-
-        public static byte[] SortRadixLsdInPlaceFunc(this byte[] arrayToBeSorted)
+        /// <summary>
+        /// Sort an array of integers using Radix Sorting algorithm (least significant digit variation - LSD)
+        /// This algorithm is not in-place. This algorithm is stable.
+        /// </summary>
+        /// <param name="inputArray">array of integers to be sorted</param>
+        /// <returns>sorted array of integers</returns>
+        private static int[] SortRadixLsdInner(this int[] inputArray, int startIndex, int length)
         {
-            return arrayToBeSorted.SortCountingInPlaceFunc();
+            if (inputArray == null)
+                throw new ArgumentNullException(nameof(inputArray));
+            const int bitsPerDigit = 8;
+            const int numberOfBins = 1 << bitsPerDigit;
+            int numberOfDigits = (sizeof(int) * 8 + bitsPerDigit - 1) / bitsPerDigit;
+            int d, endIndex = startIndex + length - 1;
+            var outputArray = new int[inputArray.Length];
+
+            const uint bitMask = numberOfBins - 1;
+            const uint halfOfPowerOfTwoRadix = PowerOfTwoRadix / 2;
+            int shiftRightAmount = 0;
+
+            int[][] count = HistogramByteComponents(inputArray, startIndex, endIndex);
+            int[][] startOfBin = ComputeStartOfBins(numberOfDigits, numberOfBins, count);
+
+            for (d = 0; d < numberOfDigits; d++)
+            {
+                int[] startOfBinLoc = startOfBin[d];
+
+                if (d != 3)
+                    for (int current = 0; current < inputArray.Length; current++)
+                        outputArray[startOfBinLoc[((uint)inputArray[current] >> shiftRightAmount) & bitMask]++] = inputArray[current];
+                else
+                    for (int current = 0; current < inputArray.Length; current++)
+                        outputArray[startOfBinLoc[((uint)inputArray[current] >> shiftRightAmount) ^ halfOfPowerOfTwoRadix]++] = inputArray[current];
+
+                shiftRightAmount += bitsPerDigit;
+                (inputArray, outputArray) = (outputArray, inputArray);
+            }
+            return inputArray;
         }
-
-        public static sbyte[] SortRadixLsdInPlaceFunc(this sbyte[] arrayToBeSorted)
+        /// <summary>
+        /// Sort an array of integers using Radix Sorting algorithm (least significant digit variation - LSD).
+        /// This algorithm is not in-place. This algorithm is stable.
+        /// inOutArray will also contain the sorted array when the function returns.
+        /// This version performs significantly better for pre-sorted arrays than the version without de-randomization buffering.
+        /// </summary>
+        /// <param name="inOutArray">array of integers to be sorted, and where the sorted array will be returned</param>
+        /// <param name="startIndex">index of the first element where sorting is to start</param>
+        /// <param name="length">number of array elements to sort</param>
+        /// <returns>sorted array of integers</returns>
+        public static int[] SortRadixLsdFunc(this int[] inOutArray, int startIndex, int length)
         {
-            return arrayToBeSorted.SortCountingInPlaceFunc();
+            if (inOutArray == null)
+                throw new ArgumentNullException(nameof(inOutArray));
+            return SortRadixLsdInner(inOutArray, startIndex, length);
         }
-
-        public static ushort[] SortRadixLsdInPlaceFunc(this ushort[] arrayToBeSorted)
+        /// <summary>
+        /// Sort an array of unsigned integers using Radix Sorting algorithm (least significant digit variation - LSD)
+        /// This algorithm is not in-place. This algorithm is stable.
+        /// inOutArray will also contain the sorted array when the function returns.
+        /// This version performs significantly better for pre-sorted arrays than the version without de-randomization buffering.
+        /// </summary>
+        /// <param name="inOutArray">array of unsigned integers to be sorted</param>
+        /// <returns>sorted array of unsigned integers</returns>
+        public static int[] SortRadixLsdFunc(this int[] inOutArray)
         {
-            return arrayToBeSorted.SortCountingInPlaceFunc();
+            if (inOutArray == null)
+                throw new ArgumentNullException(nameof(inOutArray));
+            return SortRadixLsdInner(inOutArray, 0, inOutArray.Length);
         }
-
-        public static short[] SortRadixLsdInPlaceFunc(this short[] arrayToBeSorted)
+        /// <summary>
+        /// Sort an array of unsigned integers using Radix Sorting algorithm (least significant digit variation - LSD)
+        /// This algorithm is not in-place (allocates a working buffer). This algorithm is stable.
+        /// This version performs significantly better for pre-sorted arrays than the version without de-randomization buffering.
+        /// </summary>
+        /// <param name="inOutArray">array of unsigned integers to be sorted</param>
+        /// <param name="startIndex">index of the first element where sorting is to start</param>
+        /// <param name="length">number of array elements to sort</param>
+        /// <returns>sorted array of unsigned integers</returns>
+        public static void SortRadixLsd(this int[] inOutArray, int startIndex, int length)
         {
-            return arrayToBeSorted.SortCountingInPlaceFunc();
+            if (inOutArray == null)
+                throw new ArgumentNullException(nameof(inOutArray));
+            SortRadixLsdInner(inOutArray, startIndex, length);
+        }
+        /// <summary>
+        /// Sort an array of unsigned integers using Radix Sorting algorithm (least significant digit variation - LSD)
+        /// This algorithm is not in-place. This algorithm is stable.
+        /// This version performs significantly better for pre-sorted arrays than the version without de-randomization buffering.
+        /// </summary>
+        /// <param name="inOutArray">array of unsigned integers to be sorted</param>
+        /// <returns>sorted array of unsigned integers</returns>
+        public static void SortRadixLsd(this int[] inOutArray)
+        {
+            if (inOutArray == null)
+                throw new ArgumentNullException(nameof(inOutArray));
+            SortRadixLsdInner(inOutArray, 0, inOutArray.Length);
         }
         /// <summary>
         /// Sort an array of unsigned integers using Radix Sorting algorithm (least significant digit variation - LSD) with N-bits per digit.
@@ -273,10 +374,6 @@ namespace HPCsharp
             uint[] workBuffer = new uint[inOutArray.Length];    // TODO: Reduce to length instead of inOutArray.Length
             int d;
 
-            int[][] startOfBin = new int[numberOfDigits][];
-            for (int i = 0; i < numberOfDigits; i++)
-                startOfBin[i] = new int[numberOfBins];
-
             uint bitMask = (uint)(numberOfBins - 1);
             int shiftRightAmount = 0;
 
@@ -285,16 +382,10 @@ namespace HPCsharp
 
             //stopwatch.Restart();
             int[][] count = HistogramNbitComponents(inOutArray, startIndex, startIndex + length - 1, bitsPerDigit);
+            int[][] startOfBin = ComputeStartOfBins(numberOfDigits, numberOfBins, count);
             //stopwatch.Stop();
             //double timeForCounting = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
             //Console.WriteLine("Time for counting: {0}", timeForCounting);
-
-            for (d = 0; d < numberOfDigits; d++)
-            {
-                startOfBin[d][0] = startIndex;
-                for (int i = 1; i < numberOfBins; i++)
-                    startOfBin[d][i] = startOfBin[d][i - 1] + count[d][i - 1];
-            }
 
             for (d = 0; d < numberOfDigits; d++)
             {
@@ -392,32 +483,22 @@ namespace HPCsharp
             if (inputArray == null)
                 throw new ArgumentNullException(nameof(inputArray));
             const int bitsPerDigit = 8;
-            uint numberOfBins = 1 << bitsPerDigit;
-            uint numberOfDigits = (sizeof(ulong) * 8 + bitsPerDigit - 1) / bitsPerDigit;
+            int numberOfBins = 1 << bitsPerDigit;
+            int numberOfDigits = (sizeof(ulong) * 8 + bitsPerDigit - 1) / bitsPerDigit;
             int d = 0;
             var outputArray = new ulong[inputArray.Length];
-
-            uint[][] startOfBin = new uint[numberOfDigits][];
-            for (int i = 0; i < numberOfDigits; i++)
-                startOfBin[i] = new uint[numberOfBins];
             bool outputArrayHasResult = false;
 
-            ulong bitMask = numberOfBins - 1;
+            ulong bitMask = (ulong)numberOfBins - 1;
             int shiftRightAmount = 0;
 
-            uint[][] count = HistogramByteComponents(inputArray, 0, inputArray.Length - 1);
-
-            for (d = 0; d < numberOfDigits; d++)
-            {
-                startOfBin[d][0] = 0;
-                for (uint i = 1; i < numberOfBins; i++)
-                    startOfBin[d][i] = startOfBin[d][i - 1] + count[d][i - 1];
-            }
+            int[][] count = HistogramByteComponents(inputArray, 0, inputArray.Length - 1);
+            int[][] startOfBin = ComputeStartOfBins(numberOfDigits, numberOfBins, count);
 
             d = 0;
             while (bitMask != 0)    // end processing digits when all the mask bits have been processed and shifted out, leaving no bits set in the bitMask
             {
-                uint[] startOfBinLoc = startOfBin[d];
+                int[] startOfBinLoc = startOfBin[d];
                 for (uint current = 0; current < inputArray.Length; current++)
                     outputArray[startOfBinLoc[(inputArray[current] & bitMask) >> shiftRightAmount]++] = inputArray[current];
 
@@ -514,62 +595,6 @@ namespace HPCsharp
             }
         }
         /// <summary>
-        /// Sort an array of integers using Radix Sorting algorithm (least significant digit variation - LSD)
-        /// This algorithm is not in-place. This algorithm is stable.
-        /// </summary>
-        /// <param name="inputArray">array of integers to be sorted</param>
-        /// <returns>sorted array of integers</returns>
-        public static int[] SortRadix(this int[] inputArray)
-        {
-            if (inputArray == null)
-                throw new ArgumentNullException(nameof(inputArray));
-            const int bitsPerDigit = 8;
-            const uint numberOfBins = 1 << bitsPerDigit;
-            uint numberOfDigits = (sizeof(uint) * 8 + bitsPerDigit - 1) / bitsPerDigit;
-            int d;
-            var outputArray = new int[inputArray.Length];
-
-            int[][] startOfBin = new int[numberOfDigits][];
-            for (int i = 0; i < numberOfDigits; i++)
-                startOfBin[i] = new int[numberOfBins];
-            bool outputArrayHasResult = false;
-
-            const uint bitMask = numberOfBins - 1;
-            const uint halfOfPowerOfTwoRadix = PowerOfTwoRadix / 2;
-            int shiftRightAmount = 0;
-
-            uint[][] count = HistogramByteComponents(inputArray, 0, inputArray.Length - 1);
-
-            for (d = 0; d < numberOfDigits; d++)
-            {
-                startOfBin[d][0] = 0;
-                for (uint i = 1; i < numberOfBins; i++)
-                    startOfBin[d][i] = startOfBin[d][i - 1] + (int)count[d][i - 1];
-            }
-
-            d = 0;
-            while (d < numberOfDigits)
-            {
-                int[] startOfBinLoc = startOfBin[d];
-
-                if (d != 3)
-                    for (int current = 0; current < inputArray.Length; current++)
-                        outputArray[startOfBinLoc[((uint)inputArray[current] >> shiftRightAmount) & bitMask]++] = inputArray[current];
-                else
-                    for (int current = 0; current < inputArray.Length; current++)
-                        outputArray[startOfBinLoc[((uint)inputArray[current] >> shiftRightAmount) ^ halfOfPowerOfTwoRadix]++] = inputArray[current];
-
-                shiftRightAmount += bitsPerDigit;
-                outputArrayHasResult = !outputArrayHasResult;
-                d++;
-
-                int[] tmp   = inputArray;       // swap input and output arrays
-                inputArray  = outputArray;
-                outputArray = tmp;
-            }
-            return outputArrayHasResult ? outputArray : inputArray;
-        }
-        /// <summary>
         /// Sort an array of signed long integers using Radix Sorting algorithm (least significant digit variation - LSD)
         /// This algorithm is not in-place. This algorithm is stable.
         /// </summary>
@@ -580,28 +605,18 @@ namespace HPCsharp
             if (inputArray == null)
                 throw new ArgumentNullException(nameof(inputArray));
             const int bitsPerDigit = 8;
-            const uint numberOfBins = 1 << bitsPerDigit;
-            uint numberOfDigits = (sizeof(ulong) * 8 + bitsPerDigit - 1) / bitsPerDigit;
+            const int numberOfBins = 1 << bitsPerDigit;
+            int numberOfDigits = (sizeof(ulong) * 8 + bitsPerDigit - 1) / bitsPerDigit;
             int d;
             var outputArray = new long[inputArray.Length];
-
-            int[][] startOfBin = new int[numberOfDigits][];
-            for (int i = 0; i < numberOfDigits; i++)
-                startOfBin[i] = new int[numberOfBins];
             bool outputArrayHasResult = false;
 
             const ulong bitMask = numberOfBins - 1;
             const ulong halfOfPowerOfTwoRadix = PowerOfTwoRadix / 2;
             int shiftRightAmount = 0;
 
-            uint[][] count = HistogramByteComponents(inputArray, 0, inputArray.Length - 1);
-
-            for (d = 0; d < numberOfDigits; d++)
-            {
-                startOfBin[d][0] = 0;
-                for (uint i = 1; i < numberOfBins; i++)
-                    startOfBin[d][i] = startOfBin[d][i - 1] + (int)count[d][i - 1];
-            }
+            int[][] count = HistogramByteComponents(inputArray, 0, inputArray.Length - 1);
+            int[][] startOfBin = ComputeStartOfBins(numberOfDigits, numberOfBins, count);
 
             d = 0;
             while (d < numberOfDigits)
@@ -627,6 +642,20 @@ namespace HPCsharp
         }
         /// <summary>
         /// Sort an array of signed long integers using Radix Sorting algorithm (least significant digit variation - LSD)
+        /// The core algorithm is not in-place, but the interface is in-place. This algorithm is stable.
+        /// </summary>
+        /// <param name="inputArray">array of signed long integers to be sorted</param>
+        /// <returns>sorted array of signed long integers</returns>
+        public static void SortRadixLsd(this long[] inputArray)
+        {
+            if (inputArray == null)
+                throw new ArgumentNullException(nameof(inputArray));
+            var sortedArray = SortRadix(inputArray);
+            if (sortedArray != inputArray)
+                Array.Copy(sortedArray, inputArray, inputArray.Length);
+        }
+        /// <summary>
+        /// Sort an array of signed long integers using Radix Sorting algorithm (least significant digit variation - LSD)
         /// This algorithm is not in-place. This algorithm is stable.
         /// </summary>
         /// <param name="inputArray">array of signed long integers to be sorted</param>
@@ -637,27 +666,18 @@ namespace HPCsharp
                 throw new ArgumentNullException(nameof(inputArray));
             const int bitsPerDigit = 8;
             const int numberOfBins = 1 << bitsPerDigit;
-            uint numberOfDigits = (sizeof(ulong) * 8 + bitsPerDigit - 1) / bitsPerDigit;
+            int numberOfDigits = (sizeof(ulong) * 8 + bitsPerDigit - 1) / bitsPerDigit;
             int d = 0;
             var outputArray = new long[inputArray.Length];
-
-            int[][] startOfBin = new int[numberOfDigits][];
-            for (int i = 0; i < numberOfDigits; i++)
-                startOfBin[i] = new int[numberOfBins];
             bool outputArrayHasResult = false;
 
             //const ulong bitMask = numberOfBins - 1;
             const ulong halfOfPowerOfTwoRadix = PowerOfTwoRadix / 2;
             int shiftRightAmount = 0;
 
-            uint[][] count = HistogramByteComponents(inputArray, 0, inputArray.Length - 1);
+            int[][] count = HistogramByteComponents(inputArray, 0, inputArray.Length - 1);
+            int[][] startOfBin = ComputeStartOfBins(numberOfDigits, numberOfBins, count);
 
-            for (d = 0; d < numberOfDigits; d++)
-            {
-                startOfBin[d][0] = 0;
-                for (uint i = 1; i < numberOfBins; i++)
-                    startOfBin[d][i] = startOfBin[d][i - 1] + (int)count[d][i - 1];
-            }
             // Write-thru-sequencialization buffer
             const int NumberOfLongsPerWTHS = 64;
             long[] wthsBuffer = new long[numberOfBins * NumberOfLongsPerWTHS];
@@ -718,20 +738,6 @@ namespace HPCsharp
                 outputArray = tmp;
             }
             return outputArrayHasResult ? outputArray : inputArray;
-        }
-        /// <summary>
-        /// Sort an array of signed long integers using Radix Sorting algorithm (least significant digit variation - LSD)
-        /// The core algorithm is not in-place, but the interface is in-place. This algorithm is stable.
-        /// </summary>
-        /// <param name="inputArray">array of signed long integers to be sorted</param>
-        /// <returns>sorted array of signed long integers</returns>
-        public static void SortRadixInPlaceInterface(this long[] inputArray)
-        {
-            if (inputArray == null)
-                throw new ArgumentNullException(nameof(inputArray));
-            var sortedArray = SortRadix(inputArray);
-            if (sortedArray != inputArray)
-                Array.Copy(sortedArray, inputArray, inputArray.Length);
         }
         /// <summary>
         /// Sort an List of unsigned integers using Radix Sorting algorithm (least significant digit variation - LSD)
@@ -883,30 +889,22 @@ namespace HPCsharp
         {
             if (inputArray == null)
                 throw new ArgumentNullException(nameof(inputArray));
-            uint numberOfBins = 256;
+            int numberOfBins = 256;
             int Log2ofPowerOfTwoRadix = 8;
             int numberOfDigits = sizeof(UInt32) * 8 / Log2ofPowerOfTwoRadix;
             var outputArray = new T[inputArray.Length];
             bool outputArrayHasResult = false;
-            uint bitMask = numberOfBins - 1;
+            uint bitMask = (uint)numberOfBins - 1;
             int shiftRightAmount = 0;
             int d = 0;
 
-            uint[][] count = HistogramByteComponents(inputArray, 0, inputArray.Length - 1, getKey);
-
-            var startOfBin = new uint[numberOfDigits][];
-            for (d = 0; d < numberOfDigits; d++)
-            {
-                startOfBin[d] = new uint[numberOfBins];
-                startOfBin[d][0] = 0;
-                for (uint i = 1; i < numberOfBins; i++)
-                    startOfBin[d][i] = startOfBin[d][i - 1] + count[d][i - 1];
-            }
+            int[][] count = HistogramByteComponents(inputArray, 0, inputArray.Length - 1, getKey);
+            int[][] startOfBin = ComputeStartOfBins(numberOfDigits, numberOfBins, count);
 
             d = 0;
             while (bitMask != 0)    // end processing digits when all the mask bits have been processed and shifted out, leaving no bits set in the bitMask
             {
-                uint[] startOfBinLoc = startOfBin[d];
+                int[] startOfBinLoc = startOfBin[d];
 
                 for (uint current = 0; current < inputArray.Length; current++)
                     outputArray[startOfBinLoc[(byte)(getKey(inputArray[current]) >> shiftRightAmount)]++] = inputArray[current];
@@ -916,7 +914,7 @@ namespace HPCsharp
                 outputArrayHasResult = !outputArrayHasResult;
                 d++;
 
-                T[] tmp = inputArray;  inputArray = outputArray;  outputArray = tmp;  // swap input and output arrays
+                (inputArray, outputArray) = (outputArray, inputArray);
             }
 
             return outputArrayHasResult ? outputArray : inputArray;
@@ -981,26 +979,15 @@ namespace HPCsharp
             bool outputArrayHasResult = false;
             UInt64 bitMask = 255;
             int shiftRightAmount = 0;
-
             int d = 0;
 
-            var startOfBin = new uint[numberOfDigits][];
-            for (int i = 0; i < numberOfDigits; i++)
-                startOfBin[i] = new uint[numberOfBins];
-
-            uint[][] count = HistogramByteComponents(inputArray, 0, inputArray.Length - 1, getKey);
-
-            for (d = 0; d < numberOfDigits; d++)
-            {
-                startOfBin[d][0] = 0;
-                for (uint i = 1; i < numberOfBins; i++)
-                    startOfBin[d][i] = startOfBin[d][i - 1] + count[d][i - 1];
-            }
+            int[][] count = HistogramByteComponents(inputArray, 0, inputArray.Length - 1, getKey);
+            int[][] startOfBin = ComputeStartOfBins(numberOfDigits, numberOfBins, count);
 
             d = 0;
             while (bitMask != 0)    // end processing digits when all the mask bits have been processed and shifted out, leaving no bits set in the bitMask
             {
-                uint[] startOfBinLoc = startOfBin[d];
+                int[] startOfBinLoc = startOfBin[d];
 
                 for (uint current = 0; current < inputArray.Length; current++)
                     outputArray[startOfBinLoc[(byte)(getKey(inputArray[current]) >> shiftRightAmount)]++] = inputArray[current];
@@ -1090,37 +1077,29 @@ namespace HPCsharp
             if (inputArray == null)
                 throw new ArgumentNullException(nameof(inputArray));
             const int NumberOfBitsPerDigit = 8;
-            const int NumberOfBins = 1 << NumberOfBitsPerDigit;
-            const int NumberOfDigits = sizeof(UInt32) * 8 / NumberOfBitsPerDigit;
+            const int numberOfBins = 1 << NumberOfBitsPerDigit;
+            const int numberOfDigits = sizeof(UInt32) * 8 / NumberOfBitsPerDigit;
             var outputArray = new T[inputArray.Length];
             var outSortedKeys = new UInt32[inputArray.Length];
             bool outputArrayHasResult = false;
-            uint bitMask = NumberOfBins - 1;
+            uint bitMask = (uint)numberOfBins - 1;
             int shiftRightAmount = 0;
             int d;
 
             var countAndKeyArray = HistogramByteComponentsAndKeyArray(inputArray, 0, inputArray.Length - 1, getKey);
-            uint[][] count  = countAndKeyArray.Item1;
+            int[][] count  = countAndKeyArray.Item1;
             UInt32[] inKeys = countAndKeyArray.Item2;
-
-            var startOfBin = new uint[NumberOfDigits][];
-            for (d = 0; d < NumberOfDigits; d++)
-            {
-                startOfBin[d] = new uint[NumberOfBins];
-                startOfBin[d][0] = 0;
-                for (uint i = 1; i < NumberOfBins; i++)
-                    startOfBin[d][i] = startOfBin[d][i - 1] + count[d][i - 1];
-            }
+            int[][] startOfBin = ComputeStartOfBins(numberOfDigits, numberOfBins, count);
 
             d = 0;
             while (bitMask != 0)    // end processing digits when all the mask bits have been processed and shifted out, leaving no bits set in the bitMask
             {
-                uint[] startOfBinLoc = startOfBin[d];
+                int[] startOfBinLoc = startOfBin[d];
 
                 for (uint current = 0; current < inputArray.Length; current++)
                 {
                     byte endOfBinIndex = (byte)(inKeys[current] >> shiftRightAmount);
-                    uint index = startOfBinLoc[endOfBinIndex];
+                    int index = startOfBinLoc[endOfBinIndex];
                     outputArray[  index] = inputArray[current];
                     outSortedKeys[index] = inKeys[    current];
                     startOfBinLoc[endOfBinIndex]++;
@@ -1215,30 +1194,20 @@ namespace HPCsharp
             int shiftRightAmount = 0;
             int d;
 
-            var startOfBin = new uint[numberOfDigits][];
-            for (int i = 0; i < numberOfDigits; i++)
-                startOfBin[i] = new uint[numberOfBins];
-
             var countAndKeyArray = HistogramByteComponentsAndKeyArray(inputArray, 0, inputArray.Length - 1, getKey);
-            uint[][] count  = countAndKeyArray.Item1;
+            int[][] count  = countAndKeyArray.Item1;
             UInt64[] inKeys = countAndKeyArray.Item2;
-
-            for (d = 0; d < numberOfDigits; d++)
-            {
-                startOfBin[d][0] = 0;
-                for (uint i = 1; i < numberOfBins; i++)
-                    startOfBin[d][i] = startOfBin[d][i - 1] + count[d][i - 1];
-            }
+            int[][] startOfBin = ComputeStartOfBins(numberOfDigits, numberOfBins, count);
 
             d = 0;
             while (bitMask != 0)    // end processing digits when all the mask bits have been processed and shifted out, leaving no bits set in the bitMask
             {
-                uint[] startOfBinLoc = startOfBin[d];
+                int[] startOfBinLoc = startOfBin[d];
 
                 for (uint current = 0; current < inputArray.Length; current++)
                 {
-                    uint endOfBinIndex = (byte)(inKeys[current] >> shiftRightAmount);
-                    uint index = startOfBinLoc[endOfBinIndex];
+                    int endOfBinIndex = (byte)(inKeys[current] >> shiftRightAmount);
+                    int index = startOfBinLoc[endOfBinIndex];
                     outputArray[index] = inputArray[current];
                     outSortedKeys[index] = inKeys[current];
                     startOfBinLoc[endOfBinIndex]++;
