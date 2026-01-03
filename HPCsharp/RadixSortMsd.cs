@@ -500,7 +500,7 @@ namespace HPCsharp
         {
            try
             {
-                SortRadix(arrayToBeSorted, start, length);   // allocates a working buffer and other buffers internally
+                SortRadixLsd(arrayToBeSorted, start, length);   // allocates a working buffer and other buffers internally
             }
             catch (System.OutOfMemoryException)
             {
@@ -517,7 +517,7 @@ namespace HPCsharp
         {
             try
             {
-                SortRadix(arrayToBeSorted);   // allocates a working buffer and other buffers internally
+                SortRadixLsd(arrayToBeSorted);   // allocates a working buffer and other buffers internally
             }
             catch (System.OutOfMemoryException)
             {
@@ -535,7 +535,7 @@ namespace HPCsharp
         {
             try
             {
-                SortRadix(arrayToBeSorted);   // allocates a working buffer and other buffers internally
+                SortRadixLsd(arrayToBeSorted);   // allocates a working buffer and other buffers internally
             }
             catch (System.OutOfMemoryException)
             {
