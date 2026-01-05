@@ -219,17 +219,21 @@ namespace HPCsharp
 
         private static void RadixSortStableMsdUIntInner(uint[] input_array, int first, int length, uint[] tmp_array, int shiftRightAmount, bool outputInTmpArray, int threshold = 256)
         {
-            if (length < threshold)
-                SortMerge(tmp_array, first, length, input_array);
-
             int last = first + length - 1;
+            if (length < threshold)
+            {
+                SortMerge(input_array, first, length, tmp_array);
+                if (outputInTmpArray)
+                    Array.Copy(tmp_array, first, input_array, first, length);
+            }
+
             const uint bitMask = PowerOfTwoRadix - 1;
 
             var count = HistogramOneByteComponent(input_array, first, last, shiftRightAmount);
 
             var startOfBin = new int[PowerOfTwoRadix + 1];
             var endOfBin   = new int[PowerOfTwoRadix];
-            startOfBin[0] = endOfBin[0] = first; startOfBin[PowerOfTwoRadix] = -1;         // sentinal
+            startOfBin[0] = endOfBin[0] = first; startOfBin[PowerOfTwoRadix] = -1;         // sentinel
             for (int i = 1; i < PowerOfTwoRadix; i++)
                 startOfBin[i] = endOfBin[i] = startOfBin[i - 1] + count[i - 1];
             // TODO: Add detection of a single bin case, where no permuting is needed and copy can be used instead
@@ -246,12 +250,66 @@ namespace HPCsharp
                 else shiftRightAmount = 0;
 
                 for (int i = 0; i < PowerOfTwoRadix; i++)
-                {
                     RadixSortStableMsdUIntInner(tmp_array, startOfBin[i], endOfBin[i] - startOfBin[i], input_array, shiftRightAmount, !outputInTmpArray);  // swap which is an input and an output array
-                }
             }
             else
             {
+                // Only necessary when digits are not byte-size
+                if (outputInTmpArray)
+                {
+                    for (int current = first; current <= last; current++)   // TODO: replace with C# Copy or parallel copy
+                        input_array[current] = tmp_array[current];
+                }
+            }
+        }
+
+        // Count while writing - Cww
+        private static void RadixSortStableMsdUIntCwwInner(uint[] input_array, int first, int length, uint[] tmp_array, int[] count, int shiftRightAmount, bool outputInTmpArray, int threshold = 256)
+        {
+            int last = first + length - 1;
+            if (length < threshold)
+            {
+                SortMerge(input_array, first, length, tmp_array);
+                if (outputInTmpArray)
+                    Array.Copy(tmp_array, first, input_array, first, length);
+            }
+
+            var startOfBin = new int[PowerOfTwoRadix + 1];
+            var endOfBin   = new int[PowerOfTwoRadix];
+
+            startOfBin[0] = endOfBin[0] = first; startOfBin[PowerOfTwoRadix] = -1;         // sentinel
+            for (int i = 1; i < PowerOfTwoRadix; i++)
+                startOfBin[i] = endOfBin[i] = startOfBin[i - 1] + count[i - 1];
+            // TODO: Add detection of a single bin case, where no permuting is needed and copy can be used instead
+
+            if (shiftRightAmount >= Log2ofPowerOfTwoRadix)  // count using the next digit only if there is a next digit
+            {
+                const int numberOfBins = PowerOfTwoRadix;
+                int[][] countNext = new int[numberOfBins][];    // Each bin has its own count array for the next digit
+                for (int i = 0; i < numberOfBins; i++)
+                    countNext[i] = new int[numberOfBins];
+
+                for (int current = first; current <= last; current++)
+                {
+                    byte currentDigit = (byte)(input_array[current] >> shiftRightAmount);
+                    tmp_array[endOfBin[currentDigit]++] = input_array[current];
+                    byte nextDigit = (byte)(input_array[current] >> (shiftRightAmount - Log2ofPowerOfTwoRadix));
+                    countNext[currentDigit][nextDigit]++;
+                    //Console.WriteLine("curr: {0}, index: {1}, startOfBin: {2}", current, (input_array[current] >> shiftRightAmount) & bitMask, startOfBin[(input_array[current] >> shiftRightAmount) & bitMask]);
+                }
+                shiftRightAmount -= Log2ofPowerOfTwoRadix;
+
+                for (int i = 0; i < PowerOfTwoRadix; i++)
+                    RadixSortStableMsdUIntCwwInner(tmp_array, startOfBin[i], endOfBin[i] - startOfBin[i], input_array, countNext[i], shiftRightAmount, !outputInTmpArray);  // swap which is an input and an output array
+            }
+            else
+            {
+                for (int current = first; current <= last; current++)
+                {
+                    byte currentDigit = (byte)(input_array[current] >> shiftRightAmount);
+                    tmp_array[endOfBin[currentDigit]++] = input_array[current];
+                    //Console.WriteLine("curr: {0}, index: {1}, startOfBin: {2}", current, (input_array[current] >> shiftRightAmount) & bitMask, startOfBin[(input_array[current] >> shiftRightAmount) & bitMask]);
+                }
                 // Only necessary when digits are not byte-size
                 if (outputInTmpArray)
                 {
@@ -614,6 +672,44 @@ namespace HPCsharp
         public static ulong[] SortRadixMsdInPlaceFunc(this ulong[] arrayToBeSorted)
         {
             arrayToBeSorted.SortRadixMsd();
+            return arrayToBeSorted;
+        }
+
+        /// <summary>
+        /// Stable Radix Sort (Most Significant Digit), not in-place sort.
+        /// </summary>
+        /// <param name="arrayToBeSorted">array that is to be sorted in place</param>
+        /// <param name="threshold">for array size smaller than threshold Array.Sort will be used instead</param>
+        public static uint[] SortRadixStableMsdCww(this uint[] arrayToBeSorted, Int32 start, Int32 length, Int32 threshold = 1024)
+        {
+            if (arrayToBeSorted == null)
+                throw new ArgumentNullException(nameof(arrayToBeSorted));
+            uint[] workBuffer = new uint[arrayToBeSorted.Length];
+            int shiftRightAmount = sizeof(uint) * 8 - Log2ofPowerOfTwoRadix;
+            // Merge Sort, Insertion Sort or another stable sort could be used as the base case
+            int last = start + length - 1;
+            var count = HistogramOneByteComponent(arrayToBeSorted, start, last, shiftRightAmount);
+            RadixSortStableMsdUIntCwwInner(arrayToBeSorted, start, length, workBuffer, count, shiftRightAmount, true, threshold);
+            // The following does not work: Need to figure out how to pass InsertionSort method as an Action
+            //RadixSortMsdUIntInner(arrayToBeSorted, start, length, shiftRightAmount, (arr, startIndex, lengthOfArray) => InsertionSort(arrayToBeSorted, start, length), threshold);
+            return arrayToBeSorted;
+        }
+        /// <summary>
+        /// Stable Radix Sort (Most Significant Digit), not in-place sort.
+        /// </summary>
+        /// <param name="arrayToBeSorted">array that is to be sorted in place</param>
+        /// <param name="threshold">for array size smaller than threshold Array.Sort will be used instead</param>
+        public static uint[] SortRadixStableMsdCww(this uint[] arrayToBeSorted, Int32 threshold = 1024)
+        {
+            if (arrayToBeSorted == null)
+                throw new ArgumentNullException(nameof(arrayToBeSorted));
+            uint[] workBuffer = new uint[arrayToBeSorted.Length];
+            int shiftRightAmount = sizeof(uint) * 8 - Log2ofPowerOfTwoRadix;
+            // Merge Sort, Insertion Sort or another stable sort could be used as the base case
+            var count = HistogramOneByteComponent(arrayToBeSorted, 0, arrayToBeSorted.Length - 1, shiftRightAmount);
+            RadixSortStableMsdUIntCwwInner(arrayToBeSorted, 0, arrayToBeSorted.Length, workBuffer, count, shiftRightAmount, true, threshold);
+            // The following does not work: Need to figure out how to pass InsertionSort method as an Action
+            //RadixSortMsdUIntInner(arrayToBeSorted, start, length, shiftRightAmount, (arr, startIndex, lengthOfArray) => InsertionSort(arrayToBeSorted, start, length), threshold);
             return arrayToBeSorted;
         }
 
