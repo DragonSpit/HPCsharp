@@ -1,4 +1,6 @@
-﻿// TODO: Create a prefix sum function that can be used for all Radix algorithms to reduce code duplication and be parallelized in the future. Use this function for count to startOfBin conversion.
+﻿// TODO: Add de-randomization buffering to N-bit/digit LSD Radix Sort implementation in Experimental namespace and then move them into main HPCsharp namespace (Algorithm class).
+// TODO: Add de-randomization to parallel LSD Radix Sort implementations (the new de-randomization version from here that uses Array.Copy for flushing buffers to system memory).
+// TODO: Create a prefix sum function that can be used for all Radix algorithms to reduce code duplication and be parallelized in the future. Use this function for count to startOfBin conversion.
 // TODO: Figure out why LSD Radix Sort for uint[] performs much slower for pre-sorted arrays on the middle two passes than on the first and last pass. Need to study this in more detail, which is most likely
 //       related to memory/cache access patterns. This is especially important since nearly pre-sorted arrays are somewhat common in practice.
 // TODO: Implement N-bit LSD Radix Sort with de-randomization using a single array for all output buffers.
@@ -78,9 +80,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Text;
+using static HPCsharp.Algorithm;
 
 namespace HPCsharp
 {
@@ -372,9 +375,8 @@ namespace HPCsharp
             {
                 int[] startOfBinLoc = startOfBin[d];
                 for (int current = startIndex; current <= endIndex; current++)
-                    outputArray[startOfBinLoc[(inputArray[current] & bitMask) >> shiftRightAmount]++] = inputArray[current];
+                    outputArray[startOfBinLoc[(inputArray[current] >> shiftRightAmount) & bitMask]++] = inputArray[current];
 
-                bitMask <<= bitsPerDigit;
                 shiftRightAmount += bitsPerDigit;
                 (inputArray, outputArray) = (outputArray, inputArray);
             }
@@ -439,80 +441,7 @@ namespace HPCsharp
             SortRadixLsdInner(inOutArray, 0, inOutArray.Length);
         }
 
-        private static void PermuteArrayUsingUnion(long[] inputArray, long[] outputArray, uint[] startOfBinLoc, int shiftRightAmount)
-        {
-            const ulong halfOfPowerOfTwoRadix = PowerOfTwoRadix / 2;
-            int whichByte = shiftRightAmount / 8;
-
-            var union = new Int64ByteUnion();
-
-            switch (whichByte)
-            {
-                case 0:
-                    for (uint current = 0; current < inputArray.Length; current++)
-                    {
-                        union.integer = inputArray[current];
-                        outputArray[startOfBinLoc[union.byte0]++] = inputArray[current];
-                    }
-                    break;
-                case 1:
-                    for (uint current = 0; current < inputArray.Length; current++)
-                    {
-                        union.integer = inputArray[current];
-                        outputArray[startOfBinLoc[union.byte1]++] = inputArray[current];
-                    }
-                    break;
-                case 2:
-                    for (uint current = 0; current < inputArray.Length; current++)
-                    {
-                        union.integer = inputArray[current];
-                        outputArray[startOfBinLoc[union.byte2]++] = inputArray[current];
-                    }
-                    break;
-                case 3:
-                    for (uint current = 0; current < inputArray.Length; current++)
-                    {
-                        union.integer = inputArray[current];
-                        outputArray[startOfBinLoc[union.byte3]++] = inputArray[current];
-                    }
-                    break;
-                case 4:
-                    for (uint current = 0; current < inputArray.Length; current++)
-                    {
-                        union.integer = inputArray[current];
-                        outputArray[startOfBinLoc[union.byte4]++] = inputArray[current];
-                    }
-                    break;
-                case 5:
-                    for (uint current = 0; current < inputArray.Length; current++)
-                    {
-                        union.integer = inputArray[current];
-                        outputArray[startOfBinLoc[union.byte5]++] = inputArray[current];
-                    }
-                    break;
-                case 6:
-                    for (uint current = 0; current < inputArray.Length; current++)
-                    {
-                        union.integer = inputArray[current];
-                        outputArray[startOfBinLoc[union.byte6]++] = inputArray[current];
-                    }
-                    break;
-                case 7:
-                    for (uint current = 0; current < inputArray.Length; current++)
-                    {
-                        union.integer = inputArray[current];
-                        outputArray[startOfBinLoc[((ulong)inputArray[current] >> shiftRightAmount) ^ halfOfPowerOfTwoRadix]++] = inputArray[current];
-                    }
-                    break;
-            }
-        }
-        /// <summary>
-        /// Sort an array of signed long integers using Radix Sorting algorithm (least significant digit variation - LSD)
-        /// This algorithm is not in-place. This algorithm is stable.
-        /// </summary>
-        /// <param name="inputArray">array of signed long integers to be sorted</param>
-        /// <returns>sorted array of signed long integers</returns>
-        public static long[] SortRadix(this long[] inputArray)
+        private static long[] SortRadixLsdInner(this long[] inputArray, int startIndex, int length)
         {
             if (inputArray == null)
                 throw new ArgumentNullException(nameof(inputArray));
@@ -523,8 +452,9 @@ namespace HPCsharp
             const ulong bitMask = numberOfBins - 1;
             const ulong halfOfPowerOfTwoRadix = PowerOfTwoRadix / 2;
             int d, shiftRightAmount = 0;
+            int endIndex = startIndex + length - 1;
 
-            int[][] count = HistogramByteComponents(inputArray, 0, inputArray.Length - 1);
+            int[][] count = HistogramByteComponents(inputArray, startIndex, endIndex);
             int[][] startOfBin = ComputeStartOfBins(numberOfDigits, numberOfBins, count);
 
             for (d = 0; d < numberOfDigits; d++)
@@ -532,10 +462,10 @@ namespace HPCsharp
                 int[] startOfBinLoc = startOfBin[d];
 
                 if (d != 7)
-                    for (uint current = 0; current < inputArray.Length; current++)
+                    for (int current = startIndex; current <= endIndex; current++)
                         outputArray[startOfBinLoc[((ulong)inputArray[current] >> shiftRightAmount) & bitMask]++] = inputArray[current];
                 else
-                    for (uint current = 0; current < inputArray.Length; current++)
+                    for (int current = startIndex; current <= endIndex; current++)
                         outputArray[startOfBinLoc[((ulong)inputArray[current] >> shiftRightAmount) ^ halfOfPowerOfTwoRadix]++] = inputArray[current];
 
                 shiftRightAmount += bitsPerDigit;
@@ -544,19 +474,63 @@ namespace HPCsharp
             return inputArray;
         }
         /// <summary>
-        /// Sort an array of signed long integers using Radix Sorting algorithm (least significant digit variation - LSD)
-        /// The core algorithm is not in-place, but the interface is in-place. This algorithm is stable.
+        /// Sort an array of long integers using Radix Sorting algorithm (least significant digit variation - LSD).
+        /// This algorithm is not in-place. This algorithm is stable.
+        /// inOutArray will also contain the sorted array when the function returns.
+        /// This version performs significantly better for pre-sorted arrays than the version without de-randomization buffering.
         /// </summary>
-        /// <param name="inputArray">array of signed long integers to be sorted</param>
-        /// <returns>sorted array of signed long integers</returns>
-        public static void SortRadixLsd(this long[] inputArray)
+        /// <param name="inOutArray">array of unsigned long integers to be sorted, and where the sorted array will be returned</param>
+        /// <param name="startIndex">index of the first element where sorting is to start</param>
+        /// <param name="length">number of array elements to sort</param>
+        /// <returns>sorted array of long integers</returns>
+        public static long[] SortRadixLsdFunc(this long[] inOutArray, int startIndex, int length)
         {
-            if (inputArray == null)
-                throw new ArgumentNullException(nameof(inputArray));
-            var sortedArray = SortRadix(inputArray);
-            if (sortedArray != inputArray)
-                Array.Copy(sortedArray, inputArray, inputArray.Length);
+            if (inOutArray == null)
+                throw new ArgumentNullException(nameof(inOutArray));
+            return SortRadixLsdInner(inOutArray, startIndex, length);
         }
+        /// <summary>
+        /// Sort an array of long integers using Radix Sorting algorithm (least significant digit variation - LSD)
+        /// This algorithm is not in-place. This algorithm is stable.
+        /// inOutArray will also contain the sorted array when the function returns.
+        /// This version performs significantly better for pre-sorted arrays than the version without de-randomization buffering.
+        /// </summary>
+        /// <param name="inOutArray">array of unsigned integers to be sorted</param>
+        /// <returns>sorted array of long integers</returns>
+        public static long[] SortRadixLsdFunc(this long[] inOutArray)
+        {
+            if (inOutArray == null)
+                throw new ArgumentNullException(nameof(inOutArray));
+            return SortRadixLsdInner(inOutArray, 0, inOutArray.Length);
+        }
+        /// <summary>
+        /// Sort an array of long integers using Radix Sorting algorithm (least significant digit variation - LSD)
+        /// This algorithm is not in-place (allocates a working buffer). This algorithm is stable.
+        /// This version performs significantly better for pre-sorted arrays than the version without de-randomization buffering.
+        /// </summary>
+        /// <param name="inOutArray">array of unsigned integers to be sorted</param>
+        /// <param name="startIndex">index of the first element where sorting is to start</param>
+        /// <param name="length">number of array elements to sort</param>
+        public static void SortRadixLsd(this long[] inOutArray, int startIndex, int length)
+        {
+            if (inOutArray == null)
+                throw new ArgumentNullException(nameof(inOutArray));
+            SortRadixLsdInner(inOutArray, startIndex, length);
+        }
+        /// <summary>
+        /// Sort an array of long integers using Radix Sorting algorithm (least significant digit variation - LSD)
+        /// This algorithm is not in-place. This algorithm is stable.
+        /// This version performs significantly better for pre-sorted arrays than the version without de-randomization buffering.
+        /// </summary>
+        /// <param name="inOutArray">array of unsigned integers to be sorted</param>
+        /// <returns>sorted array of long integers</returns>
+        public static void SortRadixLsd(this long[] inOutArray)
+        {
+            if (inOutArray == null)
+                throw new ArgumentNullException(nameof(inOutArray));
+            SortRadixLsdInner(inOutArray, 0, inOutArray.Length);
+        }
+
         /// <summary>
         /// Sort an array of signed long integers using Radix Sorting algorithm (least significant digit variation - LSD)
         /// This algorithm is not in-place. This algorithm is stable.
@@ -774,7 +748,7 @@ namespace HPCsharp
             }
             return inputArray;
         }
-        public static T[] SortRadix2<T>(this T[] inputArray, Func<T, UInt32> getKey)
+        public static T[] SortRadixLsd2<T>(this T[] inputArray, Func<T, UInt32> getKey)
         {
             if (inputArray == null)
                 throw new ArgumentNullException(nameof(inputArray));
@@ -782,7 +756,6 @@ namespace HPCsharp
             int Log2ofPowerOfTwoRadix = 8;
             int numberOfDigits = sizeof(UInt32) * 8 / Log2ofPowerOfTwoRadix;
             var outputArray = new T[inputArray.Length];
-            uint bitMask = (uint)numberOfBins - 1;
             int d, shiftRightAmount = 0;
 
             int[][] count = HistogramByteComponents(inputArray, 0, inputArray.Length - 1, getKey);
@@ -795,7 +768,6 @@ namespace HPCsharp
                 for (uint current = 0; current < inputArray.Length; current++)
                     outputArray[startOfBinLoc[(byte)(getKey(inputArray[current]) >> shiftRightAmount)]++] = inputArray[current];
 
-                bitMask <<= Log2ofPowerOfTwoRadix;
                 shiftRightAmount += Log2ofPowerOfTwoRadix;
                 (inputArray, outputArray) = (outputArray, inputArray);
             }
@@ -846,7 +818,7 @@ namespace HPCsharp
             }
             return outputArrayHasResult ? outputArray : inputArray;
         }
-        public static T[] SortRadix2<T>(this T[] inputArray, Func<T, UInt64> getKey)
+        public static T[] SortRadixLsd2<T>(this T[] inputArray, Func<T, UInt64> getKey)
         {
             if (inputArray == null)
                 throw new ArgumentNullException(nameof(inputArray));
@@ -854,7 +826,6 @@ namespace HPCsharp
             int Log2ofPowerOfTwoRadix = 8;
             int numberOfDigits = sizeof(UInt64) * 8 / Log2ofPowerOfTwoRadix;
             var outputArray = new T[inputArray.Length];
-            UInt64 bitMask = 255;
             int shiftRightAmount = 0;
             int d = 0;
 
@@ -868,7 +839,6 @@ namespace HPCsharp
                 for (uint current = 0; current < inputArray.Length; current++)
                     outputArray[startOfBinLoc[(byte)(getKey(inputArray[current]) >> shiftRightAmount)]++] = inputArray[current];
 
-                bitMask <<= Log2ofPowerOfTwoRadix;
                 shiftRightAmount += Log2ofPowerOfTwoRadix;
                 (inputArray, outputArray) = (outputArray, inputArray);
             }
@@ -2121,5 +2091,73 @@ namespace HPCsharpExperimental
 
             return inputArray;
         }
+        private static void PermuteArrayUsingUnion(long[] inputArray, long[] outputArray, uint[] startOfBinLoc, int shiftRightAmount)
+        {
+            const ulong halfOfPowerOfTwoRadix = PowerOfTwoRadix / 2;
+            int whichByte = shiftRightAmount / 8;
+
+            var union = new Int64ByteUnion();
+
+            switch (whichByte)
+            {
+                case 0:
+                    for (uint current = 0; current < inputArray.Length; current++)
+                    {
+                        union.integer = inputArray[current];
+                        outputArray[startOfBinLoc[union.byte0]++] = inputArray[current];
+                    }
+                    break;
+                case 1:
+                    for (uint current = 0; current < inputArray.Length; current++)
+                    {
+                        union.integer = inputArray[current];
+                        outputArray[startOfBinLoc[union.byte1]++] = inputArray[current];
+                    }
+                    break;
+                case 2:
+                    for (uint current = 0; current < inputArray.Length; current++)
+                    {
+                        union.integer = inputArray[current];
+                        outputArray[startOfBinLoc[union.byte2]++] = inputArray[current];
+                    }
+                    break;
+                case 3:
+                    for (uint current = 0; current < inputArray.Length; current++)
+                    {
+                        union.integer = inputArray[current];
+                        outputArray[startOfBinLoc[union.byte3]++] = inputArray[current];
+                    }
+                    break;
+                case 4:
+                    for (uint current = 0; current < inputArray.Length; current++)
+                    {
+                        union.integer = inputArray[current];
+                        outputArray[startOfBinLoc[union.byte4]++] = inputArray[current];
+                    }
+                    break;
+                case 5:
+                    for (uint current = 0; current < inputArray.Length; current++)
+                    {
+                        union.integer = inputArray[current];
+                        outputArray[startOfBinLoc[union.byte5]++] = inputArray[current];
+                    }
+                    break;
+                case 6:
+                    for (uint current = 0; current < inputArray.Length; current++)
+                    {
+                        union.integer = inputArray[current];
+                        outputArray[startOfBinLoc[union.byte6]++] = inputArray[current];
+                    }
+                    break;
+                case 7:
+                    for (uint current = 0; current < inputArray.Length; current++)
+                    {
+                        union.integer = inputArray[current];
+                        outputArray[startOfBinLoc[((ulong)inputArray[current] >> shiftRightAmount) ^ halfOfPowerOfTwoRadix]++] = inputArray[current];
+                    }
+                    break;
+            }
+        }
+
     }
 }
