@@ -8,7 +8,7 @@
     <Description>Parallel high performance cross-platform C#/.NET algorithms. 30+ algorithms with familiar interfaces and examples. Multi-core and data parallel (SIMD/SSE). Open source and free. See project Readme, blog, and videos...</Description>
     <Copyright>© 2018 FooState</Copyright>
     <PackageLicenseUrl></PackageLicenseUrl>
-    <PackageReleaseNotes>Added K-top Radix Selection algorithm, which supports selecting a specified number of largest array elements without sorting. The top elements are not sorted. This algorithm is several times faster than LSD Radix Sort, and is linear time.</PackageReleaseNotes>
+    <PackageReleaseNotes>Improved LSD Radix Sort interfaces and algorithm performance for variety of data distributions (single-core algorithms). Fixed MSD Radix Sort (stable version). Simplified many LSD Radix Sort implementations.</PackageReleaseNotes>
     <PackageId>HPCsharp</PackageId>
     <PackageTags>high perfromance algorithms, C#, high performance, high performance computing, HPC, algorithm, algorithms, Linq, parallel, parallel algorithm, sort, sorting, sum, summation, selection</PackageTags>
     <PackageIconUrl>https://foostate.com/images/default_lib_icon_64.png</PackageIconUrl>
@@ -17,9 +17,9 @@
     <PackageProjectUrl>https://github.com/DragonSpit/HPCsharp</PackageProjectUrl>
     <RepositoryUrl>https://github.com/DragonSpit/HPCsharp</RepositoryUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <AssemblyVersion>3.18.2</AssemblyVersion>
-    <FileVersion>3.18.2</FileVersion>
-    <Version>3.18.3</Version>
+    <AssemblyVersion>3.19.0</AssemblyVersion>
+    <FileVersion>3.19.0</FileVersion>
+    <Version>3.19.0</Version>
     <Platforms>AnyCPU;x64</Platforms>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <Title>High Performance C#</Title>
