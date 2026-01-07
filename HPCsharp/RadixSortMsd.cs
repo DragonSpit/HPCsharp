@@ -225,8 +225,8 @@ namespace HPCsharp
                 SortMerge(input_array, first, length, tmp_array);
                 if (outputInTmpArray)
                     Array.Copy(tmp_array, first, input_array, first, length);
+                return;
             }
-
             const uint bitMask = PowerOfTwoRadix - 1;
 
             var count = HistogramOneByteComponent(input_array, first, last, shiftRightAmount);
@@ -272,6 +272,7 @@ namespace HPCsharp
                 SortMerge(input_array, first, length, tmp_array);
                 if (outputInTmpArray)
                     Array.Copy(tmp_array, first, input_array, first, length);
+                return;
             }
 
             var startOfBin = new int[PowerOfTwoRadix + 1];
