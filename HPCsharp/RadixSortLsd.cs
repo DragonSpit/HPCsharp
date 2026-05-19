@@ -1668,6 +1668,174 @@ namespace HPCsharpExperimental
         /// <param name="length">number of array elements to sort</param>
         /// <param name="bitsPerDigit">number of bits in each digit</param>
         /// <returns>sorted array of unsigned integers</returns>
+        public static void SortRadixLsdNbitDerandomized(this uint[] inOutArray, int startIndex, int length, int bitsPerDigit, int sizeOfBufferInCacheLines = 8)
+        {
+            if (inOutArray == null)
+                throw new ArgumentNullException(nameof(inOutArray));
+            const int NumBitsInUInt = sizeof(uint) * 8;
+            if (bitsPerDigit > NumBitsInUInt)
+                throw new ArgumentOutOfRangeException(nameof(bitsPerDigit));
+            int numberOfBins = 1 << bitsPerDigit;
+            int numberOfDigits = (sizeof(uint) * 8 + bitsPerDigit - 1) / bitsPerDigit;
+            //Console.WriteLine("SortRadix: NumberOfDigits = {0}", numberOfDigits);
+            const int cacheLineSizeInBytes = 64;
+            int numOfCacheLines = sizeOfBufferInCacheLines;
+            int BufferDepth = cacheLineSizeInBytes * numOfCacheLines / sizeof(uint);
+            uint[] cacheBuffers      = new uint[numberOfBins * BufferDepth];
+            int[] bufferIndexCurrent = new  int[numberOfBins];
+            int[] bufferIndexStart   = new  int[numberOfBins];
+            int[] bufferIndexEnd     = new  int[numberOfBins];
+            uint[] workBuffer = new uint[inOutArray.Length];    // TODO: Reduce to length instead of inOutArray.Length
+            int d, endIndex = startIndex + length - 1;
+            uint bitMask = (uint)(numberOfBins - 1);
+            int shiftRightAmount = 0;
+
+            //Stopwatch stopwatch = new Stopwatch();
+            //long nanosecPerTick = (1000L * 1000L * 1000L) / Stopwatch.Frequency;
+
+            //stopwatch.Restart();
+            int[][] count = HPCsharp.Algorithm.HistogramNbitComponents(inOutArray, startIndex, startIndex + length - 1, bitsPerDigit);
+            int[][] startOfBin = HPCsharp.Algorithm.ComputeStartOfBins(numberOfDigits, numberOfBins, count);
+            //stopwatch.Stop();
+            //double timeForCounting = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
+            //Console.WriteLine("Time for counting: {0}", timeForCounting);
+
+            for (d = 0; d < numberOfDigits; d++)
+            {
+                //stopwatch.Restart();
+                int[] startOfBinLoc = startOfBin[d];
+                for (int i = 0; i < numberOfBins; i++)
+                {
+                    bufferIndexStart[  i] = i * BufferDepth;
+                    bufferIndexCurrent[i] = i * BufferDepth;
+                    bufferIndexEnd[    i] = i * BufferDepth + BufferDepth - 1;
+                }
+                for (int current = startIndex; current <= endIndex; current++)
+                {
+                    uint whichBin = (inOutArray[current] >> shiftRightAmount) & bitMask;
+                    if (bufferIndexCurrent[whichBin] <= bufferIndexEnd[whichBin])  // place current element into its cacheBuffer
+                    {
+                        cacheBuffers[bufferIndexCurrent[whichBin]++] = inOutArray[current];
+                    }
+                    else     // flush the buffer to system memory
+                    {
+                        int srcIndex = (int)(whichBin * BufferDepth);
+                        int dstIndex = startOfBinLoc[whichBin];
+#if false
+                        for (int i = 0; i < BufferDepth; i++)
+                            outputArray[dstIndex++] = cacheBuffers[srcIndex++];
+#else
+                        Array.Copy(cacheBuffers, srcIndex, workBuffer, dstIndex, BufferDepth); // Much faster than element by element copy
+#endif
+                        startOfBinLoc[whichBin] += BufferDepth;
+                        bufferIndexCurrent[whichBin] = bufferIndexStart[whichBin];
+                        cacheBuffers[bufferIndexCurrent[whichBin]++] = inOutArray[current];
+                    }
+                }
+                for (uint whichBin = 0; whichBin < numberOfBins; whichBin++)  // Flush all of the cache buffers
+                {
+                    int index = (int)(whichBin * BufferDepth);
+                    int dstIndex = startOfBinLoc[whichBin];
+                    int numItems = bufferIndexCurrent[whichBin] - bufferIndexStart[whichBin];
+                    for (int i = 0; i < numItems; i++)
+                        workBuffer[dstIndex++] = cacheBuffers[index++];
+                }
+                //stopwatch.Stop();
+                //double timeForPermuting = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
+                //Console.WriteLine("Time for permuting: {0}", timeForPermuting);
+
+                shiftRightAmount += bitsPerDigit;
+                (inOutArray, workBuffer) = (workBuffer, inOutArray);
+            }
+            if (Int32.IsOddInteger(d))
+                Array.Copy(inOutArray, startIndex, workBuffer, startIndex, length);
+        }
+        private static uint[] SortRadixLsdInner(this uint[] inOutArray, int startIndex, int length)
+        {
+            if (inOutArray == null)
+                throw new ArgumentNullException(nameof(inOutArray));
+            const int numberOfBins = 256;
+            const int Log2ofPowerOfTwoRadix = 8;
+            const int numberOfDigits = 4;
+            const int cacheLineSizeInBytes = 64;
+            const int numOfCacheLines = 8;
+            const int BufferDepth = cacheLineSizeInBytes * numOfCacheLines / sizeof(uint);
+            uint[] cacheBuffers = new uint[numberOfBins * BufferDepth];
+            int[] bufferIndexCurrent = new int[numberOfBins];
+            int[] bufferIndexStart = new int[numberOfBins];
+            int[] bufferIndexEnd = new int[numberOfBins];
+            uint[] outputArray = new uint[inOutArray.Length];
+            int d, endIndex = startIndex + length - 1;
+
+            uint bitMask = 255;
+            int shiftRightAmount = 0;
+
+            //Stopwatch stopwatch = new Stopwatch();
+            //long nanosecPerTick = (1000L * 1000L * 1000L) / Stopwatch.Frequency;
+            //stopwatch.Restart();
+            int[][] count = HistogramByteComponents(inOutArray, startIndex, endIndex);
+            int[][] startOfBin = ComputeStartOfBins(numberOfDigits, numberOfBins, count);
+            //stopwatch.Stop();
+            //double timeForCounting = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
+            //Console.WriteLine("Time for counting: {0}", timeForCounting);
+
+            for (d = 0; d < numberOfDigits; d++)
+            {
+                //stopwatch.Restart();
+                int[] startOfBinLoc = startOfBin[d];
+                for (int i = 0; i < numberOfBins; i++)
+                {
+                    bufferIndexStart[i] = i * BufferDepth;
+                    bufferIndexCurrent[i] = i * BufferDepth;
+                    bufferIndexEnd[i] = i * BufferDepth + BufferDepth - 1;
+                }
+                for (int current = startIndex; current <= endIndex; current++)
+                {
+                    uint whichBin = (inOutArray[current] >> shiftRightAmount) & bitMask;
+                    if (bufferIndexCurrent[whichBin] <= bufferIndexEnd[whichBin])  // place current element into its cacheBuffer
+                    {
+                        cacheBuffers[bufferIndexCurrent[whichBin]++] = inOutArray[current];
+                    }
+                    else     // flush the buffer to system memory
+                    {
+                        int srcIndex = (int)(whichBin * BufferDepth);
+                        int dstIndex = startOfBinLoc[whichBin];
+#if false
+                        for (int i = 0; i < BufferDepth; i++)
+                            outputArray[dstIndex++] = cacheBuffers[srcIndex++];
+#else
+                        Array.Copy(cacheBuffers, srcIndex, outputArray, dstIndex, BufferDepth); // Much faster than element by element copy
+#endif
+                        startOfBinLoc[whichBin] += BufferDepth;
+                        bufferIndexCurrent[whichBin] = bufferIndexStart[whichBin];
+                        cacheBuffers[bufferIndexCurrent[whichBin]++] = inOutArray[current];
+                    }
+                }
+                for (uint whichBin = 0; whichBin < numberOfBins; whichBin++)  // Flush all of the cache buffers
+                {
+                    int index = (int)(whichBin * BufferDepth);
+                    int dstIndex = startOfBinLoc[whichBin];
+                    int numItems = bufferIndexCurrent[whichBin] - bufferIndexStart[whichBin];
+                    for (int i = 0; i < numItems; i++)
+                        outputArray[dstIndex++] = cacheBuffers[index++];
+                }
+                shiftRightAmount += Log2ofPowerOfTwoRadix;
+                (inOutArray, outputArray) = (outputArray, inOutArray);
+                //stopwatch.Stop();
+                //double timeForPermuting = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
+                //Console.WriteLine("Time for permuting: {0}", timeForPermuting);
+            }
+            return inOutArray;
+        }
+        /// <summary>
+        /// Sort an array of unsigned integers using Radix Sorting algorithm (least significant digit variation - LSD) with N-bits per digit.
+        /// This algorithm is not in-place. This algorithm is stable. Two-phase implementation.
+        /// </summary>
+        /// <param name="inOutArray">array of unsigned integers to be sorted, and where the sorted array will be returned</param>
+        /// <param name="startIndex">index of the first element where sorting is to start</param>
+        /// <param name="length">number of array elements to sort</param>
+        /// <param name="bitsPerDigit">number of bits in each digit</param>
+        /// <returns>sorted array of unsigned integers</returns>
         public static void SortRadixLsdNbit(this ulong[] inOutArray, int startIndex, int length, int bitsPerDigit)
         {
             if (inOutArray == null)
