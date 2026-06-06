@@ -34,7 +34,9 @@ Quicksort | 5 | 9 | | :heavy_check_mark: | :heavy_check_mark: | |
 [Radix Sort (LSD)](#LSD-Radix-Sort) | 6 | 40 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Numeric arrays, user defined types, Stable
 Radix Sort (MSD) | 4 | 24| :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Numeric arrays, user defined types, In-place
 Selection | 4 | 6 | | :heavy_check_mark: | | | 
+Selection (Radix) | 3 | 10 | | | | | k-th largest, top-k largest, k[]-th largest
 Sequence Equal | 2 | 19 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | 
+Suffix Sum | 1 | 1 | | | | | 
 [Standard Deviation](#Standard-Deviation) | 7 | 12 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Avoids arithmetic overflow exception
 [Sum](#Better-Sum-in-Many-Ways) | 7 | 214 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Numeric arrays. [Better in many ways](https://duvanenko.tech.blog/2019/04/23/better-sum-in-c/)
 Swap | 4 | 4 | | | :heavy_check_mark: | | Generic swap variations
