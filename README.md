@@ -33,8 +33,8 @@ Partition | 1 | 5 | | | | |
 Quicksort | 5 | 9 | | :heavy_check_mark: | :heavy_check_mark: | | 
 [Radix Sort (LSD)](#LSD-Radix-Sort) | 6 | 40 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Numeric arrays, user defined types, Stable
 Radix Sort (MSD) | 4 | 24| :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Numeric arrays, user defined types, In-place
-Selection | 4 | 6 | | :heavy_check_mark: | :heavy_check_mark: | | 
-Selection (Radix) | 3 | 10 | | | :heavy_check_mark: | | k-th largest, top-k largest, k[]-th largest
+Selection | 4 | 6 | | | :heavy_check_mark: | | 
+Selection (Radix) | 3 | 10 | | :heavy_check_mark: | :heavy_check_mark: | | k-th largest, top-k largest, k[]-th largest
 Sequence Equal | 2 | 19 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | 
 Suffix Sum | 1 | 1 | | | :heavy_check_mark: | | 
 [Standard Deviation](#Standard-Deviation) | 7 | 12 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Avoids arithmetic overflow exception
