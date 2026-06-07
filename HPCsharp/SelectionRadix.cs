@@ -361,11 +361,7 @@ namespace HPCsharp
                 uint digit;
                 uint current_element = a[_current];  // get the compiler to recognize that a register can be used for the loop instead of a[_current] memory location
                 while (endOfBin[digit = (current_element >> shiftRightAmount) & bitMask] != _current)
-                {
-                    uint temp = a[endOfBin[digit]];
-                    a[endOfBin[digit]++] = current_element;
-                    current_element = temp;
-                }
+                    (a[endOfBin[digit]], current_element) = (current_element, a[endOfBin[digit]++]);
                 a[_current] = current_element;
 
                 endOfBin[digit]++;
