@@ -6,20 +6,20 @@
     <Company>FooState</Company>
     <Product>HPCsharp</Product>
     <Description>Parallel high performance cross-platform C#/.NET algorithms. 30+ algorithms with familiar interfaces and examples. Multi-core and data parallel (SIMD/SSE). Open source and free. See project Readme, blog, and videos...</Description>
-    <Copyright>© 2018 FooState</Copyright>
+    <Copyright>© 2018-2026 FooState</Copyright>
     <PackageLicenseUrl></PackageLicenseUrl>
-    <PackageReleaseNotes>Added a new in-place Radix Selection variant which supports selecting an array of elements without having to sort the array - e.g. 10-th, 25-th and 31-th largest array elements within an unsorted array. This algorithms is several times faster than in-place MSD Radix Sort, which it's based on.</PackageReleaseNotes>
+    <PackageReleaseNotes>Added a new in-place Radix Partition algorithm which supports partitioning an array of elements without having to sort the array. Partition can be a single index or an array of indexes. This algorithms is several times faster than in-place MSD Radix Sort, which it's based on.</PackageReleaseNotes>
     <PackageId>HPCsharp</PackageId>
-    <PackageTags>high perfromance algorithms, C#, high performance, high performance computing, HPC, algorithm, algorithms, Linq, parallel, parallel algorithm, sort, sorting, sum, summation, selection</PackageTags>
+    <PackageTags>high perfromance algorithms, C#, high performance, high performance computing, HPC, algorithm, algorithms, Linq, parallel, parallel algorithm, sort, sorting, sum, summation, selection, partition</PackageTags>
     <PackageIconUrl>https://foostate.com/images/default_lib_icon_64.png</PackageIconUrl>
     <RepositoryType>GitHub</RepositoryType>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageProjectUrl>https://github.com/DragonSpit/HPCsharp</PackageProjectUrl>
     <RepositoryUrl>https://github.com/DragonSpit/HPCsharp</RepositoryUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <AssemblyVersion>3.19.2</AssemblyVersion>
-    <FileVersion>3.19.2</FileVersion>
-    <Version>3.19.2</Version>
+    <AssemblyVersion>3.19.3</AssemblyVersion>
+    <FileVersion>3.19.3</FileVersion>
+    <Version>3.19.3</Version>
     <Platforms>AnyCPU;x64</Platforms>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <Title>High Performance C#</Title>
