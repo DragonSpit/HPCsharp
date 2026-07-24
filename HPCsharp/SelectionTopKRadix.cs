@@ -6,11 +6,6 @@
 // TODO: Implement a bottom-k version to provide symmetry with the top-k version.
 // TODO: Improve the algorithm by doing the count for the next digit while moving elements into the bin that contains the k-th smallest element.
 // TODO: Implement range-k radix selection, which may be a generalization of both top-k and bottom-k selection.
-// TODO: Implement split-k radix selection, which splits the array into k equal parts, and also generalize it to split into k parts of any size.
-//       This would work by first doing the counts and moving elements into the bins, then determining which bin contains each of the k-1 split points, and then recursing into
-//       each of the bins that contain the split points. This may be a generalization of both top-k and bottom-k selection, as well as range-k selection, and would also be useful
-//       for parallel sorting as it would allow for splitting the array into k parts of any size, which can then be sorted in parallel and merged together. This may also be useful for parallel selection,
-//       as it would allow for splitting the array into k parts of any size, which can then be sorted in parallel of each part without having to merge the parts. 
 
 using System;
 
