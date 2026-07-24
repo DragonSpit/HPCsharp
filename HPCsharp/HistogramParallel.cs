@@ -221,7 +221,7 @@ namespace HPCsharp
             return HistogramByteComponentsParInner(inArray, l, r, parallelThreshold);
         }
 
-        static uint[][] HistogramByteComponentsSseParInner(uint[] inArray, Int32 l, Int32 r, int parallelThreshold = 16 * 1024)
+        private static uint[][] HistogramByteComponentsSseParInner(uint[] inArray, Int32 l, Int32 r, int parallelThreshold = 16 * 1024)
         {
             const int numberOfBins = 256;
             const int numberOfDigits = sizeof(uint);
@@ -282,7 +282,7 @@ namespace HPCsharp
             return HistogramByteComponentsSseParInner(inArray, l, r, parallelThreshold);
         }
 
-        static uint[][] HistogramByteComponentsQCParInner(uint[] inArray, Int32 l, Int32 r, int workQuanta, uint numberOfQuantas, uint whichByte, int parallelThreshold = 16 * 1024)
+        private static uint[][] HistogramByteComponentsQCParInner(uint[] inArray, Int32 l, Int32 r, int workQuanta, uint numberOfQuantas, uint whichByte, int parallelThreshold = 16 * 1024)
         {
             const int numberOfBins = 256;
             uint[][] countLeft  = null;
@@ -315,7 +315,7 @@ namespace HPCsharp
             return HistogramByteComponentsQCParInner(inArray, l, r, workQuanta, numberOfQuantas, whichByte, parallelThreshold);
         }
 
-        static uint[][] HistogramByteComponentsParInner(int[] inArray, Int32 l, Int32 r, int parallelThreshold = 16 * 1024)
+        private static uint[][] HistogramByteComponentsParInner(int[] inArray, Int32 l, Int32 r, int parallelThreshold = 16 * 1024)
         {
             const int numberOfBins = 256;
             const int numberOfDigits = sizeof(uint);
