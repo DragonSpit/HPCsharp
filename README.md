@@ -29,7 +29,7 @@ Multi-way Merge | 1 | 1 | | | :heavy_check_mark: | |
 [Merge Sort](#Merge-Sort) | 2 | 25 | | :heavy_check_mark: | :heavy_check_mark: | | Generic, Stable or not, whole or partial
 [Merge Sort In-Place](#Merge-Sort) | 2 | 8 | | :heavy_check_mark: | :heavy_check_mark: | | Generic, Adaptive, whole or partial
 Priority Queue | 2 | 15 | | | :heavy_check_mark: | | 
-Partition | 1 | 5 | | | | | 
+Partition (Radix) | 1 | 5 | | | | | 
 Quicksort | 5 | 9 | | :heavy_check_mark: | :heavy_check_mark: | | 
 [Radix Sort (LSD)](#LSD-Radix-Sort) | 6 | 40 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Numeric arrays, user defined types, Stable
 Radix Sort (MSD) | 4 | 24| :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Numeric arrays, user defined types, In-place
