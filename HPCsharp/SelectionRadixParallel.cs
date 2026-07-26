@@ -46,56 +46,57 @@ namespace HPCsharp
 
         // TODO: Implement a sequential not-in-place version first, then implement a parallel equivalent version.
         //       The not-in-place version is much simpler to implement and understand. It may be worthwhile on its own, to help understanding and teaching.
-        private static void RadixSelectionParInner2(uint[] a, uint[] b, int first, int length, int shiftRightAmount, int digit, int k, int ParallelWorkQuantum = 64 * 1024)
+        private static void RadixSelectionParInner2(uint[] a, uint[] b, int first, int length, int k, int ParallelWorkQuantum = 64 * 1024)
         {
-            int last = first + length - 1;
             const uint bitMask = PowerOfTwoRadix - 1;
+            int shiftRightAmount = (sizeof(uint) * 8) - Log2ofPowerOfTwoRadix;
+            int digit = sizeof(int) - 1;
+            int[] startOfBin = new int[PowerOfTwoRadix + 1];
             uint quanta = (a.Length % ParallelWorkQuantum) == 0 ? (uint)(a.Length / ParallelWorkQuantum)
                                                                 : (uint)(a.Length / ParallelWorkQuantum + 1);
+            while (digit >= 0)
+            {
 #if True
-            var count = HPCsharp.ParallelAlgorithm.HistogramOneByteComponentPar(a, first, last, shiftRightAmount, ParallelWorkQuantum);
-            var startOfBin = new int[PowerOfTwoRadix + 1];
-            startOfBin[0] = first; startOfBin[PowerOfTwoRadix] = last + 1;
-            for (int i = 1; i < PowerOfTwoRadix; i++)
-                startOfBin[i] = startOfBin[i - 1] + count[i - 1];
+                int last = first + length - 1;
+                int[] count = HPCsharp.ParallelAlgorithm.HistogramOneByteComponentPar(a, first, last, shiftRightAmount, ParallelWorkQuantum);
+                startOfBin[0] = first; startOfBin[PowerOfTwoRadix] = last + 1;
+                for (int i = 1; i < PowerOfTwoRadix; i++)
+                    startOfBin[i] = startOfBin[i - 1] + count[i - 1];
 
-            // Determine which bin contains the k-th smallest element. kthBin will hold the bin number.
-            int kthBin = 0;
-            for (; kthBin < PowerOfTwoRadix; kthBin++)
-            {
-                int binLength = startOfBin[kthBin + 1] - startOfBin[kthBin];
-                if (binLength == 0) continue; // skip empty bins
-                if (k >= startOfBin[kthBin] && k <= (startOfBin[kthBin + 1] - 1)) break;
-            }
+                // Determine which bin contains the k-th smallest element. kthBin will hold the bin number.
+                int kthBin = 0;
+                for (; kthBin < PowerOfTwoRadix; kthBin++)
+                    if (k >= startOfBin[kthBin] && k <= (startOfBin[kthBin + 1] - 1)) break;
 #else
-            // TODO: ComputeStartOfBinsPar() does too much work since only the bin that k is in needs start of bins computed. But this is a good initial step.
-            uint[][] startOfBin = ComputeStartOfBinsPar(a, ParallelWorkQuantum, quanta, digit);
-            // Determine which bin contains the k-th smallest element. kthBin will hold the bin number.
+                // TODO: ComputeStartOfBinsPar() does too much work since only the bin that k is in needs start of bins computed. But this is a good initial step.
+                uint[][] startOfBin = ComputeStartOfBinsPar(a, ParallelWorkQuantum, quanta, digit);
+                // Determine which bin contains the k-th smallest element. kthBin will hold the bin number.
 #endif
 #if True
-            MoveOutsideOfKthBinIn_NotInPlace(a, b, first, length, startOfBin[kthBin], shiftRightAmount, bitMask, kthBin);
+                MoveOutsideOfKthBinIn_NotInPlace(a, b, first, length, startOfBin[kthBin], shiftRightAmount, bitMask, kthBin);
 #else
-            // Implement parallel move of elements outside the k-th bin into the k-th bin
+                // Implement parallel move of elements outside the k-th bin into the k-th bin
 #endif
-            if (shiftRightAmount > 0)          // end recursion when all the bits have been processes
-            {
-                if (shiftRightAmount >= Log2ofPowerOfTwoRadix) shiftRightAmount -= Log2ofPowerOfTwoRadix;
-                else shiftRightAmount = 0;
+                if (shiftRightAmount <= 0) break;
                 digit--;
-                if (digit < 0) return;
-                // Only recurse into the bin that contains the k-th smallest element and if more than one element is in that bin
                 if ((startOfBin[kthBin + 1] - startOfBin[kthBin]) > 1)
-                    RadixSelectionParInner2(b, a, startOfBin[kthBin], startOfBin[kthBin + 1] - startOfBin[kthBin], shiftRightAmount, digit, k, ParallelWorkQuantum);
+                {
+                    first = startOfBin[kthBin];
+                    length = startOfBin[kthBin + 1] - startOfBin[kthBin];
+                    (a, b) = (b, a); // swap a and b for next iteration
+                    if (shiftRightAmount >= Log2ofPowerOfTwoRadix) shiftRightAmount -= Log2ofPowerOfTwoRadix;
+                    else shiftRightAmount = 0;
+                }
                 else if ((startOfBin[kthBin + 1] - startOfBin[kthBin]) == 1)
                 {
-                    if (Int32.IsOddInteger(digit)) return; // Only one element in the bin that k is in, so it must be the k-th smallest element
-                    else { a[startOfBin[kthBin]] = b[startOfBin[kthBin]]; return; }
+                    if (Int32.IsOddInteger(digit)) break; // Only one element in the bin that k is in, so it must be the k-th smallest element
+                    else { a[startOfBin[kthBin]] = b[startOfBin[kthBin]]; break; }
                 }
                 else throw new Exception("RadixSelectiontInner2: No elements in the bin that k is in, which should never happen");
             }
         }
         /// <summary>
-        /// In-place Radix Selection.
+        /// Not-In-place Radix Selection, non-recursive implementation.
         /// </summary>
         /// <param name="arrayToBeSelected">array that is to be selected from in place</param>
         /// <param name="start">starting index of the subarray</param>
@@ -109,13 +110,12 @@ namespace HPCsharp
                 throw new ArgumentOutOfRangeException(nameof(k), "l or r are invalid");
             if (k < start || k > (start + arrayToBeSelected.Length))
                 throw new ArgumentOutOfRangeException(nameof(k), "k must be between start and (start + length)");
-            int shiftRightAmount = (sizeof(uint) * 8) - Log2ofPowerOfTwoRadix;
             uint[] tmpArray = new uint[arrayToBeSelected.Length];
-            RadixSelectionParInner2(arrayToBeSelected, tmpArray, start, length, shiftRightAmount, k, parallelThreshold);
+            RadixSelectionParInner2(arrayToBeSelected, tmpArray, start, length, k, parallelThreshold);
             return arrayToBeSelected[k];
         }
         /// <summary>
-        /// In-place Radix Selection.
+        /// Not-In-place Radix Selection, non-recursive implementation.
         /// </summary>
         /// <param name="arrayToBeSelected">array that is to be sorted in place</param>
         /// <param name="k">index of the desired element to be selected</param>
@@ -127,9 +127,8 @@ namespace HPCsharp
                 throw new ArgumentOutOfRangeException(nameof(arrayToBeSelected.Length), "array length is invalid");
             if (k < 0 || k > arrayToBeSelected.Length)
                 throw new ArgumentOutOfRangeException(nameof(k), "k must be between start and (start + length)");
-            int shiftRightAmount = (sizeof(uint) * 8) - Log2ofPowerOfTwoRadix;
             uint[] tmpArray = new uint[arrayToBeSelected.Length];
-            RadixSelectionParInner2(arrayToBeSelected, tmpArray, 0, arrayToBeSelected.Length, shiftRightAmount, k, parallelThreshold);
+            RadixSelectionParInner2(arrayToBeSelected, tmpArray, 0, arrayToBeSelected.Length, k, parallelThreshold);
             return arrayToBeSelected[k];
         }
     }

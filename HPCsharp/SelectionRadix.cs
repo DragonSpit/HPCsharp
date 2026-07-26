@@ -480,7 +480,7 @@ namespace HPCsharp
                 else throw new Exception("RadixSelectiontInner2: No elements in the bin that k is in, which should never happen");
             }
         }
-        // Sequential not-in-place version.
+        // Sequential not-in-place version, non-recursive implementation.
         private static void RadixSelectionInnerNonRecursive(uint[] a, uint[] b, int first, int length, int k)
         {
             const uint bitMask = PowerOfTwoRadix - 1;
@@ -522,7 +522,7 @@ namespace HPCsharp
             }
         }
         /// <summary>
-        /// Not-In-place Radix Selection.
+        /// Not-In-place Radix Selection, non-recursive implementation.
         /// </summary>
         /// <param name="arrayToBeSelected">array that is to be selected from in place</param>
         /// <param name="start">starting index of the subarray</param>
@@ -544,7 +544,7 @@ namespace HPCsharp
             return arrayToBeSelected[k];
         }
         /// <summary>
-        /// NotIn-place Radix Selection.
+        /// Not-In-place Radix Selection, non-recursive implementation.
         /// </summary>
         /// <param name="arrayToBeSelected">array that is to be sorted in place</param>
         /// <param name="k">index of the desired element to be selected</param>
