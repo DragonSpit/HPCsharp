@@ -459,11 +459,7 @@ namespace HPCsharp
             // Determine which bin contains the k-th smallest element. kthBin will hold the bin number.
             int kthBin = 0;
             for (; kthBin < PowerOfTwoRadix; kthBin++)
-            {
-                int binLength = startOfBin[kthBin + 1] - startOfBin[kthBin];    // TODO: Determine if this statement and the next are necessary, or will the last if statement handle this case already automatically?
-                if (binLength == 0) continue; // skip empty bins
                 if (k >= startOfBin[kthBin] && k <= (startOfBin[kthBin + 1] - 1)) break;
-            }
 
             MoveOutsideOfKthBinIn_NotInPlace(a, b, first, length, startOfBin[kthBin], shiftRightAmount, bitMask, kthBin);
 
@@ -503,11 +499,7 @@ namespace HPCsharp
                 // Determine which bin contains the k-th smallest element. kthBin will hold the bin number.
                 int kthBin = 0;
                 for (; kthBin < PowerOfTwoRadix; kthBin++)
-                {
-                    int binLength = startOfBin[kthBin + 1] - startOfBin[kthBin];    // TODO: Determine if this statement and the next are necessary, or will the last if statement handle this case already automatically?
-                    if (binLength == 0) continue; // skip empty bins
                     if (k >= startOfBin[kthBin] && k <= (startOfBin[kthBin + 1] - 1)) break;
-                }
 
                 MoveOutsideOfKthBinIn_NotInPlace(a, b, first, length, startOfBin[kthBin], shiftRightAmount, bitMask, kthBin);
 
