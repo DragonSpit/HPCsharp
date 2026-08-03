@@ -549,6 +549,7 @@ namespace HPCsharp
         }
 
         // Produces counts for each bin per work quanta, with the left-most dimention being the work-quanta and the right-most dimention being the counts
+        // Works only with a full array, eventhough the l and r parameters are passed in and seem like they should work, but they don't. This is a bug that needs to be fixed. The _2 version below works correctly with l and r parameters.
         // l is the  left-most index, inclusive
         // r is the right-most index, inclusive
         public static uint[][] HistogramByteComponentsAcrossWorkQuantasQC(uint[] inArray, Int32 l, Int32 r, int workQuanta, uint numberOfQuantas, uint whichByte)
@@ -558,7 +559,7 @@ namespace HPCsharp
             const int numberOfBins = 256;
             const uint mask = 0xff;
             int shiftRightAmount = (int)(8 * whichByte);
-            //Console.WriteLine("Histogram: inArray.Length = {0}, workQuanta = {1}, numberOfQuantas = {2}, whichByte = {3}", inArray.Length, workQuanta, numberOfQuantas, whichByte);
+            //Console.WriteLine("HistogramByteComponentsAcrossWorkQuantasQC: l = {0}, r = {1}, workQuanta = {2}, numberOfQuantas = {3}, whichByte = {4}", l, r, workQuanta, numberOfQuantas, whichByte);
 
             uint[][] count = new uint[numberOfQuantas][];          // count for each parallel work item
             for (int i = 0; i < numberOfQuantas; i++)
@@ -567,11 +568,12 @@ namespace HPCsharp
             if (l > r)
                 return count;
 
-            long startQuanta = l / workQuanta;
-            long endQuanta   = r / workQuanta;
+            int startQuanta = l / workQuanta;
+            int endQuanta   = r / workQuanta;
+            //Console.WriteLine("HistogramByteComponentsAcrossWorkQuantasQC: startQuanta = {0}, endQuanta = {1}", startQuanta, endQuanta);
             if (startQuanta == endQuanta)       // counting within a single workQuanta, either partial or full
             {
-                int q = (int)startQuanta;
+                int q = startQuanta;
                 for (int currIndex = l; currIndex <= r; currIndex++)
                 {
                     uint inByte = (inArray[currIndex] >> shiftRightAmount) & mask;
@@ -584,8 +586,8 @@ namespace HPCsharp
                 int currIndex, endIndex;
 
                 // process startQuanta, which is either partial or full
-                q = (int)startQuanta;
-                endIndex = (int)(startQuanta * workQuanta + (workQuanta - 1));
+                q = startQuanta;
+                endIndex = startQuanta * workQuanta + (workQuanta - 1);
                 for (currIndex = l; currIndex <= endIndex; currIndex++)
                 {
                     uint inByte = (inArray[currIndex] >> shiftRightAmount) & mask;
@@ -593,23 +595,80 @@ namespace HPCsharp
                 }
 
                 // process endQuanta, which is either partial or full
-                q = (int)endQuanta;
-                for (currIndex = (int)(endQuanta * workQuanta); currIndex <= r; currIndex++)
+                q = endQuanta;
+                for (currIndex = endQuanta * workQuanta; currIndex <= r; currIndex++)
                 {
                     uint inByte = (inArray[currIndex] >> shiftRightAmount) & mask;
                     count[q][inByte]++;
                 }
 
                 // process full workQuantas > startQuanta and < endQuanta
-                currIndex = (int)((startQuanta + 1) * workQuanta);
+                currIndex = (startQuanta + 1) * workQuanta;
                 endQuanta--;
-                for(q = (int)(startQuanta + 1); q <= endQuanta; q++)
+                for(q = startQuanta + 1; q <= endQuanta; q++)
                 {
                     for (uint j = 0; j < workQuanta; j++)
                     {
                         uint inByte = (inArray[currIndex++] >> shiftRightAmount) & mask;
                         count[q][inByte]++;
                     }
+                }
+            }
+            return count;
+        }
+
+        // Produces counts for each bin per work quanta, with the left-most dimention being the work-quanta and the right-most dimention being the counts
+        // This version is more capable than the other version, with l and r parameters working correctly.
+        // l is the  left-most index, inclusive
+        // r is the right-most index, inclusive
+        public static int[][] HistogramByteComponentsAcrossWorkQuantasQC_2(uint[] inArray, Int32 l, Int32 r, int workQuanta, uint numberOfQuantas, uint whichByte)
+        {
+            if (inArray == null)
+                throw new ArgumentNullException(nameof(inArray));
+            const int numberOfBins = 256;
+            const uint mask = 0xff;
+            int shiftRightAmount = (int)(8 * whichByte);
+            //Console.WriteLine("HistogramByteComponentsAcrossWorkQuantasQC: l = {0}, r = {1}, workQuanta = {2}, numberOfQuantas = {3}, whichByte = {4}", l, r, workQuanta, numberOfQuantas, whichByte);
+
+            int[][] count = new int[numberOfQuantas][];          // count for each parallel work item
+            for (int i = 0; i < numberOfQuantas; i++)
+                count[i] = new int[numberOfBins];
+
+            if (l > r)
+                return count;
+
+            int startQuanta = 0;
+            int endQuanta   = (r - l) / workQuanta;  // (length - 1) / workQuanta intentionally
+            //Console.WriteLine("HistogramByteComponentsAcrossWorkQuantasQC: startQuanta = {0}, endQuanta = {1}", startQuanta, endQuanta);
+            if (startQuanta == endQuanta)       // counting within a single workQuanta, either partial or full
+            {
+                int q = startQuanta;
+                for (int currIndex = l; currIndex <= r; currIndex++)
+                {
+                    uint inByte = (inArray[currIndex] >> shiftRightAmount) & mask;
+                    count[q][inByte]++;
+                }
+            }
+            else
+            {
+                int q, currIndex;
+
+                // process all full workQuantas, but not the endQuanta, which is either partial or full
+                currIndex = l;
+                for (q = startQuanta; q < endQuanta; q++)
+                {
+                    for (int j = 0; j < workQuanta; j++)
+                    {
+                        uint inByte = (inArray[currIndex++] >> shiftRightAmount) & mask;
+                        count[q][inByte]++;
+                    }
+                }
+                // process endQuanta, which is either partial or full
+                q = endQuanta;
+                for (; currIndex <= r; currIndex++)
+                {
+                    uint inByte = (inArray[currIndex] >> shiftRightAmount) & mask;
+                    count[q][inByte]++;
                 }
             }
             return count;

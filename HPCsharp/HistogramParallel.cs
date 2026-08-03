@@ -287,6 +287,7 @@ namespace HPCsharp
             const int numberOfBins = 256;
             uint[][] countLeft  = null;
             uint[][] countRight = null;
+            //Console.WriteLine($"HistogramByteComponentsQCParInner: l = {l}, r = {r}, workQuanta = {workQuanta}, numberOfQuantas = {numberOfQuantas}, whichByte = {whichByte}");
 
             if ((r - l + 1) <= parallelThreshold)
                 return Algorithm.HistogramByteComponentsAcrossWorkQuantasQC(inArray, l, r, workQuanta, numberOfQuantas, whichByte);
@@ -298,11 +299,13 @@ namespace HPCsharp
                 () => { countRight = HistogramByteComponentsQCParInner(inArray, m + 1, r, workQuanta, numberOfQuantas, whichByte, parallelThreshold); }
             );
             // Combine left and right results (reduce step), only for workQuantas for which the counts were computed
-            long startQuanta = l / workQuanta;
-            long endQuanta   = r / workQuanta;
-            for (int i = (int)startQuanta; i <= endQuanta; i++)
+            //Console.WriteLine($"Before combining results for quanta {l / workQuanta} to {r / workQuanta}");
+            int startQuanta = l / workQuanta;
+            int endQuanta   = r / workQuanta;
+            for (int i = startQuanta; i <= endQuanta; i++)
                 for (int j = 0; j < numberOfBins; j++)
                     countLeft[i][j] += countRight[i][j];
+            //Console.WriteLine($"After combining results for quanta {l / workQuanta} to {r / workQuanta}");
 
             return countLeft;
         }
@@ -313,6 +316,42 @@ namespace HPCsharp
             if ((parallelThreshold * Environment.ProcessorCount) < length)
                 parallelThreshold = length / Environment.ProcessorCount;
             return HistogramByteComponentsQCParInner(inArray, l, r, workQuanta, numberOfQuantas, whichByte, parallelThreshold);
+        }
+
+        private static int[][] HistogramByteComponentsQCParInner_2(uint[] inArray, Int32 l, Int32 r, int workQuanta, uint numberOfQuantas, uint whichByte, int parallelThreshold = 16 * 1024)
+        {
+            const int numberOfBins = 256;
+            int[][] countLeft = null;
+            int[][] countRight = null;
+            //Console.WriteLine($"HistogramByteComponentsQCParInner: l = {l}, r = {r}, workQuanta = {workQuanta}, numberOfQuantas = {numberOfQuantas}, whichByte = {whichByte}");
+
+            if ((r - l + 1) <= parallelThreshold)
+                return Algorithm.HistogramByteComponentsAcrossWorkQuantasQC_2(inArray, l, r, workQuanta, numberOfQuantas, whichByte);
+
+            int m = r / 2 + l / 2 + (r % 2 + l % 2) / 2;   // average without overflow
+
+            Parallel.Invoke(
+                () => { countLeft  = HistogramByteComponentsQCParInner_2(inArray, l, m, workQuanta, numberOfQuantas, whichByte, parallelThreshold); },
+                () => { countRight = HistogramByteComponentsQCParInner_2(inArray, m + 1, r, workQuanta, numberOfQuantas, whichByte, parallelThreshold); }
+            );
+            // Combine left and right results (reduce step), only for workQuantas for which the counts were computed
+            //Console.WriteLine($"Before combining results for quanta {l / workQuanta} to {r / workQuanta}");
+            int startQuanta = 0;
+            int endQuanta   = (r - l) / workQuanta;  // (length - 1) / workQuanta intentionally
+            for (int i = startQuanta; i <= endQuanta; i++)
+                for (int j = 0; j < numberOfBins; j++)
+                    countLeft[i][j] += countRight[i][j];
+            //Console.WriteLine($"After combining results for quanta {l / workQuanta} to {r / workQuanta}");
+
+            return countLeft;
+        }
+
+        public static int[][] HistogramByteComponentsQCPar_2(uint[] inArray, Int32 l, Int32 r, int workQuanta, uint numberOfQuantas, uint whichByte, int parallelThreshold = 16 * 1024)
+        {
+            int length = r - l + 1;
+            if ((parallelThreshold * Environment.ProcessorCount) < length)
+                parallelThreshold = length / Environment.ProcessorCount;
+            return HistogramByteComponentsQCParInner_2(inArray, l, r, workQuanta, numberOfQuantas, whichByte, parallelThreshold);
         }
 
         private static uint[][] HistogramByteComponentsParInner(int[] inArray, Int32 l, Int32 r, int parallelThreshold = 16 * 1024)

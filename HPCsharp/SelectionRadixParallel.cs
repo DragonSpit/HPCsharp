@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace HPCsharp
 {
+
     public static partial class ParallelAlgorithm
     {
         // Move elements outside the k-th bin, the bin that k is in, into the k-th bin
@@ -43,20 +44,30 @@ namespace HPCsharp
                     b_out[startWithinKthBin++] = a_in[startOfOb];    // Move the element that belongs in the k-th bin into the k-th bin
             }
         }
-
-        public static (uint[][] count, uint[] sizeOfBin, uint[][] startOfBin) ComputeStartOfBinsForSelectionPar(this uint[] inputArray, int workQuanta, uint numberOfQuantas, uint digit)
+        // Move elements outside the k-th bin, the bin that k is in, into the k-th bin
+        // For not-in-place version.
+        private static async Task MoveOutsideOfKthBinIn_NotInPlace_Async(uint[] a_in, uint[] b_out, int startOfOb, int lengthOfOb, int startWithinKthBin, int shiftRightAmount, uint bitMask, int kthBin)
+        {
+            int endOfOb = startOfOb + lengthOfOb - 1;  // end of outside of bin is inclusive
+            for (; startOfOb <= endOfOb; startOfOb++)
+            {
+                if (((a_in[startOfOb] >> shiftRightAmount) & bitMask) == kthBin)
+                    b_out[startWithinKthBin++] = a_in[startOfOb];    // Move the element that belongs in the k-th bin into the k-th bin
+            }
+        }
+        public static (int[][] count, int[] sizeOfBin, int[][] startOfBin) ComputeStartOfBinsForSelectionPar(this uint[] inputArray, int start, int length, int workQuanta, uint numberOfQuantas, uint digit)
         {
             if (inputArray == null)
                 throw new ArgumentNullException(nameof(inputArray));
             uint numberOfBins = 256;
 
-            uint[][] count = ParallelAlgorithm.HistogramByteComponentsQCPar(inputArray, 0, inputArray.Length - 1, workQuanta, numberOfQuantas, digit);
+            int[][] count = ParallelAlgorithm.HistogramByteComponentsQCPar_2(inputArray, start, start + length - 1, workQuanta, numberOfQuantas, digit);
 
-            uint[][] startOfBin = new uint[numberOfQuantas][];     // start of bin for each parallel work item
+            int[][] startOfBin = new int[numberOfQuantas][];     // start of bin for each parallel work item
             for (int q = 0; q < numberOfQuantas; q++)
-                startOfBin[q] = new uint[numberOfBins];
+                startOfBin[q] = new int[numberOfBins];
 
-            uint[] sizeOfBin = new uint[numberOfBins];
+            int[] sizeOfBin = new int[numberOfBins];
 
             // Determine the overall size of each bin, across all work quanta
             for (uint b = 0; b < numberOfBins; b++)
@@ -64,24 +75,24 @@ namespace HPCsharp
                 sizeOfBin[b] = 0;
                 for (int q = 0; q < numberOfQuantas; q++)
                     sizeOfBin[b] += count[q][b];
-                //Console.WriteLine("ComputeStartOfBins: d = {0}  sizeOfBin[{1}] = {2}", digit, b, sizeOfBin[b]);
+                //Console.WriteLine("ComputeStartOfBinsForSelectionPar: digit = {0}  sizeOfBin[{1}] = {2}", digit, b, sizeOfBin[b]);
             }
 
             // Determine starting of bins for work quanta 0
-            startOfBin[0][0] = 0;
+            startOfBin[0][0] = start;
             for (uint b = 1; b < numberOfBins; b++)
             {
-                startOfBin[0][b] = startOfBin[0][b - 1] + sizeOfBin[b - 1];
+                startOfBin[0][b] = startOfBin[0][b - 1] + (int)sizeOfBin[b - 1];
                 //startOfBin[0][b] = sizeOfBin[b - 1];
                 //if (digit == 1)
                 //    Console.WriteLine("ComputeStartOfBins: d = {0}  startOfBin[0][{1}] = {2}", digit, b, startOfBin[0][b]);
             }
 
             // Determine starting of bins for work quanta 1 thru Q
-            for (uint q = 1; q < numberOfQuantas; q++)
+            for (int q = 1; q < numberOfQuantas; q++)
                 for (uint b = 0; b < numberOfBins; b++)
                 {
-                    startOfBin[q][b] = startOfBin[q - 1][b] + count[q - 1][b];
+                    startOfBin[q][b] = startOfBin[q - 1][b] + (int)count[q - 1][b];
                     //if (digit == 1)
                     //    Console.WriteLine("ComputeStartOfBins: d = {0}  sizeOfBin[{1}][{2}] = {3}", digit, q, b, startOfBin[q][b]);
                 }
@@ -99,64 +110,48 @@ namespace HPCsharp
             int[] startOfBin = new int[PowerOfTwoRadix + 1];
             while (digit >= 0)
             {
-#if False
                 int last = first + length - 1;
-                int[] count = HPCsharp.ParallelAlgorithm.HistogramOneByteComponentPar(a, first, last, shiftRightAmount, ParallelWorkQuantum);
+                int kthBin;
+                uint quanta = (length % ParallelWorkQuantum) == 0 ? (uint)(length / ParallelWorkQuantum)
+                                                                  : (uint)(length / ParallelWorkQuantum + 1);
+                // TODO: ComputeStartOfBinsPar() does too much work since only the bin that k is in needs start of bins computed. But this is a good initial step.
+                var (count1, sizeOfBin, startOfBinPar) = ComputeStartOfBinsForSelectionPar(a, first, length, ParallelWorkQuantum, quanta, (uint)digit);
 
                 startOfBin[0] = first; startOfBin[PowerOfTwoRadix] = last + 1;
                 for (int i = 1; i < PowerOfTwoRadix; i++)
-                    startOfBin[i] = startOfBin[i - 1] + count[i - 1];
-
+                    startOfBin[i] = startOfBin[i - 1] + sizeOfBin[i - 1];
                 // Determine which bin contains the k-th smallest element. kthBin will hold the bin number.
-                int kthBin = 0;
+                kthBin = 0;
                 for (; kthBin < PowerOfTwoRadix; kthBin++)
                     if (k >= startOfBin[kthBin] && k <= (startOfBin[kthBin + 1] - 1)) break;
-#else
-                int last = first + length - 1;
-                int kthBin;
-                if (length > ParallelWorkQuantum)
-                {
-                    uint quanta = (length % ParallelWorkQuantum) == 0 ? (uint)(length / ParallelWorkQuantum)
-                                                                      : (uint)(length / ParallelWorkQuantum + 1);
-                    //int[] count1 = HPCsharp.ParallelAlgorithm.HistogramOneByteComponentPar(a, first, last, shiftRightAmount, ParallelWorkQuantum);
-                    // TODO: ComputeStartOfBinsPar() does too much work since only the bin that k is in needs start of bins computed. But this is a good initial step.
-                    var (count, sizeOfBin, startOfBinPar) = ComputeStartOfBinsForSelectionPar(a, ParallelWorkQuantum, quanta, (uint)digit);
-
-                    // debug
-                    //for (int i = 0; i < PowerOfTwoRadix; i++)
-                    //    if (sizeOfBin[i] != count1[i])
-                    //    {
-                    //        Console.WriteLine("RadixSelectionParInner2: sizeOfBin[{0}] = {1}, count1[{0}] = {2}", i, sizeOfBin[i], count1[i]);
-                    //        return;
-                    //    }
-
-                    startOfBin[0] = first; startOfBin[PowerOfTwoRadix] = last + 1;
-                    for (int i = 1; i < PowerOfTwoRadix; i++)
-                        startOfBin[i] = startOfBin[i - 1] + (int)sizeOfBin[i - 1];
-
-                    // Determine which bin contains the k-th smallest element. kthBin will hold the bin number.
-                    kthBin = 0;
-                    for (; kthBin < PowerOfTwoRadix; kthBin++)
-                        if (k >= startOfBin[kthBin] && k <= (startOfBin[kthBin + 1] - 1)) break;
-                }
-                else
-                {
-                    int[] count = HPCsharp.Algorithm.HistogramOneByteComponent(a, first, last, shiftRightAmount);
-
-                    startOfBin[0] = first; startOfBin[PowerOfTwoRadix] = last + 1;
-                    for (int i = 1; i < PowerOfTwoRadix; i++)
-                        startOfBin[i] = startOfBin[i - 1] + count[i - 1];
-
-                    // Determine which bin contains the k-th smallest element. kthBin will hold the bin number.
-                    kthBin = 0;
-                    for (; kthBin < PowerOfTwoRadix; kthBin++)
-                        if (k >= startOfBin[kthBin] && k <= (startOfBin[kthBin + 1] - 1)) break;
-                }
-#endif
-#if True
                 MoveOutsideOfKthBinIn_NotInPlace(a, b, first, length, startOfBin[kthBin], shiftRightAmount, bitMask, kthBin);
+#if True
+                // Debug idea: Create another array to copy into, and then compare the following two ways of moving elements and see if they produce the same result, and where they differ.
+                //MoveOutsideOfKthBinIn_NotInPlace(a, b, first, length, startOfBin[kthBin], shiftRightAmount, bitMask, kthBin);
+                //uint[] c = new uint[b.Length];
+                //for (int q = 0; q < quanta; q++)
+                //{
+                //    MoveOutsideOfKthBinIn_NotInPlace(a, c, first + (q * ParallelWorkQuantum), Math.Min(ParallelWorkQuantum, last - (first + (q * ParallelWorkQuantum)) + 1),
+                //                                     (int)startOfBinPar[q][kthBin], shiftRightAmount, bitMask, kthBin);
+                //}
+                //for(int i = 0; i < b.Length; i++)
+                //{
+                //    if (b[i] != c[i])
+                //    {
+                //        Console.WriteLine($"Mismatch at index {i}: b[{i}] = {b[i]}, c[{i}] = {c[i]}, first = {first}, length = {length}, shiftRightAmount = {shiftRightAmount}, bitMask = {bitMask}, kthBin = {kthBin}");
+                //        Console.Out.Flush();
+                //        return;
+                //    }
+                //}
 #else
-                // Implement parallel move of elements outside the k-th bin into the k-th bin
+                    //List<Task> tasks = new List<Task>();
+                    //// Implement parallel move of elements outside the k-th bin into the k-th bin
+                    //for (int q = 0; q < quanta; q++)
+                    //{
+                    //    tasks.Add(Task.Run(() => MoveOutsideOfKthBinIn_NotInPlace(a, b, first + (q * ParallelWorkQuantum), Math.Min(ParallelWorkQuantum, last - (first + (q * ParallelWorkQuantum)) + 1),
+                    //                                                              (int)startOfBinPar[q][kthBin], shiftRightAmount, bitMask, kthBin)));
+                    //}
+                    //await Task.WhenAll(tasks);
 #endif
                 if (shiftRightAmount <= 0) break;
                 digit--;
@@ -183,7 +178,7 @@ namespace HPCsharp
         /// <param name="start">starting index of the subarray</param>
         /// <param name="length">length of the subarray</param>
         /// <param name="k">index of the desired element to be selected</param>
-        public static uint SelectRadixPar(this uint[] arrayToBeSelected, Int32 start, Int32 length, Int32 k, int parallelThreshold = 100000)
+        public static uint SelectRadixPar(this uint[] arrayToBeSelected, Int32 start, Int32 length, Int32 k, int parallelThreshold = 64 * 1024)
         {
             if (arrayToBeSelected == null)
                 throw new ArgumentNullException(nameof(arrayToBeSelected));
@@ -200,7 +195,7 @@ namespace HPCsharp
         /// </summary>
         /// <param name="arrayToBeSelected">array that is to be sorted in place</param>
         /// <param name="k">index of the desired element to be selected</param>
-        public static uint SelectRadixPar(this uint[] arrayToBeSelected, Int32 k, int parallelThreshold = 100000)
+        public static uint SelectRadixPar(this uint[] arrayToBeSelected, Int32 k, int parallelThreshold = 64 * 1024)
         {
             if (arrayToBeSelected == null)
                 throw new ArgumentNullException(nameof(arrayToBeSelected));
