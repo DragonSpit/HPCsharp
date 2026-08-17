@@ -12,6 +12,8 @@
 // TODO: Switch from mask-shift to shift-mask which makes the mask be the same for all bytes, which may make it faster than union. Try also casting to a byte instead of masking. Look at assembly to see
 //       which is better. Time to see which is faster.
 // TODO: To support small histograms, support the count arrays to be passed in, so that the caller can allocate them potentially on the stack or re-use previously allocated ones.
+// TODO: HistogramByteOneComponent() can be accelerated for the case of constant arrays, and would not hurt other input array distributions, by having multiple count arrays (e.g. 2, 3 or 4 count arrays)
+//       each count a different array element, and then combining the counts at the end. This would eliminate the CPU architecture bottleneck of incrementing the same count array element (the same memory location).
 
 #pragma warning disable CA1510
 #pragma warning disable CA1512
@@ -238,6 +240,23 @@ namespace HPCsharp
             }
             return counts;
         }
+
+        public static int[] HistogramByteOneComponent(uint[] inArray, Int32 l, Int32 r, int digit)
+        {
+            if (inArray == null)
+                throw new ArgumentNullException(nameof(inArray));
+            const int numberOfBins = 256;
+            int shiftRight = 8 * digit;
+            int[] count = new int[numberOfBins];
+
+            for (int current = l; current <= r; current++)    // Scan the array and count the number of times each digit value appears - i.e. size of each bin
+            {
+                uint value = inArray[current];
+                count[(value >> shiftRight) & 0xff]++;
+            }
+            return count;
+        }
+
 
         public static int[][] HistogramByteComponents(uint[] inArray, Int32 l, Int32 r)
         {
@@ -621,50 +640,55 @@ namespace HPCsharp
         // This version is more capable than the other version, with l and r parameters working correctly.
         // l is the  left-most index, inclusive
         // r is the right-most index, inclusive
-        public static int[][] HistogramByteComponentsAcrossWorkQuantasQC_2(uint[] inArray, Int32 l, Int32 r, int workQuanta, uint numberOfQuantas, uint whichByte)
+        public static int[][] HistogramByteComponentsAcrossWorkQuantasQC_3(uint[] inArray, int l, int r, int workQuanta, int numberOfQuantas, uint whichByte)
         {
             if (inArray == null)
                 throw new ArgumentNullException(nameof(inArray));
             const int numberOfBins = 256;
             const uint mask = 0xff;
             int shiftRightAmount = (int)(8 * whichByte);
-            //Console.WriteLine("HistogramByteComponentsAcrossWorkQuantasQC: l = {0}, r = {1}, workQuanta = {2}, numberOfQuantas = {3}, whichByte = {4}", l, r, workQuanta, numberOfQuantas, whichByte);
+            //Console.WriteLine("HistogramByteComponentsAcrossWorkQuantasQC_3: l = {0}, r = {1}, workQuanta = {2}, whichByte = {3}", l, r, workQuanta, whichByte);
 
-            int[][] count = new int[numberOfQuantas][];          // count for each parallel work item
+            int[][] count = new int[numberOfQuantas][];
             for (int i = 0; i < numberOfQuantas; i++)
                 count[i] = new int[numberOfBins];
 
-            if (l > r)
-                return count;
+            if (l > r) return count;
 
-            int startQuanta = 0;
-            int endQuanta   = (r - l) / workQuanta;  // (length - 1) / workQuanta intentionally
-            //Console.WriteLine("HistogramByteComponentsAcrossWorkQuantasQC: startQuanta = {0}, endQuanta = {1}", startQuanta, endQuanta);
+            int startQuanta = l / workQuanta;
+            int endQuanta   = r / workQuanta;
+
+            //Console.WriteLine("HistogramByteComponentsAcrossWorkQuantasQC_3: startQuanta = {0}, endQuanta = {1}, numberOfQuantas = {2}", startQuanta, endQuanta, numberOfQuantas);
             if (startQuanta == endQuanta)       // counting within a single workQuanta, either partial or full
             {
                 int q = startQuanta;
                 for (int currIndex = l; currIndex <= r; currIndex++)
                 {
                     uint inByte = (inArray[currIndex] >> shiftRightAmount) & mask;
+                    //if (inByte == 0)
+                    //    Console.WriteLine($"HistogramByteComponentsAcrossWorkQuantasQC_3: inByte = {inByte:X}, inArray[currIndex] = {inArray[currIndex]:X}", inByte, inArray[currIndex]);
                     count[q][inByte]++;
                 }
+                //Environment.Exit(0);
             }
-            else
+            else  // startQuanta < endQuanta, counting across multiple workQuantas, either partial or full
             {
-                int q, currIndex;
-
-                // process all full workQuantas, but not the endQuanta, which is either partial or full
-                currIndex = l;
-                for (q = startQuanta; q < endQuanta; q++)
+                int q = startQuanta, currIndex;
+                // process startQuanta, which is either partial or full
+                for (currIndex = l; currIndex < (startQuanta * workQuanta + workQuanta); currIndex++)
                 {
+                    uint inByte = (inArray[currIndex] >> shiftRightAmount) & mask;
+                    count[q][inByte]++;
+                }
+                // process (startQuanta + 1) to (endQuanta - 1), which are all full workQuantas
+                for (q = startQuanta + 1; q <= (endQuanta - 1); q++)
                     for (int j = 0; j < workQuanta; j++)
                     {
-                        uint inByte = (inArray[currIndex++] >> shiftRightAmount) & mask;
+                        uint inByte = (inArray[currIndex] >> shiftRightAmount) & mask;
                         count[q][inByte]++;
+                        currIndex++;
                     }
-                }
                 // process endQuanta, which is either partial or full
-                q = endQuanta;
                 for (; currIndex <= r; currIndex++)
                 {
                     uint inByte = (inArray[currIndex] >> shiftRightAmount) & mask;
