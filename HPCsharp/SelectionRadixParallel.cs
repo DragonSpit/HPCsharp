@@ -150,8 +150,9 @@ namespace HPCsharp
                     if (k >= startOfBin[kthBin] && k <= (startOfBin[kthBin + 1] - 1)) break;
 #if True
 #if False
-                MoveOutsideOfKthBinIn_NotInPlace(a, b, first, length, startOfBin[kthBin], shiftRightAmount, bitMask, kthBin);  // Working version.
+                MoveOutsideOfKthBinIn_NotInPlace(a, b, first, length, startOfBin[kthBin], shiftRightAmount, bitMask, kthBin);  // Almost working version. Fails for random array length filled with random number after a while (result is close).
 #else
+                // This version fails in the same way as the above version.
                 int startQuanta = first / ParallelWorkQuantum;
                 int endQuanta   = last  / ParallelWorkQuantum;
 
