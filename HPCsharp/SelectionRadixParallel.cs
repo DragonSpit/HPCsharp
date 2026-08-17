@@ -71,13 +71,13 @@ namespace HPCsharp
         {
             if (inputArray == null)
                 throw new ArgumentNullException(nameof(inputArray));
-            uint numberOfBins = 256;
+            const int numberOfBins = 256;
 
             int[][] count = ParallelAlgorithm.HistogramByteComponentsQCPar_2(inputArray, start, start + length - 1, workQuanta, numberOfQuantas, digit, workQuanta);
 
             int[][] startOfBin = new int[numberOfQuantas][];     // start of bin for each parallel work item
             for (int q = 0; q < numberOfQuantas; q++)
-                startOfBin[q] = new int[numberOfBins];
+                startOfBin[q] = new int[numberOfBins + 1];
 
             int[] sizeOfBin = new int[numberOfBins];
 
@@ -95,7 +95,7 @@ namespace HPCsharp
             }
 
             // Determine starting of bins for work quanta 0
-            startOfBin[0][0] = start;
+            startOfBin[0][0] = start; startOfBin[numberOfQuantas - 1][numberOfBins] = start + length;
             //Console.WriteLine("ComputeStartOfBins: d = {0}  start = {1}", digit, start);
             for (uint b = 1; b < numberOfBins; b++)
             {
@@ -152,7 +152,7 @@ namespace HPCsharp
 #if False
                 MoveOutsideOfKthBinIn_NotInPlace(a, b, first, length, startOfBin[kthBin], shiftRightAmount, bitMask, kthBin);  // Working version!
 #else
-                // This version fails in the same way as the above version.
+                // This version also works now!
                 int startQuanta = first / ParallelWorkQuantum;
                 int endQuanta   = last  / ParallelWorkQuantum;
 
