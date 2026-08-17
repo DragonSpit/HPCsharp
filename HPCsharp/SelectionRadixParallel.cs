@@ -141,7 +141,7 @@ namespace HPCsharp
                 //        throw new Exception($"RadixSelectionParInner2: count[{i}] = {count[i]} != sizeOfBin[{i}] = {sizeOfBin[i]}  d = {digit}");
                 //}
 
-                startOfBin[0] = first; startOfBin[PowerOfTwoRadix] = last;
+                startOfBin[0] = first; startOfBin[PowerOfTwoRadix] = last + 1;
                 for (int i = 1; i < PowerOfTwoRadix; i++)
                     startOfBin[i] = startOfBin[i - 1] + sizeOfBin[i - 1];
                 // Determine which bin contains the k-th smallest element. kthBin will hold the bin number.
@@ -149,7 +149,7 @@ namespace HPCsharp
                 for (; kthBin < PowerOfTwoRadix; kthBin++)
                     if (k >= startOfBin[kthBin] && k <= (startOfBin[kthBin + 1] - 1)) break;
 #if True
-#if False
+#if True
                 MoveOutsideOfKthBinIn_NotInPlace(a, b, first, length, startOfBin[kthBin], shiftRightAmount, bitMask, kthBin);  // Almost working version. Fails for random array length filled with random number after a while (result is close).
 #else
                 // This version fails in the same way as the above version.
