@@ -37,6 +37,7 @@ namespace HPCsharp
         private static void MoveOutsideOfKthBinIn_NotInPlace(uint[] a_in, uint[] b_out, int startOfOb, int lengthOfOb, int startWithinKthBin,
                                                             int shiftRightAmount, uint bitMask, int kthBin)
         {
+            //Console.WriteLine("MoveOutsideOfKthBinIn_NotInPlace: startOfOb = {0}  lengthOfOb = {1}  startWithinKthBin = {2}  shiftRightAmount = {3}  bitMask = {4}  kthBin = {5}", startOfOb, lengthOfOb, startWithinKthBin, shiftRightAmount, bitMask, kthBin);
             int endOfOb = startOfOb + lengthOfOb - 1;  // end of outside of bin is inclusive
             for (; startOfOb <= endOfOb; startOfOb++)
             {
@@ -148,15 +149,15 @@ namespace HPCsharp
                 kthBin = 0;
                 for (; kthBin < PowerOfTwoRadix; kthBin++)
                     if (k >= startOfBin[kthBin] && k <= (startOfBin[kthBin + 1] - 1)) break;
-#if True
+
+                if (length <= 0) break;
+#if False
 #if False
                 MoveOutsideOfKthBinIn_NotInPlace(a, b, first, length, startOfBin[kthBin], shiftRightAmount, bitMask, kthBin);  // Working version!
 #else
                 // This version also works now!
                 int startQuanta = first / ParallelWorkQuantum;
                 int endQuanta   = last  / ParallelWorkQuantum;
-
-                if (length <= 0) break;
 
                 //Console.WriteLine("RadixSelectionParInner2: startQuanta = {0}, endQuanta = {1}, ParallelWorkQuantum = {2}", startQuanta, endQuanta, ParallelWorkQuantum);
                 // TODO: The following if/else should be simplified to just the else case, and possibly handle the start and end condition automatically.
@@ -180,15 +181,50 @@ namespace HPCsharp
                 }
 #endif
 #else
-                List<Task> tasks = new List<Task>();
+                List<Action> actions = new List<Action>();
+
                 // Implement parallel move of elements outside the k-th bin into the k-th bin
-                for (int q = 0; q < quanta; q++)
+                int startQuanta = first / ParallelWorkQuantum;
+                int endQuanta = last / ParallelWorkQuantum;
+                //Console.WriteLine("RadixSelectionParInner2: first = {0}  startQuanta = {1}  endQuanta = {2}", first, startQuanta, endQuanta);
+
+                if (startQuanta == endQuanta)       // moving array elements within a single workQuantum, either partial or full
                 {
-                    tasks.Add(Task.Run(() => MoveOutsideOfKthBinIn_NotInPlaceAsync(
-                        a, b, first + (q * ParallelWorkQuantum), Math.Min(ParallelWorkQuantum, last - (first + (q * ParallelWorkQuantum)) + 1),
-                        startOfBinPar[q][kthBin], shiftRightAmount, bitMask, kthBin)));
+                    actions.Add(() => MoveOutsideOfKthBinIn_NotInPlace(a, b, first, length, startOfBinPar[startQuanta][kthBin], shiftRightAmount, bitMask, kthBin));
                 }
-                await Task.WhenAll(tasks);
+                else  // startQuanta < endQuanta, moving array elements of multiple workQuantums, either partial or full
+                {
+                    // process startQuanta, which is either partial or full, from first to the end of the startQuanta
+                    actions.Add(() => MoveOutsideOfKthBinIn_NotInPlace(a, b, first, ((startQuanta + 1) * ParallelWorkQuantum) - first, startOfBinPar[startQuanta][kthBin], shiftRightAmount, bitMask, kthBin));
+
+                    // process (startQuanta + 1) to (endQuanta - 1), which are all full workQuantas
+                    //for (q = startQuanta + 1; q <= (endQuanta - 1); q++)  // doesn't work because of the closure issue with the loop variable in the lambda expression
+                    //{
+                    //    int qLocalCopy = q; // Capture the current value of q for the lambda expression
+                    //    startMove = qLocalCopy * ParallelWorkQuantum;
+                    //    actions.Add(() => MoveOutsideOfKthBinIn_NotInPlace(a, b, startMove, ParallelWorkQuantum, startOfBinPar[q][kthBin], shiftRightAmount, bitMask, kthBin));
+                    //}
+                    // Using foreach with Enumerable.Range to avoid the closure issue with the loop variable in the lambda expression TODO: Write a blog on this issue and how to avoid it.
+                    int q;
+                    int[] starts = new int[endQuanta];
+                    int[] startsOfBinLoc = new int[endQuanta];
+                    for (q = startQuanta + 1; q <= (endQuanta - 1); q++)
+                    {
+                        starts[q] = q * ParallelWorkQuantum;
+                        startsOfBinLoc[q] = startOfBinPar[q][kthBin];
+                    }
+                    for (q = startQuanta + 1; q <= (endQuanta - 1); q++)
+                    {
+                        int currentStart = starts[q]; // Capture the current value of q for the lambda expression
+                        int currentStartOfBinLoc = startsOfBinLoc[q]; // Capture the current value of q for the lambda expression
+                        actions.Add(() => MoveOutsideOfKthBinIn_NotInPlace(a, b, currentStart, ParallelWorkQuantum, currentStartOfBinLoc, shiftRightAmount, bitMask, kthBin));
+                    }
+
+                    // process endQuanta, which is either partial or full
+                    int lengthLoc = last - (endQuanta * ParallelWorkQuantum) + 1;
+                    actions.Add(() => MoveOutsideOfKthBinIn_NotInPlace(a, b, endQuanta * ParallelWorkQuantum, lengthLoc, startOfBinPar[endQuanta][kthBin], shiftRightAmount, bitMask, kthBin));
+                }
+                Parallel.Invoke(actions.ToArray());
 #endif
                 if (shiftRightAmount <= 0) break;
                 digit--;
