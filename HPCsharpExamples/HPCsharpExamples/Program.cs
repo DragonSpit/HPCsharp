@@ -11,7 +11,7 @@ namespace HPCsharpExamples
         static void Main(string[] args)
         {
             #region Simple example of serial and parallel selection of integer arrays
-            Console.WriteLine("Simple example of serial and parallel selection of integer arrays");
+            Console.WriteLine("Simple example of serial selection of integer arrays");
 
             uint[] SelectArrayOne   = { 21, 43, 16, 5, 54, 3 };
             uint[] SelectArrayTwo   = { 21, 43, 16, 5, 54, 3 };
@@ -23,27 +23,39 @@ namespace HPCsharpExamples
             uint selectResultThree = SelectArrayThree.SelectRadix(3);           // HPCsharp    in-place Selection radix-based      (serial)
 
             if (selectResultOne == selectResultTwo && selectResultOne == selectResultThree)
-                Console.WriteLine("Selection results for variety of Selection methods are equal");
+                Console.WriteLine("k-th Selection results for variety of Selection methods are equal");
             else
-                Console.WriteLine("Selection results for variety of Selection methods are not equal!");
+                Console.WriteLine("k-th Selection results for variety of Selection methods are not equal!");
             Console.WriteLine();
 
-            //uint[] sortedArrayFour = ArrayFour.SortRadixLsd();      // HPCsharp Radix Sort (not in-place, serial)
-            //uint[] sortedArrayFive = ArrayFive.SortMerge();         // HPCsharp Merge Sort (not in-place, serial)
-            //uint[] sortedArraySix = ArraySix.SortMergePar();        // HPCsharp Merge Sort (not in-place, parallel)
+            uint[] SelectArrayFour   = { 21, 43, 16, 5, 54, 3 };
+            uint[] SelectArrayFive   = { 21, 43, 16, 5, 54, 3 };
 
-            //bool equalSortedArraysOneAndTwo = ArrayOne.SequenceEqual(ArrayTwo);
-            //bool equalSortedArraysOneAndThree = ArrayOne.SequenceEqual(ArrayThree);
-            //bool equalSortedArraysOneAndFour = ArrayOne.SequenceEqual(ArrayFour);
-            //bool equalSortedArraysOneAndFive = ArrayOne.SequenceEqual(ArrayFive);
-            //bool equalSortedArraysOneAndSix = ArrayOne.SequenceEqual(ArraySix);
+            Array.Sort(SelectArrayFour);                  // C# standard in-place Sort
+            SelectArrayFive.SelectTopK(3);                // HPCsharp    in-place Top-k Selection radix-based (serial)
+            Array.Sort(SelectArrayFive, 3, SelectArrayFive.Length - 3);  // top-K selection does not provide the top-k results in sorted order, so we need to sort the top-k results for comparison
 
-            //if (equalSortedArraysOneAndTwo && equalSortedArraysOneAndThree && equalSortedArraysOneAndFour &&
-            //    equalSortedArraysOneAndFive && equalSortedArraysOneAndSix)
-            //    Console.WriteLine("Sorting for variety of Merge Sort(s) results are equal");
-            //else
-            //    Console.WriteLine("Sorting for variety of Merge Sort(s) results are not equal!");
-            //Console.WriteLine();
+            bool equalSortedArraysFourAndFive = SelectArrayFour[3..5].SequenceEqual(SelectArrayFive[3..5]);
+            if (equalSortedArraysFourAndFive)
+                Console.WriteLine("Top-K Selection results are equal");
+            else
+                Console.WriteLine("Top-K Selection results are not equal!");
+            Console.WriteLine();
+
+            Console.WriteLine("Simple example of serial selection of decimal arrays");
+
+            decimal[] SelectArrayDecOne = { 21.12m, 43.34m, 16.56m, 5.78m, 54.90m, 3.21m };
+            decimal[] SelectArrayDecTwo = { 21.12m, 43.34m, 16.56m, 5.78m, 54.90m, 3.21m };
+
+            Array.Sort(SelectArrayDecOne);                                         // C# standard in-place Sort
+            decimal selectResultDecOne = SelectArrayDecOne[SelectArrayDecOne.Length - 3]; // C# standard in-place Selection comparison-based (serial)
+            decimal selectResultDecTwo = SelectArrayDecTwo.Select(3);                  // HPCsharp    in-place Selection comparison-based (serial)
+
+            if (selectResultDecOne == selectResultDecTwo)
+                Console.WriteLine("k-th Selection results for comparison-based Selection methods for decimal arrays are equal");
+            else
+                Console.WriteLine("k-th Selection results for comparison-based Selection methods for decimal arrays are not equal!");
+            Console.WriteLine();
             #endregion
 
             #region Simple example of serial and parallel sorting of integer arrays
