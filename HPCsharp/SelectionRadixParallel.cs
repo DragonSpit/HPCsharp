@@ -153,9 +153,10 @@ namespace HPCsharp
                 if (length <= 0) break;
 #if False
 #if False
+                // Sequential version in full size of moving elements outside the k-th bin into the k-th bin, as a golden reference for the parallel version below.
                 MoveOutsideOfKthBinIn_NotInPlace(a, b, first, length, startOfBin[kthBin], shiftRightAmount, bitMask, kthBin);  // Working version!
 #else
-                // This version also works now!
+                // Sequential version in quanta/chunks of moving elements outside the k-th bin into the k-th bin, as a golden reference for the parallel version below.
                 int startQuanta = first / ParallelWorkQuantum;
                 int endQuanta   = last  / ParallelWorkQuantum;
 
@@ -219,12 +220,19 @@ namespace HPCsharp
                         int currentStartOfBinLoc = startsOfBinLoc[q]; // Capture the current value of q for the lambda expression
                         actions.Add(() => MoveOutsideOfKthBinIn_NotInPlace(a, b, currentStart, ParallelWorkQuantum, currentStartOfBinLoc, shiftRightAmount, bitMask, kthBin));
                     }
-
                     // process endQuanta, which is either partial or full
                     int lengthLoc = last - (endQuanta * ParallelWorkQuantum) + 1;
                     actions.Add(() => MoveOutsideOfKthBinIn_NotInPlace(a, b, endQuanta * ParallelWorkQuantum, lengthLoc, startOfBinPar[endQuanta][kthBin], shiftRightAmount, bitMask, kthBin));
                 }
+                //ParallelOptions options = new ParallelOptions
+                //{
+                //    // Environment.ProcessorCount uses all available logical cores
+                //    MaxDegreeOfParallelism = Environment.ProcessorCount
+                //};
+                //Console.WriteLine("RadixSelectionParInner2: MaxDegreeOfParallelism = {0}", options.MaxDegreeOfParallelism);
+
                 Parallel.Invoke(actions.ToArray());
+                //Parallel.Invoke(options, actions.ToArray());
 #endif
                 if (shiftRightAmount <= 0) break;
                 digit--;
