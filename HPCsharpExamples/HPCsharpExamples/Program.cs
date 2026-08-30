@@ -11,28 +11,32 @@ namespace HPCsharpExamples
         static void Main(string[] args)
         {
             #region Simple example of serial and parallel selection of integer arrays
-            //Console.WriteLine("Simple example of serial and parallel selection of integer arrays");
+            Console.WriteLine("Simple example of serial and parallel selection of integer arrays");
 
-            //uint[] ArrayOne   = { 21, 43, 16, 5, 54, 3 };
-            //uint[] ArrayTwo   = { 21, 43, 16, 5, 54, 3 };
-            //uint[] ArrayThree = { 21, 43, 16, 5, 54, 3 };
-            //uint[] ArrayFour  = { 21, 43, 16, 5, 54, 3 };
-            //uint[] ArrayFive  = { 21, 43, 16, 5, 54, 3 };
-            //uint[] ArraySix   = { 21, 43, 16, 5, 54, 3 };
+            uint[] SelectArrayOne   = { 21, 43, 16, 5, 54, 3 };
+            uint[] SelectArrayTwo   = { 21, 43, 16, 5, 54, 3 };
+            uint[] SelectArrayThree = { 21, 43, 16, 5, 54, 3 };
 
-            //Array.Sort(ArrayOne);                                   // C# standard in-place Sort
-            //ArrayTwo.Select( 3 );                                   // HPCsharp    in-place Merge Sort (serial)
-            //ArrayThree.SelectRadix( 3 );               // HPCsharp    in-place Merge Sort (parallel)
+            Array.Sort(SelectArrayOne);                                         // C# standard in-place Sort
+            uint selectResultOne   = SelectArrayOne[SelectArrayOne.Length - 3]; // C# standard in-place Selection comparison-based (serial)
+            uint selectResultTwo   = SelectArrayTwo.Select(3);                  // HPCsharp    in-place Selection comparison-based (serial)
+            uint selectResultThree = SelectArrayThree.SelectRadix(3);           // HPCsharp    in-place Selection radix-based      (serial)
+
+            if (selectResultOne == selectResultTwo && selectResultOne == selectResultThree)
+                Console.WriteLine("Selection results for variety of Selection methods are equal");
+            else
+                Console.WriteLine("Selection results for variety of Selection methods are not equal!");
+            Console.WriteLine();
 
             //uint[] sortedArrayFour = ArrayFour.SortRadixLsd();      // HPCsharp Radix Sort (not in-place, serial)
             //uint[] sortedArrayFive = ArrayFive.SortMerge();         // HPCsharp Merge Sort (not in-place, serial)
-            //uint[] sortedArraySix  = ArraySix.SortMergePar();       // HPCsharp Merge Sort (not in-place, parallel)
+            //uint[] sortedArraySix = ArraySix.SortMergePar();        // HPCsharp Merge Sort (not in-place, parallel)
 
-            //bool equalSortedArraysOneAndTwo   = ArrayOne.SequenceEqual(ArrayTwo);
+            //bool equalSortedArraysOneAndTwo = ArrayOne.SequenceEqual(ArrayTwo);
             //bool equalSortedArraysOneAndThree = ArrayOne.SequenceEqual(ArrayThree);
-            //bool equalSortedArraysOneAndFour  = ArrayOne.SequenceEqual(ArrayFour);
-            //bool equalSortedArraysOneAndFive  = ArrayOne.SequenceEqual(ArrayFive);
-            //bool equalSortedArraysOneAndSix   = ArrayOne.SequenceEqual(ArraySix);
+            //bool equalSortedArraysOneAndFour = ArrayOne.SequenceEqual(ArrayFour);
+            //bool equalSortedArraysOneAndFive = ArrayOne.SequenceEqual(ArrayFive);
+            //bool equalSortedArraysOneAndSix = ArrayOne.SequenceEqual(ArraySix);
 
             //if (equalSortedArraysOneAndTwo && equalSortedArraysOneAndThree && equalSortedArraysOneAndFour &&
             //    equalSortedArraysOneAndFive && equalSortedArraysOneAndSix)
