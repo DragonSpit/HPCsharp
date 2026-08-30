@@ -3,12 +3,45 @@ using System.Collections.Generic;
 using System.Linq;
 using HPCsharp;
 
+
 namespace HPCsharpExamples
 {
     partial class Program
     {
         static void Main(string[] args)
         {
+            #region Simple example of serial and parallel selection of integer arrays
+            //Console.WriteLine("Simple example of serial and parallel selection of integer arrays");
+
+            //uint[] ArrayOne   = { 21, 43, 16, 5, 54, 3 };
+            //uint[] ArrayTwo   = { 21, 43, 16, 5, 54, 3 };
+            //uint[] ArrayThree = { 21, 43, 16, 5, 54, 3 };
+            //uint[] ArrayFour  = { 21, 43, 16, 5, 54, 3 };
+            //uint[] ArrayFive  = { 21, 43, 16, 5, 54, 3 };
+            //uint[] ArraySix   = { 21, 43, 16, 5, 54, 3 };
+
+            //Array.Sort(ArrayOne);                                   // C# standard in-place Sort
+            //ArrayTwo.Select( 3 );                                   // HPCsharp    in-place Merge Sort (serial)
+            //ArrayThree.SelectRadix( 3 );               // HPCsharp    in-place Merge Sort (parallel)
+
+            //uint[] sortedArrayFour = ArrayFour.SortRadixLsd();      // HPCsharp Radix Sort (not in-place, serial)
+            //uint[] sortedArrayFive = ArrayFive.SortMerge();         // HPCsharp Merge Sort (not in-place, serial)
+            //uint[] sortedArraySix  = ArraySix.SortMergePar();       // HPCsharp Merge Sort (not in-place, parallel)
+
+            //bool equalSortedArraysOneAndTwo   = ArrayOne.SequenceEqual(ArrayTwo);
+            //bool equalSortedArraysOneAndThree = ArrayOne.SequenceEqual(ArrayThree);
+            //bool equalSortedArraysOneAndFour  = ArrayOne.SequenceEqual(ArrayFour);
+            //bool equalSortedArraysOneAndFive  = ArrayOne.SequenceEqual(ArrayFive);
+            //bool equalSortedArraysOneAndSix   = ArrayOne.SequenceEqual(ArraySix);
+
+            //if (equalSortedArraysOneAndTwo && equalSortedArraysOneAndThree && equalSortedArraysOneAndFour &&
+            //    equalSortedArraysOneAndFive && equalSortedArraysOneAndSix)
+            //    Console.WriteLine("Sorting for variety of Merge Sort(s) results are equal");
+            //else
+            //    Console.WriteLine("Sorting for variety of Merge Sort(s) results are not equal!");
+            //Console.WriteLine();
+            #endregion
+
             #region Simple example of serial and parallel sorting of integer arrays
             Console.WriteLine("Simple example of serial and parallel sorting of integer arrays");
 
@@ -21,17 +54,17 @@ namespace HPCsharpExamples
 
             Array.Sort(ArrayOne);                                   // C# standard in-place Sort
             ArrayTwo.SortMergeInPlace();                            // HPCsharp    in-place Merge Sort (serial)
-            ArrayThree.SortMergeInPlaceAdaptivePar();                 // HPCsharp    in-place Merge Sort (parallel)
+            ArrayThree.SortMergeInPlaceAdaptivePar();               // HPCsharp    in-place Merge Sort (parallel)
 
-            uint[] sortedArrayFour = ArrayFour.SortRadix();         // HPCsharp Radix Sort (not in-place, serial)
+            ArrayFour.SortRadixLsd();                               // HPCsharp Radix Sort (not in-place internally, serial)
             uint[] sortedArrayFive = ArrayFive.SortMerge();         // HPCsharp Merge Sort (not in-place, serial)
             uint[] sortedArraySix  = ArraySix.SortMergePar();       // HPCsharp Merge Sort (not in-place, parallel)
 
             bool equalSortedArraysOneAndTwo   = ArrayOne.SequenceEqual(ArrayTwo);
             bool equalSortedArraysOneAndThree = ArrayOne.SequenceEqual(ArrayThree);
             bool equalSortedArraysOneAndFour  = ArrayOne.SequenceEqual(ArrayFour);
-            bool equalSortedArraysOneAndFive  = ArrayOne.SequenceEqual(ArrayFive);
-            bool equalSortedArraysOneAndSix   = ArrayOne.SequenceEqual(ArraySix);
+            bool equalSortedArraysOneAndFive  = ArrayOne.SequenceEqual(sortedArrayFive);
+            bool equalSortedArraysOneAndSix   = ArrayOne.SequenceEqual(sortedArraySix);
 
             if (equalSortedArraysOneAndTwo && equalSortedArraysOneAndThree && equalSortedArraysOneAndFour &&
                 equalSortedArraysOneAndFive && equalSortedArraysOneAndSix)

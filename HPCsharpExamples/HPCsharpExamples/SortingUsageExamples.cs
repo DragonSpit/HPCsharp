@@ -19,10 +19,10 @@ namespace HPCsharpExamples
             ArrayOne.SortRadixMsd();                               // HPCsharp Radix Sort (serial)   - uint[] has not yet been implemented, but other data types exist
 
             // Not In-Place Sorting
-            sortedArrayOne = ArrayOne.OrderBy(i => i).ToArray();     // Linq Sort
-            sortedArrayOne = ArrayOne.SortMerge();                   // HPCsharp Merge Sort (serial)
-            sortedArrayOne = Algorithm.SortMerge(ArrayOne);          // HPCsharp Merge Sort (serial). Direct function call usage
-            sortedArrayOne = ArrayOne.SortRadix();                   // HPCsharp Radix Sort (serial)
+            sortedArrayOne = ArrayOne.OrderBy(i => i).ToArray();   // Linq Sort
+            sortedArrayOne = ArrayOne.SortMerge();                 // HPCsharp Merge Sort (serial)
+            sortedArrayOne = Algorithm.SortMerge(ArrayOne);        // HPCsharp Merge Sort (serial). Direct function call usage
+            ArrayOne.SortRadixLsd();                               // HPCsharp Radix Sort (serial)
 
             // In-Place Sorting (Parallel)
             ArrayOne.SortMergeInPlaceAdaptivePar();                // HPCsharp Merge Sort (parallel)
@@ -33,13 +33,13 @@ namespace HPCsharpExamples
 
             // Not In-Place Sorting (Parallel)
             sortedArrayOne = ArrayOne.AsParallel().OrderBy(i => i).ToArray();   // Linq Sort (parallel)
-                        sortedArrayOne = ArrayOne.SortMergePar();                           // HPCsharp Merge Sort (parallel)
-                        sortedArrayOne = ArrayOne.SortMergePar( 1, ArrayOne.Length - 1);    // HPCsharp Merge Sort (parallel)
-                        sortedArrayOne = ArrayOne.SortRadixPar();                           // HPCsharp Radix Sort (parallel)
+            sortedArrayOne = ArrayOne.SortMergePar();                           // HPCsharp Merge Sort (parallel)
+            sortedArrayOne = ArrayOne.SortMergePar( 1, ArrayOne.Length - 1);    // HPCsharp Merge Sort (parallel)
+            sortedArrayOne = ArrayOne.SortRadixPar();                           // HPCsharp Radix Sort (parallel)
 
-                        // Other Sorts
-                        // Insertion Sort - O(N^2) - use only for sorting fewer than 50 elements
-                        // Counting  Sort - O(N)   - only for byte, short, ubyte, ushort arrays
+            // Other Sorts
+            // Insertion Sort - O(N^2) - use only for sorting fewer than 50 elements
+            // Counting  Sort - O(N)   - only for byte, short, ubyte, ushort arrays
         }
     }
 }

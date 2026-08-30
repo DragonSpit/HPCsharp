@@ -12,17 +12,19 @@ namespace HPCsharpExamples
         {
             Random randNum = new Random(5);
             int arraySize = 100 * 1000 * 1000;
-            uint[] benchArrayOne  = new uint[arraySize];
+            uint[] benchArrayMerge  = new uint[arraySize];
             uint[] benchArrayTwo  = new uint[arraySize];
-            uint[] sortedArrayOne = new uint[arraySize];
+            uint[] benchArrayRadix = new uint[arraySize];
+            uint[] sortedArrayMerge = new uint[arraySize];
             uint[] sortedArrayTwo = new uint[arraySize];
 
             for (int i = 0; i < arraySize; i++)
             {
-                //benchArrayOne[i] = (uint)randNum.Next(0, Int32.MaxValue);    // fill array with random       values between min and max
-                //benchArrayOne[i] = (uint)i;                                // fill array with incrementing values
-                benchArrayOne[i] = 0;                                      // fill array with constant     values
-                benchArrayTwo[i] = benchArrayOne[i];
+                benchArrayMerge[i] = (uint)randNum.Next(0, Int32.MaxValue) + (uint)randNum.Next(0, Int32.MaxValue);    // fill array with random unsigned integer values between min and max
+                //benchArrayMerge[i] = (uint)i;                                  // fill array with incrementing values
+                //benchArrayMerge[i] = 0;                                          // fill array with constant     values
+                benchArrayTwo[i]   = benchArrayMerge[i];
+                benchArrayRadix[i] = benchArrayMerge[i];
             }
 
             Stopwatch stopwatch = new Stopwatch();
@@ -34,33 +36,32 @@ namespace HPCsharpExamples
             {
                 if (!parallel)
                 {
-                    if (!radixSort) benchArrayOne.SortMergeInPlace();
-                    else            sortedArrayOne = benchArrayOne.SortRadix();
+                    if (!radixSort) benchArrayMerge.SortMergeInPlace();
+                    else            benchArrayRadix.SortRadixLsd();
                 }
                 else
                 {
-                    if (!radixSort) benchArrayOne.SortMergeInPlaceAdaptivePar();
-                    else            sortedArrayOne = benchArrayOne.SortRadixPar();
+                    if (!radixSort) benchArrayMerge.SortMergeInPlaceAdaptivePar();
+                    else            benchArrayRadix = benchArrayRadix.SortRadixPar();
                 }
             }
             else
             {
                 if (!parallel)
                 {
-                    if (!radixSort)   sortedArrayOne = benchArrayOne.SortMerge();
-                    else              sortedArrayOne = benchArrayOne.SortRadix();
+                    if (!radixSort)   sortedArrayMerge = benchArrayMerge.SortMerge();   // Use not-in-place sorting when comparing with Linq.OrderBy, because Linq.OrderBy is not in-place sorting
+                    else              benchArrayRadix.SortRadixLsd();
                 }
                 else
                 {
                     if (!radixSort)
                     {
-                        sortedArrayOne = benchArrayOne.SortMergePar();          // Stable sorting is not necessary for array of integers
-                        //sortedArrayOne = benchArrayOne.SortMergeStablePar();
+                        sortedArrayMerge = benchArrayMerge.SortMergePar();          // Stable sorting is not necessary for array of integers
+                        //sortedArrayMerge = benchArrayMerge.SortMergeStablePar();
                     }
                     else
                     {
-                        //sortedArrayOne = benchArrayOne.SortRadix();
-                        sortedArrayOne = benchArrayOne.SortRadixPar();
+                        benchArrayRadix = benchArrayRadix.SortRadixPar(512*1024);   // increase parallel work quantum to 512K elements for better performance on large arrays
                     }
                 }
             }
@@ -81,22 +82,31 @@ namespace HPCsharpExamples
             {
                 if (!radixSort)
                 {
-                    bool equalSortedArrays = benchArrayOne.SequenceEqual(benchArrayTwo);
+                    bool equalSortedArrays = benchArrayMerge.SequenceEqual(benchArrayTwo);
                     if (!equalSortedArrays)
-                        Console.WriteLine("Sorting results using Merge Sort are not equal!");
+                        Console.WriteLine("Sorting results vs Non-Linq using Merge Sort are not equal!");
                 }
                 else
                 {
-                    bool equalSortedArrays = benchArrayTwo.SequenceEqual(sortedArrayOne);
+                    bool equalSortedArrays = benchArrayTwo.SequenceEqual(benchArrayRadix);
                     if (!equalSortedArrays)
-                        Console.WriteLine("Sorting results using Radix Sort are not equal!");
+                        Console.WriteLine("Sorting results vs Non-Linq using Radix Sort are not equal!");
                 }
             }
             else
             {
-                bool equalSortedArrays = sortedArrayOne.SequenceEqual(sortedArrayTwo);
-                if (!equalSortedArrays)
-                    Console.WriteLine("Sorting results using Merge Sort are not equal!");
+                if (!radixSort)
+                {
+                    bool equalSortedArrays = sortedArrayMerge.SequenceEqual(sortedArrayTwo);
+                    if (!equalSortedArrays)
+                        Console.WriteLine("Sorting results vs Linq using Merge Sort are not equal!");
+                }
+                else
+                {
+                    bool equalSortedArrays = sortedArrayTwo.SequenceEqual(benchArrayRadix);
+                    if (!equalSortedArrays)
+                        Console.WriteLine("Sorting results vs Linq using Radix Sort are not equal!");
+                }
             }
 
             if (!vsLinq)
@@ -163,7 +173,7 @@ namespace HPCsharpExamples
             long nanosecPerTick = (1000L * 1000L * 1000L) / frequency;
 
             stopwatch.Restart();
-            List<uint> sortedArrayOne = benchListOne.SortRadix();
+            List<uint> sortedArrayOne = benchListOne.SortRadixLsd();
             stopwatch.Stop();
             double timeRadixSort = stopwatch.ElapsedTicks * nanosecPerTick / 1000000000.0;
             stopwatch.Restart();
@@ -195,8 +205,8 @@ namespace HPCsharpExamples
             {
                 var randomValue = (uint)randNum.Next(0, Int32.MaxValue);
                 benchArrayOne[i] = new UserDefinedClass(randomValue, i);
-                //benchArrayOne[i] = new UserDefinedClass((uint)i, i);           // fill array with incrementing values
-                //benchArrayOne[i] = new UserDefinedClass((uint)5, i);           // fill array with constant     values
+                //benchArrayMerge[i] = new UserDefinedClass((uint)i, i);           // fill array with incrementing values
+                //benchArrayMerge[i] = new UserDefinedClass((uint)5, i);           // fill array with constant     values
             }
             for (int i = 0; i < arraySize; i++)
             {
@@ -216,7 +226,7 @@ namespace HPCsharpExamples
                     else
                     {
                         sortedArrayOne = benchArrayOne.SortRadixFaster(element => element.Key);   // faster, uses more memory
-                        //sortedArrayOne = benchArrayOne.SortRadix(element => element.Key);  // slower, uses less memory
+                        //sortedArrayMerge = benchArrayMerge.SortRadix(element => element.Key);  // slower, uses less memory
                     }
                 }
                 else
@@ -231,7 +241,7 @@ namespace HPCsharpExamples
                     else
                     {
                         sortedArrayOne = benchArrayOne.SortRadixFaster(element => element.Key);      // faster, uses more memory
-                        //sortedArrayOne = benchArrayOne.SortRadix(element => element.Key);    // slower, user less memory
+                        //sortedArrayMerge = benchArrayMerge.SortRadix(element => element.Key);    // slower, user less memory
                     }
                 }
                 else
@@ -243,7 +253,7 @@ namespace HPCsharpExamples
                     else
                     {
                         sortedArrayOne = benchArrayOne.SortRadixFaster(element => element.Key);      // faster, uses more memory
-                        //sortedArrayOne = benchArrayOne.SortRadix(element => element.Key);     // slower, uses less memory
+                        //sortedArrayMerge = benchArrayMerge.SortRadix(element => element.Key);     // slower, uses less memory
                     }
                 }
             }
