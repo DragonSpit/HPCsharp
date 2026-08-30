@@ -139,7 +139,7 @@ namespace HPCsharp
         /// <param name="start">starting index of the subarray</param>
         /// <param name="length">length of the subarray</param>
         /// <param name="k">index of the desired element to be selected</param>
-        public static void SelectTopK(this uint[] arrayToBeSelected, Int32 start, Int32 length, Int32 k)
+        public static void SelectTopKRadix(this uint[] arrayToBeSelected, Int32 start, Int32 length, Int32 k)
         {
             if (arrayToBeSelected == null)
                 throw new ArgumentNullException(nameof(arrayToBeSelected));
@@ -157,7 +157,7 @@ namespace HPCsharp
         /// </summary>
         /// <param name="arrayToBeSelected">array that is to be sorted in place</param>
         /// <param name="k">index of the desired element to be selected</param>
-        public static void SelectTopK(this uint[] arrayToBeSelected, Int32 k)
+        public static void SelectTopKRadix(this uint[] arrayToBeSelected, Int32 k)
         {
             if (arrayToBeSelected == null)
                 throw new ArgumentNullException(nameof(arrayToBeSelected));
