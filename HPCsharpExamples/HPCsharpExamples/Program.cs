@@ -58,6 +58,16 @@ namespace HPCsharpExamples
             Console.WriteLine();
             #endregion
 
+            #region Performance comparison of Serial Selection for Array
+            Console.WriteLine();
+            Console.WriteLine("Performance comparison of Serial Selection for Array");
+
+            SelectionMeasureDecimalArraySpeedup(false, false);  // Measure Array Serial Selection speedup vs Array.Sort() which is aserial comparison-based Sort
+            SelectionMeasureDecimalArraySpeedup(false, true);   // Measure Array Serial Selection speedup vs Linq serial   sort
+            SelectionMeasureDecimalArraySpeedup(true, true);    // Measure Array Serial Selection speedup vs Linq parallel sort
+            #endregion
+
+
             #region Simple example of serial and parallel sorting of integer arrays
             Console.WriteLine("Simple example of serial and parallel sorting of integer arrays");
 
