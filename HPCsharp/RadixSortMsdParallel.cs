@@ -317,7 +317,10 @@ namespace HPCsharp
                     int copy_i = i;
                     int numElements = endOfBin[copy_i] - startOfBin[copy_i];
                     if (numElements >= SortRadixMsdLongThreshold)
+                    {
+                        // TODO: This is a broken implementation, as it calls a different function instead of itself recursively. Seems like it should call itself recursively.
                         actions.Add(() => RadixSortMsdUIntCountRecursionParInner(a, startOfBin[copy_i], numElements, shiftRightAmount, baseCaseInPlaceSort));
+                    }
                     else if (numElements >= 2)
                         //InsertionSort(a, startOfBin[i], numElements);
                         baseCaseInPlaceSort(a, startOfBin[copy_i], numElements);

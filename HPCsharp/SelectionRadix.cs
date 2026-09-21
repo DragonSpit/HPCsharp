@@ -1,26 +1,16 @@
 ﻿// Explanation and Reasoning:
-// This file implements an in-place Radix Selection algorithm using the Most Significant Digit (MSD) approach for unsigned integers (uint).
-// It provides linear order and in-place operation for the Selection algorithm. It is possible because only one bin
-// or half is needed (for QuickSelect), while elements in other bins (or the other half) can be ignored or thrown away, which is not the case with sorting algorithms,
-// where all bins (or both halves) are sorted.
+// This file implements a set of Radix Selection algorithms using the Most Significant Digit (MSD) approach.
+// It provides linear order for the Selection algorithm. In-place is possible because only one bin, while elements in other bins can be ignored or thrown away,
+// which is not the case with sorting algorithms, where all bins are sorted.
+//
 // TODO: Improve the algorithm by doing the count for the next digit while moving elements into the bin that contains the k-th smallest element.
 // TODO: Implement parallel version of the Radix Selection algorithm by pre-allocating counts for all array chunks to keep them around after parallel histogramming.
 //       These will be used to determine how many elements are in each chunk that belong to the k-th bin. All chunks that have at least one
 //       element that belongs to the k-th bin can then be processed in parallel to move those elements into the k-th bin. Starting index within
 //       the k-th bin for each chunk can be determined by a prefix sum over the counts for each chunk.
 // TODO: See if dual-count speeds up C# Histogram (counting), which is implemented in C++.
-// TODO: In-place Selection of k[] can be implemented by using a similar technique as in-place MSD Radix Sort, but with fewer bins.
-// TODO: Implement a variant of k[]-th Selection, but which separates elements into their proper partitions between k[]-th elements.
-//       During the first call (MSD) we need to sort based on the MSD to put all array elements into the corrent MSD bins.
-//       Then for each subsequent call, we only need to process the bins that contain the k[] elements and skip all other bins.
-//       This needs to be a separate version from one that returns the k[]-th elements, which is this version.
-// TODO: Create a version of k-th Selection which places all elements smaller or equal to k-th element to the left of the k-th element and all elements larger
-//       than the k-th element to the right of the k-th element, which is similar to QuickSelect, but using MSD Radix Sort approach instead of partitioning approach used in QuickSelect.
-//       Implement it in-place and not-in-place if that's faster (since it will parallelize easier).
-// TODO: Implement a version of k[] Selection which returns the k[]-th elements as an array.
-// TODO: Implement a version of K[] Selection which does not have all the elements in between k[]-th elements in their correct regions between the k[]-th elements.
+// TODO: Implement a version of k[] Selection which does not have all the elements in between k[]-th elements in their correct regions between the k[]-th elements.
 //       This version will be faster since it does less work by moving elements only into the k[]-th bins.
-// TODO: Implement a version of not-in-place k-th Radix Selection which is non-recursive.
 // TODO: Implement a version of not-in-place k[]-th Radix Selection which is non-recursive.
 
 using System;
@@ -339,98 +329,6 @@ namespace HPCsharp
             return arrayToBeSelected[k];
         }
 
-        /// <summary>
-        /// In-place Radix Selection of the k[]-th elements in an array. Not a stable algorithm.
-        /// </summary>
-        /// <param name="arrayToBeSelected">array that is to be selected in place</param>
-        /// <param name="start">starting index of the subarray</param>
-        /// <param name="length">length of the subarray</param>
-        /// <param name="k">array of indexes of the desired elements to be selected in ascending order</param>
-        /// <param name="threshold">for array size smaller than threshold Array.Sort will be used instead of MSD Radix Sort like algorithm</param>
-        public static void SelectRadix(this uint[] arrayToBeSelected, Int32 start, Int32 length, Int32[] k, Int32 threshold = 1024)
-        {
-            if (arrayToBeSelected == null)
-                throw new ArgumentNullException(nameof(arrayToBeSelected));
-            if (k == null)
-                throw new ArgumentNullException(nameof(k));
-            if (arrayToBeSelected.Length <= 0 || length <= 0)
-                throw new ArgumentOutOfRangeException(nameof(arrayToBeSelected.Length), "array length or length is invalid");
-            if (k.Length > arrayToBeSelected.Length)
-                throw new ArgumentException("k array length cannot be greater than the array to be selected length");
-            if (k.Length == 0) return;
-            int shiftRightAmount = sizeof(uint) * 8 - Log2ofPowerOfTwoRadix;
-            // Insertion Sort or Heap Sort could be passed in as another base case since they are both in-place
-            PartitionRadixMsdUIntInner(arrayToBeSelected, start, length, shiftRightAmount, k, 0, k.Length, Array.Sort, threshold);
-            // The following does not work: Need to figure out how to pass InsertionSort method as an Action
-            //RadixSortMsdUIntInner(arrayToBeSelected, start, length, shiftRightAmount, (arr, startIndex, lengthOfArray) => InsertionSort(arrayToBeSelected, start, length), threshold);
-        }
-        /// <summary>
-        /// In-place Radix Selection of the k[]-th elements in an array. Not a stable algorithm.
-        /// </summary>
-        /// <param name="arrayToBeSelected">array that is to be selected from in place</param>
-        /// <param name="k">array of indexes of the desired elements to be selected in ascending order</param>
-        /// <param name="threshold">for array size smaller than threshold Array.Sort will be used instead of MSD Radix Sort like algorithm</param>
-        public static void SelectRadix(this uint[] arrayToBeSelected, Int32[] k, Int32 threshold = 1024)
-        {
-            if (arrayToBeSelected == null)
-                throw new ArgumentNullException(nameof(arrayToBeSelected));
-            if (k == null)
-                throw new ArgumentNullException(nameof(k));
-            if (arrayToBeSelected.Length <= 0)
-                throw new ArgumentOutOfRangeException(nameof(arrayToBeSelected.Length), "array length is invalid");
-            if (k.Length > arrayToBeSelected.Length)
-                throw new ArgumentException("k array length cannot be greater than the array to be selected length");
-            if (k.Length == 0) return;
-            int shiftRightAmount = (sizeof(uint) * 8) - Log2ofPowerOfTwoRadix;
-            PartitionRadixMsdUIntInner(arrayToBeSelected, 0, arrayToBeSelected.Length, shiftRightAmount, k, 0, k.Length, Array.Sort, threshold);
-        }
-
-        /// <summary>
-        /// In-place Radix Selection of the k[]-th elements in an array. Not a stable algorithm.
-        /// </summary>
-        /// <param name="arrayToBeSelected">array that is to be selected in place</param>
-        /// <param name="start">starting index of the subarray</param>
-        /// <param name="length">length of the subarray</param>
-        /// <param name="k">array of indexes of the desired elements to be selected in ascending order</param>
-        /// <param name="threshold">for array size smaller than threshold Array.Sort will be used instead of MSD Radix Sort like algorithm</param>
-        public static void SelectRadix(this ulong[] arrayToBeSelected, Int32 start, Int32 length, Int32[] k, Int32 threshold = 1024)
-        {
-            if (arrayToBeSelected == null)
-                throw new ArgumentNullException(nameof(arrayToBeSelected));
-            if (k == null)
-                throw new ArgumentNullException(nameof(k));
-            if (arrayToBeSelected.Length <= 0 || length <= 0)
-                throw new ArgumentOutOfRangeException(nameof(arrayToBeSelected.Length), "array length or length is invalid");
-            if (k.Length > arrayToBeSelected.Length)
-                throw new ArgumentException("k array length cannot be greater than the array to be selected length");
-            if (k.Length == 0) return;
-            int shiftRightAmount = (sizeof(ulong) * 8) - Log2ofPowerOfTwoRadix;
-            // Insertion Sort or Heap Sort could be passed in as another base case since they are both in-place
-            PartitionRadixMsdUIntInner(arrayToBeSelected, start, length, shiftRightAmount, k, 0, k.Length, Array.Sort, threshold);
-            // The following does not work: Need to figure out how to pass InsertionSort method as an Action
-            //RadixSortMsdUIntInner(arrayToBeSelected, start, length, shiftRightAmount, (arr, startIndex, lengthOfArray) => InsertionSort(arrayToBeSelected, start, length), threshold);
-        }
-        /// <summary>
-        /// In-place Radix Selection of the k[]-th elements in an array. Not a stable algorithm.
-        /// </summary>
-        /// <param name="arrayToBeSelected">array that is to be selected from in place</param>
-        /// <param name="k">array of indexes of the desired elements to be selected in ascending order</param>
-        /// <param name="threshold">for array size smaller than threshold Array.Sort will be used instead of MSD Radix Sort like algorithm</param>
-        public static void SelectRadix(this ulong[] arrayToBeSelected, Int32[] k, Int32 threshold = 1024)
-        {
-            if (arrayToBeSelected == null)
-                throw new ArgumentNullException(nameof(arrayToBeSelected));
-            if (k == null)
-                throw new ArgumentNullException(nameof(k));
-            if (arrayToBeSelected.Length <= 0)
-                throw new ArgumentOutOfRangeException(nameof(arrayToBeSelected.Length), "array length is invalid");
-            if (k.Length > arrayToBeSelected.Length)
-                throw new ArgumentException("k array length cannot be greater than the array to be selected length");
-            if (k.Length == 0) return;
-            int shiftRightAmount = (sizeof(ulong) * 8) - Log2ofPowerOfTwoRadix;
-            PartitionRadixMsdUIntInner(arrayToBeSelected, 0, arrayToBeSelected.Length, shiftRightAmount, k, 0, k.Length, Array.Sort, threshold);
-        }
-
         // Move elements outside the k-th bin, the bin that k is in, into the k-th bin
         // For not-in-place version.
         private static void MoveOutsideOfKthBinIn_NotInPlace(uint[] a_in, uint[] b_out, int startOfOb, int lengthOfOb, int startWithinKthBin,
@@ -528,6 +426,7 @@ namespace HPCsharp
         /// <param name="start">starting index of the subarray</param>
         /// <param name="length">length of the subarray</param>
         /// <param name="k">index of the desired element to be selected</param>
+        /// <returns>the k-th smallest element in the array</returns>
         public static uint SelectRadixNotInPlace(this uint[] arrayToBeSelected, Int32 start, Int32 length, Int32 k)
         {
             if (arrayToBeSelected == null)
@@ -548,6 +447,7 @@ namespace HPCsharp
         /// </summary>
         /// <param name="arrayToBeSelected">array that is to be sorted in place</param>
         /// <param name="k">index of the desired element to be selected</param>
+        /// <returns>the k-th smallest element in the array</returns>
         public static uint SelectRadixNotInPlace(this uint[] arrayToBeSelected, Int32 k)
         {
             if (arrayToBeSelected == null)
@@ -562,6 +462,114 @@ namespace HPCsharp
             //RadixSelectionInner2(arrayToBeSelected, tmpArray, 0, arrayToBeSelected.Length, shiftRightAmount, digit, k);
             RadixSelectionInnerNonRecursive(arrayToBeSelected, tmpArray, 0, arrayToBeSelected.Length, k);
             return arrayToBeSelected[k];
+        }
+
+        /// <summary>
+        /// In-place Radix Selection of the k[]-th elements in an array. Not a stable algorithm.
+        /// </summary>
+        /// <param name="arrayToBeSelected">array that is to be selected in place</param>
+        /// <param name="start">starting index of the subarray</param>
+        /// <param name="length">length of the subarray</param>
+        /// <param name="k">array of indexes of the desired elements to be selected in ascending order</param>
+        /// <param name="threshold">for array size smaller than threshold Array.Sort will be used instead of MSD Radix Sort like algorithm</param>
+        /// <returns>array of the k[]-th elements in ascending order</returns>
+        public static uint[] SelectRadix(this uint[] arrayToBeSelected, Int32 start, Int32 length, Int32[] k, Int32 threshold = 1024)
+        {
+            if (arrayToBeSelected == null)
+                throw new ArgumentNullException(nameof(arrayToBeSelected));
+            if (k == null)
+                throw new ArgumentNullException(nameof(k));
+            if (arrayToBeSelected.Length <= 0 || length <= 0)
+                throw new ArgumentOutOfRangeException(nameof(arrayToBeSelected.Length), "array length or length is invalid");
+            if (k.Length > arrayToBeSelected.Length)
+                throw new ArgumentException("k array length cannot be greater than the array to be selected length");
+            if (k.Length == 0) return Array.Empty<uint>();
+            int shiftRightAmount = sizeof(uint) * 8 - Log2ofPowerOfTwoRadix;
+            // Insertion Sort or Heap Sort could be passed in as another base case since they are both in-place
+            PartitionRadixMsdUIntInner(arrayToBeSelected, start, length, shiftRightAmount, k, 0, k.Length, Array.Sort, threshold);
+            uint[] result = new uint[k.Length];
+            for (int i = 0; i < k.Length; i++)
+                result[i] = arrayToBeSelected[k[i]];
+            return result;
+        }
+        /// <summary>
+        /// In-place Radix Selection of the k[]-th elements in an array. Not a stable algorithm.
+        /// </summary>
+        /// <param name="arrayToBeSelected">array that is to be selected from in place</param>
+        /// <param name="k">array of indexes of the desired elements to be selected in ascending order</param>
+        /// <param name="threshold">for array size smaller than threshold Array.Sort will be used instead of MSD Radix Sort like algorithm</param>
+        /// <returns>array of the k[]-th elements in ascending order</returns>
+        public static uint[] SelectRadix(this uint[] arrayToBeSelected, Int32[] k, Int32 threshold = 1024)
+        {
+            if (arrayToBeSelected == null)
+                throw new ArgumentNullException(nameof(arrayToBeSelected));
+            if (k == null)
+                throw new ArgumentNullException(nameof(k));
+            if (arrayToBeSelected.Length <= 0)
+                throw new ArgumentOutOfRangeException(nameof(arrayToBeSelected.Length), "array length is invalid");
+            if (k.Length > arrayToBeSelected.Length)
+                throw new ArgumentException("k array length cannot be greater than the array to be selected length");
+            if (k.Length == 0) return Array.Empty<uint>();
+            int shiftRightAmount = (sizeof(uint) * 8) - Log2ofPowerOfTwoRadix;
+            PartitionRadixMsdUIntInner(arrayToBeSelected, 0, arrayToBeSelected.Length, shiftRightAmount, k, 0, k.Length, Array.Sort, threshold);
+            uint[] result = new uint[k.Length];
+            for (int i = 0; i < k.Length; i++)
+                result[i] = arrayToBeSelected[k[i]];
+            return result;
+        }
+
+        /// <summary>
+        /// In-place Radix Selection of the k[]-th elements in an array. Not a stable algorithm.
+        /// </summary>
+        /// <param name="arrayToBeSelected">array that is to be selected in place</param>
+        /// <param name="start">starting index of the subarray</param>
+        /// <param name="length">length of the subarray</param>
+        /// <param name="k">array of indexes of the desired elements to be selected in ascending order</param>
+        /// <param name="threshold">for array size smaller than threshold Array.Sort will be used instead of MSD Radix Sort like algorithm</param>
+        /// <returns>array of the k[]-th elements in ascending order</returns>
+        public static ulong[] SelectRadix(this ulong[] arrayToBeSelected, Int32 start, Int32 length, Int32[] k, Int32 threshold = 1024)
+        {
+            if (arrayToBeSelected == null)
+                throw new ArgumentNullException(nameof(arrayToBeSelected));
+            if (k == null)
+                throw new ArgumentNullException(nameof(k));
+            if (arrayToBeSelected.Length <= 0 || length <= 0)
+                throw new ArgumentOutOfRangeException(nameof(arrayToBeSelected.Length), "array length or length is invalid");
+            if (k.Length > arrayToBeSelected.Length)
+                throw new ArgumentException("k array length cannot be greater than the array to be selected length");
+            if (k.Length == 0) return Array.Empty<ulong>();
+            int shiftRightAmount = (sizeof(ulong) * 8) - Log2ofPowerOfTwoRadix;
+            // Insertion Sort or Heap Sort could be passed in as another base case since they are both in-place
+            PartitionRadixMsdUIntInner(arrayToBeSelected, start, length, shiftRightAmount, k, 0, k.Length, Array.Sort, threshold);
+            ulong[] result = new ulong[k.Length];
+            for (int i = 0; i < k.Length; i++)
+                result[i] = arrayToBeSelected[k[i]];
+            return result;
+        }
+        /// <summary>
+        /// In-place Radix Selection of the k[]-th elements in an array. Not a stable algorithm.
+        /// </summary>
+        /// <param name="arrayToBeSelected">array that is to be selected from in place</param>
+        /// <param name="k">array of indexes of the desired elements to be selected in ascending order</param>
+        /// <param name="threshold">for array size smaller than threshold Array.Sort will be used instead of MSD Radix Sort like algorithm</param>
+        /// <returns>array of the k[]-th elements in ascending order</returns>
+        public static ulong[] SelectRadix(this ulong[] arrayToBeSelected, Int32[] k, Int32 threshold = 1024)
+        {
+            if (arrayToBeSelected == null)
+                throw new ArgumentNullException(nameof(arrayToBeSelected));
+            if (k == null)
+                throw new ArgumentNullException(nameof(k));
+            if (arrayToBeSelected.Length <= 0)
+                throw new ArgumentOutOfRangeException(nameof(arrayToBeSelected.Length), "array length is invalid");
+            if (k.Length > arrayToBeSelected.Length)
+                throw new ArgumentException("k array length cannot be greater than the array to be selected length");
+            if (k.Length == 0) return Array.Empty<ulong>();
+            int shiftRightAmount = (sizeof(ulong) * 8) - Log2ofPowerOfTwoRadix;
+            PartitionRadixMsdUIntInner(arrayToBeSelected, 0, arrayToBeSelected.Length, shiftRightAmount, k, 0, k.Length, Array.Sort, threshold);
+            ulong[] result = new ulong[k.Length];
+            for (int i = 0; i < k.Length; i++)
+                result[i] = arrayToBeSelected[k[i]];
+            return result;
         }
     }
 
