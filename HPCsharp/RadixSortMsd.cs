@@ -782,7 +782,7 @@ namespace HPCsharp
             uint[] workBuffer = new uint[arrayToBeSorted.Length];
             int shiftRightAmount = sizeof(uint) * 8 - Log2ofPowerOfTwoRadix;
             // Merge Sort, Insertion Sort or another stable sort could be used as the base case
-            RadixSortStableMsdUIntInner(arrayToBeSorted, start, length, workBuffer, shiftRightAmount, true, threshold);
+            RadixSortStableMsdUIntInner(arrayToBeSorted, start, length, workBuffer, shiftRightAmount, false, threshold);
             // The following does not work: Need to figure out how to pass InsertionSort method as an Action
             //RadixSortMsdUIntInner(arrayToBeSorted, start, length, shiftRightAmount, (arr, startIndex, lengthOfArray) => InsertionSort(arrayToBeSorted, start, length), threshold);
             return arrayToBeSorted;
@@ -800,7 +800,7 @@ namespace HPCsharp
             uint[] workBuffer = new uint[arrayToBeSorted.Length];
             int shiftRightAmount = sizeof(uint) * 8 - Log2ofPowerOfTwoRadix;
             // Insertion Sort or Heap Sort could be passed in as another base case since they are both in-place
-            RadixSortStableMsdUIntInner_1(arrayToBeSorted, 0, arrayToBeSorted.Length, workBuffer, shiftRightAmount, true, threshold);
+            RadixSortStableMsdUIntInner_1(arrayToBeSorted, 0, arrayToBeSorted.Length, workBuffer, shiftRightAmount, false, threshold);
             // The following does not work: Need to figure out how to pass InsertionSort method as an Action
             //RadixSortMsdUIntInner(arrayToBeSorted, 0, arrayToBeSorted.Length, shiftRightAmount, (arr, startIndex, lengthOfArray) => { InsertionSort(arrayToBeSorted, 0, arrayToBeSorted.Length); }, threshold);
             return arrayToBeSorted;

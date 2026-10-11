@@ -22,7 +22,7 @@ using System.Threading.Tasks;
 
 namespace HPCsharp
 {
-    static public partial class ParallelAlgorithm
+    public static partial class ParallelAlgorithm
     {
         /// <summary>
         /// Parallel Sort an array of bytes using Radix Sorting algorithm (least significant digit variation - LSD)
