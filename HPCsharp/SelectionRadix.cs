@@ -486,7 +486,7 @@ namespace HPCsharp
             if (k.Length == 0) return Array.Empty<uint>();
             int shiftRightAmount = sizeof(uint) * 8 - Log2ofPowerOfTwoRadix;
             // Insertion Sort or Heap Sort could be passed in as another base case since they are both in-place
-            PartitionRadixMsdUIntInner(arrayToBeSelected, start, length, shiftRightAmount, k, 0, k.Length, Array.Sort, threshold);
+            QuantileRadixMsdUIntInner(arrayToBeSelected, start, length, shiftRightAmount, k, 0, k.Length, Array.Sort, threshold);
             uint[] result = new uint[k.Length];
             for (int i = 0; i < k.Length; i++)
                 result[i] = arrayToBeSelected[k[i]];
@@ -511,7 +511,7 @@ namespace HPCsharp
                 throw new ArgumentException("k array length cannot be greater than the array to be selected length");
             if (k.Length == 0) return Array.Empty<uint>();
             int shiftRightAmount = (sizeof(uint) * 8) - Log2ofPowerOfTwoRadix;
-            PartitionRadixMsdUIntInner(arrayToBeSelected, 0, arrayToBeSelected.Length, shiftRightAmount, k, 0, k.Length, Array.Sort, threshold);
+            QuantileRadixMsdUIntInner(arrayToBeSelected, 0, arrayToBeSelected.Length, shiftRightAmount, k, 0, k.Length, Array.Sort, threshold);
             uint[] result = new uint[k.Length];
             for (int i = 0; i < k.Length; i++)
                 result[i] = arrayToBeSelected[k[i]];
@@ -540,7 +540,7 @@ namespace HPCsharp
             if (k.Length == 0) return Array.Empty<ulong>();
             int shiftRightAmount = (sizeof(ulong) * 8) - Log2ofPowerOfTwoRadix;
             // Insertion Sort or Heap Sort could be passed in as another base case since they are both in-place
-            PartitionRadixMsdUIntInner(arrayToBeSelected, start, length, shiftRightAmount, k, 0, k.Length, Array.Sort, threshold);
+            QuantileRadixMsdUIntInner(arrayToBeSelected, start, length, shiftRightAmount, k, 0, k.Length, Array.Sort, threshold);
             ulong[] result = new ulong[k.Length];
             for (int i = 0; i < k.Length; i++)
                 result[i] = arrayToBeSelected[k[i]];
@@ -565,7 +565,7 @@ namespace HPCsharp
                 throw new ArgumentException("k array length cannot be greater than the array to be selected length");
             if (k.Length == 0) return Array.Empty<ulong>();
             int shiftRightAmount = (sizeof(ulong) * 8) - Log2ofPowerOfTwoRadix;
-            PartitionRadixMsdUIntInner(arrayToBeSelected, 0, arrayToBeSelected.Length, shiftRightAmount, k, 0, k.Length, Array.Sort, threshold);
+            QuantileRadixMsdUIntInner(arrayToBeSelected, 0, arrayToBeSelected.Length, shiftRightAmount, k, 0, k.Length, Array.Sort, threshold);
             ulong[] result = new ulong[k.Length];
             for (int i = 0; i < k.Length; i++)
                 result[i] = arrayToBeSelected[k[i]];

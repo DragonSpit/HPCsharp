@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.5.33424.131
+# Visual Studio Version 18
+VisualStudioVersion = 18.10.12224.181 stable
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HPCsharp", "HPCsharp\HPCsharp.csproj", "{5EED18E7-05C3-4789-AA67-D95C6884CF56}"
 EndProject
@@ -19,8 +19,8 @@ Global
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{5EED18E7-05C3-4789-AA67-D95C6884CF56}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5EED18E7-05C3-4789-AA67-D95C6884CF56}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5EED18E7-05C3-4789-AA67-D95C6884CF56}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{5EED18E7-05C3-4789-AA67-D95C6884CF56}.Debug|x64.Build.0 = Debug|Any CPU
+		{5EED18E7-05C3-4789-AA67-D95C6884CF56}.Debug|x64.ActiveCfg = Debug|x64
+		{5EED18E7-05C3-4789-AA67-D95C6884CF56}.Debug|x64.Build.0 = Debug|x64
 		{5EED18E7-05C3-4789-AA67-D95C6884CF56}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{5EED18E7-05C3-4789-AA67-D95C6884CF56}.Debug|x86.Build.0 = Debug|Any CPU
 		{5EED18E7-05C3-4789-AA67-D95C6884CF56}.Release|Any CPU.ActiveCfg = Release|Any CPU

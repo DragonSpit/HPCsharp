@@ -6,10 +6,15 @@ namespace HPCsharp
 {
     public static partial class ParallelAlgorithm
     {
+        sealed class CustomDataDeDuplicate
+        {
+            public int currIndex;
+            public int wii;          // work item index
+        }
         // left and right are inclusive indices of the array to deduplicate
         // Scan each quantum of the input array to deduplicate in parallel, counting the number of unique elements in each quantum. Then combine the counts to determine the starting index of each quantum.
         // Then copy the unique elements from the input array to the output array while skipping the duplicates to the left. Do this in parallel for each quantum and do it not-in-place.
-        private static int UniqueParInternal(uint[] arrayToDeDup, int l, int r, int parallelWorkQuantum = 1024)
+        private static int UniqueParInternal(uint[] arrayToDeDup, int l, int r, int parallelWorkQuantum = 64 * 1024)
         {
             if (l > r)      // zero elements in the array to deduplicate
                 return 0;
@@ -17,14 +22,15 @@ namespace HPCsharp
                 return Algorithm.Unique(arrayToDeDup);
 
             uint[] outputArray = new uint[arrayToDeDup.Length];
-            int numWorkItems = arrayToDeDup.Length / parallelWorkQuantum + 1;
-            int[] numUniques = new int[numWorkItems];
-            int[] startQuanta = new int[numWorkItems];
+            int numWorkItems = (arrayToDeDup.Length % parallelWorkQuantum) == 0 ? (arrayToDeDup.Length / parallelWorkQuantum)
+                                                                                : (arrayToDeDup.Length / parallelWorkQuantum + 1);
 #if True
             // Sequential version.
+            int[] numUniques = new int[numWorkItems];
+            int[] startQuanta = new int[numWorkItems];
             // Count the number of unique elements in each quantum
             int currIndex, wi;
-            for (wi = 0; wi < numWorkItems - 1; wi++)
+            for (wi = 0; wi < (numWorkItems - 1); wi++)
             {
                 currIndex = l + wi * parallelWorkQuantum;
                 for (uint i = 0; i < (parallelWorkQuantum - 1); i++)
@@ -35,9 +41,9 @@ namespace HPCsharp
                 }
             }
             // The last work item may not have the full parallelWorkQuanta of items to process
-            currIndex = l + (numWorkItems - 1) * parallelWorkQuantum;   // redundant comptation - for clarity and safety
+            currIndex = l + (numWorkItems - 1) * parallelWorkQuantum;   // redundant computation - for clarity and safety
             int numItems = arrayToDeDup.Length % parallelWorkQuantum;
-            for (int i = 0; i < numItems; i++)
+            for (int i = 0; i < (numItems - 1); i++)
             {
                 if (arrayToDeDup[currIndex] != arrayToDeDup[currIndex + 1])
                     numUniques[wi]++;
@@ -60,8 +66,69 @@ namespace HPCsharp
             }
 #else
             // Parallel version.
+            // Partially parallel version, where only the final copy of unique elements to the output array is done in parallel. The counting of unique elements in each quantum is done sequentially.
+            int[] numUniques  = new int[numWorkItems];
+            int[] startQuanta = new int[numWorkItems];
+            // Count the number of unique elements in each quantum
+            int currIndex, wi;
+            for (wi = 0; wi < (numWorkItems - 1); wi++)
+            {
+                currIndex = l + wi * parallelWorkQuantum;
+                for (uint i = 0; i < (parallelWorkQuantum - 1); i++)
+                {
+                    if (arrayToDeDup[currIndex] != arrayToDeDup[currIndex + 1])
+                        numUniques[wi]++;
+                    currIndex++;
+                }
+            }
+            // The last work item may not have the full parallelWorkQuanta of items to process
+            currIndex = l + wi * parallelWorkQuantum;   // redundant comptation - for clarity and safety
+            int numItems = arrayToDeDup.Length % parallelWorkQuantum;
+            for (int i = 0; i < (numItems - 1); i++)
+            {
+                if (arrayToDeDup[currIndex] != arrayToDeDup[currIndex + 1])
+                    numUniques[wi]++;
+                currIndex++;
+            }
 
+            // Combine the counts to determine the starting index of each quantum
+            int numUniquesTotal = 0;
+            for (wi = 0; wi < numWorkItems; wi++)
+            {
+                startQuanta[wi] = numUniquesTotal;
+                numUniquesTotal += numUniques[wi];
+            }
+            // The last work item may not have the full parallelWorkQuanta of items to process
+            int numberOfFullQuantas = arrayToDeDup.Length / parallelWorkQuantum;
+            Task[] taskArray = new Task[numWorkItems];
+            for (wi = 0; wi < numberOfFullQuantas; wi++)
+            {
+                currIndex = l + wi * parallelWorkQuantum;
+                taskArray[wi] = Task.Factory.StartNew((Object obj) => {
+                    CustomDataDeDuplicate data = obj as CustomDataDeDuplicate;
+                    int endIndex = data.currIndex + parallelWorkQuantum;
+
+                    Algorithm.Unique(arrayToDeDup, currIndex, parallelWorkQuantum, outputArray, startQuanta[data.wii]);
+                },
+                new CustomDataDeDuplicate() { currIndex = currIndex, wii = wi }
+                );
+            }
+            if (numWorkItems > numberOfFullQuantas)      // last partially filled workQuantum
+            {
+                currIndex = l + wi * parallelWorkQuantum;
+                taskArray[wi] = Task.Factory.StartNew((Object obj) => {
+                    CustomDataDeDuplicate data = obj as CustomDataDeDuplicate;
+                    int endIndex = data.currIndex + parallelWorkQuantum;
+
+                    Algorithm.Unique(arrayToDeDup, currIndex, parallelWorkQuantum, outputArray, startQuanta[data.wii]);
+                },
+                new CustomDataDeDuplicate() { currIndex = currIndex, wii = wi }
+                );
+            }
+            Task.WaitAll(taskArray);    // wait for all work quanta to finish before starting the next pass, as passes have to be done in sequence
 #endif
+            //HPCsharp.ParallelAlgorithms.Copy.CopyPar(outputArray, 0, arrayToDeDup, 0, numUniquesTotal);
+            Array.Copy(outputArray, 0, arrayToDeDup, 0, numUniquesTotal);
             return numUniquesTotal;
         }
         /// <summary>
@@ -70,7 +137,7 @@ namespace HPCsharp
         /// </summary>
         /// <param name="arrayToDeDup">array that is to be sorted in place</param>
         /// <returns>The number of unique elements in the array</returns>
-        public static int UniquePar(uint[] arrayToDeDup, int parallelThreshold = 1024)
+        public static int UniquePar(uint[] arrayToDeDup, int parallelThreshold = 64 * 1024)
         {
             if (arrayToDeDup == null)
                 throw new ArgumentNullException(nameof(arrayToDeDup));
@@ -89,7 +156,7 @@ namespace HPCsharp
         public static int DeDuplicateNotInPlace(this uint[] arrayToDeDup)
         {
             HPCsharp.ParallelAlgorithm.SortRadixPar(arrayToDeDup);
-            return HPCsharp.Algorithm.Unique(arrayToDeDup);
+            return HPCsharp.ParallelAlgorithm.UniqueParInternal(arrayToDeDup, 0, arrayToDeDup.Length - 1, 64 * 1024);
         }
     }
 
