@@ -1,4 +1,9 @@
-﻿using System;
+﻿// TODO: Pythod has several Quantile methods, which produce surprising results - more like a Selection interface. It seems like two interfaces are needed, one that returns the k-th index, and the other which partitions the array into quantiles.
+//       Add Python-style Quantile interface to this algorithm, where the user can specify a quantile value between 0 and 1, and the algorithm will compute the corresponding k-th index based on the array length and the specified quantile value. This will allow users to easily find quantiles without needing to manually calculate the k-th index.
+//       Add Python-style Quantile interface to this algorithm, where the user can specify a quantile value between 0 and 1, and the algorithm will compute the corresponding k-th index based on the array length and the specified quantile value. This will allow users to easily find quantiles without needing to manually calculate the k-th index.
+//       Add Python-style Quantile interface where the user specifies the number of quantiles to compute, and the algorithm will compute the corresponding k-th indexes based on the array length and the specified number of quantiles. This will allow users to easily find multiple quantiles without needing to manually calculate the k-th indexes.
+//
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -124,14 +129,36 @@ namespace HPCsharp
             }
         }
         /// <summary>
-        /// In-place Quantile using Radix by the k-th index in an array. Not a stable algorithm.
+        /// In-place Quantile and Partition by the k-th index in an array. For example, if k = 8 for an array of length 10, the 8th element will be in its final sorted position,
+        /// and all elements less than it will be to the left, and all elements greater than it will be to the right.
+        /// Not a stable algorithm. Uses Radix-style algorithm.
+        /// </summary>
+        /// <param name="arrayToBeQuantiled">array that is to be quantiled in place</param>
+        /// <param name="k">Index to be used as the quantiling element. The value of the arrayToBeQuantiled[k] will not be used for quantiling.</param>
+        /// <param name="threshold">for array size smaller than threshold Array.Sort will be used instead of MSD Radix Sort like algorithm</param>
+        public static void QuantileAndPartitionRadix(this uint[] arrayToBeQuantiled, Int32 k, Int32 threshold = 1024)
+        {
+            if (arrayToBeQuantiled == null)
+                throw new ArgumentNullException(nameof(arrayToBeQuantiled));
+            if (arrayToBeQuantiled.Length <= 0)
+                throw new ArgumentOutOfRangeException(nameof(arrayToBeQuantiled.Length), "array length is invalid");
+            if (k < 0 || k >= arrayToBeQuantiled.Length)
+                throw new ArgumentOutOfRangeException(nameof(k), "k is out of array bounds");
+            Int32[] kArray = new Int32[1] { k };
+            int shiftRightAmount = (sizeof(uint) * 8) - Log2ofPowerOfTwoRadix;
+            QuantileRadixMsdUIntInner(arrayToBeQuantiled, 0, arrayToBeQuantiled.Length, shiftRightAmount, kArray, 0, kArray.Length, Array.Sort, threshold);
+        }
+        /// <summary>
+        /// In-place Quantile and Partition by the k-th index in an array. For example, if start = 2 and k = 8 for an array of length 10, the 8th element will be in its final sorted position,
+        /// and the elements 2 to 7 will be less than it, and element 9 will be greater than it. Only elements in the range of start to (start + length - 1) will be rearranged. The rest of the array will not be changed.
+        /// Not a stable algorithm. Uses Radix-style algorithm.
         /// </summary>
         /// <param name="arrayToBeQuantiled">array that is to be quantiled in place</param>
         /// <param name="start">starting index of the subarray</param>
         /// <param name="length">length of the subarray</param>
         /// <param name="k">Index to be used as the quantiling element. The value of the arrayToBeQuantiled[k] will not be used for quantiling.</param>
         /// <param name="threshold">for array size smaller than threshold Array.Sort will be used instead of MSD Radix Sort like algorithm</param>
-        public static void QuantileRadix(this uint[] arrayToBeQuantiled, Int32 start, Int32 length, Int32 k, Int32 threshold = 1024)
+        public static void QuantileAndPartitionRadix(this uint[] arrayToBeQuantiled, Int32 start, Int32 length, Int32 k, Int32 threshold = 1024)
         {
             if (arrayToBeQuantiled == null)
                 throw new ArgumentNullException(nameof(arrayToBeQuantiled));
@@ -148,61 +175,13 @@ namespace HPCsharp
             QuantileRadixMsdUIntInner(arrayToBeQuantiled, start, length, shiftRightAmount, kArray, 0, kArray.Length, Array.Sort, threshold);
         }
         /// <summary>
-        /// In-place Quantile using Radix by the k-th index in an array. Not a stable algorithm.
-        /// </summary>
-        /// <param name="arrayToBeQuantiled">array that is to be quantiled in place</param>
-        /// <param name="k">Index to be used as the quantiling element. The value of the arrayToBeQuantiled[k] will not be used for quantiling.</param>
-        /// <param name="threshold">for array size smaller than threshold Array.Sort will be used instead of MSD Radix Sort like algorithm</param>
-        public static void QuantileRadix(this uint[] arrayToBeQuantiled, Int32 k, Int32 threshold = 1024)
-        {
-            if (arrayToBeQuantiled == null)
-                throw new ArgumentNullException(nameof(arrayToBeQuantiled));
-            if (arrayToBeQuantiled.Length <= 0)
-                throw new ArgumentOutOfRangeException(nameof(arrayToBeQuantiled.Length), "array length is invalid");
-            if (k < 0 || k >= arrayToBeQuantiled.Length)
-                throw new ArgumentOutOfRangeException(nameof(k), "k is out of array bounds");
-            Int32[] kArray = new Int32[1] { k };
-            int shiftRightAmount = (sizeof(uint) * 8) - Log2ofPowerOfTwoRadix;
-            QuantileRadixMsdUIntInner(arrayToBeQuantiled, 0, arrayToBeQuantiled.Length, shiftRightAmount, kArray, 0, kArray.Length, Array.Sort, threshold);
-        }
-        /// <summary>
-        /// In-place Quantile using Radix by the k[]-th indexes in an array. Not a stable algorithm.
-        /// </summary>
-        /// <param name="arrayToBeQuantiled">array that is to be quantiled in place</param>
-        /// <param name="start">starting index of the subarray</param>
-        /// <param name="length">length of the subarray</param>
-        /// <param name="k">array of indexes of the desired elements to be quantiled by, in ascending order</param>
-        /// <param name="threshold">for array size smaller than threshold Array.Sort will be used instead of MSD Radix Sort like algorithm</param>
-        public static void QuantileRadix(this uint[] arrayToBeQuantiled, Int32 start, Int32 length, Int32[] k, Int32 threshold = 1024)
-        {
-            if (arrayToBeQuantiled == null)
-                throw new ArgumentNullException(nameof(arrayToBeQuantiled));
-            if (k == null)
-                throw new ArgumentNullException(nameof(k));
-            if (arrayToBeQuantiled.Length <= 0)
-                throw new ArgumentOutOfRangeException(nameof(arrayToBeQuantiled.Length), "array length or length is invalid");
-            if (k.Length > arrayToBeQuantiled.Length)
-                throw new ArgumentException("k array length cannot be greater than the array to be selected length");
-            if (k.Length == 0 || length <= 0) return;
-            int shiftRightAmount = sizeof(uint) * 8 - Log2ofPowerOfTwoRadix;
-            for (int i = 0; i < k.Length; i++)
-            {
-                if (k[i] < 0 || k[i] >= arrayToBeQuantiled.Length)
-                    throw new ArgumentOutOfRangeException(nameof(k), "k is out of array bounds");
-                int endInclusive = start + length - 1;
-                if (k[i] < start || k[i] > endInclusive)
-                    throw new ArgumentOutOfRangeException(nameof(k), "k is out of start to end bounds");
-            }
-            // Insertion Sort or Heap Sort could be passed in as another base case since they are both in-place
-            QuantileRadixMsdUIntInner(arrayToBeQuantiled, start, length, shiftRightAmount, k, 0, k.Length, Array.Sort, threshold);
-        }
-        /// <summary>
-        /// In-place Quantile using Radix by the k[]-th indexes in an array. Not a stable algorithm.
+        /// In-place Quantile using Radix by the k[]-th indexes in an array.
+        /// Not a stable algorithm. Uses Radix-style algorithm.
         /// </summary>
         /// <param name="arrayToBeQuantiled">array that is to be quantiled in place</param>
         /// <param name="k">array of indexes of the desired elements to be quantiled by, in ascending order</param>
         /// <param name="threshold">for array size smaller than threshold Array.Sort will be used instead of MSD Radix Sort like algorithm</param>
-        public static void QuantileRadix(this uint[] arrayToBeQuantiled, Int32[] k, Int32 threshold = 1024)
+        public static void QuantileAndPartitionRadix(this uint[] arrayToBeQuantiled, Int32[] k, Int32 threshold = 1024)
         {
             if (arrayToBeQuantiled == null)
                 throw new ArgumentNullException(nameof(arrayToBeQuantiled));
@@ -220,6 +199,81 @@ namespace HPCsharp
             }
             int shiftRightAmount = (sizeof(uint) * 8) - Log2ofPowerOfTwoRadix;
             QuantileRadixMsdUIntInner(arrayToBeQuantiled, 0, arrayToBeQuantiled.Length, shiftRightAmount, k, 0, k.Length, Array.Sort, threshold);
+        }
+        /// <summary>
+        /// In-place Quantile by the k[]-th indexes in an array.
+        /// Not a stable algorithm. Uses Radix-style algorithm.
+        /// </summary>
+        /// <param name="arrayToBeQuantiled">array that is to be quantiled in place</param>
+        /// <param name="start">starting index of the subarray</param>
+        /// <param name="length">length of the subarray</param>
+        /// <param name="k">array of indexes of the desired elements to be quantiled by, in ascending order</param>
+        /// <param name="threshold">for array size smaller than threshold Array.Sort will be used instead of MSD Radix Sort like algorithm</param>
+        public static void QuantileAndPartitionRadix(this uint[] arrayToBeQuantiled, Int32 start, Int32 length, Int32[] k, Int32 threshold = 1024)
+        {
+            if (arrayToBeQuantiled == null)
+                throw new ArgumentNullException(nameof(arrayToBeQuantiled));
+            if (k == null)
+                throw new ArgumentNullException(nameof(k));
+            if (arrayToBeQuantiled.Length <= 0)
+                throw new ArgumentOutOfRangeException(nameof(arrayToBeQuantiled.Length), "array length or length is invalid");
+            if (k.Length > arrayToBeQuantiled.Length)
+                throw new ArgumentException("k array length cannot be greater than the array to be selected length");
+            if (k.Length == 0 || length <= 0) return;
+
+            int shiftRightAmount = sizeof(uint) * 8 - Log2ofPowerOfTwoRadix;
+            for (int i = 0; i < k.Length; i++)
+            {
+                if (k[i] < 0 || k[i] >= arrayToBeQuantiled.Length)
+                    throw new ArgumentOutOfRangeException(nameof(k), "k is out of array bounds");
+                int endInclusive = start + length - 1;
+                if (k[i] < start || k[i] > endInclusive)
+                    throw new ArgumentOutOfRangeException(nameof(k), "k is out of start to end bounds");
+            }
+            // Insertion Sort or Heap Sort could be passed in as another base case since they are both in-place
+            QuantileRadixMsdUIntInner(arrayToBeQuantiled, start, length, shiftRightAmount, k, 0, k.Length, Array.Sort, threshold);
+        }
+        /// <summary>
+        /// In-place Quantile. k = 0.0 means the minimum value, k = 1.0 means the maximum value, and k = 0.5 means the median value.
+        /// Not a stable algorithm. Uses Radix-style algorithm.
+        /// </summary>
+        /// <param name="arrayToBeQuantiled">array that is to be quantiled in place</param>
+        /// <param name="k">quantile value between 0.0 and 1.0</param>
+        public static uint QuantileRadix(this uint[] arrayToBeQuantiled, double k)
+        {
+            if (arrayToBeQuantiled == null)
+                throw new ArgumentNullException(nameof(arrayToBeQuantiled));
+            if (arrayToBeQuantiled.Length <= 0)
+                throw new ArgumentOutOfRangeException(nameof(arrayToBeQuantiled.Length), "array length is invalid");
+            if (k < 0.0 || k > 1.0)
+                throw new ArgumentOutOfRangeException(nameof(k), "k is out of bounds. k must be between 0.0 and 1.0");
+
+            int k_integer = (int)Math.Round(k * (arrayToBeQuantiled.Length - 1));
+            return SelectRadix(arrayToBeQuantiled, k_integer);
+        }
+        /// <summary>
+        /// In-place Quantile. k = 0.0 means the minimum value, k = 1.0 means the maximum value, and k = 0.5 means the median value.
+        /// Not a stable algorithm. Uses Radix-style algorithm.
+        /// </summary>
+        /// <param name="arrayToBeQuantiled">array that is to be quantiled in place</param>
+        /// <param name="k">an array of quantile values between 0.0 and 1.0</param>
+        public static uint[] QuantileRadix(this uint[] arrayToBeQuantiled, double[] k)
+        {
+            if (arrayToBeQuantiled == null)
+                throw new ArgumentNullException(nameof(arrayToBeQuantiled));
+            if (arrayToBeQuantiled.Length <= 0)
+                throw new ArgumentOutOfRangeException(nameof(arrayToBeQuantiled.Length), "array length is invalid");
+            if (k == null)
+                throw new ArgumentNullException(nameof(k));
+            uint[] result = new uint[k.Length];
+            int[] k_integer = new int[k.Length];
+            for (int i = 0; i < k.Length; i++)
+            {
+                if (k[i] < 0.0 || k[i] > 1.0)
+                    throw new ArgumentOutOfRangeException(nameof(k), "k is out of bounds. k must be between 0.0 and 1.0");
+                k_integer[i] = (int)Math.Round(k[i] * (arrayToBeQuantiled.Length - 1));
+            }
+            return SelectRadix(arrayToBeQuantiled, k_integer);
         }
     }
 }
