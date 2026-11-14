@@ -33,6 +33,8 @@ Priority Queue | 2 | 15 | | | :heavy_check_mark: | |
 Partition | 2 | 4 | | | | | 
 Partition (Radix) | 1 | 4 | | | | | 
 Quicksort | 5 | 9 | | :heavy_check_mark: | :heavy_check_mark: | | 
+Quantile (Radix) | 1 | 2 | | | :heavy_check_mark: | | 
+Quantile with Partition (Radix) | 1 | 4 | | | :heavy_check_mark: | | 
 [Radix Sort (LSD)](#LSD-Radix-Sort) | 6 | 40 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Numeric arrays, user defined types, Stable
 Radix Sort (MSD) | 4 | 24| :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Numeric arrays, user defined types, In-place
 Selection | 4 | 6 | | | :heavy_check_mark: | | 
@@ -42,7 +44,7 @@ Suffix Sum | 1 | 1 | | | :heavy_check_mark: | |
 [Standard Deviation](#Standard-Deviation) | 7 | 12 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Avoids arithmetic overflow exception
 [Sum](#Better-Sum-in-Many-Ways) | 7 | 214 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Numeric arrays. [Better in many ways](https://duvanenko.tech.blog/2019/04/23/better-sum-in-c/)
 Swap | 4 | 4 | | | :heavy_check_mark: | | Generic swap variations
-Unique | 2 | 5 | | :heavy_check_mark: | :heavy_check_mark: | | Removed duplicates from a sorted array
+Unique | 2 | 5 | | :heavy_check_mark: | :heavy_check_mark: | | Removes duplicates from a sorted array
 [Zero Array Detect](#Zero-Array-Detect) | 3 | 13 | :heavy_check_mark: | | :heavy_check_mark: | | Detect if byte array is all zeroes 
 
 \* Number of different algorithms\
