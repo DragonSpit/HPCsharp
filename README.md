@@ -14,7 +14,7 @@ Give us feedback and let us know where else could use additional performance.
 [Block Swap](#Block-Swap) | 4 | 5 | | | :heavy_check_mark: | | Generic
 [Parallel .ToArray()](#Parallel-Copy) | 1 | 11 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | List.ToArray() and Array.Copy() parallel generic
 [Counting Sort](#Counting-Sort) | 3 | 14 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | byte, ushort, sbyte, short arrays. Ludicrous speed!
-DeDuplicate | 1 | 1 | | | :heavy_check_mark: | | 
+DeDuplicate | 2 | 5 | | :heavy_check_mark: | :heavy_check_mark: | | Removes duplicates from an unsorted array
 [Divide-and-Conquer](#Divide-and-Conquer) | 2 | 4 | | :heavy_check_mark: | :heavy_check_mark: | | Generic serial and parallel abstraction
 Fill | 4 | 10 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Numeric arrays
 Heap Sort | 1 | 2 | | | :heavy_check_mark: | |
@@ -42,7 +42,7 @@ Suffix Sum | 1 | 1 | | | :heavy_check_mark: | |
 [Standard Deviation](#Standard-Deviation) | 7 | 12 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Avoids arithmetic overflow exception
 [Sum](#Better-Sum-in-Many-Ways) | 7 | 214 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Numeric arrays. [Better in many ways](https://duvanenko.tech.blog/2019/04/23/better-sum-in-c/)
 Swap | 4 | 4 | | | :heavy_check_mark: | | Generic swap variations
-Unique | 1 | 1 | | | :heavy_check_mark: | | 
+Unique | 2 | 5 | | :heavy_check_mark: | :heavy_check_mark: | | Removed duplicates from a sorted array
 [Zero Array Detect](#Zero-Array-Detect) | 3 | 13 | :heavy_check_mark: | | :heavy_check_mark: | | Detect if byte array is all zeroes 
 
 \* Number of different algorithms\
@@ -53,7 +53,7 @@ Usage examples are provided in the HPCsharpExamples directory, which has a Visua
 To get the maximum performance make sure to target x64 processor architecture for the Release build in VisualStudio, increasing performance by as much as 50%.
 
 ## Book
-HPCsharp has a [book](https://www.amazon.com/Practical-Parallel-Algorithms-Sorting-Multicore-ebook/dp/B0C3TZPRKZ/ref=sr_1_1?crid=3S9POH1Z7TYEP&keywords=duvanenko&qid=1702869537&sprefix=duvanenko%2Caps%2C121&sr=8-1) dedicated to Parallel Algorithm implementations within.
+HPCsharp has an [ebook](https://www.amazon.com/Practical-Parallel-Algorithms-Sorting-Multicore-ebook/dp/B0C3TZPRKZ/ref=sr_1_1?crid=3S9POH1Z7TYEP&keywords=duvanenko&qid=1702869537&sprefix=duvanenko%2Caps%2C121&sr=8-1) dedicated to Parallel Algorithm implementations within.
 
 ## Benchmarking
 The first time you call a function that is implemented using SIMD/SSE instructions, C# just-in-time (JIT) compiler takes the time to compile and optimize
