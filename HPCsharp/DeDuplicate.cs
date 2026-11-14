@@ -153,7 +153,7 @@ namespace HPCsharp
         /// </summary>
         /// <param name="arrayToDeDup">array that is to be deduplicated in place</param>
         /// <returns>The number of unique elements in the array</returns>
-        public static int DeDuplicateNotInPlace(this uint[] arrayToDeDup)
+        public static int DeDuplicateNotInPlacePar(this uint[] arrayToDeDup)
         {
             HPCsharp.ParallelAlgorithm.SortRadixPar(arrayToDeDup);
             return HPCsharp.ParallelAlgorithm.UniqueParInternal(arrayToDeDup, 0, arrayToDeDup.Length - 1, 64 * 1024);
