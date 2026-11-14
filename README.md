@@ -14,7 +14,7 @@ Give us feedback and let us know where else could use additional performance.
 [Block Swap](#Block-Swap) | 4 | 5 | | | :heavy_check_mark: | | Generic
 [Parallel .ToArray()](#Parallel-Copy) | 1 | 11 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | List.ToArray() and Array.Copy() parallel generic
 [Counting Sort](#Counting-Sort) | 3 | 14 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | byte, ushort, sbyte, short arrays. Ludicrous speed!
-DeDuplicate | 2 | 5 | | :heavy_check_mark: | :heavy_check_mark: | | Removes duplicates from an unsorted array
+DeDuplicate (Radix) | 2 | 5 | | :heavy_check_mark: | :heavy_check_mark: | | Removes duplicates from an unsorted array
 [Divide-and-Conquer](#Divide-and-Conquer) | 2 | 4 | | :heavy_check_mark: | :heavy_check_mark: | | Generic serial and parallel abstraction
 Fill | 4 | 10 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | | Numeric arrays
 Heap Sort | 1 | 2 | | | :heavy_check_mark: | |
