@@ -24,7 +24,7 @@ namespace HPCsharp
         /// <param name="k">index of the desired element</param>
         /// <param name="randSeed">Seed for the random number generator. Negative value makes random not-repeatable.</param>
         /// <returns>returns the k-th element of the array</returns>
-        private static int QuickSelectRandom(this int[] arr, int l, int r, int k, int randSeed = -1)
+        public static int QuickSelectRandom(this int[] arr, int l, int r, int k, int randSeed = -1)
         {
             if (arr == null)
                 throw new ArgumentNullException(nameof(arr));
@@ -46,7 +46,7 @@ namespace HPCsharp
         /// <param name="k">index of the desired element</param>
         /// <param name="randSeed">Seed for the random number generator. Negative value makes random not-repeatable.</param>
         /// <returns>returns the k-th element of the array</returns>
-        private static int QuickSelectRandom(this int[] arr, int k, int randSeed = -1)
+        public static int QuickSelectRandom(this int[] arr, int k, int randSeed = -1)
         {
             if (arr == null)
                 throw new ArgumentNullException(nameof(arr));
@@ -99,7 +99,7 @@ namespace HPCsharp
         /// <param name="randSeed">Seed for the random number generator. Negative value makes random not-repeatable.</param>
         /// <param name="comparer">comparer used to compare two array elements of type T. Null uses the default comparer.</param>
         /// <returns>returns the k-th element of the array</returns>
-        private static T QuickSelectRandomGeneric<T>(this T[] arr, int l, int r, int k, int randSeed = -1, IComparer<T> comparer = null)
+        public static T QuickSelectRandomGeneric<T>(this T[] arr, int l, int r, int k, int randSeed = -1, IComparer<T> comparer = null)
         {
             if (arr == null)
                 throw new ArgumentNullException(nameof(arr));
@@ -124,7 +124,7 @@ namespace HPCsharp
         /// <param name="randSeed">Seed for the random number generator. Negative value makes random not-repeatable.</param>
         /// <param name="comparer">comparer used to compare two array elements of type T</param>
         /// <returns>returns the k-th element of the array</returns>
-        private static T QuickSelectRandomGeneric<T>(this T[] arr, int k, int randSeed = -1, IComparer<T> comparer = null)
+        public static T QuickSelectRandomGeneric<T>(this T[] arr, int k, int randSeed = -1, IComparer<T> comparer = null)
         {
             if (arr == null)
                 throw new ArgumentNullException(nameof(arr));
@@ -148,7 +148,7 @@ namespace HPCsharp
         /// <param name="randSeed">Seed for the random number generator. Negative value makes random not-repeatable.</param>
         /// <param name="comparer">comparer used to compare two array elements of type T. Null uses teh default comparer.</param>
         /// <returns>returns the k-th element of the array</returns>
-        private static T QuickSelectShuffleGeneric<T>(this T[] arr, int l, int r, int k, int randSeed = -1, IComparer<T> comparer = null)
+        public static T QuickSelectShuffleGeneric<T>(this T[] arr, int l, int r, int k, int randSeed = -1, IComparer<T> comparer = null)
         {
             if (arr == null)
                 throw new ArgumentNullException(nameof(arr));
@@ -179,7 +179,7 @@ namespace HPCsharp
         /// <param name="randSeed">Seed for the random number generator. Negative value makes random not-repeatable.</param>
         /// <param name="comparer">comparer used to compare two array elements of type T</param>
         /// <returns>returns the k-th element of the array</returns>
-        private static T QuickSelectShuffleGeneric<T>(this T[] arr, int k, int randSeed = -1, IComparer<T> comparer = null)
+        public static T QuickSelectShuffleGeneric<T>(this T[] arr, int k, int randSeed = -1, IComparer<T> comparer = null)
         {
             if (arr == null)
                 throw new ArgumentNullException(nameof(arr));
