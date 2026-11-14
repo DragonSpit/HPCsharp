@@ -17,9 +17,9 @@
     <PackageProjectUrl>https://github.com/DragonSpit/HPCsharp</PackageProjectUrl>
     <RepositoryUrl>https://github.com/DragonSpit/HPCsharp</RepositoryUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <AssemblyVersion>3.19.8</AssemblyVersion>
-    <FileVersion>3.19.8</FileVersion>
-    <Version>3.19.8</Version>
+    <AssemblyVersion>3.19.9</AssemblyVersion>
+    <FileVersion>3.19.9</FileVersion>
+    <Version>3.19.9</Version>
     <Platforms>AnyCPU;x64</Platforms>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <Title>High Performance C#</Title>

@@ -175,7 +175,7 @@ namespace HPCsharp
             int last = first + length - 1;
             const uint bitMask = PowerOfTwoRadix - 1;
 
-            var count = HPCsharp.Algorithm.HistogramOneByteComponent(a, first, last, shiftRightAmount);
+            var count = HPCsharp.Algorithm.HistogramOneByteComponentConstantOptimized(a, first, last, shiftRightAmount);
 
             while (shiftRightAmount >= 0)
             {

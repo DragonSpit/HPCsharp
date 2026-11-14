@@ -23,7 +23,7 @@ namespace HPCsharp
             int last = start + length - 1;
             const uint bitMask = PowerOfTwoRadix - 1;
 
-            var count = HPCsharp.Algorithm.HistogramOneByteComponent(a, start, last, shiftRightAmount);
+            var count = HPCsharp.Algorithm.HistogramOneByteComponentConstantOptimized(a, start, last, shiftRightAmount);
 
             var startOfBin = new int[PowerOfTwoRadix + 1];
             var endOfBin = new int[PowerOfTwoRadix];
@@ -266,14 +266,14 @@ namespace HPCsharp
             if (k == null)
                 throw new ArgumentNullException(nameof(k));
             uint[] result = new uint[k.Length];
-            int[] k_integer = new int[k.Length];
+            int[] k_integers = new int[k.Length];
             for (int i = 0; i < k.Length; i++)
             {
                 if (k[i] < 0.0 || k[i] > 1.0)
                     throw new ArgumentOutOfRangeException(nameof(k), "k is out of bounds. k must be between 0.0 and 1.0");
-                k_integer[i] = (int)Math.Round(k[i] * (arrayToBeQuantiled.Length - 1));
+                k_integers[i] = (int)Math.Round(k[i] * (arrayToBeQuantiled.Length - 1));
             }
-            return SelectRadix(arrayToBeQuantiled, k_integer);
+            return SelectRadix(arrayToBeQuantiled, k_integers);
         }
     }
 }

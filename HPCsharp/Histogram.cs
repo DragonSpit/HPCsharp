@@ -1115,15 +1115,37 @@ namespace HPCsharp
             if (inArray == null)
                 throw new ArgumentNullException(nameof(inArray));
             const int numberOfBins = 256;
-            //const ulong byteMask = numberOfBins - 1;
             int[] count = new int[numberOfBins];
 
             for (int current = l; current <= r; current++)
-            {
-                //count[(inArray[current] >> shiftRightAmount) & byteMask]++;
-                count[(byte)(inArray[current] >> shiftRightAmount)]++;          // ?? Which way is faster. Need to look at assembly language listing too
-            }
+                count[(byte)(inArray[current] >> shiftRightAmount)]++;
             return count;
+        }
+
+        public static int[] HistogramOneByteComponentConstantOptimized(uint[] inArray, Int32 l, Int32 r, int shiftRightAmount)
+        {
+            if (inArray == null)
+                throw new ArgumentNullException(nameof(inArray));
+            const int numberOfBins = 256;
+            int[] count0 = new int[numberOfBins];
+            int[] count1 = new int[numberOfBins];
+            int[] count2 = new int[numberOfBins];
+            int[] count3 = new int[numberOfBins];
+            int length = r - l + 1;
+            int lengthDiv4 = length / 4;
+            int current = l;
+            for (int i = 0; i < lengthDiv4; i += 4)
+            {
+                count0[(byte)(inArray[current] >> shiftRightAmount)]++; current++;
+                count1[(byte)(inArray[current] >> shiftRightAmount)]++; current++;
+                count2[(byte)(inArray[current] >> shiftRightAmount)]++; current++;
+                count3[(byte)(inArray[current] >> shiftRightAmount)]++; current++;
+            }
+            for (; current <= r; current++)
+                count0[(byte)(inArray[current] >> shiftRightAmount)]++;
+            for (int i = 0; i < numberOfBins; i++)
+                count0[i] += count1[i] + count2[i] + count3[i];
+            return count0;
         }
 
         public static int[] HistogramOneWordComponent(uint[] inArray, Int32 l, Int32 r, int shiftRightAmount)
