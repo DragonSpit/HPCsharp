@@ -9,7 +9,7 @@ using System.Collections.Generic;
 
 namespace HPCsharp
 {
-    static public partial class Algorithm
+    public static partial class Algorithm
     {
         /// <summary>
         /// Summary:
